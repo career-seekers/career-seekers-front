@@ -46,6 +46,19 @@
             </div>
 
             <div class="field">
+              <label for="parentBirthDate" class="field-label">Дата рождения *</label>
+              <InputMask
+                  id="parentBirthDate"
+                  v-model="parentForm.birthDate"
+                  mask="99.99.9999"
+                  placeholder="дд.мм.гггг"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.parentBirthDate }"
+              />
+              <small v-if="errors.parentBirthDate" class="p-error">{{ errors.parentBirthDate }}</small>
+            </div>
+
+            <div class="field">
               <label for="relationship" class="field-label">Кем приходится? *</label>
               <InputText
                 id="relationship"
@@ -119,16 +132,16 @@
             </div>
 
             <div class="field">
-              <label for="birthDate" class="field-label">Дата рождения *</label>
+              <label for="childBirthDate" class="field-label">Дата рождения *</label>
               <InputMask
-                id="birthDate"
+                id="childBirthDate"
                 v-model="childForm.birthDate"
                 mask="99.99.9999"
                 placeholder="дд.мм.гггг"
                 class="w-full"
-                :class="{ 'p-invalid': errors.birthDate }"
+                :class="{ 'p-invalid': errors.childBirthDate }"
               />
-              <small v-if="errors.birthDate" class="p-error">{{ errors.birthDate }}</small>
+              <small v-if="errors.childBirthDate" class="p-error">{{ errors.childBirthDate }}</small>
             </div>
 
             <div class="field">
@@ -179,6 +192,18 @@
             </div>
 
             <div class="field">
+              <label for="schoolName" class="field-label">Название ОУ *</label>
+              <InputText
+                  id="schoolName"
+                  v-model="childForm.schoolName"
+                  placeholder="Введите полное название учреждения"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.schoolName }"
+              />
+              <small v-if="errors.schoolName" class="p-error">{{ errors.schoolName }}</small>
+            </div>
+
+            <div class="field">
               <label for="grade" class="field-label">Класс обучения *</label>
               <Dropdown
                 id="grade"
@@ -191,6 +216,23 @@
                 optionValue="value"
               />
               <small v-if="errors.grade" class="p-error">{{ errors.grade }}</small>
+            </div>
+
+            <div class="field">
+              <label for="schoolCertificate" class="field-label">Скан справки из ОУ *</label>
+              <FileUpload
+                  id="schoolCertificate"
+                  mode="basic"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  :maxFileSize="10000000"
+                  chooseLabel="Выберите файл"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.schoolCertificate }"
+                  @select="onSchoolCertificateSelect"
+                  @remove="onSchoolCertificateRemove"
+              />
+              <small v-if="errors.schoolCertificate" class="p-error">{{ errors.schoolCertificate }}</small>
+              <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
             </div>
 
             <div class="field">
@@ -209,19 +251,19 @@
             </div>
 
             <div class="field">
-              <label for="schoolCertificate" class="field-label">Скан справки из ОУ *</label>
+              <label for="platformCertificate" class="field-label">Скан справки из площадки подготовки *</label>
               <FileUpload
-                id="schoolCertificate"
+                id="platformCertificate"
                 mode="basic"
                 accept=".pdf,.jpg,.jpeg,.png"
                 :maxFileSize="10000000"
                 chooseLabel="Выберите файл"
                 class="w-full"
-                :class="{ 'p-invalid': errors.schoolCertificate }"
-                @select="onSchoolCertificateSelect"
-                @remove="onSchoolCertificateRemove"
+                :class="{ 'p-invalid': errors.platformCertificate }"
+                @select="onPlatformCertificateSelect"
+                @remove="onPlatformCertificateRemove"
               />
-              <small v-if="errors.schoolCertificate" class="p-error">{{ errors.schoolCertificate }}</small>
+              <small v-if="errors.platformCertificate" class="p-error">{{ errors.platformCertificate }}</small>
               <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
             </div>
           </div>
@@ -354,10 +396,12 @@
     <Dialog v-model:visible="showPrivacyDialog" modal header="Политика конфиденциальности" :style="{ width: '90vw', maxWidth: '500px' }" class="privacy-dialog">
       <p>Здесь будет политика конфиденциальности...</p>
     </Dialog>
+
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import InputText from 'primevue/inputtext'
 import InputMask from 'primevue/inputmask'
 import Password from 'primevue/password'
@@ -366,10 +410,15 @@ import FileUpload from 'primevue/fileupload'
 import Checkbox from 'primevue/checkbox'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
+import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
+import ToastPopup from "@/components/ToastPopup.vue";
+import {UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
+
 
 export default {
   name: 'ParentRegisterView',
   components: {
+    ToastPopup,
     InputText,
     InputMask,
     Password,
@@ -388,6 +437,7 @@ export default {
       
       parentForm: {
         fullName: '',
+        birthDate: '',
         relationship: '',
         phone: '',
         email: '',
@@ -400,9 +450,11 @@ export default {
         birthCertificate: null,
         snilsNumber: '',
         snilsScan: null,
+        schoolName: null,
         grade: null,
         platform: null,
-        schoolCertificate: null
+        schoolCertificate: null,
+        platformCertificate: null
       },
       
       mentorForm: {
@@ -413,7 +465,12 @@ export default {
         isParentMentor: false
       },
       
-      errors: {},
+      errors: {
+        toastPopup: {
+          title: '',
+          message: ''
+        }
+      },
       
       gradeOptions: [
         { label: '1 класс', value: '1' },
@@ -424,9 +481,6 @@ export default {
         { label: '6 класс', value: '6' },
         { label: '7 класс', value: '7' },
         { label: '8 класс', value: '8' },
-        { label: '9 класс', value: '9' },
-        { label: '10 класс', value: '10' },
-        { label: '11 класс', value: '11' }
       ],
       
       platformOptions: [
@@ -467,6 +521,11 @@ export default {
           isValid = false
         }
 
+        if (!this.parentForm.birthDate.trim()) {
+          this.errors.parentBirthDate = 'Дата рождения обязательна'
+          isValid = false
+        }
+
         if (!this.parentForm.phone) {
           this.errors.parentPhone = 'Телефон обязателен'
           isValid = false
@@ -497,7 +556,7 @@ export default {
         }
 
         if (!this.childForm.birthDate) {
-          this.errors.birthDate = 'Дата рождения обязательна'
+          this.errors.childBirthDate = 'Дата рождения обязательна'
           isValid = false
         } else if (!/^\d{2}\.\d{2}\.\d{4}$/.test(this.childForm.birthDate)) {
           this.errors.birthDate = 'Введите дату в формате дд.мм.гггг'
@@ -524,6 +583,11 @@ export default {
           isValid = false
         }
 
+        if (!this.childForm.schoolName) {
+          this.errors.schoolName = 'Название учреждения обязательно'
+          isValid = false
+        }
+
         if (!this.childForm.platform) {
           this.errors.platform = 'Выберите площадку подготовки'
           isValid = false
@@ -531,6 +595,11 @@ export default {
 
         if (!this.childForm.schoolCertificate) {
           this.errors.schoolCertificate = 'Необходимо загрузить справку из ОУ'
+          isValid = false
+        }
+
+        if (!this.childForm.platformCertificate) {
+          this.errors.platformCertificate = 'Необходимо загрузить справку из площадки подготовки'
           isValid = false
         }
       }
@@ -614,6 +683,15 @@ export default {
       this.errors.schoolCertificate = ''
     },
 
+    onPlatformCertificateSelect(event) {
+      this.handleFileSelect(event, 'platformCertificate')
+    },
+
+    onPlatformCertificateRemove() {
+      this.childForm.platformCertificate = null
+      this.errors.platformCertificate = ''
+    },
+
     handleFileSelect(event, fieldName) {
       const file = event.files[0]
       if (file) {
@@ -637,29 +715,62 @@ export default {
       }
     },
 
-    async handleSubmit() {
+    handleSubmit: async function () {
       if (!this.validateStep(3)) return
 
       this.isLoading = true
-      
+      this.errors.toastPopup = {
+        title: '',
+        message: ''
+      }
+
       try {
         const registrationData = {
           parent: this.parentForm,
           child: this.childForm,
           mentor: this.mentorForm
         }
-        
+        const authResolver = new AuthResolver()
+
         console.log('Данные для регистрации родителя:', registrationData)
-        
-        await new Promise(resolve => setTimeout(resolve, 2000))
-        
-        localStorage.setItem('userEmail', this.parentForm.email)
-        
-        this.$router.push({
-          path: '/email-confirmation',
-          query: { email: this.parentForm.email }
+
+        const response = await authResolver.preRegister({
+          email: this.parentForm.email,
+          mobileNumber: this.parentForm.mobileNumber,
         })
-        
+
+        if (response.status !== 200) {
+          this.errors.toastPopup = {
+            title: `Ошибка #${response.status}`,
+            message: response.message
+          }
+        } else {
+          const registrationDto: UserWithChildRegistrationDto = {
+            verificationCode: "",
+            lastName: this.parentForm.fullName.split(' ')[0],
+            firstName: this.parentForm.fullName.split(' ')[1],
+            patronymic: this.parentForm.fullName.split(' ')[2],
+            dateOfBirth: this.parentForm.birthDate,
+            email: this.parentForm.email,
+            mobileNumber: this.parentForm.phone,
+            password: this.mentorForm.password,
+            role: "USER",
+            uuid: "",
+            mentorEqualsUser: this.mentorForm.isParentMentor,
+            childLastName: this.childForm.fullName.split(' ')[0],
+            childFirstName: this.childForm.fullName.split(' ')[1],
+            childPatronymic: this.childForm.fullName.split(' ')[2],
+            childDateOfBirth: this.childForm.birthDate,
+            mentorId: this.mentorForm.isParentMentor ? null : 0,
+          }
+          localStorage.setItem("dataToVerify", JSON.stringify(registrationDto))
+          localStorage.setItem("filesToVerify", JSON.stringify())
+          this.$router.push({
+            path: '/email-confirmation',
+            query: {email: this.parentForm.email}
+          })
+        }
+
       } catch (error) {
         console.error('Ошибка регистрации:', error)
       } finally {

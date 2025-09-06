@@ -28,11 +28,6 @@ export class AuthResolver {
                 "POST",
                 data,
                 null
-            ).catch(e => {
-                return {
-                    status: e.name,
-                    message: e.message,
-                }
-            })
+            )
     }
 }

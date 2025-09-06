@@ -1,11 +1,13 @@
 <script setup lang="ts">
 
 import Button from "primevue/button";
-import {computed, ref, watch} from "vue";
+import {ref, watch} from "vue";
 
 const props = defineProps<{
-  title: string;
-  message: string;
+  content: {
+    title: string;
+    message: string;
+  }
 }>()
 
 const showToast = ref(true)
@@ -21,14 +23,14 @@ watch(() => props.message, () => {
 </script>
 
 <template>
-  <div v-if="showToast && title != '' && message != ''" class="toast">
+  <div v-if="showToast && content.title != '' && content.message != ''" class="toast">
     <div class="toast-content">
       <div class="toast-icon">
         <i class="pi pi-info-circle"></i>
       </div>
       <div class="toast-text">
-        <h4 class="toast-title">{{ title }}</h4>
-        <p class="toast-message">{{ message }}</p>
+        <h4 class="toast-title">{{ content.title }}</h4>
+        <p class="toast-message">{{ content.message }}</p>
       </div>
       <button class="toast-close" @click="closeToast">
         <i class="pi pi-times"></i>

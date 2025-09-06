@@ -79,8 +79,7 @@
       </div>
     </div>
     <ToastPopup
-        :title="errors.toastPopup.title"
-        :message="errors.toastPopup.message"
+        :content="errors.toastPopup"
     />
   </div>
 </template>

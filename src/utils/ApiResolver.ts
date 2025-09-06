@@ -36,9 +36,15 @@ class ApiResolverUtil {
             return response.data
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                throw error;
+                return {
+                    status: error.name,
+                    message: error.message,
+                }
             } else {
-                throw new Error("Неизвестная ошибка");
+                return {
+                    status: "???",
+                    message: "Неизвестная ошибка",
+                }
             }
         }
     }
