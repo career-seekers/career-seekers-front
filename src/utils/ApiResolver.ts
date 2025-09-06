@@ -36,9 +36,10 @@ class ApiResolverUtil {
             return response.data
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
+                console.log(error)
                 return {
-                    status: error.name,
-                    message: error.message,
+                    status: error.response?.data.status,
+                    message: error.response.data.message,
                 }
             } else {
                 return {
