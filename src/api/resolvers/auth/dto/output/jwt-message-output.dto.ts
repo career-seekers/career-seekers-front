@@ -1,4 +1,4 @@
-export interface LoginMessageOutputDto {
+export interface JWTMessageOutputDto {
     accessToken: string;
     refreshToken: string;
 }
