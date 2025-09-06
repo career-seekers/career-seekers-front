@@ -52,9 +52,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
+import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
+import {v4 as generateUuidV4} from 'uuid'
+import {fillUserState} from "../../../state/UserState";
 
 export default {
   name: 'EmailConfirmationView',
@@ -70,8 +74,15 @@ export default {
         code: ''
       },
       errors: {
+        toastPopup: {
+          title: '',
+          message: ''
+        },
         code: ''
-      }
+      },
+      authResolver: new AuthResolver(),
+      registrationDto: JSON.parse(localStorage.getItem("dataToVerify")) as
+          UserRegistrationDto | UserWithChildRegistrationDto
     }
   },
   mounted() {
@@ -104,20 +115,28 @@ export default {
       if (!this.validateForm()) return
 
       this.isLoading = true
-      
+      this.errors.toastPopup = {
+        title: '',
+        message: '',
+      }
+
       try {
-        // Здесь будет логика подтверждения кода
-        console.log('Код подтверждения:', this.confirmationForm.code)
-        console.log('Email:', this.userEmail)
-        
-        // Имитация запроса
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        
-        // После успешного подтверждения перенаправляем на страницу входа
-        this.$router.push('/login')
-        
+        this.registrationDto.uuid = generateUuidV4()
+        this.registrationDto.verificationCode = this.confirmationForm.code
+        const response = await this.authResolver.register(this.registrationDto)
+        if (typeof response.message === "string") {
+          this.errors.toastPopup = {
+            title: `Ошибка #${response.status}`,
+            message: response.message
+          }
+        } else {
+          fillUserState(response.message.accessToken)
+          localStorage.removeItem("dataToVerify")
+          localStorage.setItem("accessToken", response.message.accessToken)
+          localStorage.setItem("refreshToken", response.message.refreshToken)
+          this.$router.push('/login')
+        }
       } catch (error) {
-        console.error('Ошибка подтверждения:', error)
         this.errors.code = 'Неверный код подтверждения'
       } finally {
         this.isLoading = false
@@ -126,15 +145,22 @@ export default {
 
     async resendCode() {
       try {
-        // Здесь будет логика повторной отправки кода
-        console.log('Повторная отправка кода на:', this.userEmail)
-        
-        // Имитация запроса
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // Показываем уведомление (можно добавить Toast)
-        alert('Код подтверждения отправлен повторно')
-        
+        const response = await this.authResolver.preRegister({
+          email: this.userEmail,
+          mobileNumber: this.registrationDto.mobileNumber
+        })
+
+        if (response.status !== 200) {
+          this.errors.toastPopup = {
+            title: `Ошибка #${response.status}`,
+            message: response.message
+          }
+        } else {
+          this.errors.toastPopup = {
+            title: "Код отправлен",
+            message: "Проверьте почтовый ящик"
+          }
+        }
       } catch (error) {
         console.error('Ошибка повторной отправки:', error)
       }

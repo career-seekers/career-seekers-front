@@ -7,7 +7,7 @@ import {JWTMessageOutputDto} from "./dto/output/jwt-message-output.dto";
 import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
 
 export class AuthResolver {
-    private apiResolver = new ApiResolver()
+    private apiResolver = new ApiResolver("users-service/v1/auth")
     private router = useRouter()
 
     public async register(data: UserRegistrationDto | UserWithChildRegistrationDto){
@@ -15,7 +15,7 @@ export class AuthResolver {
             .apiResolver
             .request<UserRegistrationDto | UserWithChildRegistrationDto,
                 CommonOutputDto<JWTMessageOutputDto | string>>(
-                    "users-service/v1/auth/register",
+                    "register",
                 "POST",
                 data,
                 null
@@ -26,7 +26,7 @@ export class AuthResolver {
         return await this
             .apiResolver
             .request<PreRegisterInputDto, CommonOutputDto<string>>(
-                "users-service/v1/auth/preRegister",
+                "preRegister",
                 "POST",
                 data,
                 null
@@ -37,7 +37,7 @@ export class AuthResolver {
         return await this
             .apiResolver
             .request<LoginInputDto, CommonOutputDto<JWTMessageOutputDto | string>>(
-                "users-service/v1/auth/login",
+                "login",
                 "POST",
                 data,
                 null

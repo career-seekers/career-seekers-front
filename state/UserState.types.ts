@@ -8,7 +8,7 @@ export interface UserStateInterface {
     mobileNumber: string | undefined;
     password: string | undefined;
     role: Roles | undefined;
-    avatarId: number | undefined;
+    avatarId: number | null;
 }
 
 export type Roles = {

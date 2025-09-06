@@ -168,13 +168,9 @@ export default {
           message: response.message
         }
       } else {
-
+        this.$router.push('/dashboard')
       }
-
       this.isLoading = false
-        
-        // После успешной авторизации перенаправляем пользователя
-        // this.$router.push('/dashboard')
     },
 
     toggleRegisterOptions() {
@@ -184,6 +180,9 @@ export default {
     closeRegisterOptions() {
       this.showRegisterOptions = false
     }
+  },
+  mounted() {
+    // check tokens
   }
 }
 </script>
