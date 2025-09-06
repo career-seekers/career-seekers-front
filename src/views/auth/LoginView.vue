@@ -78,6 +78,10 @@
         </form>
       </div>
     </div>
+    <ToastPopup
+        :title="errors.toastPopup.title"
+        :message="errors.toastPopup.message"
+    />
   </div>
 </template>
 
@@ -87,10 +91,12 @@ import Password from 'primevue/password'
 import Button from 'primevue/button'
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
 import {v4 as generateUuidV4} from 'uuid'
+import ToastPopup from "@/components/ToastPopup.vue";
 
 export default {
   name: 'LoginView',
   components: {
+    ToastPopup,
     InputText,
     Password,
     Button
@@ -105,7 +111,11 @@ export default {
       },
       errors: {
         email: '',
-        password: ''
+        password: '',
+        toastPopup: {
+          title: "",
+          message: ""
+        }
       }
     }
   },
@@ -141,31 +151,31 @@ export default {
       if (!this.validateForm()) return
 
       this.isLoading = true
-      
-      try {
-        const authResolver = new AuthResolver()
-        const response = await authResolver.login({
-          email: this.loginForm.email,
-          password: this.loginForm.password,
-          uuid: generateUuidV4()
-        })
+      this.errors.toastPopup = {
+        title: "",
+        message: ""
+      }
 
-        if (typeof response.message === "string") {
-        } else {
+      const authResolver = new AuthResolver()
+      const response = await authResolver.login({
+        email: this.loginForm.email,
+        password: this.loginForm.password,
+        uuid: generateUuidV4()
+      })
 
+      if (typeof response.message === "string") {
+        this.errors.toastPopup = {
+          title: `Ошибка #${response.status}`,
+          message: response.message
         }
-        
-        // Имитация запроса
-        await new Promise(resolve => setTimeout(resolve, 1000))
+      } else {
+
+      }
+
+      this.isLoading = false
         
         // После успешной авторизации перенаправляем пользователя
         // this.$router.push('/dashboard')
-        
-      } catch (error) {
-        console.error('Ошибка авторизации:', error)
-      } finally {
-        this.isLoading = false
-      }
     },
 
     toggleRegisterOptions() {
