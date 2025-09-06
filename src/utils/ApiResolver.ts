@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
-import apiConf from "../api/apiConf.ts";
+import apiConf from "../api/api.conf";
+
 
 interface RequestConfig<T> extends AxiosRequestConfig {
     data?: T;

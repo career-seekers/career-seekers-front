@@ -85,6 +85,8 @@
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
+import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
+import {v4 as generateUuidV4} from 'uuid'
 
 export default {
   name: 'LoginView',
@@ -141,8 +143,17 @@ export default {
       this.isLoading = true
       
       try {
-        // Здесь будет логика авторизации
-        console.log('Данные для входа:', this.loginForm)
+        const authResolver = new AuthResolver()
+        const response = await authResolver.login({
+          email: this.loginForm.email,
+          password: this.loginForm.password,
+          uuid: generateUuidV4()
+        })
+
+        if (typeof response.message === "string") {
+        } else {
+
+        }
         
         // Имитация запроса
         await new Promise(resolve => setTimeout(resolve, 1000))
