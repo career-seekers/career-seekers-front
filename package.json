@@ -6,17 +6,21 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "husky"
   },
   "dependencies": {
-    "vue": "^3.4.0",
-    "vue-router": "^4.2.5",
-    "primevue": "^3.50.0",
+    "primeflex": "^3.3.1",
     "primeicons": "^6.0.1",
-    "primeflex": "^3.3.1"
+    "primevue": "^3.50.0",
+    "vue": "^3.4.0",
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@vitejs/plugin-vue": "^4.5.2",
+    "husky": "^9.1.7",
     "vite": "^5.0.8"
   }
 }
