@@ -8,7 +8,6 @@ import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers
 
 export class AuthResolver {
     private apiResolver = new ApiResolver("users-service/v1/auth")
-    private router = useRouter()
 
     public async register(data: UserRegistrationDto | UserWithChildRegistrationDto){
         return await this

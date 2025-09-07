@@ -138,8 +138,8 @@ export default {
         return false
       }
 
-      if (this.loginForm.password.length < 6) {
-        this.errors.password = 'Пароль должен содержать минимум 6 символов'
+      if (this.loginForm.password.length < 5) {
+        this.errors.password = 'Пароль должен содержать минимум 5 символов'
         return false
       }
 
