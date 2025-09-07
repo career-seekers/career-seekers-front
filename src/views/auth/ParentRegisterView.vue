@@ -737,15 +737,7 @@ export default {
       }
 
       try {
-        const registrationData = {
-          parent: this.parentForm,
-          child: this.childForm,
-          mentor: this.mentorForm
-        }
         const authResolver = new AuthResolver()
-
-        console.log('Данные для регистрации родителя:', registrationData)
-
         const response = await authResolver.preRegister({
           email: this.parentForm.email,
           mobileNumber: this.parentForm.phone,
