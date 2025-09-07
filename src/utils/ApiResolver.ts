@@ -39,7 +39,7 @@ class ApiResolverUtil {
                 console.log(error)
                 return {
                     status: error.response?.data.status,
-                    message: error.response.data.message,
+                    message: error.response.data.message.split(':')[1],
                 }
             } else {
                 return {

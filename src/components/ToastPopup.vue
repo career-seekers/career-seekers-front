@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import Button from "primevue/button";
-import {ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 
 const props = defineProps<{
   content: {
@@ -10,16 +10,11 @@ const props = defineProps<{
   }
 }>()
 
+const propCopy = computed(() => ({...props.content}))
 const showToast = ref(true)
-
 const closeToast = () => showToast.value = false
 
-watch(() => props.title, () => {
-  showToast.value = true
-})
-watch(() => props.message, () => {
-  showToast.value = true
-})
+watch(() => propCopy.value, () => showToast.value = true )
 </script>
 
 <template>

@@ -413,6 +413,7 @@ import Dropdown from 'primevue/dropdown'
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
 import {UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
+import {Roles} from "../../../state/UserState.types";
 
 
 export default {
@@ -496,6 +497,11 @@ export default {
       ]
     }
   },
+  computed: {
+    mobileNumberFormatted() {
+      return this.parentForm.phone.replaceAll(/\s|-|\(|\)|/g, '')
+    }
+  },
   methods: {
     validateEmail() {
       if (this.parentForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.parentForm.email)) {
@@ -503,6 +509,12 @@ export default {
       } else {
         this.errors.parentEmail = ''
       }
+    },
+
+    formatBirthDate(birthDate) {
+      const [day, month, year] = birthDate.split('.');
+      const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
+      return date.toISOString()
     },
 
     validateStep(step) {
@@ -736,7 +748,7 @@ export default {
 
         const response = await authResolver.preRegister({
           email: this.parentForm.email,
-          mobileNumber: this.parentForm.mobileNumber,
+          mobileNumber: this.parentForm.phone,
         })
 
         if (response.status !== 200) {
@@ -750,17 +762,17 @@ export default {
             lastName: this.parentForm.fullName.split(' ')[0],
             firstName: this.parentForm.fullName.split(' ')[1],
             patronymic: this.parentForm.fullName.split(' ')[2],
-            dateOfBirth: this.parentForm.birthDate,
+            dateOfBirth: this.formatBirthDate(this.parentForm.birthDate),
             email: this.parentForm.email,
-            mobileNumber: this.parentForm.phone,
+            mobileNumber: this.mobileNumberFormatted,
             password: this.mentorForm.password,
-            role: "USER",
+            role: Roles.USER,
             uuid: "",
             mentorEqualsUser: this.mentorForm.isParentMentor,
             childLastName: this.childForm.fullName.split(' ')[0],
             childFirstName: this.childForm.fullName.split(' ')[1],
             childPatronymic: this.childForm.fullName.split(' ')[2],
-            childDateOfBirth: this.childForm.birthDate,
+            childDateOfBirth: this.formatBirthDate(this.childForm.birthDate),
             mentorId: this.mentorForm.isParentMentor ? null : 0,
           }
           localStorage.setItem("dataToVerify", JSON.stringify(registrationDto))

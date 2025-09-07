@@ -11,9 +11,9 @@ export interface UserStateInterface {
     avatarId: number | null;
 }
 
-export type Roles = {
-    USER: "USER",
-    ADMIN: "ADMIN",
-    MENTOR: "MENTOR",
-    EXPERT: "EXPERT"
+export enum Roles {
+    USER = "USER",
+    ADMIN = "ADMIN",
+    MENTOR = "MENTOR",
+    EXPERT = "EXPERT"
 }

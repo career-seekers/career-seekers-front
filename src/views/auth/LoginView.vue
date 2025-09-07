@@ -91,6 +91,9 @@ import Button from 'primevue/button'
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
 import {v4 as generateUuidV4} from 'uuid'
 import ToastPopup from "@/components/ToastPopup.vue";
+import {fillUserState, UserState} from "../../../state/UserState";
+import router from "@/router/index.js";
+import {Roles} from "../../../state/UserState.types";
 
 export default {
   name: 'LoginView',
@@ -168,7 +171,9 @@ export default {
           message: response.message
         }
       } else {
-        this.$router.push('/dashboard')
+        localStorage.setItem("access_token", response.message.accessToken)
+        localStorage.setItem("refresh_token", response.message.refreshToken)
+        this.errors.toastPopup = await fillUserState()
       }
       this.isLoading = false
     },
@@ -179,10 +184,29 @@ export default {
 
     closeRegisterOptions() {
       this.showRegisterOptions = false
-    }
+    },
   },
-  mounted() {
-    // check tokens
+  async mounted() {
+    if (localStorage.getItem("access_token") &&
+        localStorage.getItem("refresh_token")) {
+      this.errors.toastPopup = await fillUserState()
+      if (!this.errors.toastPopup) {
+        switch (UserState.role) {
+          case Roles.USER:
+            await router.push("/parent")
+            break
+          case Roles.MENTOR:
+            await router.push("/curator")
+            break
+          case Roles.EXPERT:
+            await router.push("/expert")
+            break
+          default:
+            await router.push("/expert")
+            break
+        }
+      }
+    }
   }
 }
 </script>

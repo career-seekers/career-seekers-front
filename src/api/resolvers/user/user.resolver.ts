@@ -1,5 +1,6 @@
 import ApiResolver from "@/utils/ApiResolver";
 import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
+import {CommonOutputDto} from "@/api/dto/common-output.dto";
 
 export class UserResolver {
     private apiResolver = new ApiResolver("users-service/v1/users");
@@ -8,7 +9,7 @@ export class UserResolver {
     public async getById(id: number) {
         return await this
             .apiResolver
-            .request<number, UserOutputDto>(
+            .request<number, CommonOutputDto<UserOutputDto | string>>(
                 `${id}`,
                 "GET",
                 null,

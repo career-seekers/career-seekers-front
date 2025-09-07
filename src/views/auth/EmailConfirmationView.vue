@@ -49,6 +49,7 @@
         </form>
       </div>
     </div>
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
@@ -58,11 +59,12 @@ import Button from 'primevue/button'
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
 import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
 import {v4 as generateUuidV4} from 'uuid'
-import {fillUserState} from "../../../state/UserState";
+import ToastPopup from "@/components/ToastPopup.vue";
 
 export default {
   name: 'EmailConfirmationView',
   components: {
+    ToastPopup,
     InputText,
     Button
   },
@@ -121,6 +123,9 @@ export default {
       }
 
       try {
+        if (this.registrationDto.childPatronymic)
+          this.registrationDto.type = "UserWithChildRegistrationDto"
+        else this.registrationDto.type = "UserRegistrationDto"
         this.registrationDto.uuid = generateUuidV4()
         this.registrationDto.verificationCode = this.confirmationForm.code
         const response = await this.authResolver.register(this.registrationDto)
@@ -130,10 +135,9 @@ export default {
             message: response.message
           }
         } else {
-          fillUserState(response.message.accessToken)
           localStorage.removeItem("dataToVerify")
-          localStorage.setItem("accessToken", response.message.accessToken)
-          localStorage.setItem("refreshToken", response.message.refreshToken)
+          localStorage.setItem("access_token", response.message.accessToken)
+          localStorage.setItem("refresh_token", response.message.refreshToken)
           this.$router.push('/login')
         }
       } catch (error) {

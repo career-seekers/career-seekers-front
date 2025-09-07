@@ -1,5 +1,4 @@
 import ApiResolver from "../../../utils/ApiResolver";
-import {useRouter} from "vue-router";
 import {PreRegisterInputDto} from "./dto/input/pre-register-input.dto";
 import {CommonOutputDto} from "../../dto/common-output.dto";
 import {LoginInputDto} from "./dto/input/login-input.dto";
