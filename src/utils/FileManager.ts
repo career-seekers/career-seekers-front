@@ -29,7 +29,7 @@ export class FileManager {
     }
 
     loadFileFromCache(fileName) {
-        return new Promise<any>((resolve, reject) => {
+        return new Promise<File | Error>((resolve, reject) => {
             const request = indexedDB.open('FileCacheDB', 1);
 
             request.onsuccess = function(event) {
@@ -58,6 +58,34 @@ export class FileManager {
                 reject(new Error('IndexedDB error: ' + event.target.errorCode));
             };
         });
+    }
+
+    removeFileFromCache(fileName) {
+        return new Promise<boolean>((resolve, reject) => {
+            const request = indexedDB.open('FileCacheDB', 1);
+
+            request.onsuccess = function(event) {
+                const db = event.target.result;
+                const transaction = db.transaction(['files'], 'readwrite');
+                const store = transaction.objectStore(['files']);
+
+                const deleteRequest = store.delete(fileName);
+
+                deleteRequest.onsuccess = function() {
+                    resolve(true)
+                    db.close();
+                };
+
+                deleteRequest.onerror = function(event) {
+                    reject(false)
+                    db.close();
+                };
+            };
+
+            request.onerror = function() {
+                reject(false);
+            };
+        })
     }
 }
 
