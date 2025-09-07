@@ -196,6 +196,7 @@ import ToastPopup from "@/components/ToastPopup.vue";
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
 import {UserRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto.js";
 import {Roles} from "../../../state/UserState.types.js";
+import {FileManager, TutorFiles} from "@/utils/FileManager";
 
 export default {
   name: 'TutorRegisterView',
@@ -397,6 +398,7 @@ export default {
             message: response.message
           }
         } else {
+          const fileManager = new FileManager()
           const registrationDto: UserRegistrationDto = {
             verificationCode: "",
             lastName: this.registerForm.fullName.split(' ')[0],
@@ -409,8 +411,11 @@ export default {
             role: Roles.TUTOR,
             uuid: ""
           }
+          const filesToVerify: TutorFiles = {
+            consentFileName: await fileManager.saveFileToCache(this.registerForm.consentFile)
+          }
           localStorage.setItem("dataToVerify", JSON.stringify(registrationDto))
-          localStorage.setItem("filesToVerify", JSON.stringify())
+          localStorage.setItem("filesToVerify", JSON.stringify(filesToVerify))
           this.$router.push({
             path: '/email-confirmation',
             query: {email: this.registerForm.email}

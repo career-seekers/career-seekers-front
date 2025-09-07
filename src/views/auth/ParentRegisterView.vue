@@ -414,6 +414,7 @@ import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
 import {UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
 import {Roles} from "../../../state/UserState.types";
+import {FileManager, ParentFiles} from "@/utils/FileManager";
 
 
 export default {
@@ -451,7 +452,7 @@ export default {
         birthCertificate: null,
         snilsNumber: '',
         snilsScan: null,
-        schoolName: null,
+        schoolName: '',
         grade: null,
         platform: null,
         schoolCertificate: null,
@@ -749,6 +750,14 @@ export default {
             message: response.message
           }
         } else {
+          const fileManager = new FileManager()
+          const filesToVerify: ParentFiles = {
+            childConsentFileName: await fileManager.saveFileToCache(this.parentForm.childConsentFile),
+            childBirthCertificateName: await fileManager.saveFileToCache(this.childForm.birthCertificate),
+            childSnilsScanName: await fileManager.saveFileToCache(this.childForm.snilsScan),
+            childSchoolCertificateName: await fileManager.saveFileToCache(this.childForm.schoolCertificate),
+            childPlatformCertificateName: await fileManager.saveFileToCache(this.childForm.platformCertificate)
+          }
           const registrationDto: UserWithChildRegistrationDto = {
             verificationCode: "",
             lastName: this.parentForm.fullName.split(' ')[0],
@@ -768,7 +777,7 @@ export default {
             mentorId: this.mentorForm.isParentMentor ? null : 0,
           }
           localStorage.setItem("dataToVerify", JSON.stringify(registrationDto))
-          localStorage.setItem("filesToVerify", JSON.stringify())
+          localStorage.setItem("filesToVerify", JSON.stringify(filesToVerify))
           this.$router.push({
             path: '/email-confirmation',
             query: {email: this.parentForm.email}

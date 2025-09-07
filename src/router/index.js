@@ -169,6 +169,9 @@ router.afterEach((to) => {
   const pageTitle = titleManager.getPageTitle(to.name)
   titleManager.setTitle(pageTitle)
 })
-await fillUserState()
+
+if (localStorage.getItem("access_token") && localStorage.getItem("refresh_token")) {
+  await fillUserState()
+}
 
 export default router
