@@ -204,7 +204,7 @@ import Textarea from 'primevue/textarea'
 import InputNumber from 'primevue/inputnumber'
 
 export default {
-  name: 'CuratorVenueInfo',
+  name: 'TutorVenueInfo',
   components: {
     Button,
     InputText,

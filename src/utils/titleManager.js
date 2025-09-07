@@ -17,7 +17,7 @@ export const titleManager = {
       'login': 'Вход в систему',
       'expert-register': 'Регистрация эксперта',
       'parent-register': 'Регистрация родителя',
-      'curator-register': 'Регистрация куратора',
+      'tutor-register': 'Регистрация куратора',
       'email-confirmation': 'Подтверждение email',
       'parent-dashboard': 'Дашборд родителя',
       'parent-competencies': 'Выбор компетенций',
@@ -27,10 +27,10 @@ export const titleManager = {
       'expert-participants': 'Участники',
       'expert-my-certificates': 'Мои сертификаты',
       'expert-participants-certificates': 'Сертификаты участников',
-      'curator-dashboard': 'Дашборд куратора',
-      'curator-experts': 'Главные эксперты',
-      'curator-documents': 'Документы',
-      'curator-venue-info': 'Информация о площадке'
+      'tutor-dashboard': 'Дашборд куратора',
+      'tutor-experts': 'Главные эксперты',
+      'tutor-documents': 'Документы',
+      'tutor-venue-info': 'Информация о площадке'
     }
     
     return titles[routeName] || ''

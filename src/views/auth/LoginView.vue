@@ -66,7 +66,7 @@
                 <div class="option-desc">Для родителей с детьми</div>
               </div>
             </router-link>
-            <router-link to="/register/curator" class="register-option" @click="closeRegisterOptions">
+            <router-link to="/register/tutor" class="register-option" @click="closeRegisterOptions">
               <div class="option-icon">👩‍💼</div>
               <div class="option-text">
                 <div class="option-title">Куратор</div>
