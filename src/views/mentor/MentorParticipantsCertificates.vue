@@ -135,7 +135,7 @@ import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 
 export default {
-  name: 'ExpertParticipantsCertificates',
+  name: 'MentorParticipantsCertificates',
   components: {
     InputText,
     Button,

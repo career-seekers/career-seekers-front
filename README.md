@@ -31,7 +31,7 @@ src/
 ├── views/                # Страницы приложения
 │   ├── auth/             # Аутентификация
 │   │   ├── LoginView.vue
-│   │   ├── ExpertRegisterView.vue
+│   │   ├── MentorRegisterView.vue
 │   │   ├── ParentRegisterView.vue
 │   │   ├── TutorRegisterView.vue
 │   │   └── EmailConfirmationView.vue
@@ -41,12 +41,12 @@ src/
 │   │   ├── ParentCompetenciesSelection.vue
 │   │   ├── ParentMyCompetencies.vue
 │   │   └── ParentAchievements.vue
-│   ├── expert/           # Дашборд эксперта
-│   │   ├── ExpertDashboard.vue
-│   │   ├── ExpertDashboardHome.vue
-│   │   ├── ExpertParticipants.vue
-│   │   ├── ExpertMyCertificates.vue
-│   │   └── ExpertParticipantsCertificates.vue
+│   ├── mentor/           # Дашборд эксперта
+│   │   ├── MentorDashboard.vue
+│   │   ├── MentorDashboardHome.vue
+│   │   ├── MentorParticipants.vue
+│   │   ├── MentorMyCertificates.vue
+│   │   └── MentorParticipantsCertificates.vue
 │   └── tutor/          # Дашборд куратора
 │       ├── TutorDashboard.vue
 │       ├── TutorDashboardHome.vue
@@ -86,11 +86,11 @@ npm run build
 - **Мои компетенции** - `/parent/my-competencies` - управление текущими компетенциями
 - **Достижения** - `/parent/achievements` - просмотр достижений и сертификатов
 
-### 👨‍🏫 Эксперты (`/expert`)
-- **Главная** - `/expert/dashboard` - статистика участников и быстрые действия
-- **Участники** - `/expert/participants` - управление участниками
-- **Мои сертификаты** - `/expert/my-certificates` - сертификаты эксперта
-- **Сертификаты участников** - `/expert/participants-certificates` - выдача сертификатов
+### 👨‍🏫 Эксперты (`/mentor`)
+- **Главная** - `/mentor/dashboard` - статистика участников и быстрые действия
+- **Участники** - `/mentor/participants` - управление участниками
+- **Мои сертификаты** - `/mentor/my-certificates` - сертификаты эксперта
+- **Сертификаты участников** - `/mentor/participants-certificates` - выдача сертификатов
 
 ### 🏢 Кураторы (`/tutor`)
 - **Главная** - `/tutor/dashboard` - обзор площадки и экспертов
@@ -202,7 +202,7 @@ import { titleManager } from '@/utils/titleManager.js'
 titleManager.setTitle('Название страницы')
 
 // Получить title для страницы
-const pageTitle = titleManager.getPageTitle('expert-dashboard')
+const pageTitle = titleManager.getPageTitle('mentor-dashboard')
 ```
 
 ## 📱 Адаптивность

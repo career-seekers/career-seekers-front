@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ expertName }}!</h1>
+      <h1 class="page-title">Добро пожаловать, {{ MentorName }}!</h1>
       <p class="page-subtitle">Управляйте участниками и отслеживайте их прогресс</p>
     </div>
 
@@ -19,19 +19,19 @@
             <h4 class="section-title">Персональные данные</h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
-              <span class="data-value">{{ expertData.fullName }}</span>
+              <span class="data-value">{{ MentorData.fullName }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ expertData.email }}</span>
+              <span class="data-value">{{ MentorData.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ expertData.phone }}</span>
+              <span class="data-value">{{ MentorData.phone }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Telegram:</span>
-              <span class="data-value">{{ expertData.telegram }}</span>
+              <span class="data-value">{{ MentorData.telegram }}</span>
             </div>
           </div>
           
@@ -39,15 +39,15 @@
             <h4 class="section-title">Профессиональная информация</h4>
             <div class="data-item">
               <span class="data-label">Специализация:</span>
-              <span class="data-value">{{ expertData.specialization }}</span>
+              <span class="data-value">{{ MentorData.specialization }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Опыт работы:</span>
-              <span class="data-value">{{ expertData.experience }}</span>
+              <span class="data-value">{{ MentorData.experience }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Статус:</span>
-              <span class="data-value">{{ expertData.status }}</span>
+              <span class="data-value">{{ MentorData.status }}</span>
             </div>
           </div>
         </div>
@@ -160,13 +160,13 @@
 import Button from 'primevue/button'
 
 export default {
-  name: 'ExpertDashboardHome',
+  name: 'MentorDashboardHome',
   components: {
     Button
   },
   data() {
     return {
-      expertData: {
+      MentorData: {
         fullName: 'Смирнов Алексей Владимирович',
         email: 'a.smirnov@mentor.ru',
         phone: '+7 (999) 987-65-43',
@@ -210,13 +210,13 @@ export default {
     }
   },
   computed: {
-    expertName() {
-      return this.expertData.fullName.split(' ')[1] || 'Наставник'
+    MentorName() {
+      return this.MentorData.fullName.split(' ')[1] || 'Наставник'
     }
   },
   methods: {
     goToParticipants() {
-      this.$router.push('/expert/participants')
+      this.$router.push('/mentor/participants')
     },
     addParticipant() {
       // Логика добавления участника
@@ -231,7 +231,7 @@ export default {
       console.log('Связь с родителями')
     },
     viewCertificates() {
-      this.$router.push('/expert/my-certificates')
+      this.$router.push('/mentor/my-certificates')
     }
   }
 }

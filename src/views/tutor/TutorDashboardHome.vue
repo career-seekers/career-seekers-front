@@ -90,19 +90,19 @@
         <div class="card-content">
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.total }}</div>
+              <div class="stat-number">{{ mentorsStats.total }}</div>
               <div class="stat-label">Всего экспертов</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.active }}</div>
+              <div class="stat-number">{{ mentorsStats.active }}</div>
               <div class="stat-label">Активных</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.competencies }}</div>
+              <div class="stat-number">{{ mentorsStats.competencies }}</div>
               <div class="stat-label">Компетенций</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.verified }}</div>
+              <div class="stat-number">{{ mentorsStats.verified }}</div>
               <div class="stat-label">Проверенных</div>
             </div>
           </div>
@@ -112,7 +112,7 @@
               label="Управление экспертами" 
               icon="pi pi-cog"
               class="p-button-outlined"
-              @click="goToExperts"
+              @click="goToMentors"
             />
           </div>
         </div>
@@ -132,7 +132,7 @@
               label="Добавить главного эксперта" 
               icon="pi pi-user-plus"
               class="p-button-primary"
-              @click="addExpert"
+              @click="addMentor"
             />
             <Button 
               label="Загрузить документы" 
@@ -205,7 +205,7 @@ export default {
         description: 'Современный образовательный центр с оборудованными лабораториями для проведения соревнований по техническим компетенциям',
         moderationStatus: 'На модерации'
       },
-      expertsStats: {
+      mentorsStats: {
         total: 5,
         active: 4,
         competencies: 8,
@@ -258,10 +258,10 @@ export default {
     }
   },
   methods: {
-    goToExperts() {
+    goToMentors() {
       this.$router.push('/tutor/experts')
     },
-    addExpert() {
+    addMentor() {
       // Логика добавления эксперта
       console.log('Добавление главного эксперта')
     },
