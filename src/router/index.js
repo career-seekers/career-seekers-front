@@ -3,7 +3,7 @@ import { titleManager } from '@/utils/titleManager.js'
 
 // Auth views
 import LoginView from '@/views/auth/LoginView.vue'
-import ExpertRegisterView from '@/views/auth/ExpertRegisterView.vue'
+import MentorRegisterView from '@/views/auth/MentorRegisterView.vue'
 import ParentRegisterView from '@/views/auth/ParentRegisterView.vue'
 import TutorRegisterView from '@/views/auth/TutorRegisterView.vue'
 import EmailConfirmationView from '@/views/auth/EmailConfirmationView.vue'
@@ -15,12 +15,12 @@ import ParentCompetenciesSelection from '@/views/parent/ParentCompetenciesSelect
 import ParentMyCompetencies from '@/views/parent/ParentMyCompetencies.vue'
 import ParentAchievements from '@/views/parent/ParentAchievements.vue'
 
-// Expert views
-import ExpertDashboard from '@/views/expert/ExpertDashboard.vue'
-import ExpertDashboardHome from '@/views/expert/ExpertDashboardHome.vue'
-import ExpertParticipants from '@/views/expert/ExpertParticipants.vue'
-import ExpertMyCertificates from '@/views/expert/ExpertMyCertificates.vue'
-import ExpertParticipantsCertificates from '@/views/expert/ExpertParticipantsCertificates.vue'
+// Mentor views
+import MentorDashboard from '@/views/mentor/MentorDashboard.vue'
+import MentorDashboardHome from '@/views/mentor/MentorDashboardHome.vue'
+import MentorParticipants from '@/views/mentor/MentorParticipants.vue'
+import MentorMyCertificates from '@/views/mentor/MentorMyCertificates.vue'
+import MentorParticipantsCertificates from '@/views/mentor/MentorParticipantsCertificates.vue'
 
 // Tutor views
 import TutorDashboard from '@/views/tutor/TutorDashboard.vue'
@@ -45,12 +45,12 @@ const routes = [
   {
     path: '/register',
     name: 'register',
-    component: ExpertRegisterView
+    component: MentorRegisterView
   },
   {
-    path: '/register/expert',
-    name: 'expert-register',
-    component: ExpertRegisterView
+    path: '/register/mentor',
+    name: 'mentor-register',
+    component: MentorRegisterView
   },
   {
     path: '/register/parent',
@@ -98,32 +98,32 @@ const routes = [
     ]
   },
   {
-    path: '/expert',
-    component: ExpertDashboard,
+    path: '/mentor',
+    component: MentorDashboard,
     children: [
       {
         path: '',
-        redirect: '/expert/dashboard'
+        redirect: '/mentor/dashboard'
       },
       {
         path: 'dashboard',
-        name: 'expert-dashboard',
-        component: ExpertDashboardHome
+        name: 'mentor-dashboard',
+        component: MentorDashboardHome
       },
       {
         path: 'participants',
-        name: 'expert-participants',
-        component: ExpertParticipants
+        name: 'mentor-participants',
+        component: MentorParticipants
       },
       {
         path: 'my-certificates',
-        name: 'expert-my-certificates',
-        component: ExpertMyCertificates
+        name: 'mentor-my-certificates',
+        component: MentorMyCertificates
       },
       {
         path: 'participants-certificates',
-        name: 'expert-participants-certificates',
-        component: ExpertParticipantsCertificates
+        name: 'mentor-participants-certificates',
+        component: MentorParticipantsCertificates
       }
     ]
   },

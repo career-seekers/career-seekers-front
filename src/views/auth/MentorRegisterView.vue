@@ -184,10 +184,10 @@ import ToastPopup from "@/components/ToastPopup.vue";
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
 import {UserRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
 import {Roles} from "../../../state/UserState.types";
-import {ExpertFiles, FileManager, FilesToVerify, ParentFiles} from "@/utils/FileManager";
+import {ExpertFiles, FileManager, FilesToVerify, MentorFiles, ParentFiles} from "@/utils/FileManager";
 
 export default {
-  name: 'ExpertRegisterView',
+  name: 'MentorRegisterView',
   components: {
     ToastPopup,
     InputText,
@@ -380,7 +380,7 @@ export default {
           }
         } else {
           const fileManager = new FileManager()
-          const filesToVerify: ExpertFiles = {
+          const filesToVerify: MentorFiles = {
             consentFileName: await fileManager.saveFileToCache(this.registerForm.consentFile),
           }
           const registrationDto: UserRegistrationDto = {

@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ expertName }}!</h1>
+      <h1 class="page-title">Добро пожаловать, {{ mentorName }}!</h1>
       <p class="page-subtitle">Управляйте участниками и отслеживайте их прогресс</p>
     </div>
 
@@ -163,7 +163,7 @@ import Button from 'primevue/button'
 import {UserState} from "../../../state/UserState";
 
 export default {
-  name: 'ExpertDashboardHome',
+  name: 'MentorDashboardHome',
   components: {
     Button
   },
@@ -207,13 +207,13 @@ export default {
     UserState() {
       return UserState
     },
-    expertName() {
+    mentorName() {
       return UserState.firstName || 'Наставник'
     }
   },
   methods: {
     goToParticipants() {
-      this.$router.push('/expert/participants')
+      this.$router.push('/mentor/participants')
     },
     addParticipant() {
       // Логика добавления участника
@@ -228,7 +228,7 @@ export default {
       console.log('Связь с родителями')
     },
     viewCertificates() {
-      this.$router.push('/expert/my-certificates')
+      this.$router.push('/mentor/my-certificates')
     }
   }
 }

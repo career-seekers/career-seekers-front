@@ -69,6 +69,10 @@ export interface ExpertFiles {
     consentFileName: string
 }
 
+export interface MentorFiles {
+    consentFileName: string
+}
+
 export interface ParentFiles {
     childConsentFileName: string
     childBirthCertificateName: string

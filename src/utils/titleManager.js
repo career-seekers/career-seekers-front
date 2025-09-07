@@ -15,7 +15,7 @@ export const titleManager = {
   getPageTitle(routeName) {
     const titles = {
       'login': 'Вход в систему',
-      'expert-register': 'Регистрация эксперта',
+      'mentor-register': 'Регистрация эксперта',
       'parent-register': 'Регистрация родителя',
       'tutor-register': 'Регистрация куратора',
       'email-confirmation': 'Подтверждение email',
@@ -23,10 +23,10 @@ export const titleManager = {
       'parent-competencies': 'Выбор компетенций',
       'parent-my-competencies': 'Мои компетенции',
       'parent-achievements': 'Достижения',
-      'expert-dashboard': 'Дашборд эксперта',
-      'expert-participants': 'Участники',
-      'expert-my-certificates': 'Мои сертификаты',
-      'expert-participants-certificates': 'Сертификаты участников',
+      'mentor-dashboard': 'Дашборд эксперта',
+      'mentor-participants': 'Участники',
+      'mentor-my-certificates': 'Мои сертификаты',
+      'mentor-participants-certificates': 'Сертификаты участников',
       'tutor-dashboard': 'Дашборд куратора',
       'tutor-experts': 'Главные эксперты',
       'tutor-documents': 'Документы',

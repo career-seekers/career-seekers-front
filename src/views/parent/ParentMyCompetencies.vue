@@ -194,7 +194,7 @@ export default {
           ],
           expert: {
             name: 'Петров Иван Сергеевич',
-            email: 'i.petrov@expert.ru',
+            email: 'i.petrov@mentor.ru',
             phone: '+7 (999) 111-22-33'
           },
           status: {
@@ -250,7 +250,7 @@ export default {
           ],
           expert: {
             name: 'Морозов Андрей Петрович',
-            email: 'a.morozov@expert.ru',
+            email: 'a.morozov@mentor.ru',
             phone: '+7 (999) 555-66-77'
           },
           status: {

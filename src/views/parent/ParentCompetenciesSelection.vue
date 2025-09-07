@@ -164,7 +164,7 @@ export default {
           ],
           expert: {
             name: 'Петров Иван Сергеевич',
-            email: 'i.petrov@expert.ru',
+            email: 'i.petrov@mentor.ru',
             phone: '+7 (999) 111-22-33'
           }
         },
@@ -187,7 +187,7 @@ export default {
           ],
           expert: {
             name: 'Сидорова Мария Александровна',
-            email: 'm.sidorova@expert.ru',
+            email: 'm.sidorova@mentor.ru',
             phone: '+7 (999) 222-33-44'
           }
         },
@@ -210,7 +210,7 @@ export default {
           ],
           expert: {
             name: 'Козлов Дмитрий Владимирович',
-            email: 'd.kozlov@expert.ru',
+            email: 'd.kozlov@mentor.ru',
             phone: '+7 (999) 333-44-55'
           }
         },
@@ -233,7 +233,7 @@ export default {
           ],
           expert: {
             name: 'Новикова Елена Игоревна',
-            email: 'e.novikova@expert.ru',
+            email: 'e.novikova@mentor.ru',
             phone: '+7 (999) 444-55-66'
           }
         },
@@ -256,7 +256,7 @@ export default {
           ],
           expert: {
             name: 'Морозов Андрей Петрович',
-            email: 'a.morozov@expert.ru',
+            email: 'a.morozov@mentor.ru',
             phone: '+7 (999) 555-66-77'
           }
         },
@@ -279,7 +279,7 @@ export default {
           ],
           expert: {
             name: 'Волков Сергей Николаевич',
-            email: 's.volkov@expert.ru',
+            email: 's.volkov@mentor.ru',
             phone: '+7 (999) 666-77-88'
           }
         }

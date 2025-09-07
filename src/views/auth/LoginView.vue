@@ -52,7 +52,7 @@
           </div>
           
           <div v-if="showRegisterOptions" class="register-options">
-            <router-link to="/register/expert" class="register-option" @click="closeRegisterOptions">
+            <router-link to="/register/mentor" class="register-option" @click="closeRegisterOptions">
               <div class="option-icon">👨‍🏫</div>
               <div class="option-text">
                 <div class="option-title">Наставник</div>
@@ -196,13 +196,13 @@ export default {
             await router.push("/mentor")
             break
           case Roles.EXPERT:
-            await router.push("/expert")
+            await router.push("/mentor")
             break
           case Roles.TUTOR:
             await router.push("/tutor")
             break
           default:
-            await router.push("/expert")
+            await router.push("/mentor")
             break
         }
       }

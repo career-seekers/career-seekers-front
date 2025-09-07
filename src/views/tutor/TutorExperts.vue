@@ -232,7 +232,7 @@ export default {
         {
           id: 1,
           fullName: 'Смирнов Алексей Владимирович',
-          email: 'a.smirnov@expert.ru',
+          email: 'a.smirnov@mentor.ru',
           phone: '+7 (999) 987-65-43',
           position: 'Ведущий разработчик',
           experience: '8 лет',
@@ -247,7 +247,7 @@ export default {
         {
           id: 2,
           fullName: 'Козлова Елена Петровна',
-          email: 'e.kozlova@expert.ru',
+          email: 'e.kozlova@mentor.ru',
           phone: '+7 (999) 876-54-32',
           position: 'UX/UI дизайнер',
           experience: '6 лет',
@@ -262,7 +262,7 @@ export default {
         {
           id: 3,
           fullName: 'Петров Игорь Сергеевич',
-          email: 'i.petrov@expert.ru',
+          email: 'i.petrov@mentor.ru',
           phone: '+7 (999) 765-43-21',
           position: 'Data Scientist',
           experience: '5 лет',
