@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ mentorName }}!</h1>
+      <h1 class="page-title">Добро пожаловать, {{ MentorName }}!</h1>
       <p class="page-subtitle">Управляйте участниками и отслеживайте их прогресс</p>
     </div>
 
@@ -19,39 +19,37 @@
             <h4 class="section-title">Персональные данные</h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
-              <span class="data-value">{{
-                  UserState.lastName + " " + UserState.firstName + " " + UserState.patronymic
-                }}</span>
+              <span class="data-value">{{ MentorData.fullName }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ UserState.email }}</span>
+              <span class="data-value">{{ MentorData.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ UserState.mobileNumber }}</span>
+              <span class="data-value">{{ MentorData.phone }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Telegram:</span>
-              <span class="data-value">{{  }}</span>
+              <span class="data-value">{{ MentorData.telegram }}</span>
             </div>
           </div>
           
-<!--          <div class="data-section">-->
-<!--            <h4 class="section-title">Профессиональная информация</h4>-->
-<!--            <div class="data-item">-->
-<!--              <span class="data-label">Специализация:</span>-->
-<!--              <span class="data-value">{{  }}</span>-->
-<!--            </div>-->
-<!--            <div class="data-item">-->
-<!--              <span class="data-label">Опыт работы:</span>-->
-<!--              <span class="data-value">{{  }}</span>-->
-<!--            </div>-->
-<!--            <div class="data-item">-->
-<!--              <span class="data-label">Статус:</span>-->
-<!--              <span class="data-value">{{  }}</span>-->
-<!--            </div>-->
-<!--          </div>-->
+          <div class="data-section">
+            <h4 class="section-title">Профессиональная информация</h4>
+            <div class="data-item">
+              <span class="data-label">Специализация:</span>
+              <span class="data-value">{{ MentorData.specialization }}</span>
+            </div>
+            <div class="data-item">
+              <span class="data-label">Опыт работы:</span>
+              <span class="data-value">{{ MentorData.experience }}</span>
+            </div>
+            <div class="data-item">
+              <span class="data-label">Статус:</span>
+              <span class="data-value">{{ MentorData.status }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -160,7 +158,6 @@
 
 <script>
 import Button from 'primevue/button'
-import {UserState} from "../../../state/UserState";
 
 export default {
   name: 'MentorDashboardHome',
@@ -169,6 +166,15 @@ export default {
   },
   data() {
     return {
+      MentorData: {
+        fullName: 'Смирнов Алексей Владимирович',
+        email: 'a.smirnov@mentor.ru',
+        phone: '+7 (999) 987-65-43',
+        telegram: '@alex_mentor',
+        specialization: 'Веб-разработка и дизайн',
+        experience: '5 лет',
+        status: 'Активный наставник'
+      },
       participantsStats: {
         total: 8,
         active: 6,
@@ -204,11 +210,8 @@ export default {
     }
   },
   computed: {
-    UserState() {
-      return UserState
-    },
-    mentorName() {
-      return UserState.firstName || 'Наставник'
+    MentorName() {
+      return this.MentorData.fullName.split(' ')[1] || 'Наставник'
     }
   },
   methods: {

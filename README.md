@@ -41,13 +41,20 @@ src/
 │   │   ├── ParentCompetenciesSelection.vue
 │   │   ├── ParentMyCompetencies.vue
 │   │   └── ParentAchievements.vue
-│   ├── mentor/           # Дашборд наставника
+│   ├── mentor/           # Дашборд эксперта
 │   │   ├── MentorDashboard.vue
 │   │   ├── MentorDashboardHome.vue
 │   │   ├── MentorParticipants.vue
 │   │   ├── MentorMyCertificates.vue
 │   │   └── MentorParticipantsCertificates.vue
-│   └── tutor/          # Дашборд куратора
+│   ├── expert/           # Дашборд эксперта
+│   │   ├── ExpertCompetencies.vue
+│   │   ├── ExpertDashboard.vue
+│   │   ├── ExpertDashboardHome.vue
+│   │   ├── ExpertDocuments.vue
+│   │   ├── ExpertEvents.vue
+│   │   └── ExpertParticipants.vue
+│   └── tutor/            # Дашборд куратора
 │       ├── TutorDashboard.vue
 │       ├── TutorDashboardHome.vue
 │       ├── TutorExperts.vue
@@ -91,6 +98,13 @@ npm run build
 - **Участники** - `/mentor/participants` - управление участниками
 - **Мои сертификаты** - `/mentor/my-certificates` - сертификаты эксперта
 - **Сертификаты участников** - `/mentor/participants-certificates` - выдача сертификатов
+
+### 👨‍🏫 Эксперты (`/expert`)
+- **Главная** - `/expert/dashboard` - статистика участников и быстрые действия
+- **Компетенции** - `/expert/competencies` - выдача сертификатов
+- **Документы** - `/expert/documents` - загрузка и управление документами по компетенциям
+- **Участники** - `/expert/participants` - управление участниками
+- **События** - `/expert/events` - сертификаты эксперта
 
 ### 🏢 Кураторы (`/tutor`)
 - **Главная** - `/tutor/dashboard` - обзор площадки и экспертов
@@ -202,7 +216,7 @@ import { titleManager } from '@/utils/titleManager.js'
 titleManager.setTitle('Название страницы')
 
 // Получить title для страницы
-const pageTitle = titleManager.getPageTitle('expert-dashboard')
+const pageTitle = titleManager.getPageTitle('mentor-dashboard')
 ```
 
 ## 📱 Адаптивность

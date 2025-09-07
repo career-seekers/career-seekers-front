@@ -1,5 +1,5 @@
 <template>
-  <div class="experts-page">
+  <div class="mentors-page">
     <div class="page-header">
       <h1 class="page-title">Главные эксперты</h1>
       <p class="page-subtitle">Управление главными экспертами и их компетенциями</p>
@@ -11,14 +11,14 @@
         label="Добавить главного эксперта" 
         icon="pi pi-user-plus"
         class="p-button-primary"
-        @click="showAddExpertDialog = true"
+        @click="showAddMentorDialog = true"
       />
     </div>
 
     <!-- Список экспертов -->
-    <div class="experts-grid">
-      <div v-for="expert in experts" :key="expert.id" class="expert-card">
-        <div class="expert-header">
+    <div class="mentors-grid">
+      <div v-for="mentor in mentors" :key="mentor.id" class="mentor-card">
+        <div class="mentor-header">
           <div class="expert-avatar">
             <i class="pi pi-user"></i>
           </div>

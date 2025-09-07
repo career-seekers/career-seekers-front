@@ -58,26 +58,26 @@
         </div>
 
         <div class="competency-content">
-          <div class="expert-info">
+          <div class="mentor-info">
             <h4 class="section-title">
               <i class="pi pi-user"></i>
               Контакты главного эксперта
             </h4>
-            <div class="expert-contacts">
+            <div class="mentor-contacts">
               <div class="contact-item">
                 <i class="pi pi-user"></i>
                 <span class="contact-label">ФИО:</span>
-                <span class="contact-value">{{ competency.expert.name }}</span>
+                <span class="contact-value">{{ competency.mentor.name }}</span>
               </div>
               <div class="contact-item">
                 <i class="pi pi-envelope"></i>
                 <span class="contact-label">Email:</span>
-                <span class="contact-value">{{ competency.expert.email }}</span>
+                <span class="contact-value">{{ competency.mentor.email }}</span>
               </div>
               <div class="contact-item">
                 <i class="pi pi-phone"></i>
                 <span class="contact-label">Телефон:</span>
-                <span class="contact-value">{{ competency.expert.phone }}</span>
+                <span class="contact-value">{{ competency.mentor.phone }}</span>
               </div>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default {
             'UI/UX Design',
             'Frameworks (React, Vue)'
           ],
-          expert: {
+          mentor: {
             name: 'Петров Иван Сергеевич',
             email: 'i.petrov@mentor.ru',
             phone: '+7 (999) 111-22-33'
@@ -248,7 +248,7 @@ export default {
             'Texturing',
             'Animation'
           ],
-          expert: {
+          mentor: {
             name: 'Морозов Андрей Петрович',
             email: 'a.morozov@mentor.ru',
             phone: '+7 (999) 555-66-77'
@@ -497,11 +497,11 @@ export default {
   color: #ff9800;
 }
 
-.expert-info {
+.mentor-info {
   margin-bottom: 2rem;
 }
 
-.expert-contacts {
+.mentor-contacts {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;

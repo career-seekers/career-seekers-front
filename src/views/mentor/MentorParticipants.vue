@@ -123,19 +123,19 @@
               Контакты главного эксперта
             </h4>
             <div class="mentor-info">
-              <div class="mentor-avatar">
+              <div class="Mentor-avatar">
                 <i class="pi pi-user"></i>
               </div>
-              <div class="mentor-details">
-                <div class="mentor-name">{{ participant.mentor.name }}</div>
-                <div class="mentor-contacts">
+              <div class="Mentor-details">
+                <div class="Mentor-name">{{ participant.Mentor.name }}</div>
+                <div class="Mentor-contacts">
                   <div class="contact-item">
                     <i class="pi pi-envelope"></i>
-                    <span>{{ participant.mentor.email }}</span>
+                    <span>{{ participant.Mentor.email }}</span>
                   </div>
                   <div class="contact-item">
                     <i class="pi pi-phone"></i>
-                    <span>{{ participant.mentor.phone }}</span>
+                    <span>{{ participant.Mentor.phone }}</span>
                   </div>
                 </div>
               </div>
@@ -205,7 +205,7 @@ export default {
             phone: '+7 (999) 123-45-67',
             email: 'anna.ivanova@email.com'
           },
-          mentor: {
+          Mentor: {
             name: 'Морозов Андрей Сергеевич',
             email: 'a.morozov@mentor.ru',
             phone: '+7 (000) 555 66 77'
@@ -226,7 +226,7 @@ export default {
             phone: '+7 (999) 234-56-78',
             email: 'v.petrov@email.com'
           },
-          mentor: {
+          Mentor: {
             name: 'Козлова Елена Михайловна',
             email: 'e.kozlova@mentor.ru',
             phone: '+7 (000) 555 88 99'
@@ -247,7 +247,7 @@ export default {
             phone: '+7 (999) 345-67-89',
             email: 'o.sidorova@email.com'
           },
-          mentor: {
+          Mentor: {
             name: 'Новиков Игорь Александрович',
             email: 'i.novikov@mentor.ru',
             phone: '+7 (000) 555 11 22'
@@ -488,7 +488,7 @@ export default {
 }
 
 /* Информация об эксперте */
-.mentor-info {
+.Mentor-info {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -497,7 +497,7 @@ export default {
   border-radius: 8px;
 }
 
-.mentor-avatar {
+.Mentor-avatar {
   width: 40px;
   height: 40px;
   background: linear-gradient(135deg, #ff9800, #f57c00);
@@ -510,17 +510,17 @@ export default {
   flex-shrink: 0;
 }
 
-.mentor-details {
+.Mentor-details {
   flex: 1;
 }
 
-.mentor-name {
+.Mentor-name {
   color: #2c3e50;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
-.mentor-contacts {
+.Mentor-contacts {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -606,7 +606,7 @@ export default {
     text-align: left;
   }
   
-  .mentor-info {
+  .Mentor-info {
     flex-direction: column;
     text-align: center;
     gap: 0.75rem;
@@ -667,17 +667,17 @@ export default {
     font-size: 0.9rem;
   }
   
-  .mentor-info {
+  .Mentor-info {
     padding: 0.75rem;
   }
   
-  .mentor-avatar {
+  .Mentor-avatar {
     width: 35px;
     height: 35px;
     font-size: 0.9rem;
   }
   
-  .mentor-name {
+  .Mentor-name {
     font-size: 0.9rem;
   }
   

@@ -109,18 +109,18 @@
           </ul>
           
           <h4>Контакты главного эксперта</h4>
-          <div class="expert-contacts">
+          <div class="mentor-contacts">
             <div class="contact-item">
               <i class="pi pi-user"></i>
-              <span>{{ selectedCompetency.expert.name }}</span>
+              <span>{{ selectedCompetency.mentor.name }}</span>
             </div>
             <div class="contact-item">
               <i class="pi pi-envelope"></i>
-              <span>{{ selectedCompetency.expert.email }}</span>
+              <span>{{ selectedCompetency.mentor.email }}</span>
             </div>
             <div class="contact-item">
               <i class="pi pi-phone"></i>
-              <span>{{ selectedCompetency.expert.phone }}</span>
+              <span>{{ selectedCompetency.mentor.phone }}</span>
             </div>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default {
             'UI/UX Design',
             'Frameworks (React, Vue)'
           ],
-          expert: {
+          mentor: {
             name: 'Петров Иван Сергеевич',
             email: 'i.petrov@mentor.ru',
             phone: '+7 (999) 111-22-33'
@@ -185,7 +185,7 @@ export default {
             'Mobile UI/UX',
             'API Integration'
           ],
-          expert: {
+          mentor: {
             name: 'Сидорова Мария Александровна',
             email: 'm.sidorova@mentor.ru',
             phone: '+7 (999) 222-33-44'
@@ -208,7 +208,7 @@ export default {
             'Incident Response',
             'Security Auditing'
           ],
-          expert: {
+          mentor: {
             name: 'Козлов Дмитрий Владимирович',
             email: 'd.kozlov@mentor.ru',
             phone: '+7 (999) 333-44-55'
@@ -231,7 +231,7 @@ export default {
             'Data Analysis',
             'TensorFlow/PyTorch'
           ],
-          expert: {
+          mentor: {
             name: 'Новикова Елена Игоревна',
             email: 'e.novikova@mentor.ru',
             phone: '+7 (999) 444-55-66'
@@ -254,7 +254,7 @@ export default {
             'Texturing',
             'Animation'
           ],
-          expert: {
+          mentor: {
             name: 'Морозов Андрей Петрович',
             email: 'a.morozov@mentor.ru',
             phone: '+7 (999) 555-66-77'
@@ -277,7 +277,7 @@ export default {
             'Electronics',
             'Mechanics'
           ],
-          expert: {
+          mentor: {
             name: 'Волков Сергей Николаевич',
             email: 's.volkov@mentor.ru',
             phone: '+7 (999) 666-77-88'
@@ -570,7 +570,7 @@ export default {
   border-bottom: none;
 }
 
-.expert-contacts {
+.mentor-contacts {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;

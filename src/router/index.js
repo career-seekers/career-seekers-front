@@ -15,22 +15,28 @@ import ParentCompetenciesSelection from '@/views/parent/ParentCompetenciesSelect
 import ParentMyCompetencies from '@/views/parent/ParentMyCompetencies.vue'
 import ParentAchievements from '@/views/parent/ParentAchievements.vue'
 
-// Mentor views
+//expert views
+import ExpertDashboard from '@/views/expert/ExpertDashboard.vue'
+import ExpertDashboardHome from '@/views/expert/ExpertDashboardHome.vue'
+import ExpertCompetencies from '@/views/expert/ExpertCompetencies.vue'
+import ExpertParticipants from '@/views/expert/ExpertParticipants.vue'
+import ExpertDocuments from '@/views/expert/ExpertDocuments.vue'
+import ExpertEvents from '@/views/expert/ExpertEvents.vue'
+
+
+// mentor views
 import MentorDashboard from '@/views/mentor/MentorDashboard.vue'
 import MentorDashboardHome from '@/views/mentor/MentorDashboardHome.vue'
 import MentorParticipants from '@/views/mentor/MentorParticipants.vue'
 import MentorMyCertificates from '@/views/mentor/MentorMyCertificates.vue'
 import MentorParticipantsCertificates from '@/views/mentor/MentorParticipantsCertificates.vue'
 
-// Tutor views
+// tutor views
 import TutorDashboard from '@/views/tutor/TutorDashboard.vue'
 import TutorDashboardHome from '@/views/tutor/TutorDashboardHome.vue'
 import TutorExperts from '@/views/tutor/TutorExperts.vue'
 import TutorDocuments from '@/views/tutor/TutorDocuments.vue'
 import TutorVenueInfo from '@/views/tutor/TutorVenueInfo.vue'
-
-// UserState
-import {fillUserState} from "../../state/UserState";
 
 const routes = [
   {
@@ -124,6 +130,41 @@ const routes = [
         path: 'participants-certificates',
         name: 'mentor-participants-certificates',
         component: MentorParticipantsCertificates
+      }
+    ]
+  },
+  {
+    path: '/expert',
+    component: ExpertDashboard,
+    children: [
+      {
+        path: '',
+        redirect: '/expert/dashboard'
+      },
+      {
+        path: 'dashboard',
+        name: 'mentor-dashboard',
+        component: MentorDashboardHome
+      },
+      {
+        path: 'competencies',
+        name: 'expert-competencies',
+        component: ExpertCompetencies
+      },
+      {
+        path: 'participants/:competencyId',
+        name: 'expert-participants',
+        component: ExpertParticipants
+      },
+      {
+        path: 'documents/:competencyId',
+        name: 'expert-documents',
+        component: ExpertDocuments
+      },
+      {
+        path: 'events',
+        name: 'expert-events',
+        component: ExpertEvents
       }
     ]
   },
