@@ -47,7 +47,13 @@ src/
 │   │   ├── MentorParticipants.vue
 │   │   ├── MentorMyCertificates.vue
 │   │   └── MentorParticipantsCertificates.vue
-│   └── tutor/          # Дашборд куратора
+│   ├── expert/           # Дашборд эксперта
+│   │   ├── ExpertDashboard.vue
+│   │   ├── ExpertDashboardHome.vue
+│   │   ├── ExpertParticipants.vue
+│   │   ├── ExpertMyCertificates.vue
+│   │   └── ExpertParticipantsCertificates.vue
+│   └── tutor/            # Дашборд куратора
 │       ├── TutorDashboard.vue
 │       ├── TutorDashboardHome.vue
 │       ├── TutorExperts.vue
