@@ -18,25 +18,25 @@
       <nav class="sidebar-nav">
         <ul class="nav-list">
           <li class="nav-item">
-            <router-link to="/Mentor/dashboard" class="nav-link" :class="{ active: $route.path === '/mentor/dashboard' }" @click="closeSidebarOnMobile">
+            <router-link to="/mentor/dashboard" class="nav-link" :class="{ active: $route.path === '/mentor/dashboard' }" @click="closeSidebarOnMobile">
               <i class="pi pi-home"></i>
               <span>Главная</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/Mentor/participants" class="nav-link" :class="{ active: $route.path === '/mentor/participants' }" @click="closeSidebarOnMobile">
+            <router-link to="/mentor/participants" class="nav-link" :class="{ active: $route.path === '/mentor/participants' }" @click="closeSidebarOnMobile">
               <i class="pi pi-users"></i>
               <span>Участники</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/Mentor/my-certificates" class="nav-link" :class="{ active: $route.path === '/mentor/my-certificates' }" @click="closeSidebarOnMobile">
+            <router-link to="/mentor/my-certificates" class="nav-link" :class="{ active: $route.path === '/mentor/my-certificates' }" @click="closeSidebarOnMobile">
               <i class="pi pi-certificate"></i>
               <span>Мои сертификаты</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/Mentor/participants-certificates" class="nav-link" :class="{ active: $route.path === '/mentor/participants-certificates' }" @click="closeSidebarOnMobile">
+            <router-link to="/mentor/participants-certificates" class="nav-link" :class="{ active: $route.path === '/mentor/participants-certificates' }" @click="closeSidebarOnMobile">
               <i class="pi pi-trophy"></i>
               <span>Сертификаты участников</span>
             </router-link>
@@ -128,7 +128,7 @@
 import Button from 'primevue/button'
 
 export default {
-  name: 'MentorDashboard',
+  name: 'mentorDashboard',
   components: {
     Button
   },
@@ -138,7 +138,7 @@ export default {
       isMobile: false,
       showInviteLink: false,
       showTestToast: true,
-      inviteLink: 'https://career-seekers.ru/register?ref=Mentor123'
+      inviteLink: 'https://career-seekers.ru/register?ref=mentor123'
     }
   },
   mounted() {
