@@ -66,7 +66,7 @@
                 <div class="option-desc">Для родителей с детьми</div>
               </div>
             </router-link>
-            <router-link to="/register/curator" class="register-option" @click="closeRegisterOptions">
+            <router-link to="/register/tutor" class="register-option" @click="closeRegisterOptions">
               <div class="option-icon">👩‍💼</div>
               <div class="option-text">
                 <div class="option-title">Куратор</div>
@@ -180,7 +180,7 @@ export default {
               await router.push("/parent")
               break
             case Roles.MENTOR:
-              await router.push("/curator")
+              await router.push("/tutor")
               break
             case Roles.EXPERT:
               await router.push("/expert")
@@ -213,7 +213,7 @@ export default {
             await router.push("/parent")
             break
           case Roles.MENTOR:
-            await router.push("/curator")
+            await router.push("/tutor")
             break
           case Roles.EXPERT:
             await router.push("/expert")

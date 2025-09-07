@@ -18,25 +18,25 @@
       <nav class="sidebar-nav">
         <ul class="nav-list">
           <li class="nav-item">
-            <router-link to="/curator/dashboard" class="nav-link" :class="{ active: $route.path === '/curator/dashboard' }" @click="closeSidebarOnMobile">
+            <router-link to="/tutor/dashboard" class="nav-link" :class="{ active: $route.path === '/tutor/dashboard' }" @click="closeSidebarOnMobile">
               <i class="pi pi-home"></i>
               <span>Главная</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/curator/experts" class="nav-link" :class="{ active: $route.path === '/curator/experts' }" @click="closeSidebarOnMobile">
+            <router-link to="/tutor/experts" class="nav-link" :class="{ active: $route.path === '/tutor/experts' }" @click="closeSidebarOnMobile">
               <i class="pi pi-users"></i>
               <span>Главные эксперты</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/curator/documents" class="nav-link" :class="{ active: $route.path === '/curator/documents' }" @click="closeSidebarOnMobile">
+            <router-link to="/tutor/documents" class="nav-link" :class="{ active: $route.path === '/tutor/documents' }" @click="closeSidebarOnMobile">
               <i class="pi pi-file-text"></i>
               <span>Документы</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/curator/venue-info" class="nav-link" :class="{ active: $route.path === '/curator/venue-info' }" @click="closeSidebarOnMobile">
+            <router-link to="/tutor/venue-info" class="nav-link" :class="{ active: $route.path === '/tutor/venue-info' }" @click="closeSidebarOnMobile">
               <i class="pi pi-building"></i>
               <span>Информация о площадке</span>
             </router-link>
@@ -74,7 +74,7 @@
 import Button from 'primevue/button'
 
 export default {
-  name: 'CuratorDashboard',
+  name: 'TutorDashboard',
   components: {
     Button
   },

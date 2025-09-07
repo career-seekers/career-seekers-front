@@ -5,7 +5,7 @@ import { titleManager } from '@/utils/titleManager.js'
 import LoginView from '@/views/auth/LoginView.vue'
 import ExpertRegisterView from '@/views/auth/ExpertRegisterView.vue'
 import ParentRegisterView from '@/views/auth/ParentRegisterView.vue'
-import CuratorRegisterView from '@/views/auth/CuratorRegisterView.vue'
+import TutorRegisterView from '@/views/auth/TutorRegisterView.vue'
 import EmailConfirmationView from '@/views/auth/EmailConfirmationView.vue'
 
 // Parent views
@@ -22,12 +22,12 @@ import ExpertParticipants from '@/views/expert/ExpertParticipants.vue'
 import ExpertMyCertificates from '@/views/expert/ExpertMyCertificates.vue'
 import ExpertParticipantsCertificates from '@/views/expert/ExpertParticipantsCertificates.vue'
 
-// Curator views
-import CuratorDashboard from '@/views/curator/CuratorDashboard.vue'
-import CuratorDashboardHome from '@/views/curator/CuratorDashboardHome.vue'
-import CuratorExperts from '@/views/curator/CuratorExperts.vue'
-import CuratorDocuments from '@/views/curator/CuratorDocuments.vue'
-import CuratorVenueInfo from '@/views/curator/CuratorVenueInfo.vue'
+// Tutor views
+import TutorDashboard from '@/views/tutor/TutorDashboard.vue'
+import TutorDashboardHome from '@/views/tutor/TutorDashboardHome.vue'
+import TutorExperts from '@/views/tutor/TutorExperts.vue'
+import TutorDocuments from '@/views/tutor/TutorDocuments.vue'
+import TutorVenueInfo from '@/views/tutor/TutorVenueInfo.vue'
 
 const routes = [
   {
@@ -55,9 +55,9 @@ const routes = [
     component: ParentRegisterView
   },
   {
-    path: '/register/curator',
-    name: 'curator-register',
-    component: CuratorRegisterView
+    path: '/register/tutor',
+    name: 'tutor-register',
+    component: TutorRegisterView
   },
   {
     path: '/email-confirmation',
@@ -125,32 +125,32 @@ const routes = [
     ]
   },
   {
-    path: '/curator',
-    component: CuratorDashboard,
+    path: '/tutor',
+    component: TutorDashboard,
     children: [
       {
         path: '',
-        redirect: '/curator/dashboard'
+        redirect: '/tutor/dashboard'
       },
       {
         path: 'dashboard',
-        name: 'curator-dashboard',
-        component: CuratorDashboardHome
+        name: 'tutor-dashboard',
+        component: TutorDashboardHome
       },
       {
         path: 'experts',
-        name: 'curator-experts',
-        component: CuratorExperts
+        name: 'tutor-experts',
+        component: TutorExperts
       },
       {
         path: 'documents',
-        name: 'curator-documents',
-        component: CuratorDocuments
+        name: 'tutor-documents',
+        component: TutorDocuments
       },
       {
         path: 'venue-info',
-        name: 'curator-venue-info',
-        component: CuratorVenueInfo
+        name: 'tutor-venue-info',
+        component: TutorVenueInfo
       }
     ]
   }

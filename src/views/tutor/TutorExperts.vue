@@ -196,7 +196,7 @@ import MultiSelect from 'primevue/multiselect'
 import Textarea from 'primevue/textarea'
 
 export default {
-  name: 'CuratorExperts',
+  name: 'TutorExperts',
   components: {
     Button,
     Dialog,

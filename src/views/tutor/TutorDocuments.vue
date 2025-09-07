@@ -292,7 +292,7 @@ import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
 
 export default {
-  name: 'CuratorDocuments',
+  name: 'TutorDocuments',
   components: {
     Button,
     Dialog,

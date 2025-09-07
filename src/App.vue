@@ -37,7 +37,7 @@ export default {
       // Анимируем только страницы входа/регистрации, не дашборд
       return !path.startsWith('/parent') && 
              !path.startsWith('/expert') && 
-             !path.startsWith('/curator')
+             !path.startsWith('/tutor')
     },
     triggerGooseConfetti() {
       // console.log('App received trigger event')

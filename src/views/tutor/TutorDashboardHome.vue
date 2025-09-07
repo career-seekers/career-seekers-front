@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ curatorName }}!</h1>
+      <h1 class="page-title">Добро пожаловать, {{ tutorName }}!</h1>
       <p class="page-subtitle">Управляйте площадкой и главными экспертами</p>
     </div>
 
@@ -19,19 +19,19 @@
             <h4 class="section-title">Персональные данные</h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
-              <span class="data-value">{{ curatorData.fullName }}</span>
+              <span class="data-value">{{ tutorData.fullName }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ curatorData.email }}</span>
+              <span class="data-value">{{ tutorData.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ curatorData.phone }}</span>
+              <span class="data-value">{{ tutorData.phone }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Должность:</span>
-              <span class="data-value">{{ curatorData.position }}</span>
+              <span class="data-value">{{ tutorData.position }}</span>
             </div>
           </div>
         </div>
@@ -187,13 +187,13 @@
 import Button from 'primevue/button'
 
 export default {
-  name: 'CuratorDashboardHome',
+  name: 'TutorDashboardHome',
   components: {
     Button
   },
   data() {
     return {
-      curatorData: {
+      tutorData: {
         fullName: 'Петрова Мария Ивановна',
         email: 'm.petrova@venue.ru',
         phone: '+7 (999) 123-45-67',
@@ -240,8 +240,8 @@ export default {
     }
   },
   computed: {
-    curatorName() {
-      return this.curatorData.fullName.split(' ')[1] || 'Куратор'
+    tutorName() {
+      return this.tutorData.fullName.split(' ')[1] || 'Куратор'
     },
     venueStatusClass() {
       const status = this.venueData.moderationStatus.toLowerCase()
@@ -259,20 +259,20 @@ export default {
   },
   methods: {
     goToExperts() {
-      this.$router.push('/curator/experts')
+      this.$router.push('/tutor/experts')
     },
     addExpert() {
       // Логика добавления эксперта
       console.log('Добавление главного эксперта')
     },
     editVenueInfo() {
-      this.$router.push('/curator/venue-info')
+      this.$router.push('/tutor/venue-info')
     },
     uploadDocuments() {
-      this.$router.push('/curator/documents')
+      this.$router.push('/tutor/documents')
     },
     viewDocuments() {
-      this.$router.push('/curator/documents')
+      this.$router.push('/tutor/documents')
     },
     sendForModeration() {
       // Логика отправки на модерацию

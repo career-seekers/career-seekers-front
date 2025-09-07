@@ -198,7 +198,7 @@ import {UserRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input
 import {Roles} from "../../../state/UserState.types.js";
 
 export default {
-  name: 'CuratorRegisterView',
+  name: 'TutorRegisterView',
   components: {
     ToastPopup,
     InputText,
