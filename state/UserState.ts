@@ -40,5 +40,9 @@ export const fillUserState = async () => {
         UserState.password = response.message.password;
         UserState.role = response.message.role;
         UserState.avatarId = response.message.avatarId
+        return {
+            title: '',
+            message: ''
+        }
     }
 }

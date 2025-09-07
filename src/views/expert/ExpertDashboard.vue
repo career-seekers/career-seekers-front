@@ -105,31 +105,17 @@
         <p class="footer-text">Академия Технического Творчества и Цифровых Технологий</p>
       </footer>
     </div>
-
-    <!-- Тестовый тост -->
-    <div v-if="showTestToast" class="test-toast">
-      <div class="toast-content">
-        <div class="toast-icon">
-          <i class="pi pi-info-circle"></i>
-        </div>
-        <div class="toast-text">
-          <h4 class="toast-title">Ян был здесь.</h4>
-          <p class="toast-message">Это тестовый тост для демо.</p>
-        </div>
-        <button class="toast-close" @click="closeTestToast">
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import Button from 'primevue/button'
+import ToastPopup from "@/components/ToastPopup.vue";
 
 export default {
   name: 'ExpertDashboard',
   components: {
+    ToastPopup,
     Button
   },
   data() {

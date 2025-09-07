@@ -174,6 +174,23 @@ export default {
         localStorage.setItem("access_token", response.message.accessToken)
         localStorage.setItem("refresh_token", response.message.refreshToken)
         this.errors.toastPopup = await fillUserState()
+        if (this.errors.toastPopup.title === "") {
+          switch (UserState.role) {
+            case Roles.USER:
+              await router.push("/parent")
+              break
+            case Roles.MENTOR:
+              await router.push("/curator")
+              break
+            case Roles.EXPERT:
+              await router.push("/expert")
+              break
+            default:
+              await router.push("/expert")
+              break
+          }
+        }
+
       }
       this.isLoading = false
     },
@@ -190,7 +207,7 @@ export default {
     if (localStorage.getItem("access_token") &&
         localStorage.getItem("refresh_token")) {
       this.errors.toastPopup = await fillUserState()
-      if (!this.errors.toastPopup) {
+      if (this.errors.toastPopup.title === "") {
         switch (UserState.role) {
           case Roles.USER:
             await router.push("/parent")

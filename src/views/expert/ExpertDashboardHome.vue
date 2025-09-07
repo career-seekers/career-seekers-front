@@ -19,37 +19,39 @@
             <h4 class="section-title">Персональные данные</h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
-              <span class="data-value">{{ expertData.fullName }}</span>
+              <span class="data-value">{{
+                  UserState.lastName + " " + UserState.firstName + " " + UserState.patronymic
+                }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ expertData.email }}</span>
+              <span class="data-value">{{ UserState.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ expertData.phone }}</span>
+              <span class="data-value">{{ UserState.mobileNumber }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Telegram:</span>
-              <span class="data-value">{{ expertData.telegram }}</span>
+              <span class="data-value">{{  }}</span>
             </div>
           </div>
           
-          <div class="data-section">
-            <h4 class="section-title">Профессиональная информация</h4>
-            <div class="data-item">
-              <span class="data-label">Специализация:</span>
-              <span class="data-value">{{ expertData.specialization }}</span>
-            </div>
-            <div class="data-item">
-              <span class="data-label">Опыт работы:</span>
-              <span class="data-value">{{ expertData.experience }}</span>
-            </div>
-            <div class="data-item">
-              <span class="data-label">Статус:</span>
-              <span class="data-value">{{ expertData.status }}</span>
-            </div>
-          </div>
+<!--          <div class="data-section">-->
+<!--            <h4 class="section-title">Профессиональная информация</h4>-->
+<!--            <div class="data-item">-->
+<!--              <span class="data-label">Специализация:</span>-->
+<!--              <span class="data-value">{{  }}</span>-->
+<!--            </div>-->
+<!--            <div class="data-item">-->
+<!--              <span class="data-label">Опыт работы:</span>-->
+<!--              <span class="data-value">{{  }}</span>-->
+<!--            </div>-->
+<!--            <div class="data-item">-->
+<!--              <span class="data-label">Статус:</span>-->
+<!--              <span class="data-value">{{  }}</span>-->
+<!--            </div>-->
+<!--          </div>-->
         </div>
       </div>
 
@@ -158,6 +160,7 @@
 
 <script>
 import Button from 'primevue/button'
+import {UserState} from "../../../state/UserState";
 
 export default {
   name: 'ExpertDashboardHome',
@@ -166,15 +169,6 @@ export default {
   },
   data() {
     return {
-      expertData: {
-        fullName: 'Смирнов Алексей Владимирович',
-        email: 'a.smirnov@mentor.ru',
-        phone: '+7 (999) 987-65-43',
-        telegram: '@alex_mentor',
-        specialization: 'Веб-разработка и дизайн',
-        experience: '5 лет',
-        status: 'Активный наставник'
-      },
       participantsStats: {
         total: 8,
         active: 6,
@@ -210,8 +204,11 @@ export default {
     }
   },
   computed: {
+    UserState() {
+      return UserState
+    },
     expertName() {
-      return this.expertData.fullName.split(' ')[1] || 'Наставник'
+      return UserState.firstName || 'Наставник'
     }
   },
   methods: {
