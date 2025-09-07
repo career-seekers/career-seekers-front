@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ tutorName }}!</h1>
+      <h1 class="page-title">Добро пожаловать, {{ UserState.firstName }}!</h1>
       <p class="page-subtitle">Управляйте площадкой и главными экспертами</p>
     </div>
 
@@ -19,20 +19,22 @@
             <h4 class="section-title">Персональные данные</h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
-              <span class="data-value">{{ tutorData.fullName }}</span>
+              <span class="data-value">{{
+                  UserState.lastName + " " + UserState.firstName + " " + UserState.patronymic
+                }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ tutorData.email }}</span>
+              <span class="data-value">{{ UserState.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ tutorData.phone }}</span>
+              <span class="data-value">{{ UserState.mobileNumber }}</span>
             </div>
-            <div class="data-item">
-              <span class="data-label">Должность:</span>
-              <span class="data-value">{{ tutorData.position }}</span>
-            </div>
+<!--            <div class="data-item">-->
+<!--              <span class="data-label">Должность:</span>-->
+<!--              <span class="data-value">{{ UserState.position }}</span>-->
+<!--            </div>-->
           </div>
         </div>
       </div>
@@ -185,6 +187,7 @@
 
 <script>
 import Button from 'primevue/button'
+import {UserState} from "../../../state/UserState";
 
 export default {
   name: 'TutorDashboardHome',
@@ -193,12 +196,6 @@ export default {
   },
   data() {
     return {
-      tutorData: {
-        fullName: 'Петрова Мария Ивановна',
-        email: 'm.petrova@venue.ru',
-        phone: '+7 (999) 123-45-67',
-        position: 'Куратор образовательной площадки'
-      },
       venueData: {
         name: 'Центр дополнительного образования "ТехноМир"',
         address: 'г. Москва, ул. Техническая, д. 15',
@@ -240,6 +237,9 @@ export default {
     }
   },
   computed: {
+    UserState() {
+      return UserState
+    },
     tutorName() {
       return this.tutorData.fullName.split(' ')[1] || 'Куратор'
     },

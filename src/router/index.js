@@ -29,6 +29,9 @@ import TutorExperts from '@/views/tutor/TutorExperts.vue'
 import TutorDocuments from '@/views/tutor/TutorDocuments.vue'
 import TutorVenueInfo from '@/views/tutor/TutorVenueInfo.vue'
 
+// UserState
+import {fillUserState} from "../../state/UserState";
+
 const routes = [
   {
     path: '/',
@@ -166,5 +169,6 @@ router.afterEach((to) => {
   const pageTitle = titleManager.getPageTitle(to.name)
   titleManager.setTitle(pageTitle)
 })
+await fillUserState()
 
 export default router

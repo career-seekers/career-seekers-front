@@ -173,24 +173,7 @@ export default {
       } else {
         localStorage.setItem("access_token", response.message.accessToken)
         localStorage.setItem("refresh_token", response.message.refreshToken)
-        this.errors.toastPopup = await fillUserState()
-        if (this.errors.toastPopup.title === "") {
-          switch (UserState.role) {
-            case Roles.USER:
-              await router.push("/parent")
-              break
-            case Roles.MENTOR:
-              await router.push("/tutor")
-              break
-            case Roles.EXPERT:
-              await router.push("/expert")
-              break
-            default:
-              await router.push("/expert")
-              break
-          }
-        }
-
+        await this.redirect()
       }
       this.isLoading = false
     },
@@ -202,10 +185,7 @@ export default {
     closeRegisterOptions() {
       this.showRegisterOptions = false
     },
-  },
-  async mounted() {
-    if (localStorage.getItem("access_token") &&
-        localStorage.getItem("refresh_token")) {
+    async redirect() {
       this.errors.toastPopup = await fillUserState()
       if (this.errors.toastPopup.title === "") {
         switch (UserState.role) {
@@ -213,16 +193,25 @@ export default {
             await router.push("/parent")
             break
           case Roles.MENTOR:
-            await router.push("/tutor")
+            await router.push("/mentor")
             break
           case Roles.EXPERT:
             await router.push("/expert")
+            break
+          case Roles.TUTOR:
+            await router.push("/tutor")
             break
           default:
             await router.push("/expert")
             break
         }
       }
+    }
+  },
+  async mounted() {
+    if (localStorage.getItem("access_token") &&
+        localStorage.getItem("refresh_token")) {
+      await this.redirect()
     }
   }
 }
