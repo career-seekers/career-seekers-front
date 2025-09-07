@@ -752,11 +752,11 @@ export default {
         } else {
           const fileManager = new FileManager()
           const filesToVerify: ParentFiles = {
-            childConsentFileName: await fileManager.saveFileToCache(this.parentForm.childConsentFile),
-            childBirthCertificateName: await fileManager.saveFileToCache(this.childForm.birthCertificate),
-            childSnilsScanName: await fileManager.saveFileToCache(this.childForm.snilsScan),
-            childSchoolCertificateName: await fileManager.saveFileToCache(this.childForm.schoolCertificate),
-            childPlatformCertificateName: await fileManager.saveFileToCache(this.childForm.platformCertificate)
+            CONSENT_CHILD: await fileManager.saveFileToCache(this.parentForm.childConsentFile),
+            BIRTH_CHILD_CERTIFICATE: await fileManager.saveFileToCache(this.childForm.birthCertificate),
+            SNILS_CHILD: await fileManager.saveFileToCache(this.childForm.snilsScan),
+            SCHOOL_CERTIFICATE: await fileManager.saveFileToCache(this.childForm.schoolCertificate),
+            PLATFORM_CERTIFICATE: await fileManager.saveFileToCache(this.childForm.platformCertificate)
           }
           const registrationDto: UserWithChildRegistrationDto = {
             verificationCode: "",

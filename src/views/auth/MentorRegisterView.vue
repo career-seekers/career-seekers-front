@@ -381,7 +381,7 @@ export default {
         } else {
           const fileManager = new FileManager()
           const filesToVerify: MentorFiles = {
-            consentFileName: await fileManager.saveFileToCache(this.registerForm.consentFile),
+            CONSENT_MENTOR: await fileManager.saveFileToCache(this.registerForm.consentFile),
           }
           const registrationDto: UserRegistrationDto = {
             verificationCode: "",

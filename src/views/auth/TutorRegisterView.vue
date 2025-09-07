@@ -412,7 +412,7 @@ export default {
             uuid: ""
           }
           const filesToVerify: TutorFiles = {
-            consentFileName: await fileManager.saveFileToCache(this.registerForm.consentFile)
+            CONSENT_TUTOR: await fileManager.saveFileToCache(this.registerForm.consentFile)
           }
           localStorage.setItem("dataToVerify", JSON.stringify(registrationDto))
           localStorage.setItem("filesToVerify", JSON.stringify(filesToVerify))

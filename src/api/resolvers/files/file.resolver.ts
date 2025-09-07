@@ -16,14 +16,26 @@ export class FileResolver {
     }
 
 
-    public async uploadConsentToTutor(data: CommonInputFormDataDto) {
+
+    public async upload(data: CommonInputFormDataDto, endpoint: FileEndpoints) {
         return await this
             .apiResolver
             .request<FormData, CommonOutputFileUploadDto | CommonOutputDto<string>>(
-                "uploadConsentToTutorPDP",
+                endpoint,
                 "POST",
                 this.DTOToFormData(data),
                 this.token ? this.token : undefined
             )
     }
+}
+
+export enum FileEndpoints {
+    CONSENT_TUTOR = "uploadConsentToTutorPDP",
+    CONSENT_MENTOR = "uploadConsentToMentorPDP",
+    CONSENT_EXPERT = "uploadConsentToExpertPDP",
+    CONSENT_CHILD = "uploadConsentToChildPDP",
+    SNILS_CHILD = "uploadSnils",
+    BIRTH_CHILD_CERTIFICATE = "",
+    SCHOOL_CERTIFICATE = "uploadStudyingCertificate",
+    PLATFORM_CERTIFICATE = "uploadAdditionalStudyingCertificate"
 }

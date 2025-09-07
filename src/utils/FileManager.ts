@@ -67,18 +67,18 @@ export class FileManager {
             request.onsuccess = function(event) {
                 const db = event.target.result;
                 const transaction = db.transaction(['files'], 'readwrite');
-                const store = transaction.objectStore(['files']);
+                const store = transaction.objectStore('files');
 
                 const deleteRequest = store.delete(fileName);
 
                 deleteRequest.onsuccess = function() {
-                    resolve(true)
                     db.close();
+                    resolve(true)
                 };
 
                 deleteRequest.onerror = function(event) {
-                    reject(false)
                     db.close();
+                    reject(false)
                 };
             };
 
@@ -90,23 +90,23 @@ export class FileManager {
 }
 
 export interface TutorFiles {
-    consentFileName: string
+    CONSENT_TUTOR: string
 }
 
 export interface ExpertFiles {
-    consentFileName: string
+    CONSENT_EXPERT: string
 }
 
 export interface MentorFiles {
-    consentFileName: string
+    CONSENT_MENTOR: string
 }
 
 export interface ParentFiles {
-    childConsentFileName: string
-    childBirthCertificateName: string
-    childSnilsScanName: string
-    childSchoolCertificateName: string
-    childPlatformCertificateName: string
+    CONSENT_CHILD: string
+    BIRTH_CHILD_CERTIFICATE: string
+    SNILS_CHILD: string
+    SCHOOL_CERTIFICATE: string
+    PLATFORM_CERTIFICATE: string
 }
 
 
