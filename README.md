@@ -31,9 +31,9 @@ src/
 ├── views/                # Страницы приложения
 │   ├── auth/             # Аутентификация
 │   │   ├── LoginView.vue
-│   │   ├── ExpertRegisterView.vue
+│   │   ├── MentorRegisterView.vue
 │   │   ├── ParentRegisterView.vue
-│   │   ├── CuratorRegisterView.vue
+│   │   ├── TutorRegisterView.vue
 │   │   └── EmailConfirmationView.vue
 │   ├── parent/           # Дашборд родителя
 │   │   ├── ParentDashboard.vue
@@ -41,18 +41,25 @@ src/
 │   │   ├── ParentCompetenciesSelection.vue
 │   │   ├── ParentMyCompetencies.vue
 │   │   └── ParentAchievements.vue
+│   ├── mentor/           # Дашборд эксперта
+│   │   ├── MentorDashboard.vue
+│   │   ├── MentorDashboardHome.vue
+│   │   ├── MentorParticipants.vue
+│   │   ├── MentorMyCertificates.vue
+│   │   └── MentorParticipantsCertificates.vue
 │   ├── expert/           # Дашборд эксперта
+│   │   ├── ExpertCompetencies.vue
 │   │   ├── ExpertDashboard.vue
 │   │   ├── ExpertDashboardHome.vue
-│   │   ├── ExpertParticipants.vue
-│   │   ├── ExpertMyCertificates.vue
-│   │   └── ExpertParticipantsCertificates.vue
-│   └── curator/          # Дашборд куратора
-│       ├── CuratorDashboard.vue
-│       ├── CuratorDashboardHome.vue
-│       ├── CuratorExperts.vue
-│       ├── CuratorDocuments.vue
-│       └── CuratorVenueInfo.vue
+│   │   ├── ExpertDocuments.vue
+│   │   ├── ExpertEvents.vue
+│   │   └── ExpertParticipants.vue
+│   └── tutor/            # Дашборд куратора
+│       ├── TutorDashboard.vue
+│       ├── TutorDashboardHome.vue
+│       ├── TutorExperts.vue
+│       ├── TutorDocuments.vue
+│       └── TutorVenueInfo.vue
 ├── App.vue               # Главный компонент
 └── main.js              # Точка входа
 ```
@@ -86,17 +93,24 @@ npm run build
 - **Мои компетенции** - `/parent/my-competencies` - управление текущими компетенциями
 - **Достижения** - `/parent/achievements` - просмотр достижений и сертификатов
 
+### 👨‍🏫 Наставники (`/mentor`)
+- **Главная** - `/mentor/dashboard` - статистика участников и быстрые действия
+- **Участники** - `/mentor/participants` - управление участниками
+- **Мои сертификаты** - `/mentor/my-certificates` - сертификаты эксперта
+- **Сертификаты участников** - `/mentor/participants-certificates` - выдача сертификатов
+
 ### 👨‍🏫 Эксперты (`/expert`)
 - **Главная** - `/expert/dashboard` - статистика участников и быстрые действия
+- **Компетенции** - `/expert/competencies` - выдача сертификатов
+- **Документы** - `/expert/documents` - загрузка и управление документами по компетенциям
 - **Участники** - `/expert/participants` - управление участниками
-- **Мои сертификаты** - `/expert/my-certificates` - сертификаты эксперта
-- **Сертификаты участников** - `/expert/participants-certificates` - выдача сертификатов
+- **События** - `/expert/events` - сертификаты эксперта
 
-### 🏢 Кураторы (`/curator`)
-- **Главная** - `/curator/dashboard` - обзор площадки и экспертов
-- **Главные эксперты** - `/curator/experts` - управление главными экспертами
-- **Документы** - `/curator/documents` - загрузка и управление документами
-- **Информация о площадке** - `/curator/venue-info` - редактирование данных площадки
+### 🏢 Кураторы (`/tutor`)
+- **Главная** - `/tutor/dashboard` - обзор площадки и экспертов
+- **Главные эксперты** - `/tutor/experts` - управление главными экспертами
+- **Документы** - `/tutor/documents` - загрузка и управление документами
+- **Информация о площадке** - `/tutor/venue-info` - редактирование данных площадки
 
 ## 🎨 UI Компоненты (PrimeVue)
 
@@ -202,7 +216,7 @@ import { titleManager } from '@/utils/titleManager.js'
 titleManager.setTitle('Название страницы')
 
 // Получить title для страницы
-const pageTitle = titleManager.getPageTitle('expert-dashboard')
+const pageTitle = titleManager.getPageTitle('mentor-dashboard')
 ```
 
 ## 📱 Адаптивность

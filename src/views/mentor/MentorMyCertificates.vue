@@ -92,13 +92,13 @@
               label="Скачать PDF" 
               icon="pi pi-download"
               class="p-button-outlined"
-              @click="downloadCertificate('expert')"
+              @click="downloadCertificate('mentor')"
             />
             <Button 
               label="Просмотреть" 
               icon="pi pi-eye"
               class="p-button-outlined"
-              @click="viewCertificate('expert')"
+              @click="viewCertificate('mentor')"
             />
           </div>
         </div>
@@ -178,7 +178,7 @@ import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 
 export default {
-  name: 'ExpertMyCertificates',
+  name: 'MentorMyCertificates',
   components: {
     Button,
     Tag

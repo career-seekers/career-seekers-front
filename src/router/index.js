@@ -3,9 +3,9 @@ import { titleManager } from '@/utils/titleManager.js'
 
 // Auth views
 import LoginView from '@/views/auth/LoginView.vue'
-import ExpertRegisterView from '@/views/auth/ExpertRegisterView.vue'
+import MentorRegisterView from '@/views/auth/MentorRegisterView.vue'
 import ParentRegisterView from '@/views/auth/ParentRegisterView.vue'
-import CuratorRegisterView from '@/views/auth/CuratorRegisterView.vue'
+import TutorRegisterView from '@/views/auth/TutorRegisterView.vue'
 import EmailConfirmationView from '@/views/auth/EmailConfirmationView.vue'
 
 // Parent views
@@ -15,19 +15,28 @@ import ParentCompetenciesSelection from '@/views/parent/ParentCompetenciesSelect
 import ParentMyCompetencies from '@/views/parent/ParentMyCompetencies.vue'
 import ParentAchievements from '@/views/parent/ParentAchievements.vue'
 
-// Expert views
+//expert views
 import ExpertDashboard from '@/views/expert/ExpertDashboard.vue'
 import ExpertDashboardHome from '@/views/expert/ExpertDashboardHome.vue'
+import ExpertCompetencies from '@/views/expert/ExpertCompetencies.vue'
 import ExpertParticipants from '@/views/expert/ExpertParticipants.vue'
-import ExpertMyCertificates from '@/views/expert/ExpertMyCertificates.vue'
-import ExpertParticipantsCertificates from '@/views/expert/ExpertParticipantsCertificates.vue'
+import ExpertDocuments from '@/views/expert/ExpertDocuments.vue'
+import ExpertEvents from '@/views/expert/ExpertEvents.vue'
 
-// Curator views
-import CuratorDashboard from '@/views/curator/CuratorDashboard.vue'
-import CuratorDashboardHome from '@/views/curator/CuratorDashboardHome.vue'
-import CuratorExperts from '@/views/curator/CuratorExperts.vue'
-import CuratorDocuments from '@/views/curator/CuratorDocuments.vue'
-import CuratorVenueInfo from '@/views/curator/CuratorVenueInfo.vue'
+
+// mentor views
+import MentorDashboard from '@/views/mentor/MentorDashboard.vue'
+import MentorDashboardHome from '@/views/mentor/MentorDashboardHome.vue'
+import MentorParticipants from '@/views/mentor/MentorParticipants.vue'
+import MentorMyCertificates from '@/views/mentor/MentorMyCertificates.vue'
+import MentorParticipantsCertificates from '@/views/mentor/MentorParticipantsCertificates.vue'
+
+// tutor views
+import TutorDashboard from '@/views/tutor/TutorDashboard.vue'
+import TutorDashboardHome from '@/views/tutor/TutorDashboardHome.vue'
+import TutorExperts from '@/views/tutor/TutorExperts.vue'
+import TutorDocuments from '@/views/tutor/TutorDocuments.vue'
+import TutorVenueInfo from '@/views/tutor/TutorVenueInfo.vue'
 
 const routes = [
   {
@@ -42,12 +51,12 @@ const routes = [
   {
     path: '/register',
     name: 'register',
-    component: ExpertRegisterView
+    component: MentorRegisterView
   },
   {
-    path: '/register/expert',
-    name: 'expert-register',
-    component: ExpertRegisterView
+    path: '/register/mentor',
+    name: 'mentor-register',
+    component: MentorRegisterView
   },
   {
     path: '/register/parent',
@@ -55,9 +64,9 @@ const routes = [
     component: ParentRegisterView
   },
   {
-    path: '/register/curator',
-    name: 'curator-register',
-    component: CuratorRegisterView
+    path: '/register/tutor',
+    name: 'tutor-register',
+    component: TutorRegisterView
   },
   {
     path: '/email-confirmation',
@@ -95,6 +104,36 @@ const routes = [
     ]
   },
   {
+    path: '/mentor',
+    component: MentorDashboard,
+    children: [
+      {
+        path: '',
+        redirect: '/mentor/dashboard'
+      },
+      {
+        path: 'dashboard',
+        name: 'mentor-dashboard',
+        component: MentorDashboardHome
+      },
+      {
+        path: 'participants',
+        name: 'mentor-participants',
+        component: MentorParticipants
+      },
+      {
+        path: 'my-certificates',
+        name: 'mentor-my-certificates',
+        component: MentorMyCertificates
+      },
+      {
+        path: 'participants-certificates',
+        name: 'mentor-participants-certificates',
+        component: MentorParticipantsCertificates
+      }
+    ]
+  },
+  {
     path: '/expert',
     component: ExpertDashboard,
     children: [
@@ -108,49 +147,54 @@ const routes = [
         component: ExpertDashboardHome
       },
       {
-        path: 'participants',
+        path: 'competencies',
+        name: 'expert-competencies',
+        component: ExpertCompetencies
+      },
+      {
+        path: 'participants/:competencyId',
         name: 'expert-participants',
         component: ExpertParticipants
       },
       {
-        path: 'my-certificates',
-        name: 'expert-my-certificates',
-        component: ExpertMyCertificates
+        path: 'documents/:competencyId',
+        name: 'expert-documents',
+        component: ExpertDocuments
       },
       {
-        path: 'participants-certificates',
-        name: 'expert-participants-certificates',
-        component: ExpertParticipantsCertificates
+        path: 'events',
+        name: 'expert-events',
+        component: ExpertEvents
       }
     ]
   },
   {
-    path: '/curator',
-    component: CuratorDashboard,
+    path: '/tutor',
+    component: TutorDashboard,
     children: [
       {
         path: '',
-        redirect: '/curator/dashboard'
+        redirect: '/tutor/dashboard'
       },
       {
         path: 'dashboard',
-        name: 'curator-dashboard',
-        component: CuratorDashboardHome
+        name: 'tutor-dashboard',
+        component: TutorDashboardHome
       },
       {
         path: 'experts',
-        name: 'curator-experts',
-        component: CuratorExperts
+        name: 'tutor-experts',
+        component: TutorExperts
       },
       {
         path: 'documents',
-        name: 'curator-documents',
-        component: CuratorDocuments
+        name: 'tutor-documents',
+        component: TutorDocuments
       },
       {
         path: 'venue-info',
-        name: 'curator-venue-info',
-        component: CuratorVenueInfo
+        name: 'tutor-venue-info',
+        component: TutorVenueInfo
       }
     ]
   }

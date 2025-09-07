@@ -179,7 +179,7 @@ import Checkbox from 'primevue/checkbox'
 import Dialog from 'primevue/dialog'
 
 export default {
-  name: 'CuratorRegisterView',
+  name: 'TutorRegisterView',
   components: {
     InputText,
     InputMask,

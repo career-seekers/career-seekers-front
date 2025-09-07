@@ -9,7 +9,7 @@
     <div class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
       <div class="sidebar-header">
         <img src="@/assets/logo.png" alt="Logo" class="sidebar-logo" />
-        <h2 class="sidebar-title">Личный кабинет эксперта</h2>
+        <h2 class="sidebar-title">Личный кабинет куратора</h2>
         <button class="sidebar-close" @click="toggleSidebar" v-if="isMobile">
           <i class="pi pi-times"></i>
         </button>
@@ -18,21 +18,27 @@
       <nav class="sidebar-nav">
         <ul class="nav-list">
           <li class="nav-item">
-            <router-link to="/expert/dashboard" class="nav-link" :class="{ active: $route.path === '/expert/dashboard' }" @click="closeSidebarOnMobile">
+            <router-link to="/tutor/dashboard" class="nav-link" :class="{ active: $route.path === '/tutor/dashboard' }" @click="closeSidebarOnMobile">
               <i class="pi pi-home"></i>
               <span>Главная</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/expert/competencies" class="nav-link" :class="{ active: $route.path === '/expert/competencies' }" @click="closeSidebarOnMobile">
-              <i class="pi pi-briefcase"></i>
-              <span>Компетенции</span>
+            <router-link to="/tutor/experts" class="nav-link" :class="{ active: $route.path === '/tutor/experts' }" @click="closeSidebarOnMobile">
+              <i class="pi pi-users"></i>
+              <span>Главные эксперты</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/expert/events" class="nav-link" :class="{ active: $route.path === '/expert/events' }" @click="closeSidebarOnMobile">
-              <i class="pi pi-calendar"></i>
-              <span>События и рассылки</span>
+            <router-link to="/tutor/documents" class="nav-link" :class="{ active: $route.path === '/tutor/documents' }" @click="closeSidebarOnMobile">
+              <i class="pi pi-file-text"></i>
+              <span>Документы</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/tutor/venue-info" class="nav-link" :class="{ active: $route.path === '/tutor/venue-info' }" @click="closeSidebarOnMobile">
+              <i class="pi pi-building"></i>
+              <span>Информация о площадке</span>
             </router-link>
           </li>
         </ul>
@@ -68,7 +74,7 @@
 import Button from 'primevue/button'
 
 export default {
-  name: 'ExpertDashboard',
+  name: 'TutorDashboard',
   components: {
     Button
   },

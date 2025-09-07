@@ -1,17 +1,17 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ curatorName }}!</h1>
-      <p class="page-subtitle">Управляйте площадкой и главными экспертами</p>
+      <h1 class="page-title">Добро пожаловать, {{ MentorName }}!</h1>
+      <p class="page-subtitle">Управляйте участниками и отслеживайте их прогресс</p>
     </div>
 
     <div class="dashboard-grid">
-      <!-- Информация о кураторе -->
+      <!-- Информация о наставнике -->
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-user"></i>
-            Информация о кураторе
+            Информация о наставнике
           </h3>
         </div>
         <div class="card-content">
@@ -19,100 +19,74 @@
             <h4 class="section-title">Персональные данные</h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
-              <span class="data-value">{{ curatorData.fullName }}</span>
+              <span class="data-value">{{ MentorData.fullName }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ curatorData.email }}</span>
+              <span class="data-value">{{ MentorData.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ curatorData.phone }}</span>
+              <span class="data-value">{{ MentorData.phone }}</span>
             </div>
             <div class="data-item">
-              <span class="data-label">Должность:</span>
-              <span class="data-value">{{ curatorData.position }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Информация о площадке -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-building"></i>
-            Информация о площадке
-          </h3>
-          <div class="status-badge" :class="venueStatusClass">
-            {{ venueStatusText }}
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="data-section">
-            <div class="data-item">
-              <span class="data-label">Название:</span>
-              <span class="data-value">{{ venueData.name }}</span>
-            </div>
-            <div class="data-item">
-              <span class="data-label">Адрес:</span>
-              <span class="data-value">{{ venueData.address }}</span>
-            </div>
-            <div class="data-item">
-              <span class="data-label">Описание:</span>
-              <span class="data-value">{{ venueData.description }}</span>
-            </div>
-            <div class="data-item">
-              <span class="data-label">Статус модерации:</span>
-              <span class="data-value">{{ venueData.moderationStatus }}</span>
+              <span class="data-label">Telegram:</span>
+              <span class="data-value">{{ MentorData.telegram }}</span>
             </div>
           </div>
           
-          <div class="card-actions">
-            <Button 
-              label="Редактировать информацию" 
-              icon="pi pi-pencil"
-              class="p-button-outlined"
-              @click="editVenueInfo"
-            />
+          <div class="data-section">
+            <h4 class="section-title">Профессиональная информация</h4>
+            <div class="data-item">
+              <span class="data-label">Специализация:</span>
+              <span class="data-value">{{ MentorData.specialization }}</span>
+            </div>
+            <div class="data-item">
+              <span class="data-label">Опыт работы:</span>
+              <span class="data-value">{{ MentorData.experience }}</span>
+            </div>
+            <div class="data-item">
+              <span class="data-label">Статус:</span>
+              <span class="data-value">{{ MentorData.status }}</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Статистика главных экспертов -->
+      <!-- Статистика участников -->
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-users"></i>
-            Главные эксперты
+            Статистика участников
           </h3>
         </div>
         <div class="card-content">
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.total }}</div>
-              <div class="stat-label">Всего экспертов</div>
+              <div class="stat-number">{{ participantsStats.total }}</div>
+              <div class="stat-label">Всего участников</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.active }}</div>
+              <div class="stat-number">{{ participantsStats.active }}</div>
               <div class="stat-label">Активных</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.competencies }}</div>
+              <div class="stat-number">{{ participantsStats.competencies }}</div>
               <div class="stat-label">Компетенций</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.verified }}</div>
-              <div class="stat-label">Проверенных</div>
+              <div class="stat-number">{{ participantsStats.stage2 }}</div>
+              <div class="stat-label">Прошли во 2 этап</div>
             </div>
           </div>
           
-          <div class="card-actions">
+          <div class="stats-actions">
             <Button 
-              label="Управление экспертами" 
+              label="Управление участниками" 
               icon="pi pi-cog"
               class="p-button-outlined"
-              @click="goToExperts"
+              @click="goToParticipants"
             />
           </div>
         </div>
@@ -129,29 +103,28 @@
         <div class="card-content">
           <div class="quick-actions">
             <Button 
-              label="Добавить главного эксперта" 
+              label="Добавить участника" 
               icon="pi pi-user-plus"
               class="p-button-primary"
-              @click="addExpert"
+              @click="addParticipant"
             />
             <Button 
-              label="Загрузить документы" 
-              icon="pi pi-upload"
+              label="Изменить состав" 
+              icon="pi pi-pencil"
               class="p-button-outlined"
-              @click="uploadDocuments"
+              @click="editParticipants"
             />
             <Button 
-              label="Просмотреть документы" 
-              icon="pi pi-file-text"
+              label="Связаться с родителями" 
+              icon="pi pi-envelope"
               class="p-button-outlined"
-              @click="viewDocuments"
+              @click="contactParents"
             />
             <Button 
-              label="Отправить на модерацию" 
-              icon="pi pi-send"
+              label="Просмотреть сертификаты" 
+              icon="pi pi-certificate"
               class="p-button-outlined"
-              @click="sendForModeration"
-              :disabled="!canSendForModeration"
+              @click="viewCertificates"
             />
           </div>
         </div>
@@ -187,97 +160,78 @@
 import Button from 'primevue/button'
 
 export default {
-  name: 'CuratorDashboardHome',
+  name: 'MentorDashboardHome',
   components: {
     Button
   },
   data() {
     return {
-      curatorData: {
-        fullName: 'Петрова Мария Ивановна',
-        email: 'm.petrova@venue.ru',
-        phone: '+7 (999) 123-45-67',
-        position: 'Куратор образовательной площадки'
+      MentorData: {
+        fullName: 'Смирнов Алексей Владимирович',
+        email: 'a.smirnov@mentor.ru',
+        phone: '+7 (999) 987-65-43',
+        telegram: '@alex_mentor',
+        specialization: 'Веб-разработка и дизайн',
+        experience: '5 лет',
+        status: 'Активный наставник'
       },
-      venueData: {
-        name: 'Центр дополнительного образования "ТехноМир"',
-        address: 'г. Москва, ул. Техническая, д. 15',
-        description: 'Современный образовательный центр с оборудованными лабораториями для проведения соревнований по техническим компетенциям',
-        moderationStatus: 'На модерации'
-      },
-      expertsStats: {
-        total: 5,
-        active: 4,
-        competencies: 8,
-        verified: 3
+      participantsStats: {
+        total: 8,
+        active: 6,
+        competencies: 12,
+        stage2: 3
       },
       recentUpdates: [
         {
           id: 1,
           icon: 'pi pi-user-plus',
-          text: 'Добавлен новый главный эксперт: Сидоров А.В.',
-          time: '1 час назад'
+          text: 'Добавлен новый участник: Иванов Петр',
+          time: '2 часа назад'
         },
         {
           id: 2,
-          icon: 'pi pi-file-upload',
-          text: 'Загружен документ: Лицензия на образовательную деятельность',
-          time: '3 часа назад'
-        },
-        {
-          id: 3,
-          icon: 'pi pi-check-circle',
-          text: 'Информация о площадке отправлена на модерацию',
+          icon: 'pi pi-trophy',
+          text: 'Петров Анна прошла во второй этап',
           time: '1 день назад'
         },
         {
-          id: 4,
-          icon: 'pi pi-user-edit',
-          text: 'Обновлены данные эксперта: Козлов П.С.',
+          id: 3,
+          icon: 'pi pi-envelope',
+          text: 'Получено сообщение от родителя',
           time: '2 дня назад'
+        },
+        {
+          id: 4,
+          icon: 'pi pi-certificate',
+          text: 'Выдан сертификат участнику',
+          time: '3 дня назад'
         }
       ]
     }
   },
   computed: {
-    curatorName() {
-      return this.curatorData.fullName.split(' ')[1] || 'Куратор'
-    },
-    venueStatusClass() {
-      const status = this.venueData.moderationStatus.toLowerCase()
-      if (status.includes('модерации')) return 'status-pending'
-      if (status.includes('одобрена')) return 'status-approved'
-      if (status.includes('отклонена')) return 'status-rejected'
-      return 'status-pending'
-    },
-    venueStatusText() {
-      return this.venueData.moderationStatus
-    },
-    canSendForModeration() {
-      return this.venueData.moderationStatus === 'Черновик' || this.venueData.moderationStatus === 'Отклонена'
+    MentorName() {
+      return this.MentorData.fullName.split(' ')[1] || 'Наставник'
     }
   },
   methods: {
-    goToExperts() {
-      this.$router.push('/curator/experts')
+    goToParticipants() {
+      this.$router.push('/mentor/participants')
     },
-    addExpert() {
-      // Логика добавления эксперта
-      console.log('Добавление главного эксперта')
+    addParticipant() {
+      // Логика добавления участника
+      console.log('Добавление участника')
     },
-    editVenueInfo() {
-      this.$router.push('/curator/venue-info')
+    editParticipants() {
+      // Логика изменения состава
+      console.log('Изменение состава участников')
     },
-    uploadDocuments() {
-      this.$router.push('/curator/documents')
+    contactParents() {
+      // Логика связи с родителями
+      console.log('Связь с родителями')
     },
-    viewDocuments() {
-      this.$router.push('/curator/documents')
-    },
-    sendForModeration() {
-      // Логика отправки на модерацию
-      console.log('Отправка на модерацию')
-      this.venueData.moderationStatus = 'На модерации'
+    viewCertificates() {
+      this.$router.push('/mentor/my-certificates')
     }
   }
 }
@@ -351,9 +305,6 @@ export default {
   background: linear-gradient(135deg, #ff9800, #f57c00);
   color: white;
   padding: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .card-title {
@@ -367,33 +318,6 @@ export default {
 .card-title i {
   margin-right: 0.75rem;
   font-size: 1.1rem;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-pending {
-  background: rgba(255, 193, 7, 0.2);
-  color: #ffc107;
-  border: 1px solid #ffc107;
-}
-
-.status-approved {
-  background: rgba(40, 167, 69, 0.2);
-  color: #28a745;
-  border: 1px solid #28a745;
-}
-
-.status-rejected {
-  background: rgba(220, 53, 69, 0.2);
-  color: #dc3545;
-  border: 1px solid #dc3545;
 }
 
 .card-content {
@@ -420,7 +344,7 @@ export default {
 .data-item {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   padding: 0.5rem 0;
   border-bottom: 1px solid #f1f3f4;
 }
@@ -433,15 +357,12 @@ export default {
   color: #6c757d;
   font-weight: 500;
   min-width: 120px;
-  flex-shrink: 0;
 }
 
 .data-value {
   color: #2c3e50;
   font-weight: 500;
   text-align: right;
-  flex: 1;
-  word-break: break-word;
 }
 
 /* Статистика */
@@ -472,9 +393,8 @@ export default {
   font-weight: 500;
 }
 
-.card-actions {
+.stats-actions {
   text-align: center;
-  margin-top: 1rem;
 }
 
 /* Быстрые действия */
@@ -559,9 +479,6 @@ export default {
   
   .card-header {
     padding: 1rem;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
   }
   
   .card-content {
@@ -588,6 +505,7 @@ export default {
   }
   
   .quick-actions {
+    flex-direction: column;
     gap: 0.5rem;
   }
   
@@ -674,6 +592,7 @@ export default {
   }
   
   .quick-actions {
+    flex-direction: column;
     gap: 0.4rem;
   }
   

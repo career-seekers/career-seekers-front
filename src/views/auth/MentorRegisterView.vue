@@ -167,7 +167,7 @@ import Checkbox from 'primevue/checkbox'
 import Dialog from 'primevue/dialog'
 
 export default {
-  name: 'ExpertRegisterView',
+  name: 'MentorRegisterView',
   components: {
     InputText,
     InputMask,

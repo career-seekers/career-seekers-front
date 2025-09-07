@@ -120,9 +120,9 @@
             </div>
           </div>
           
-          <div v-if="document.expertName" class="expert-info">
-            <h4 class="expert-title">Связанный эксперт:</h4>
-            <p class="expert-name">{{ document.expertName }}</p>
+          <div v-if="document.mentorName" class="mentor-info">
+            <h4 class="mentor-title">Связанный эксперт:</h4>
+            <p class="mentor-name">{{ document.mentorName }}</p>
           </div>
         </div>
       </div>
@@ -160,11 +160,11 @@
         </div>
         
         <div class="form-field">
-          <label for="expertSelect">Связать с экспертом</label>
+          <label for="mentorSelect">Связать с экспертом</label>
           <Dropdown 
-            id="expertSelect"
-            v-model="uploadForm.expertId" 
-            :options="experts"
+            id="mentorSelect"
+            v-model="uploadForm.mentorId"
+            :options="mentors"
             optionLabel="fullName"
             optionValue="id"
             placeholder="Выберите эксперта (необязательно)"
@@ -222,11 +222,11 @@
     >
       <div class="link-form">
         <div class="form-field">
-          <label for="expertSelectLink">Эксперт *</label>
+          <label for="MentorSelectLink">Эксперт *</label>
           <Dropdown 
-            id="expertSelectLink"
-            v-model="linkForm.expertId" 
-            :options="experts"
+            id="MentorSelectLink"
+            v-model="linkForm.MentorId"
+            :options="Mentors"
             optionLabel="fullName"
             optionValue="id"
             placeholder="Выберите эксперта"
@@ -292,7 +292,7 @@ import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
 
 export default {
-  name: 'CuratorDocuments',
+  name: 'TutorDocuments',
   components: {
     Button,
     Dialog,

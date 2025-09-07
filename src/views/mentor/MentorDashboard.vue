@@ -9,7 +9,7 @@
     <div class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
       <div class="sidebar-header">
         <img src="@/assets/logo.png" alt="Logo" class="sidebar-logo" />
-        <h2 class="sidebar-title">Личный кабинет куратора</h2>
+        <h2 class="sidebar-title">Личный кабинет наставника</h2>
         <button class="sidebar-close" @click="toggleSidebar" v-if="isMobile">
           <i class="pi pi-times"></i>
         </button>
@@ -18,33 +18,71 @@
       <nav class="sidebar-nav">
         <ul class="nav-list">
           <li class="nav-item">
-            <router-link to="/curator/dashboard" class="nav-link" :class="{ active: $route.path === '/curator/dashboard' }" @click="closeSidebarOnMobile">
+            <router-link to="/mentor/dashboard" class="nav-link" :class="{ active: $route.path === '/mentor/dashboard' }" @click="closeSidebarOnMobile">
               <i class="pi pi-home"></i>
               <span>Главная</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/curator/experts" class="nav-link" :class="{ active: $route.path === '/curator/experts' }" @click="closeSidebarOnMobile">
+            <router-link to="/mentor/participants" class="nav-link" :class="{ active: $route.path === '/mentor/participants' }" @click="closeSidebarOnMobile">
               <i class="pi pi-users"></i>
-              <span>Главные эксперты</span>
+              <span>Участники</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/curator/documents" class="nav-link" :class="{ active: $route.path === '/curator/documents' }" @click="closeSidebarOnMobile">
-              <i class="pi pi-file-text"></i>
-              <span>Документы</span>
+            <router-link to="/mentor/my-certificates" class="nav-link" :class="{ active: $route.path === '/mentor/my-certificates' }" @click="closeSidebarOnMobile">
+              <i class="pi pi-certificate"></i>
+              <span>Мои сертификаты</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/curator/venue-info" class="nav-link" :class="{ active: $route.path === '/curator/venue-info' }" @click="closeSidebarOnMobile">
-              <i class="pi pi-building"></i>
-              <span>Информация о площадке</span>
+            <router-link to="/mentor/participants-certificates" class="nav-link" :class="{ active: $route.path === '/mentor/participants-certificates' }" @click="closeSidebarOnMobile">
+              <i class="pi pi-trophy"></i>
+              <span>Сертификаты участников</span>
             </router-link>
           </li>
         </ul>
       </nav>
       
       <div class="sidebar-footer">
+        <!-- Ссылка-приглашение -->
+        <div v-if="showInviteLink" class="invite-section">
+          <div class="invite-header">
+            <h4 class="invite-title">Пригласить участника</h4>
+            <button class="invite-toggle" @click="toggleInviteLink">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="invite-content">
+            <p class="invite-text">Поделитесь ссылкой для регистрации:</p>
+            <div class="invite-link-container">
+              <input 
+                ref="inviteLinkInput"
+                type="text" 
+                :value="inviteLink" 
+                readonly 
+                class="invite-link-input"
+              />
+              <Button 
+                icon="pi pi-copy" 
+                class="p-button-sm p-button-outlined"
+                @click="copyInviteLink"
+                v-tooltip="'Скопировать ссылку'"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <!-- Кнопка показа ссылки-приглашения -->
+        <div v-else class="invite-toggle-section">
+          <Button 
+            label="Показать ссылку-приглашение" 
+            icon="pi pi-share-alt" 
+            class="p-button-text p-button-sm"
+            @click="toggleInviteLink"
+          />
+        </div>
+        
         <Button 
           label="Выйти" 
           icon="pi pi-sign-out" 
@@ -67,6 +105,22 @@
         <p class="footer-text">Академия Технического Творчества и Цифровых Технологий</p>
       </footer>
     </div>
+
+    <!-- Тестовый тост -->
+    <div v-if="showTestToast" class="test-toast">
+      <div class="toast-content">
+        <div class="toast-icon">
+          <i class="pi pi-info-circle"></i>
+        </div>
+        <div class="toast-text">
+          <h4 class="toast-title">Ян был здесь.</h4>
+          <p class="toast-message">Это тестовый тост для демо.</p>
+        </div>
+        <button class="toast-close" @click="closeTestToast">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -74,14 +128,17 @@
 import Button from 'primevue/button'
 
 export default {
-  name: 'CuratorDashboard',
+  name: 'mentorDashboard',
   components: {
     Button
   },
   data() {
     return {
       sidebarOpen: false,
-      isMobile: false
+      isMobile: false,
+      showInviteLink: false,
+      showTestToast: true,
+      inviteLink: 'https://career-seekers.ru/register?ref=mentor123'
     }
   },
   mounted() {
@@ -109,6 +166,22 @@ export default {
       if (this.isMobile) {
         this.sidebarOpen = false
       }
+    },
+    toggleInviteLink() {
+      this.showInviteLink = !this.showInviteLink
+    },
+    async copyInviteLink() {
+      try {
+        await navigator.clipboard.writeText(this.inviteLink)
+        console.log('Ссылка скопирована в буфер обмена')
+      } catch (err) {
+        this.$refs.inviteLinkInput.select()
+        document.execCommand('copy')
+        console.log('Ссылка скопирована в буфер обмена (fallback)')
+      }
+    },
+    closeTestToast() {
+      this.showTestToast = false
     }
   }
 }
@@ -199,11 +272,75 @@ export default {
   border-top: 1px solid #e9ecef;
 }
 
+/* Стили для ссылки-приглашения */
+.invite-section {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.invite-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.invite-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.invite-toggle {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.invite-toggle:hover {
+  background: #e9ecef;
+  color: #ff9800;
+}
+
+.invite-text {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.invite-link-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.invite-link-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background: white;
+  color: #2c3e50;
+}
+
+.invite-toggle-section {
+  margin-bottom: 1rem;
+}
+
 .main-content {
   flex: 1;
   margin-left: 280px;
   padding: 2rem;
-  padding-bottom: 80px;
+  padding-bottom: 80px; /* Резерв для фиксированного футера */
   min-height: 100vh;
   background-color: white;
   background-image: url('@/assets/bg2.png');
@@ -231,6 +368,78 @@ export default {
   margin: 0;
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+/* Стили для тестового тоста */
+.test-toast {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1001;
+  max-width: 400px;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.toast-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-left: 4px solid #ff9800;
+}
+
+.toast-icon {
+  color: #ff9800;
+  font-size: 1.2rem;
+  margin-top: 0.1rem;
+}
+
+.toast-text {
+  flex: 1;
+}
+
+.toast-title {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.toast-message {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  margin-top: -0.25rem;
+}
+
+.toast-close:hover {
+  background: #f8f9fa;
+  color: #ff9800;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Мобильная кнопка меню */
@@ -305,7 +514,7 @@ export default {
     margin-left: 0;
     padding: 1rem;
     padding-top: 4rem;
-    padding-bottom: 70px;
+    padding-bottom: 70px; /* Резерв для фиксированного футера */
     background-attachment: scroll;
     width: 100%;
     max-width: 100vw;
@@ -342,6 +551,41 @@ export default {
   .sidebar-footer {
     padding: 1rem;
   }
+  
+  .invite-section {
+    padding: 0.75rem;
+  }
+  
+  .invite-title {
+    font-size: 0.85rem;
+  }
+  
+  .invite-text {
+    font-size: 0.75rem;
+  }
+  
+  .invite-link-input {
+    font-size: 0.75rem;
+    padding: 0.4rem;
+  }
+  
+  .test-toast {
+    top: 0.75rem;
+    right: 0.75rem;
+    max-width: calc(100vw - 1.5rem);
+  }
+  
+  .toast-content {
+    padding: 0.75rem;
+  }
+  
+  .toast-title {
+    font-size: 0.85rem;
+  }
+  
+  .toast-message {
+    font-size: 0.75rem;
+  }
 }
 
 /* Очень маленькие экраны */
@@ -363,7 +607,7 @@ export default {
   .main-content {
     padding: 0.75rem;
     padding-top: 3.5rem;
-    padding-bottom: 60px;
+    padding-bottom: 60px; /* Резерв для фиксированного футера */
     max-width: 100vw;
     overflow-x: hidden;
   }
@@ -396,6 +640,42 @@ export default {
   
   .sidebar-footer {
     padding: 0.75rem;
+  }
+  
+  .invite-section {
+    padding: 0.5rem;
+  }
+  
+  .invite-title {
+    font-size: 0.8rem;
+  }
+  
+  .invite-text {
+    font-size: 0.7rem;
+  }
+  
+  .invite-link-input {
+    font-size: 0.7rem;
+    padding: 0.35rem;
+  }
+  
+  .test-toast {
+    top: 0.5rem;
+    right: 0.5rem;
+    max-width: calc(100vw - 1rem);
+  }
+  
+  .toast-content {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .toast-title {
+    font-size: 0.8rem;
+  }
+  
+  .toast-message {
+    font-size: 0.7rem;
   }
 }
 
