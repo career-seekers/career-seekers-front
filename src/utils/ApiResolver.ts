@@ -39,7 +39,9 @@ class ApiResolverUtil {
                 console.log(error)
                 return {
                     status: error.response?.data.status,
-                    message: error.response.data.message.split(':')[1],
+                    message: error.response.data.message.split(':')[1]
+                        ? error.response.data.message.split(':')[1]
+                        : error.response.data.message,
                 }
             } else {
                 return {

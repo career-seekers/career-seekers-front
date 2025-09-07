@@ -14,6 +14,7 @@ export interface UserStateInterface {
 export enum Roles {
     USER = "USER",
     ADMIN = "ADMIN",
+    TUTOR = "TUTOR",
     MENTOR = "MENTOR",
     EXPERT = "EXPERT"
 }

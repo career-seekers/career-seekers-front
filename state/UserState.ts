@@ -2,6 +2,7 @@ import {reactive} from "vue";
 import {Roles, UserStateInterface} from "./UserState.types";
 import {jwtDecode} from "jwt-decode";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
+import {useRouter} from "vue-router";
 
 export const UserState = reactive<
     UserStateInterface
@@ -45,4 +46,10 @@ export const fillUserState = async () => {
             message: ''
         }
     }
+}
+
+export const clearUserState = () => {
+    Object.assign(UserState, {})
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
 }

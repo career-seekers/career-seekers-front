@@ -111,6 +111,7 @@
 <script>
 import Button from 'primevue/button'
 import ToastPopup from "@/components/ToastPopup.vue";
+import {clearUserState} from "../../../state/UserState";
 
 export default {
   name: 'ParentDashboard',
@@ -136,7 +137,7 @@ export default {
   },
   methods: {
     logout() {
-      // Логика выхода
+      clearUserState()
       this.$router.push('/login')
     },
     toggleSidebar() {
