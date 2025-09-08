@@ -341,17 +341,6 @@ export default {
       documents: [
         {
           id: 1,
-          name: 'Лицензия на образовательную деятельность',
-          type: 'license',
-          size: '2.3 МБ',
-          uploadDate: '15.12.2024',
-          status: 'Проверен',
-          statusClass: 'status-verified',
-          description: 'Лицензия на осуществление образовательной деятельности',
-          expertName: null
-        },
-        {
-          id: 2,
           name: 'Публичный профиль эксперта - Смирнов А.В.',
           type: 'profile',
           size: 'Ссылка',
@@ -360,28 +349,6 @@ export default {
           statusClass: 'status-verified',
           description: 'Профиль эксперта на сайте профессионального сообщества',
           expertName: 'Смирнов Алексей Владимирович'
-        },
-        {
-          id: 3,
-          name: 'Сертификат о повышении квалификации',
-          type: 'certificate',
-          size: '1.8 МБ',
-          uploadDate: '08.12.2024',
-          status: 'На проверке',
-          statusClass: 'status-pending',
-          description: 'Сертификат о прохождении курса повышения квалификации',
-          expertName: 'Козлова Елена Петровна'
-        },
-        {
-          id: 4,
-          name: 'Справка о трудовой деятельности',
-          type: 'reference',
-          size: '1.2 МБ',
-          uploadDate: '05.12.2024',
-          status: 'Отклонен',
-          statusClass: 'status-rejected',
-          description: 'Справка с места работы о занимаемой должности',
-          expertName: 'Петров Игорь Сергеевич'
         }
       ]
     }

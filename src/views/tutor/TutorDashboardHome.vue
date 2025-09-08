@@ -86,7 +86,7 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-users"></i>
-            Главные эксперты
+            Эксперты и Компетенции
           </h3>
         </div>
         <div class="card-content">
@@ -96,16 +96,8 @@
               <div class="stat-label">Всего экспертов</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.active }}</div>
-              <div class="stat-label">Активных</div>
-            </div>
-            <div class="stat-item">
               <div class="stat-number">{{ expertsStats.competencies }}</div>
               <div class="stat-label">Компетенций</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.verified }}</div>
-              <div class="stat-label">Проверенных</div>
             </div>
           </div>
           
