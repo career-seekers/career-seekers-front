@@ -517,6 +517,9 @@ export default {
     },
     snilsFormatted() {
       return this.childForm.snilsNumber.replaceAll(/\s|-/g, '')
+    },
+    telegramLinkFormatted() {
+      return this.parentForm.telegramLink.replace("@", "https://t.me/")
     }
   },
   methods: {
@@ -809,7 +812,7 @@ export default {
             }
           }
           localStorage.setItem("dataToVerify", JSON.stringify(registrationData))
-          localStorage.setItem("telegramLink", JSON.stringify(this.parentForm.telegramLink))
+          localStorage.setItem("telegramLink", JSON.stringify(this.telegramLinkFormatted))
           this.$router.push({
             path: '/email-confirmation',
             query: {email: this.parentForm.email}

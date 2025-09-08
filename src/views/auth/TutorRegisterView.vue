@@ -267,6 +267,9 @@ export default {
       const [day, month, year] = this.registerForm.birthDate.split('.');
       const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
       return date.toISOString()
+    },
+    telegramLinkFormatted() {
+      return this.registerForm.telegramLink.replace("@", "https://t.me/")
     }
   },
   methods: {
@@ -442,7 +445,7 @@ export default {
             }
           }
           localStorage.setItem("dataToVerify", JSON.stringify(registrationData))
-          localStorage.setItem("telegramLink", JSON.stringify(this.registerForm.telegramLink))
+          localStorage.setItem("telegramLink", JSON.stringify(this.telegramLinkFormatted))
           this.$router.push({
             path: '/email-confirmation',
             query: {email: this.registerForm.email}
