@@ -51,6 +51,14 @@ class ApiResolverUtil {
             }
         }
     }
+
+    DTOToFormData(dto: any) {
+        const formData = new FormData();
+        Object.keys(dto).forEach(key => {
+            formData.append(key, dto[key]);
+        })
+        return formData
+    }
 }
 
 export default ApiResolverUtil;

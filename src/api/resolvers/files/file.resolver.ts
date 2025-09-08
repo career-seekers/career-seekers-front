@@ -7,16 +7,6 @@ export class FileResolver {
     private apiResolver = new ApiResolver("file-service/v1/files");
     private token = localStorage.getItem("access_token");
 
-    private DTOToFormData(dto: any) {
-        const formData = new FormData();
-        Object.keys(dto).forEach(key => {
-            formData.append(key, dto[key]);
-        })
-        return formData
-    }
-
-
-
     public async upload(data: CommonInputFormDataDto, endpoint: FileEndpoints) {
         return await this
             .apiResolver
