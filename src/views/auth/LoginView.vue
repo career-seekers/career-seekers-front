@@ -196,13 +196,13 @@ export default {
             await router.push("/mentor")
             break
           case Roles.EXPERT:
-            await router.push("/mentor")
+            await router.push("/expert")
             break
           case Roles.TUTOR:
             await router.push("/tutor")
             break
           default:
-            await router.push("/mentor")
+            await router.push("/tutor")
             break
         }
       }

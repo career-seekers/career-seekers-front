@@ -392,7 +392,7 @@ export default {
             email: this.registerForm.email,
             mobileNumber: this.mobileNumberFormatted,
             password: this.registerForm.password,
-            role: Roles.EXPERT,
+            role: Roles.MENTOR,
             uuid: ""
           }
           localStorage.setItem("dataToVerify", JSON.stringify(registrationDto))

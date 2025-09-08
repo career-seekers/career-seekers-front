@@ -35,7 +35,7 @@ export enum FileEndpoints {
     CONSENT_EXPERT = "uploadConsentToExpertPDP",
     CONSENT_CHILD = "uploadConsentToChildPDP",
     SNILS_CHILD = "uploadSnils",
-    BIRTH_CHILD_CERTIFICATE = "",
+    BIRTH_CHILD_CERTIFICATE = "uploadBirthCertificate",
     SCHOOL_CERTIFICATE = "uploadStudyingCertificate",
     PLATFORM_CERTIFICATE = "uploadAdditionalStudyingCertificate"
 }
