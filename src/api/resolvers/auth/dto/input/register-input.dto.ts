@@ -1,6 +1,7 @@
 import {Roles} from "../../../../../../state/UserState.types";
+
 export interface UserRegistrationDto {
-    type: "UserRegistrationDto";
+    type: "UserRegistrationDto" | "UserWithChildRegistrationDto";
     verificationCode: string;
     lastName: string;
     firstName: string;

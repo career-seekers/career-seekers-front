@@ -61,6 +61,18 @@
         </div>
 
         <div class="field">
+          <label for="telegramLink" class="field-label">Ссылка на Telegram *</label>
+            <InputText
+                id="relationship"
+                v-model="parentForm.telegramLink"
+                placeholder="Например, @telegram_username"
+                class="w-full"
+                :class="{ 'p-invalid': errors.telegramLink }"
+            />
+          <small v-if="errors.telegramLink" class="p-error">{{ errors.telegramLink }}</small>
+        </div>
+
+        <div class="field">
           <label for="phone" class="field-label">Контактный телефон *</label>
           <InputMask
             id="phone"
@@ -196,7 +208,7 @@ import ToastPopup from "@/components/ToastPopup.vue";
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
 import {UserRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto.js";
 import {RegistrationData, Roles, TutorStateInterface} from "../../../state/UserState.types.js";
-import {FileManager, TutorFiles} from "@/utils/FileManager";
+import {FileManager} from "@/utils/FileManager";
 
 export default {
   name: 'TutorRegisterView',
@@ -220,6 +232,7 @@ export default {
         birthDate: '',
         educationalInstitution: '',
         position: '',
+        telegramLink: '',
         phone: '',
         email: '',
         password: '',
@@ -399,8 +412,12 @@ export default {
           }
         } else {
           const fileManager = new FileManager()
-          const registrationData: RegistrationData<TutorStateInterface> = {
+          const registrationData: RegistrationData<
+              UserRegistrationDto,
+              TutorStateInterface
+          > = {
             dto: {
+              type: "UserRegistrationDto",
               verificationCode: "",
               lastName: this.registerForm.fullName.split(' ')[0],
               firstName: this.registerForm.fullName.split(' ')[1],

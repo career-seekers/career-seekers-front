@@ -37,6 +37,18 @@
         </div>
 
         <div class="field">
+          <label for="position" class="field-label">Должность *</label>
+          <InputText
+              id="position"
+              v-model="registerForm.position"
+              placeholder="Введите вашу должность"
+              class="w-full"
+              :class="{ 'p-invalid': errors.position }"
+          />
+          <small v-if="errors.position" class="p-error">{{ errors.position }}</small>
+        </div>
+
+        <div class="field">
           <label for="educationalInstitution" class="field-label">Образовательное учреждение *</label>
           <InputText
             id="educationalInstitution"
@@ -183,8 +195,8 @@ import Dialog from 'primevue/dialog'
 import ToastPopup from "@/components/ToastPopup.vue";
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
 import {UserRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
-import {Roles} from "../../../state/UserState.types";
-import {ExpertFiles, FileManager, FilesToVerify, MentorFiles, ParentFiles} from "@/utils/FileManager";
+import {MentorStateInterface, RegistrationData, Roles} from "../../../state/UserState.types";
+import {FileManager} from "@/utils/FileManager";
 
 export default {
   name: 'MentorRegisterView',
@@ -206,6 +218,7 @@ export default {
       registerForm: {
         fullName: '',
         birthDate: '',
+        position: '',
         educationalInstitution: '',
         phone: '',
         email: '',
@@ -217,6 +230,7 @@ export default {
       errors: {
         fullName: '',
         birthDate: '',
+        position: '',
         educationalInstitution: '',
         phone: '',
         email: '',
@@ -276,6 +290,12 @@ export default {
       // Проверка образовательного учреждения
       if (!this.registerForm.educationalInstitution.trim()) {
         this.errors.educationalInstitution = 'Образовательное учреждение обязательно'
+        isValid = false
+      }
+
+      // Проверка должности
+      if (!this.registerForm.position.trim()) {
+        this.errors.position = 'Должность обязательна'
         isValid = false
       }
 
@@ -380,23 +400,29 @@ export default {
           }
         } else {
           const fileManager = new FileManager()
-          const filesToVerify: MentorFiles = {
-            CONSENT_MENTOR: await fileManager.saveFileToCache(this.registerForm.consentFile),
-          }
-          const registrationDto: UserRegistrationDto = {
-            verificationCode: "",
-            lastName: this.registerForm.fullName.split(' ')[0],
-            firstName: this.registerForm.fullName.split(' ')[1],
-            patronymic: this.registerForm.fullName.split(' ')[2],
-            dateOfBirth: this.dateOfBirthFormatted,
-            email: this.registerForm.email,
-            mobileNumber: this.mobileNumberFormatted,
-            password: this.registerForm.password,
-            role: Roles.MENTOR,
-            uuid: ""
+          const registrationDto: RegistrationData<
+              UserRegistrationDto, MentorStateInterface
+          > = {
+            dto: {
+              type: "UserRegistrationDto",
+              verificationCode: "",
+              lastName: this.registerForm.fullName.split(' ')[0],
+              firstName: this.registerForm.fullName.split(' ')[1],
+              patronymic: this.registerForm.fullName.split(' ')[2],
+              dateOfBirth: this.dateOfBirthFormatted,
+              email: this.registerForm.email,
+              mobileNumber: this.mobileNumberFormatted,
+              password: this.registerForm.password,
+              role: Roles.MENTOR,
+              uuid: ""
+            },
+            extra: {
+              post: this.registerForm.position,
+              institution: this.registerForm.educationalInstitution,
+              consentFileName: await fileManager.saveFileToCache(this.registerForm.consentFile),
+            }
           }
           localStorage.setItem("dataToVerify", JSON.stringify(registrationDto))
-          localStorage.setItem("filesToVerify", JSON.stringify(filesToVerify))
           this.$router.push({
             path: '/email-confirmation',
             query: {email: this.registerForm.email}

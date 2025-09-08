@@ -11,4 +11,7 @@ export interface UserOutputDto {
     password: string;
     role: Roles;
     avatarId: number | null;
+    verified: boolean;
+    isMentor: boolean;
+    telegramLink: string | null;
 }

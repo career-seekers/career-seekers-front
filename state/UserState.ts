@@ -12,6 +12,7 @@ import {FileManager} from "@/utils/FileManager";
 import {TutorDocumentsResolver} from "@/api/resolvers/tutorDocuments/tutor-documents.resolver";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
 import {UserDocumentsResolver} from "@/api/resolvers/userDocuments/user-documents.resolver";
+import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
 
 export const UserState = reactive<
     UserStateInterface
@@ -25,7 +26,10 @@ export const UserState = reactive<
     mobileNumber: undefined,
     password: undefined,
     patronymic: undefined,
-    role: undefined
+    role: undefined,
+    verified: undefined,
+    isMentor: undefined,
+    telegramLink: null,
 })
 
 interface UserJwt {
@@ -63,14 +67,19 @@ export const fillUserState = async () => {
         UserState.mobileNumber = userData.message.mobileNumber;
         UserState.password = userData.message.password;
         UserState.role = userData.message.role;
-        UserState.avatarId = userData.message.avatarId
+        UserState.avatarId = userData.message.avatarId;
+        UserState.verified = userData.message.verified;
+        UserState.isMentor = userData.message.isMentor;
+        UserState.telegramLink = userData.message.telegramLink;
 
         if (localStorage.getItem("dataToVerify")) {
-            console.log(UserState.role)
             switch (UserState.role) {
                 case Roles.TUTOR: {
                     const tutorDocsResolver = new TutorDocumentsResolver()
-                    const registrationData: RegistrationData<TutorStateInterface> =
+                    const registrationData: RegistrationData<
+                        UserRegistrationDto,
+                        TutorStateInterface
+                    > =
                         JSON.parse(localStorage.getItem("dataToVerify"))
                     response = await tutorDocsResolver.create({
                         userId: userJwt.id,
@@ -84,9 +93,16 @@ export const fillUserState = async () => {
                     break
                 }
 
+                case Roles.MENTOR: {
+                    break
+                }
+
                 case Roles.USER: {
                     const userDocsResolver = new UserDocumentsResolver()
-                    const registrationData: RegistrationData<ParentStateInterface> =
+                    const registrationData: RegistrationData<
+                        UserWithChildRegistrationDto,
+                        ParentStateInterface
+                    > =
                         JSON.parse(localStorage.getItem("dataToVerify"))
                     response = await userDocsResolver.create({
                         userId: userJwt.id,

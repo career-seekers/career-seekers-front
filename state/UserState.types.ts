@@ -11,9 +11,18 @@ export interface UserStateInterface {
     password: string | undefined;
     role: Roles | undefined;
     avatarId: number | null;
+    verified: boolean | undefined;
+    isMentor: boolean | undefined;
+    telegramLink: string | null;
 }
 
-export interface TutorStateInterface extends UserStateInterface {
+export interface TutorStateInterface {
+    post: string | undefined;
+    institution: string | undefined;
+    consentFileName: string | undefined;
+}
+
+export interface MentorStateInterface {
     post: string | undefined;
     institution: string | undefined;
     consentFileName: string | undefined;
@@ -33,9 +42,9 @@ export interface ParentStateInterface {
 }
 
 
-export interface RegistrationData<T> {
-    dto: UserRegistrationDto | UserWithChildRegistrationDto,
-    extra: T,
+export interface RegistrationData<U, R> {
+    dto: U,
+    extra: R,
 }
 
 export enum Roles {

@@ -71,6 +71,18 @@
             </div>
 
             <div class="field">
+              <label for="telegramLink" class="field-label">Ссылка на Telegram *</label>
+              <InputText
+                  id="relationship"
+                  v-model="parentForm.telegramLink"
+                  placeholder="Например, @telegram_username"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.telegramLink }"
+              />
+              <small v-if="errors.telegramLink" class="p-error">{{ errors.telegramLink }}</small>
+            </div>
+
+            <div class="field">
               <label for="parentPhone" class="field-label">Контактный телефон *</label>
               <InputMask
                 id="parentPhone"
@@ -441,6 +453,7 @@ export default {
         fullName: '',
         birthDate: '',
         relationship: '',
+        telegramLink: '',
         phone: '',
         email: '',
         childConsentFile: null
@@ -534,6 +547,11 @@ export default {
 
         if (!this.parentForm.relationship.trim()) {
           this.errors.relationship = 'Укажите, кем вы приходитесь ребенку'
+          isValid = false
+        }
+
+        if (!this.parentForm.telegramLink.trim()) {
+          this.errors.telegramLink = 'Ссылка обязательно для связи'
           isValid = false
         }
 
@@ -754,8 +772,12 @@ export default {
           }
         } else {
           const fileManager = new FileManager()
-          const registrationData: RegistrationData<ParentStateInterface> = {
+          const registrationData: RegistrationData<
+              UserWithChildRegistrationDto,
+              ParentStateInterface
+          > = {
             dto: {
+              type: "UserWithChildRegistrationDto",
               verificationCode: "",
               lastName: this.parentForm.fullName.split(' ')[0],
               firstName: this.parentForm.fullName.split(' ')[1],
