@@ -201,6 +201,7 @@ import {UserResolver} from "@/api/resolvers/user/user.resolver.js";
 import ToastPopup from "@/components/ToastPopup.vue";
 import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
 import {Roles} from "../../../state/UserState.types";
+import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input-dto";
 
 export default {
   name: 'TutorExperts',
@@ -273,7 +274,7 @@ export default {
       if (!this.validateForm()) {
         return
       }
-      
+
       const selectedCompetencies = this.availableCompetencies.filter(c => 
         this.expertForm.competencies.includes(c.id)
       )
@@ -292,19 +293,18 @@ export default {
           })
         }
       } else {
-        const newExpert = {
-          id: Date.now(),
-          fullName: this.expertForm.fullName,
+        const newExpert: UserInputDto = {
+          lastName: this.expertForm.fullName.split(' ')[0],
+          firstName: this.expertForm.fullName.split(' ')[1],
+          patronymic: this.expertForm.fullName.split(' ')[2],
           email: this.expertForm.email,
-          phone: this.expertForm.phone,
-          position: this.expertForm.position,
-          experience: this.expertForm.experience,
-          competencies: selectedCompetencies,
-          status: 'На проверке',
-          statusClass: 'status-pending',
-          description: this.expertForm.description
+          mobileNumber: this.expertForm.phone,
+          password: "",
+          dateOfBirth: "",
+          role: Roles.EXPERT,
+          avatarId: null
         }
-        this.experts.push(newExpert)
+        this.userResolver.create(newExpert)
       }
       
       this.cancelEdit()

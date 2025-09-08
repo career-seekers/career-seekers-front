@@ -213,3 +213,5 @@ router.afterEach((to) => {
 })
 
 export default router
+
+await fillUserState()
