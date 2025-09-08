@@ -413,7 +413,7 @@ import Dropdown from 'primevue/dropdown'
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
 import {UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
-import {Roles} from "../../../state/UserState.types";
+import {ParentStateInterface, RegistrationData, Roles} from "../../../state/UserState.types";
 import {FileManager, ParentFiles} from "@/utils/FileManager";
 
 
@@ -501,6 +501,9 @@ export default {
   computed: {
     mobileNumberFormatted() {
       return this.parentForm.phone.replaceAll(/\s|-|\(|\)|/g, '')
+    },
+    snilsFormatted() {
+      return this.childForm.snilsNumber.replaceAll(/\s|-/g, '')
     }
   },
   methods: {
@@ -751,33 +754,39 @@ export default {
           }
         } else {
           const fileManager = new FileManager()
-          const filesToVerify: ParentFiles = {
-            CONSENT_CHILD: await fileManager.saveFileToCache(this.parentForm.childConsentFile),
-            BIRTH_CHILD_CERTIFICATE: await fileManager.saveFileToCache(this.childForm.birthCertificate),
-            SNILS_CHILD: await fileManager.saveFileToCache(this.childForm.snilsScan),
-            SCHOOL_CERTIFICATE: await fileManager.saveFileToCache(this.childForm.schoolCertificate),
-            PLATFORM_CERTIFICATE: await fileManager.saveFileToCache(this.childForm.platformCertificate)
+          const registrationData: RegistrationData<ParentStateInterface> = {
+            dto: {
+              verificationCode: "",
+              lastName: this.parentForm.fullName.split(' ')[0],
+              firstName: this.parentForm.fullName.split(' ')[1],
+              patronymic: this.parentForm.fullName.split(' ')[2],
+              dateOfBirth: this.formatBirthDate(this.parentForm.birthDate),
+              email: this.parentForm.email,
+              mobileNumber: this.mobileNumberFormatted,
+              password: this.mentorForm.password,
+              role: Roles.USER,
+              uuid: "",
+              mentorEqualsUser: this.mentorForm.isParentMentor,
+              childLastName: this.childForm.fullName.split(' ')[0],
+              childFirstName: this.childForm.fullName.split(' ')[1],
+              childPatronymic: this.childForm.fullName.split(' ')[2],
+              childDateOfBirth: this.formatBirthDate(this.childForm.birthDate),
+              mentorId: this.mentorForm.isParentMentor ? null : 0,
+            },
+            extra: {
+              snilsNumber: this.snilsFormatted,
+              snilsFileName: await fileManager.saveFileToCache(this.childForm.snilsScan),
+              studyingPlace: this.childForm.schoolName,
+              studyingCertificateFileName: await fileManager.saveFileToCache(this.childForm.schoolCertificate),
+              learningClass: this.childForm.grade,
+              trainingGround: this.childForm.platform,
+              additionalStudyingCertificateFileName: await fileManager.saveFileToCache(this.childForm.platformCertificate),
+              parentRole: this.parentForm.relationship,
+              consentToChildPdpFileName: await fileManager.saveFileToCache(this.parentForm.childConsentFile),
+              birthCertificateFileName: await fileManager.saveFileToCache(this.childForm.birthCertificate)
+            }
           }
-          const registrationDto: UserWithChildRegistrationDto = {
-            verificationCode: "",
-            lastName: this.parentForm.fullName.split(' ')[0],
-            firstName: this.parentForm.fullName.split(' ')[1],
-            patronymic: this.parentForm.fullName.split(' ')[2],
-            dateOfBirth: this.formatBirthDate(this.parentForm.birthDate),
-            email: this.parentForm.email,
-            mobileNumber: this.mobileNumberFormatted,
-            password: this.mentorForm.password,
-            role: Roles.USER,
-            uuid: "",
-            mentorEqualsUser: this.mentorForm.isParentMentor,
-            childLastName: this.childForm.fullName.split(' ')[0],
-            childFirstName: this.childForm.fullName.split(' ')[1],
-            childPatronymic: this.childForm.fullName.split(' ')[2],
-            childDateOfBirth: this.formatBirthDate(this.childForm.birthDate),
-            mentorId: this.mentorForm.isParentMentor ? null : 0,
-          }
-          localStorage.setItem("dataToVerify", JSON.stringify(registrationDto))
-          localStorage.setItem("filesToVerify", JSON.stringify(filesToVerify))
+          localStorage.setItem("dataToVerify", JSON.stringify(registrationData))
           this.$router.push({
             path: '/email-confirmation',
             query: {email: this.parentForm.email}

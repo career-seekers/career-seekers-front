@@ -1,4 +1,4 @@
-import {UserRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
+import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
 
 export interface UserStateInterface {
     id: number | undefined;
@@ -19,9 +19,22 @@ export interface TutorStateInterface extends UserStateInterface {
     consentFileName: string | undefined;
 }
 
+export interface ParentStateInterface {
+    snilsNumber: number;
+    snilsFileName: string;
+    studyingPlace: string;
+    studyingCertificateFileName: string;
+    learningClass: number;
+    trainingGround: string;
+    additionalStudyingCertificateFileName: string;
+    parentRole: string;
+    consentToChildPdpFileName: string;
+    birthCertificateFileName: string;
+}
+
 
 export interface RegistrationData<T> {
-    dto: UserRegistrationDto,
+    dto: UserRegistrationDto | UserWithChildRegistrationDto,
     extra: T,
 }
 

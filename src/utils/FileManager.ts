@@ -2,6 +2,7 @@ export class FileManager {
     saveFileToCache(file) {
         return new Promise<string>((resolve, reject) => {
             const request = indexedDB.open('FileCacheDB', 1);
+            const fileName = `${file.name}_${Date.now()}`
 
             request.onupgradeneeded = function(event) {
                 const db = event.target.result;
@@ -14,11 +15,11 @@ export class FileManager {
                 const db = event.target.result;
                 const transaction = db.transaction(['files'], 'readwrite');
                 const store = transaction.objectStore('files');
-                store.put({ name: file.name, file: file });
+                store.put({ name: fileName, file: file });
 
                 transaction.oncomplete = () => {
                     db.close();
-                    resolve(file.name);
+                    resolve(fileName);
                 };
             };
 

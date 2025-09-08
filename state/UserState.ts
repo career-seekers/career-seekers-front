@@ -1,11 +1,18 @@
 import {reactive} from "vue";
-import {RegistrationData, Roles, TutorStateInterface, UserStateInterface} from "./UserState.types";
+import {
+    ParentStateInterface,
+    RegistrationData,
+    Roles,
+    TutorStateInterface,
+    UserStateInterface
+} from "./UserState.types";
 import {jwtDecode} from "jwt-decode";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
 import {FileEndpoints, FileResolver} from "@/api/resolvers/files/file.resolver";
 import {FileManager, FilesToVerify, MentorFiles, TutorFiles} from "@/utils/FileManager";
 import {TutorDocumentsResolver} from "@/api/resolvers/tutorDocuments/tutor-documents.resolver";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
+import {UserDocumentsResolver} from "@/api/resolvers/userDocuments/user-documents.resolver";
 
 export const UserState = reactive<
     UserStateInterface
@@ -49,8 +56,9 @@ export const fillUserState = async () => {
         UserState.avatarId = userData.message.avatarId
 
         if (localStorage.getItem("dataToVerify")) {
+            console.log(UserState.role)
             switch (UserState.role) {
-                case Roles.TUTOR:
+                case Roles.TUTOR: {
                     const tutorDocsResolver = new TutorDocumentsResolver()
                     const registrationData: RegistrationData<TutorStateInterface> =
                         JSON.parse(localStorage.getItem("dataToVerify"))
@@ -63,7 +71,38 @@ export const fillUserState = async () => {
                         )
                     })
                     await fileManager.removeFileFromCache(registrationData.extra.consentFileName);
+                    break
+                }
 
+                case Roles.USER: {
+                    const userDocsResolver = new UserDocumentsResolver()
+                    const registrationData: RegistrationData<ParentStateInterface> =
+                        JSON.parse(localStorage.getItem("dataToVerify"))
+                    response = await userDocsResolver.create({
+                        userId: userJwt.id,
+                        snilsNumber: registrationData.extra.snilsNumber,
+                        snilsFile: await fileManager.loadFileFromCache(
+                            registrationData.extra.snilsFileName
+                        ),
+                        studyingPlace: registrationData.extra.studyingPlace,
+                        studyingCertificateFile: await fileManager.loadFileFromCache(
+                            registrationData.extra.studyingCertificateFileName
+                        ),
+                        learningClass: registrationData.extra.learningClass,
+                        trainingGround: registrationData.extra.trainingGround,
+                        additionalStudyingCertificateFile: await fileManager.loadFileFromCache(
+                            registrationData.extra.additionalStudyingCertificateFileName
+                        ),
+                        consentToChildPdpFile: await fileManager.loadFileFromCache(
+                            registrationData.extra.consentToChildPdpFileName
+                        ),
+                        parentRole: registrationData.extra.parentRole,
+                        birthCertificateFile: await fileManager.loadFileFromCache(
+                            registrationData.extra.birthCertificateFileName
+                        )
+                    })
+                    break
+                }
             }
 
             if (response.status === 200) {
