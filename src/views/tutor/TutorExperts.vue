@@ -11,19 +11,21 @@
         label="Добавить главного эксперта" 
         icon="pi pi-user-plus"
         class="p-button-primary"
-        @click="showAddMentorDialog = true"
+        @click="showAddExpertDialog = true"
       />
     </div>
 
     <!-- Список экспертов -->
     <div class="mentors-grid">
-      <div v-for="mentor in mentors" :key="mentor.id" class="mentor-card">
+      <div v-for="expert in experts" :key="expert.id" class="mentor-card">
         <div class="mentor-header">
           <div class="expert-avatar">
             <i class="pi pi-user"></i>
           </div>
           <div class="expert-info">
-            <h3 class="expert-name">{{ expert.fullName }}</h3>
+            <h3 class="expert-name">{{
+                expert.lastName + " " + expert.firstName + " " + expert.patronymic
+              }}</h3>
             <p class="expert-position">{{ expert.position }}</p>
           </div>
           <div class="expert-actions">
@@ -50,7 +52,7 @@
             </div>
             <div class="detail-item">
               <span class="detail-label">Телефон:</span>
-              <span class="detail-value">{{ expert.phone }}</span>
+              <span class="detail-value">{{ expert.mobileNumber }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Опыт работы:</span>
@@ -185,19 +187,25 @@
         />
       </template>
     </Dialog>
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import MultiSelect from 'primevue/multiselect'
 import Textarea from 'primevue/textarea'
+import {UserResolver} from "@/api/resolvers/user/user.resolver.js";
+import ToastPopup from "@/components/ToastPopup.vue";
+import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
+import {Roles} from "../../../state/UserState.types";
 
 export default {
   name: 'TutorExperts',
   components: {
+    ToastPopup,
     Button,
     Dialog,
     InputText,
@@ -228,53 +236,14 @@ export default {
         { id: 7, name: 'Робототехника' },
         { id: 8, name: '3D-моделирование' }
       ],
-      experts: [
-        {
-          id: 1,
-          fullName: 'Смирнов Алексей Владимирович',
-          email: 'a.smirnov@mentor.ru',
-          phone: '+7 (999) 987-65-43',
-          position: 'Ведущий разработчик',
-          experience: '8 лет',
-          competencies: [
-            { id: 1, name: 'Веб-разработка' },
-            { id: 3, name: 'Дизайн интерфейсов' }
-          ],
-          status: 'Активный',
-          statusClass: 'status-active',
-          description: 'Опытный разработчик с экспертизой в современных веб-технологиях'
-        },
-        {
-          id: 2,
-          fullName: 'Козлова Елена Петровна',
-          email: 'e.kozlova@mentor.ru',
-          phone: '+7 (999) 876-54-32',
-          position: 'UX/UI дизайнер',
-          experience: '6 лет',
-          competencies: [
-            { id: 3, name: 'Дизайн интерфейсов' },
-            { id: 7, name: '3D-моделирование' }
-          ],
-          status: 'На проверке',
-          statusClass: 'status-pending',
-          description: 'Креативный дизайнер с опытом работы в крупных IT-компаниях'
-        },
-        {
-          id: 3,
-          fullName: 'Петров Игорь Сергеевич',
-          email: 'i.petrov@mentor.ru',
-          phone: '+7 (999) 765-43-21',
-          position: 'Data Scientist',
-          experience: '5 лет',
-          competencies: [
-            { id: 4, name: 'Анализ данных' },
-            { id: 6, name: 'Искусственный интеллект' }
-          ],
-          status: 'Активный',
-          statusClass: 'status-active',
-          description: 'Специалист по машинному обучению и анализу больших данных'
+      errors: {
+        toastPopup: {
+          title: '',
+          message: ''
         }
-      ]
+      },
+      experts: [] as UserOutputDto[],
+      userResolver: new UserResolver()
     }
   },
   methods: {
@@ -361,6 +330,17 @@ export default {
              this.expertForm.position && 
              this.expertForm.experience && 
              this.expertForm.competencies.length > 0
+    }
+  },
+  async mounted() {
+    const response = await this.userResolver.getAllByRole(Roles.EXPERT)
+    if (response.status === 200) {
+      this.experts = response.message
+    } else {
+      this.error.toastPopup = {
+        title: response.status,
+        message: response.message
+      }
     }
   }
 }
