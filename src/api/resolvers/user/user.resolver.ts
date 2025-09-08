@@ -2,6 +2,7 @@ import ApiResolver from "@/utils/ApiResolver";
 import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
 import {Roles} from "../../../../state/UserState.types";
+import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input-dto";
 
 export class UserResolver {
     private apiResolver = new ApiResolver("users-service/v1/users");
@@ -25,6 +26,17 @@ export class UserResolver {
                 `${role}`,
                 "GET",
                 null,
+                this.token ? this.token : undefined
+            )
+    }
+
+    public async create(data: UserInputDto) {
+        return await this
+            .apiResolver
+            .request<UserInputDto, CommonOutputDto<UserOutputDto>>(
+                "",
+                "POST",
+                data,
                 this.token ? this.token : undefined
             )
     }
