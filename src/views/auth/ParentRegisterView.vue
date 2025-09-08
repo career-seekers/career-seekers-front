@@ -90,9 +90,9 @@
                 mask="+7 (999) 999-99-99"
                 placeholder="+7 (___) ___-__-__"
                 class="w-full"
-                :class="{ 'p-invalid': errors.parentPhone }"
+                :class="{ 'p-invalid': errors.phone }"
               />
-              <small v-if="errors.parentPhone" class="p-error">{{ errors.parentPhone }}</small>
+              <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
             </div>
 
             <div class="field">
@@ -103,10 +103,10 @@
                 type="email"
                 placeholder="example@email.com"
                 class="w-full"
-                :class="{ 'p-invalid': errors.parentEmail }"
+                :class="{ 'p-invalid': errors.email }"
                 @blur="validateEmail"
               />
-              <small v-if="errors.parentEmail" class="p-error">{{ errors.parentEmail }}</small>
+              <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
             </div>
 
             <div class="field">
@@ -114,7 +114,7 @@
               <FileUpload
                 id="childConsentFile"
                 mode="basic"
-                accept=".pdf,.doc,.docx"
+                accept=".pdf"
                 :maxFileSize="5000000"
                 chooseLabel="Выберите файл"
                 class="w-full"
@@ -123,7 +123,7 @@
                 @remove="onChildConsentRemove"
               />
               <small v-if="errors.childConsentFile" class="p-error">{{ errors.childConsentFile }}</small>
-              <small class="p-text-secondary">Поддерживаемые форматы: PDF, DOC, DOCX (максимум 5 МБ)</small>
+              <small class="p-text-secondary">Поддерживаемые форматы: PDF (максимум 5 МБ)</small>
             </div>
           </div>
 
@@ -136,7 +136,7 @@
               <InputText
                 id="childFullName"
                 v-model="childForm.fullName"
-                placeholder="Введите полное имя ребенка"
+                placeholder="Введите полное имя ребенка, двойное имя вводите через '-'"
                 class="w-full"
                 :class="{ 'p-invalid': errors.childFullName }"
               />
@@ -157,7 +157,7 @@
             </div>
 
             <div class="field">
-              <label for="birthCertificate" class="field-label">Скан свидетельства о рождении / паспорта *</label>
+              <label for="birthCertificate" class="field-label">Скан свидетельства о рождении *</label>
               <FileUpload
                 id="birthCertificate"
                 mode="basic"
@@ -426,7 +426,7 @@ import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
 import {UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
 import {ParentStateInterface, RegistrationData, Roles} from "../../../state/UserState.types";
-import {FileManager, ParentFiles} from "@/utils/FileManager";
+import {FileManager} from "@/utils/FileManager";
 
 
 export default {
@@ -481,6 +481,27 @@ export default {
       },
       
       errors: {
+        mentor: '',
+        childFullName: '',
+        parentFullName: '',
+        childBirthDate: '',
+        parentBirthDate: '',
+        snilsNumber: '',
+        grade: '',
+        relationship: '',
+        telegramLink: '',
+        phone: '',
+        email: '',
+        childConsentFile: '',
+        snilsScan: '',
+        schoolName: '',
+        password: '',
+        platform: '',
+        confirmPassword: '',
+        birthCertificate: '',
+        schoolCertificate: '',
+        platformCertificate: '',
+        agreement: '',
         toastPopup: {
           title: '',
           message: ''
@@ -525,9 +546,9 @@ export default {
   methods: {
     validateEmail() {
       if (this.parentForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.parentForm.email)) {
-        this.errors.parentEmail = 'Введите корректный email'
+        this.errors.email = 'Введите корректный email'
       } else {
-        this.errors.parentEmail = ''
+        this.errors.email = ''
       }
     },
 
@@ -538,7 +559,34 @@ export default {
     },
 
     validateStep(step) {
-      this.errors = {}
+      this.errors =  {
+        mentor: '',
+        childFullName: '',
+        parentFullName: '',
+        childBirthDate: '',
+        parentBirthDate: '',
+        snilsNumber: '',
+        grade: '',
+        relationship: '',
+        telegramLink: '',
+        phone: '',
+        email: '',
+        childConsentFile: '',
+        snilsScan: '',
+        schoolName: '',
+        password: '',
+        platform: '',
+        confirmPassword: '',
+        birthCertificate: '',
+        schoolCertificate: '',
+        platformCertificate: '',
+        agreement: '',
+        toastPopup: {
+          title: '',
+          message: ''
+        }
+      }
+
       let isValid = true
 
       if (step === 1) {
