@@ -10,7 +10,7 @@ export class TutorDocumentsResolver {
     public async create(data: TutorDocsInputDto) {
         return await this
             .apiResolver
-            .request<FormData, CommonOutputDto<TutorDocsOutputDto>>(
+            .request<FormData, CommonOutputDto<TutorDocsOutputDto | string>>(
                 "",
                 "POST",
                 this.apiResolver.DTOToFormData(data),
