@@ -551,7 +551,7 @@ export default {
         }
 
         if (!this.parentForm.telegramLink.trim()) {
-          this.errors.telegramLink = 'Ссылка обязательно для связи'
+          this.errors.telegramLink = 'Ссылка обязательна для связи'
           isValid = false
         }
 
@@ -809,6 +809,7 @@ export default {
             }
           }
           localStorage.setItem("dataToVerify", JSON.stringify(registrationData))
+          localStorage.setItem("telegramLink", JSON.stringify(this.parentForm.telegramLink))
           this.$router.push({
             path: '/email-confirmation',
             query: {email: this.parentForm.email}

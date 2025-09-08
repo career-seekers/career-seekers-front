@@ -64,7 +64,7 @@
           <label for="telegramLink" class="field-label">Ссылка на Telegram *</label>
             <InputText
                 id="relationship"
-                v-model="parentForm.telegramLink"
+                v-model="registerForm.telegramLink"
                 placeholder="Например, @telegram_username"
                 class="w-full"
                 :class="{ 'p-invalid': errors.telegramLink }"
@@ -249,6 +249,7 @@ export default {
         birthDate: '',
         educationalInstitution: '',
         position: '',
+        telegramLink: '',
         phone: '',
         email: '',
         password: '',
@@ -308,6 +309,11 @@ export default {
       // Проверка должности
       if (!this.registerForm.position.trim()) {
         this.errors.position = 'Должность обязательна'
+        isValid = false
+      }
+
+      if (!this.registerForm.telegramLink.trim()) {
+        this.errors.telegramLink = 'Ссылка обязательна для связи'
         isValid = false
       }
 
@@ -436,6 +442,7 @@ export default {
             }
           }
           localStorage.setItem("dataToVerify", JSON.stringify(registrationData))
+          localStorage.setItem("telegramLink", JSON.stringify(this.registerForm.telegramLink))
           this.$router.push({
             path: '/email-confirmation',
             query: {email: this.registerForm.email}

@@ -61,6 +61,7 @@ import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers
 import {v4 as generateUuidV4} from 'uuid'
 import ToastPopup from "@/components/ToastPopup.vue";
 import {RegistrationData} from "../../../state/UserState.types";
+import {fillUserState} from "../../../state/UserState";
 
 export default {
   name: 'EmailConfirmationView',
@@ -138,7 +139,7 @@ export default {
         } else {
           localStorage.setItem("access_token", response.message.accessToken)
           localStorage.setItem("refresh_token", response.message.refreshToken)
-          this.$router.push('/login')
+          await fillUserState()
         }
       } catch (error) {
         this.errors.code = 'Неверный код подтверждения'

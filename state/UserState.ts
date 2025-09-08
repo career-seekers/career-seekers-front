@@ -1,5 +1,6 @@
 import {reactive} from "vue";
 import {
+    MentorStateInterface,
     ParentStateInterface,
     RegistrationData,
     Roles,
@@ -13,6 +14,9 @@ import {TutorDocumentsResolver} from "@/api/resolvers/tutorDocuments/tutor-docum
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
 import {UserDocumentsResolver} from "@/api/resolvers/userDocuments/user-documents.resolver";
 import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
+import {MentorDocumentsResolver} from "@/api/resolvers/mentorDocuments/mentor-documents.resolver";
+import router from "@/router";
+import {useRouter} from "vue-router";
 
 export const UserState = reactive<
     UserStateInterface
@@ -72,9 +76,10 @@ export const fillUserState = async () => {
         UserState.isMentor = userData.message.isMentor;
         UserState.telegramLink = userData.message.telegramLink;
 
-        if (localStorage.getItem("dataToVerify")) {
-            switch (UserState.role) {
-                case Roles.TUTOR: {
+        switch (UserState.role) {
+            case Roles.TUTOR: {
+                await router.push("/tutor");
+                if (localStorage.getItem("dataToVerify")) {
                     const tutorDocsResolver = new TutorDocumentsResolver()
                     const registrationData: RegistrationData<
                         UserRegistrationDto,
@@ -90,14 +95,53 @@ export const fillUserState = async () => {
                         )
                     })
                     await fileManager.removeFileFromCache(registrationData.extra.consentFileName);
-                    break
-                }
 
-                case Roles.MENTOR: {
-                    break
+                    if (response.status === 200) {
+                        localStorage.removeItem("dataToVerify");
+                    } else {
+                        return {
+                            title: response.status,
+                            message: response.message
+                        }
+                    }
                 }
+                break
+            }
 
-                case Roles.USER: {
+            case Roles.MENTOR: {
+                await router.push("/mentor");
+                if (localStorage.getItem("dataToVerify")) {
+                    const mentorDocsResolver = new MentorDocumentsResolver()
+                    const registrationData: RegistrationData<
+                        UserRegistrationDto,
+                        MentorStateInterface
+                    > =
+                        JSON.parse(localStorage.getItem("dataToVerify"))
+                    response = await mentorDocsResolver.create({
+                        userId: userJwt.id,
+                        post: registrationData.extra.post,
+                        institution: registrationData.extra.institution,
+                        consentToMentorPdp: await fileManager.loadFileFromCache(
+                            registrationData.extra.consentFileName
+                        )
+                    })
+                    await fileManager.removeFileFromCache(registrationData.extra.consentFileName);
+
+                    if (response.status === 200) {
+                        localStorage.removeItem("dataToVerify");
+                    } else {
+                        return {
+                            title: response.status,
+                            message: response.message
+                        }
+                    }
+                }
+                break
+            }
+
+            case Roles.USER: {
+                await router.push("/parent");
+                if (localStorage.getItem("dataToVerify")) {
                     const userDocsResolver = new UserDocumentsResolver()
                     const registrationData: RegistrationData<
                         UserWithChildRegistrationDto,
@@ -132,19 +176,20 @@ export const fillUserState = async () => {
                     await fileManager.removeFileFromCache(registrationData.extra.additionalStudyingCertificateFileName);
                     await fileManager.removeFileFromCache(registrationData.extra.consentToChildPdpFileName);
                     await fileManager.removeFileFromCache(registrationData.extra.birthCertificateFileName);
-                    break
-                }
-            }
 
-            if (response.status === 200) {
-                localStorage.removeItem("dataToVerify");
-            } else {
-                return {
-                    title: response.status,
-                    message: response.message
+                    if (response.status === 200) {
+                        localStorage.removeItem("dataToVerify");
+                    } else {
+                        return {
+                            title: response.status,
+                            message: response.message
+                        }
+                    }
                 }
+                break
             }
         }
+
         return {
             title: "",
             message: ""
