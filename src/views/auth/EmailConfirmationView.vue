@@ -60,6 +60,7 @@ import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
 import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
 import {v4 as generateUuidV4} from 'uuid'
 import ToastPopup from "@/components/ToastPopup.vue";
+import {RegistrationData} from "../../../state/UserState.types";
 
 export default {
   name: 'EmailConfirmationView',
@@ -83,8 +84,8 @@ export default {
         code: ''
       },
       authResolver: new AuthResolver(),
-      registrationDto: JSON.parse(localStorage.getItem("dataToVerify")) as
-          UserRegistrationDto | UserWithChildRegistrationDto
+      registrationData: (JSON.parse(localStorage.getItem("dataToVerify")) as
+          RegistrationData<any>).dto as UserRegistrationDto | UserWithChildRegistrationDto
     }
   },
   mounted() {
@@ -123,19 +124,18 @@ export default {
       }
 
       try {
-        if (this.registrationDto.childPatronymic)
-          this.registrationDto.type = "UserWithChildRegistrationDto"
-        else this.registrationDto.type = "UserRegistrationDto"
-        this.registrationDto.uuid = generateUuidV4()
-        this.registrationDto.verificationCode = this.confirmationForm.code
-        const response = await this.authResolver.register(this.registrationDto)
+        if (this.registrationData.childPatronymic)
+          this.registrationData.type = "UserWithChildRegistrationDto"
+        else this.registrationData.type = "UserRegistrationDto"
+        this.registrationData.uuid = generateUuidV4()
+        this.registrationData.verificationCode = this.confirmationForm.code
+        const response = await this.authResolver.register(this.registrationData)
         if (typeof response.message === "string") {
           this.errors.toastPopup = {
             title: `Ошибка #${response.status}`,
             message: response.message
           }
         } else {
-          localStorage.removeItem("dataToVerify")
           localStorage.setItem("access_token", response.message.accessToken)
           localStorage.setItem("refresh_token", response.message.refreshToken)
           this.$router.push('/login')
@@ -151,7 +151,7 @@ export default {
       try {
         const response = await this.authResolver.preRegister({
           email: this.userEmail,
-          mobileNumber: this.registrationDto.mobileNumber
+          mobileNumber: this.registrationData.mobileNumber
         })
 
         if (response.status !== 200) {

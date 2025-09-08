@@ -88,26 +88,3 @@ export class FileManager {
         })
     }
 }
-
-export interface TutorFiles {
-    CONSENT_TUTOR: string
-}
-
-export interface ExpertFiles {
-    CONSENT_EXPERT: string
-}
-
-export interface MentorFiles {
-    CONSENT_MENTOR: string
-}
-
-export interface ParentFiles {
-    CONSENT_CHILD: string
-    BIRTH_CHILD_CERTIFICATE: string
-    SNILS_CHILD: string
-    SCHOOL_CERTIFICATE: string
-    PLATFORM_CERTIFICATE: string
-}
-
-
-export type FilesToVerify = TutorFiles | ExpertFiles | ParentFiles

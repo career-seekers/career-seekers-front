@@ -195,7 +195,7 @@ import Dialog from 'primevue/dialog'
 import ToastPopup from "@/components/ToastPopup.vue";
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
 import {UserRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto.js";
-import {Roles} from "../../../state/UserState.types.js";
+import {RegistrationData, Roles, TutorStateInterface} from "../../../state/UserState.types.js";
 import {FileManager, TutorFiles} from "@/utils/FileManager";
 
 export default {
@@ -399,23 +399,26 @@ export default {
           }
         } else {
           const fileManager = new FileManager()
-          const registrationDto: UserRegistrationDto = {
-            verificationCode: "",
-            lastName: this.registerForm.fullName.split(' ')[0],
-            firstName: this.registerForm.fullName.split(' ')[1],
-            patronymic: this.registerForm.fullName.split(' ')[2],
-            dateOfBirth: this.dateOfBirthFormatted,
-            email: this.registerForm.email,
-            mobileNumber: this.mobileNumberFormatted,
-            password: this.registerForm.password,
-            role: Roles.TUTOR,
-            uuid: ""
+          const registrationData: RegistrationData<TutorStateInterface> = {
+            dto: {
+              verificationCode: "",
+              lastName: this.registerForm.fullName.split(' ')[0],
+              firstName: this.registerForm.fullName.split(' ')[1],
+              patronymic: this.registerForm.fullName.split(' ')[2],
+              dateOfBirth: this.dateOfBirthFormatted,
+              email: this.registerForm.email,
+              mobileNumber: this.mobileNumberFormatted,
+              password: this.registerForm.password,
+              role: Roles.TUTOR,
+              uuid: ""
+            },
+            extra: {
+              post: this.registerForm.position,
+              institution: this.registerForm.educationalInstitution,
+              consentFileName: await fileManager.saveFileToCache(this.registerForm.consentFile)
+            }
           }
-          const filesToVerify: TutorFiles = {
-            CONSENT_TUTOR: await fileManager.saveFileToCache(this.registerForm.consentFile)
-          }
-          localStorage.setItem("dataToVerify", JSON.stringify(registrationDto))
-          localStorage.setItem("filesToVerify", JSON.stringify(filesToVerify))
+          localStorage.setItem("dataToVerify", JSON.stringify(registrationData))
           this.$router.push({
             path: '/email-confirmation',
             query: {email: this.registerForm.email}

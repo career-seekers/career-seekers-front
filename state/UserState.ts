@@ -1,9 +1,11 @@
 import {reactive} from "vue";
-import {Roles, UserStateInterface} from "./UserState.types";
+import {RegistrationData, Roles, TutorStateInterface, UserStateInterface} from "./UserState.types";
 import {jwtDecode} from "jwt-decode";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
 import {FileEndpoints, FileResolver} from "@/api/resolvers/files/file.resolver";
 import {FileManager, FilesToVerify, MentorFiles, TutorFiles} from "@/utils/FileManager";
+import {TutorDocumentsResolver} from "@/api/resolvers/tutorDocuments/tutor-documents.resolver";
+import {CommonOutputDto} from "@/api/dto/common-output.dto";
 
 export const UserState = reactive<
     UserStateInterface
@@ -24,76 +26,58 @@ export const fillUserState = async () => {
     const access_token = localStorage.getItem("access_token");
     const userJwt = jwtDecode<UserJwt>(access_token);
     const userResolver = new UserResolver(userJwt);
-    const response = await userResolver.getById(userJwt.id)
+    const userData = await userResolver.getById(userJwt.id)
 
-    if (typeof response.message === "string") {
+    if (typeof userData.message === "string") {
         return {
             title: response.status,
             message: response.message,
         }
     } else {
         const fileManager = new FileManager();
-        const fileResolver = new FileResolver()
-        UserState.id = response.message.id
-        UserState.firstName = response.message.firstName;
-        UserState.lastName = response.message.lastName;
-        UserState.patronymic = response.message.patronymic;
-        UserState.dateOfBirth = response.message.dateOfBirth;
-        UserState.email = response.message.email;
-        UserState.mobileNumber = response.message.mobileNumber;
-        UserState.password = response.message.password;
-        UserState.role = response.message.role;
-        UserState.avatarId = response.message.avatarId
+        let response: CommonOutputDto<any>
 
-        try {
-            let filesToVerify: FilesToVerify
+        UserState.id = userData.message.id
+        UserState.firstName = userData.message.firstName;
+        UserState.lastName = userData.message.lastName;
+        UserState.patronymic = userData.message.patronymic;
+        UserState.dateOfBirth = userData.message.dateOfBirth;
+        UserState.email = userData.message.email;
+        UserState.mobileNumber = userData.message.mobileNumber;
+        UserState.password = userData.message.password;
+        UserState.role = userData.message.role;
+        UserState.avatarId = userData.message.avatarId
+
+        if (localStorage.getItem("dataToVerify")) {
             switch (UserState.role) {
                 case Roles.TUTOR:
-                    filesToVerify = JSON.parse(
-                        localStorage.getItem("filesToVerify")
-                    ) as TutorFiles
-                    break
-                case Roles.MENTOR:
-                    filesToVerify = JSON.parse(
-                        localStorage.getItem("filesToVerify")
-                    ) as MentorFiles
-                    break
-            }
-            if (filesToVerify) {
-                for (const key of Object.keys(filesToVerify) as (keyof typeof filesToVerify)[]) {
-                    const fileName = filesToVerify[key]
-                    console.log(key)
-                    console.log(FileEndpoints[key as keyof typeof FileEndpoints])
-                    const file = await fileManager.loadFileFromCache(fileName)
-                    const response =
-                        await fileResolver.upload(
-                            {
-                                file: file
-                            },
-                            FileEndpoints[key as keyof typeof FileEndpoints]
+                    const tutorDocsResolver = new TutorDocumentsResolver()
+                    const registrationData: RegistrationData<TutorStateInterface> =
+                        JSON.parse(localStorage.getItem("dataToVerify"))
+                    response = await tutorDocsResolver.create({
+                        userId: userJwt.id,
+                        post: registrationData.extra.post,
+                        institution: registrationData.extra.institution,
+                        consentToTutorPdp: await fileManager.loadFileFromCache(
+                            registrationData.extra.consentFileName
                         )
-                    if (response && typeof response.message === "string") {
+                    })
+                    await fileManager.removeFileFromCache(registrationData.extra.consentFileName);
 
-                        return {
-                            title: response.status,
-                            message: response.message
-                        }
-                    } else {
-                        await fileManager.removeFileFromCache(fileName)
-                        console.log(`file ${fileName} successfully uploaded`)
-                    }
+            }
+
+            if (response.status === 200) {
+                localStorage.removeItem("dataToVerify");
+            } else {
+                return {
+                    title: response.status,
+                    message: response.message
                 }
-                localStorage.removeItem("filesToVerify");
             }
-            return {
-                title: '',
-                message: ''
-            }
-        } catch (e) {
-            return {
-                title: e.title,
-                message: e.message,
-            }
+        }
+        return {
+            title: "",
+            message: ""
         }
     }
 }
