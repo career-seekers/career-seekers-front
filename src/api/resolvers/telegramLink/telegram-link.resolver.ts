@@ -10,10 +10,10 @@ export class TelegramLinkResolver {
     public async create(data: TelegramLinkInputDto) {
         return await this
             .apiResolver
-            .request<FormData, CommonOutputDto<TelegramLinkOutputDto | string>>(
+            .request<TelegramLinkInputDto, CommonOutputDto<TelegramLinkOutputDto | string>>(
                 "",
                 "POST",
-                this.apiResolver.DTOToFormData(data),
+                data,
                 this.token ? this.token : undefined
             )
     }

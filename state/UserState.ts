@@ -17,6 +17,7 @@ import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers
 import {MentorDocumentsResolver} from "@/api/resolvers/mentorDocuments/mentor-documents.resolver";
 import router from "@/router";
 import {useRouter} from "vue-router";
+import {TelegramLinkResolver} from "@/api/resolvers/telegramLink/telegram-link.resolver";
 
 export const UserState = reactive<
     UserStateInterface
@@ -187,6 +188,23 @@ export const fillUserState = async () => {
                     }
                 }
                 break
+            }
+        }
+
+        const tgLink = localStorage.getItem("telegramLink");
+        if (tgLink) {
+            const telegramLinkResolver = new TelegramLinkResolver()
+            const response = await telegramLinkResolver.create({
+                userId: UserState.id,
+                tgLink: tgLink,
+            })
+            if (response.status === 200) {
+                localStorage.removeItem("telegramLink");
+            } else {
+                return {
+                    title: response.status,
+                    message: response.message
+                }
             }
         }
 
