@@ -4,6 +4,7 @@ import {CommonOutputDto} from "../../dto/common-output.dto";
 import {LoginInputDto} from "./dto/input/login-input.dto";
 import {JWTMessageOutputDto} from "./dto/output/jwt-message-output.dto";
 import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
+import {TokensInputDto} from "@/api/resolvers/auth/dto/input/tokens-input.dto";
 
 export class AuthResolver {
     private apiResolver = new ApiResolver("users-service/v1/auth")
@@ -36,6 +37,17 @@ export class AuthResolver {
             .apiResolver
             .request<LoginInputDto, CommonOutputDto<JWTMessageOutputDto | string>>(
                 "login",
+                "POST",
+                data,
+                null
+            )
+    }
+
+    public async updateTokens(data: TokensInputDto) {
+        return await this
+            .apiResolver
+            .request<TokensInputDto, CommonOutputDto<JWTMessageOutputDto | string>>(
+                "updateTokens",
                 "POST",
                 data,
                 null

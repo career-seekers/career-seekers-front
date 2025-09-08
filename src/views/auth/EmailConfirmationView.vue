@@ -60,7 +60,12 @@ import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
 import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
 import {v4 as generateUuidV4} from 'uuid'
 import ToastPopup from "@/components/ToastPopup.vue";
-import {RegistrationData} from "../../../state/UserState.types";
+import {
+  MentorStateInterface,
+  ParentStateInterface,
+  RegistrationData,
+  TutorStateInterface
+} from "../../../state/UserState.types";
 import {fillUserState} from "../../../state/UserState";
 
 export default {
@@ -86,7 +91,10 @@ export default {
       },
       authResolver: new AuthResolver(),
       registrationData: (JSON.parse(localStorage.getItem("dataToVerify")) as
-          RegistrationData<any>).dto as UserRegistrationDto | UserWithChildRegistrationDto
+          RegistrationData<
+              UserWithChildRegistrationDto | UserRegistrationDto,
+              TutorStateInterface | MentorStateInterface | ParentStateInterface
+          >).dto as UserRegistrationDto | UserWithChildRegistrationDto
     }
   },
   mounted() {
@@ -139,6 +147,7 @@ export default {
         } else {
           localStorage.setItem("access_token", response.message.accessToken)
           localStorage.setItem("refresh_token", response.message.refreshToken)
+          localStorage.setItem("uuid", this.registrationData.uuid)
           await fillUserState()
         }
       } catch (error) {

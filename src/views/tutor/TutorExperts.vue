@@ -100,6 +100,16 @@
               :class="{ 'p-invalid': !expertForm.fullName }"
             />
           </div>
+          <div class="form-field">
+            <label for="birthDate">Дата рождения *</label>
+            <InputText
+                id="birthDate"
+                v-model="expertForm.birthDate"
+                mask="99.99.9999"
+                placeholder="дд.мм.гггг"
+                :class="{ 'p-invalid': !expertForm.birthDate }"
+            />
+          </div>
         </div>
         
         <div class="form-row">
@@ -202,6 +212,7 @@ import ToastPopup from "@/components/ToastPopup.vue";
 import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
 import {Roles} from "../../../state/UserState.types";
 import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input-dto";
+import {UpdateUserInputDto} from "@/api/resolvers/user/dto/input/update-user-input.dto";
 
 export default {
   name: 'TutorExperts',
@@ -220,6 +231,7 @@ export default {
       editingExpertId: null,
       expertForm: {
         fullName: '',
+        birthDate: '',
         email: '',
         phone: '',
         position: '',
@@ -247,6 +259,13 @@ export default {
       userResolver: new UserResolver()
     }
   },
+  computed: {
+    dateOfBirthFormatted() {
+      const [day, month, year] = this.expertForm.birthDate.split('.');
+      const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
+      return date.toISOString()
+    },
+  },
   methods: {
     editExpert(expert) {
       this.isEditing = true
@@ -270,7 +289,7 @@ export default {
         }
       }
     },
-    saveExpert() {
+    async saveExpert() {
       if (!this.validateForm()) {
         return
       }
@@ -280,17 +299,30 @@ export default {
       )
       
       if (this.isEditing) {
-        const expert = this.experts.find(e => e.id === this.editingExpertId)
+        const expert = this.experts.find((ex: UserOutputDto) => ex.id === this.editingExpertId)
         if (expert) {
-          Object.assign(expert, {
-            fullName: this.expertForm.fullName,
-            email: this.expertForm.email,
-            phone: this.expertForm.phone,
-            position: this.expertForm.position,
-            experience: this.expertForm.experience,
-            competencies: selectedCompetencies,
-            description: this.expertForm.description
-          })
+          const editedExpert: UpdateUserInputDto = {
+            avatarId: expert.avatarId,
+            dateOfBirth: this.dateOfBirthFormatted,
+            email: expert.email,
+            firstName: expert.firstName,
+            lastName: expert.lastName,
+            mobileNumber: expert.mobileNumber,
+            password: expert.password,
+            patronymic: expert.patronymic,
+            role: Roles.EXPERT,
+            id: this.editingExpertId
+          }
+
+          const response = await this.userResolver.update(editedExpert)
+          if (response.status === 200) {
+            this.experts = response.message
+          } else {
+            this.errors.toastPopup = {
+              title: response.status,
+              message: response.message
+            }
+          }
         }
       } else {
         const newExpert: UserInputDto = {
@@ -299,14 +331,23 @@ export default {
           patronymic: this.expertForm.fullName.split(' ')[2],
           email: this.expertForm.email,
           mobileNumber: this.expertForm.phone,
-          password: "",
-          dateOfBirth: "",
+          password: undefined,
+          dateOfBirth: this.dateOfBirthFormatted,
           role: Roles.EXPERT,
           avatarId: null
         }
-        this.userResolver.create(newExpert)
+
+        const response = await this.userResolver.create(newExpert)
+        if (response.status === 200) {
+          this.experts = response.message
+        } else {
+          this.errors.toastPopup = {
+            title: response.status,
+            message: response.message
+          }
+        }
       }
-      
+      await this.loadExperts()
       this.cancelEdit()
     },
     cancelEdit() {
@@ -324,24 +365,29 @@ export default {
       this.showAddExpertDialog = false
     },
     validateForm() {
+      if (!this.registerForm.birthDate.trim()) return false
+
       return this.expertForm.fullName && 
              this.expertForm.email && 
              this.expertForm.phone && 
              this.expertForm.position && 
              this.expertForm.experience && 
              this.expertForm.competencies.length > 0
+    },
+    async loadExperts() {
+      const response = await this.userResolver.getAllByRole(Roles.EXPERT)
+      if (response.status === 200) {
+        this.experts = response.message
+      } else {
+        this.errors.toastPopup = {
+          title: response.status,
+          message: response.message
+        }
+      }
     }
   },
   async mounted() {
-    const response = await this.userResolver.getAllByRole(Roles.EXPERT)
-    if (response.status === 200) {
-      this.experts = response.message
-    } else {
-      this.error.toastPopup = {
-        title: response.status,
-        message: response.message
-      }
-    }
+    await this.loadExperts()
   }
 }
 </script>

@@ -159,10 +159,11 @@ export default {
       }
 
       const authResolver = new AuthResolver()
+      const uuid = generateUuidV4()
       const response = await authResolver.login({
         email: this.loginForm.email,
         password: this.loginForm.password,
-        uuid: generateUuidV4()
+        uuid: uuid
       })
 
       if (typeof response.message === "string") {
@@ -173,6 +174,7 @@ export default {
       } else {
         localStorage.setItem("access_token", response.message.accessToken)
         localStorage.setItem("refresh_token", response.message.refreshToken)
+        localStorage.setItem("uuid", uuid)
         await fillUserState()
       }
       this.isLoading = false

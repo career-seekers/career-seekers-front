@@ -64,8 +64,9 @@
   </div>
 </template>
 
-<script>
+<script  lang="ts">
 import Button from 'primevue/button'
+import {clearUserState} from "../../../state/UserState";
 
 export default {
   name: 'ExpertDashboard',
@@ -87,7 +88,7 @@ export default {
   },
   methods: {
     logout() {
-      // Логика выхода
+      clearUserState()
       this.$router.push('/login')
     },
     toggleSidebar() {
