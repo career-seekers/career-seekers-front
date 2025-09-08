@@ -8,15 +8,25 @@ import {
 } from "./UserState.types";
 import {jwtDecode} from "jwt-decode";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
-import {FileEndpoints, FileResolver} from "@/api/resolvers/files/file.resolver";
-import {FileManager, FilesToVerify, MentorFiles, TutorFiles} from "@/utils/FileManager";
+import {FileManager} from "@/utils/FileManager";
 import {TutorDocumentsResolver} from "@/api/resolvers/tutorDocuments/tutor-documents.resolver";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
 import {UserDocumentsResolver} from "@/api/resolvers/userDocuments/user-documents.resolver";
 
 export const UserState = reactive<
     UserStateInterface
->({})
+>({
+    avatarId: undefined,
+    dateOfBirth: undefined,
+    email: undefined,
+    firstName: undefined,
+    id: undefined,
+    lastName: undefined,
+    mobileNumber: undefined,
+    password: undefined,
+    patronymic: undefined,
+    role: undefined
+})
 
 interface UserJwt {
     id: number;
@@ -32,13 +42,13 @@ interface UserJwt {
 export const fillUserState = async () => {
     const access_token = localStorage.getItem("access_token");
     const userJwt = jwtDecode<UserJwt>(access_token);
-    const userResolver = new UserResolver(userJwt);
+    const userResolver = new UserResolver();
     const userData = await userResolver.getById(userJwt.id)
 
     if (typeof userData.message === "string") {
         return {
-            title: response.status,
-            message: response.message,
+            title: userData.status,
+            message: userData.message,
         }
     } else {
         const fileManager = new FileManager();
@@ -101,6 +111,11 @@ export const fillUserState = async () => {
                             registrationData.extra.birthCertificateFileName
                         )
                     })
+                    await fileManager.removeFileFromCache(registrationData.extra.snilsFileName);
+                    await fileManager.removeFileFromCache(registrationData.extra.studyingCertificateFileName);
+                    await fileManager.removeFileFromCache(registrationData.extra.additionalStudyingCertificateFileName);
+                    await fileManager.removeFileFromCache(registrationData.extra.consentToChildPdpFileName);
+                    await fileManager.removeFileFromCache(registrationData.extra.birthCertificateFileName);
                     break
                 }
             }

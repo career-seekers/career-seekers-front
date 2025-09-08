@@ -1,18 +1,18 @@
 export class FileManager {
-    saveFileToCache(file) {
+    saveFileToCache(file: File) {
         return new Promise<string>((resolve, reject) => {
             const request = indexedDB.open('FileCacheDB', 1);
             const fileName = `${file.name}_${Date.now()}`
 
             request.onupgradeneeded = function(event) {
-                const db = event.target.result;
+                const db = (event.target as IDBRequest).result;
                 if (!db.objectStoreNames.contains('files')) {
                     db.createObjectStore('files', { keyPath: 'name' });
                 }
             };
 
             request.onsuccess = function(event) {
-                const db = event.target.result;
+                const db = (event.target as IDBRequest).result;
                 const transaction = db.transaction(['files'], 'readwrite');
                 const store = transaction.objectStore('files');
                 store.put({ name: fileName, file: file });
@@ -24,17 +24,17 @@ export class FileManager {
             };
 
             request.onerror = function(event) {
-                reject('IndexedDB error:' + event.target.errorCode);
+                reject('IndexedDB error:' + (event.target as IDBRequest).error);
             };
         })
     }
 
-    loadFileFromCache(fileName) {
-        return new Promise<File | Error>((resolve, reject) => {
+    loadFileFromCache(fileName: string) {
+        return new Promise<File>((resolve, reject) => {
             const request = indexedDB.open('FileCacheDB', 1);
 
             request.onsuccess = function(event) {
-                const db = event.target.result;
+                const db = (event.target as IDBRequest).result;
                 const transaction = db.transaction(['files'], 'readonly');
                 const store = transaction.objectStore('files');
                 const getRequest = store.get(fileName);
@@ -44,29 +44,29 @@ export class FileManager {
                     if (record) {
                         resolve(record.file);
                     } else {
-                        reject(new Error('File not found in IndexedDB'));
+                        reject(File);
                     }
                     db.close();
                 };
 
-                getRequest.onerror = function(event) {
-                    reject(new Error('Error retrieving file: ' + event.target.errorCode));
+                getRequest.onerror = function() {
+                    reject(File);
                     db.close();
                 };
             };
 
             request.onerror = function(event) {
-                reject(new Error('IndexedDB error: ' + event.target.errorCode));
+                reject(new Error('IndexedDB error: ' + (event.target as IDBRequest).error));
             };
         });
     }
 
-    removeFileFromCache(fileName) {
+    removeFileFromCache(fileName: string) {
         return new Promise<boolean>((resolve, reject) => {
             const request = indexedDB.open('FileCacheDB', 1);
 
             request.onsuccess = function(event) {
-                const db = event.target.result;
+                const db = (event.target as IDBRequest).result;
                 const transaction = db.transaction(['files'], 'readwrite');
                 const store = transaction.objectStore('files');
 
@@ -77,7 +77,7 @@ export class FileManager {
                     resolve(true)
                 };
 
-                deleteRequest.onerror = function(event) {
+                deleteRequest.onerror = function() {
                     db.close();
                     reject(false)
                 };
