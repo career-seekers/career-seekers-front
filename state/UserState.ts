@@ -88,7 +88,9 @@ export const fillUserState = async () => {
             UserState.avatarId = userData.message.avatarId;
             UserState.verified = userData.message.verified;
             UserState.isMentor = userData.message.isMentor;
-            UserState.telegramLink = userData.message.telegramLink;
+            if (UserState.telegramLink != null) {
+                UserState.telegramLink = userData.message.telegramLink.tgLink;
+            }
             switch (UserState.role) {
                 case Roles.TUTOR: {
                     if (!history.state.current.includes("tutor")) {

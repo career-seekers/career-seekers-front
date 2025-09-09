@@ -1,4 +1,5 @@
 import {Roles} from "../../../../../../state/UserState.types";
+import {UserOutputTutorDocsDto} from "@/api/resolvers/auth/dto/output/user-output-tutor-docs.dto";
 
 export interface UserOutputDto {
     id: number;
@@ -13,5 +14,14 @@ export interface UserOutputDto {
     avatarId: number | null;
     verified: boolean;
     isMentor: boolean;
-    telegramLink: string | null;
+    userDocuments: null,
+    expertDocuments: null,
+    tutorDocuments: UserOutputTutorDocsDto,
+    mentorDocuments: null,
+    menteeChildren: [],
+    children: [],
+    telegramLink: {
+        id: number,
+        tgLink: string
+    } | null
 }
