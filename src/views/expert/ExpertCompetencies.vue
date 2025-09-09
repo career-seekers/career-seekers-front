@@ -166,6 +166,7 @@ import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
 import {CompetitionOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
 import {AgeCategories, CompetitionResolver} from "@/api/resolvers/competition/competition.resolver";
+import {UserState} from "../../../state/UserState";
 
 export default {
   name: 'ExpertCompetencies',
@@ -205,9 +206,6 @@ export default {
     goToParticipants(competencyId) {
       this.$router.push(`/expert/participants/${competencyId}`)
     },
-    goToDocuments(competencyId) {
-      this.$router.push(`/expert/documents/${competencyId}`)
-    },
     goToEvents(competencyId) {
       this.$router.push('/expert/events')
     },
@@ -224,7 +222,7 @@ export default {
     },
     async loadCompetencies() {
       const competitionResolver = new CompetitionResolver()
-      const response = await competitionResolver.getAll()
+      const response = await competitionResolver.getByExpertId(UserState.id)
       if (response.status === 200) this.competencies = response.message
     }
   },
