@@ -11,7 +11,7 @@
         label="Добавить главного эксперта" 
         icon="pi pi-user-plus"
         class="p-button-primary"
-        @click="showAddExpertDialog = true"
+        @click="addExpert"
       />
     </div>
 
@@ -52,11 +52,11 @@
             </div>
             <div class="detail-item">
               <span class="detail-label">Телефон:</span>
-              <span class="detail-value">{{ expert.mobileNumber }}</span>
+              <span class="detail-value">{{ reformatPhone(expert.mobileNumber) }}</span>
             </div>
             <div class="detail-item">
-              <span class="detail-label">Опыт работы:</span>
-              <span class="detail-value">{{ expert.experience }}</span>
+              <span class="detail-label">Должность:</span>
+              <span class="detail-value">{{ expert.position ? expert.position : 'Не указано'}}</span>
             </div>
           </div>
           
@@ -90,95 +90,53 @@
       :style="{ width: '600px' }"
     >
       <div class="expert-form">
-        <div class="form-row">
-          <div class="form-field">
-            <label for="fullName">ФИО *</label>
-            <InputText 
+        <div class="form-field">
+          <label for="fullName">ФИО *</label>
+          <InputText
               id="fullName"
-              v-model="expertForm.fullName" 
+              v-model="expertForm.fullName"
               placeholder="Введите ФИО эксперта"
               :class="{ 'p-invalid': !expertForm.fullName }"
-            />
-          </div>
-          <div class="form-field">
-            <label for="birthDate">Дата рождения *</label>
-            <InputText
-                id="birthDate"
-                v-model="expertForm.birthDate"
-                mask="99.99.9999"
-                placeholder="дд.мм.гггг"
-                :class="{ 'p-invalid': !expertForm.birthDate }"
-            />
-          </div>
+          />
+          <small v-if="errors.fullName" class="p-error">{{ errors.fullName }}</small>
         </div>
-        
-        <div class="form-row">
-          <div class="form-field">
-            <label for="email">Email *</label>
-            <InputText 
+
+        <div class="form-field">
+          <label for="birthDate">Дата рождения *</label>
+          <InputMask
+              id="birthDate"
+              v-model="expertForm.birthDate"
+              mask="99.99.9999"
+              class="w-full"
+              placeholder="дд.мм.гггг"
+              :class="{ 'p-invalid': !expertForm.birthDate }"
+          />
+          <small v-if="errors.birthDate" class="p-error">{{ errors.birthDate }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="email">Email *</label>
+          <InputText
               id="email"
-              v-model="expertForm.email" 
+              type="email"
+              v-model="expertForm.email"
               placeholder="Введите email"
               :class="{ 'p-invalid': !expertForm.email }"
-            />
-          </div>
-          <div class="form-field">
-            <label for="phone">Телефон *</label>
-            <InputText 
-              id="phone"
-              v-model="expertForm.phone" 
-              placeholder="Введите телефон"
+          />
+          <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="parentPhone" class="field-label">Контактный телефон *</label>
+          <InputMask
+              id="parentPhone"
+              v-model="expertForm.phone"
+              mask="+7 (999) 999-99-99"
+              placeholder="+7 (___) ___-__-__"
+              class="w-full"
               :class="{ 'p-invalid': !expertForm.phone }"
-            />
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-field">
-            <label for="position">Должность *</label>
-            <InputText 
-              id="position"
-              v-model="expertForm.position" 
-              placeholder="Введите должность"
-              :class="{ 'p-invalid': !expertForm.position }"
-            />
-          </div>
-          <div class="form-field">
-            <label for="experience">Опыт работы *</label>
-            <InputText 
-              id="experience"
-              v-model="expertForm.experience" 
-              placeholder="Например: 5 лет"
-              :class="{ 'p-invalid': !expertForm.experience }"
-            />
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-field full-width">
-            <label for="competencies">Компетенции *</label>
-            <MultiSelect 
-              id="competencies"
-              v-model="expertForm.competencies" 
-              :options="availableCompetencies"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Выберите компетенции"
-              :class="{ 'p-invalid': !expertForm.competencies || expertForm.competencies.length === 0 }"
-            />
-          </div>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-field full-width">
-            <label for="description">Дополнительная информация</label>
-            <Textarea 
-              id="description"
-              v-model="expertForm.description" 
-              placeholder="Введите дополнительную информацию об эксперте"
-              rows="3"
-            />
-          </div>
+          />
+          <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
         </div>
       </div>
       
@@ -205,6 +163,7 @@
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
+import InputMask from "primevue/inputmask";
 import MultiSelect from 'primevue/multiselect'
 import Textarea from 'primevue/textarea'
 import {UserResolver} from "@/api/resolvers/user/user.resolver.js";
@@ -222,7 +181,8 @@ export default {
     Dialog,
     InputText,
     MultiSelect,
-    Textarea
+    Textarea,
+    InputMask
   },
   data() {
     return {
@@ -234,10 +194,6 @@ export default {
         birthDate: '',
         email: '',
         phone: '',
-        position: '',
-        experience: '',
-        competencies: [],
-        description: ''
       },
       availableCompetencies: [
         { id: 1, name: 'Веб-разработка' },
@@ -263,26 +219,43 @@ export default {
     dateOfBirthFormatted() {
       const [day, month, year] = this.expertForm.birthDate.split('.');
       const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
+      console.log(date.toISOString())
       return date.toISOString()
+    },
+    mobileNumberFormatted() {
+      return this.expertForm.phone.replaceAll(/\s|-|\(|\)|/g, '')
     },
   },
   methods: {
-    editExpert(expert) {
-      this.isEditing = true
-      this.editingExpertId = expert.id
+    addExpert() {
       this.expertForm = {
-        fullName: expert.fullName,
-        email: expert.email,
-        phone: expert.phone,
-        position: expert.position,
-        experience: expert.experience,
-        competencies: expert.competencies.map(c => c.id),
-        description: expert.description
+        fullName: "",
+        email: "",
+        phone: "",
+        birthDate: ""
       }
       this.showAddExpertDialog = true
     },
-    deleteExpert(expert) {
-      if (confirm(`Вы уверены, что хотите удалить эксперта ${expert.fullName}?`)) {
+    editExpert(expert: UserOutputDto) {
+      this.isEditing = true
+      this.editingExpertId = expert.id
+      this.expertForm = {
+        fullName: `${expert.lastName} ${expert.firstName} ${expert.patronymic}`,
+        email: expert.email,
+        phone: this.reformatPhone(expert.mobileNumber),
+        birthDate: this.reformatDateOfBirth(expert.dateOfBirth)
+      }
+      this.showAddExpertDialog = true
+    },
+    reformatDateOfBirth(date) {
+      const [year, month, day] = date.substring(0, 10).split('-')
+      return `${day}.${month}.${year}`
+    },
+    reformatPhone(phone) {
+      return `${phone.substring(0, 2)} (${phone.substring(2, 5)}) ${phone.substring(5, 8)}-${phone.substring(8, 10)}-${phone.substring(10, 12)}`
+    },
+    deleteExpert(expert: UserOutputDto) {
+      if (confirm(`Вы уверены, что хотите удалить эксперта ${expert.firstName}?`)) {
         const index = this.experts.findIndex(e => e.id === expert.id)
         if (index > -1) {
           this.experts.splice(index, 1)
@@ -293,10 +266,6 @@ export default {
       if (!this.validateForm()) {
         return
       }
-
-      const selectedCompetencies = this.availableCompetencies.filter(c => 
-        this.expertForm.competencies.includes(c.id)
-      )
       
       if (this.isEditing) {
         const expert = this.experts.find((ex: UserOutputDto) => ex.id === this.editingExpertId)
@@ -304,19 +273,19 @@ export default {
           const editedExpert: UpdateUserInputDto = {
             avatarId: expert.avatarId,
             dateOfBirth: this.dateOfBirthFormatted,
-            email: expert.email,
-            firstName: expert.firstName,
-            lastName: expert.lastName,
-            mobileNumber: expert.mobileNumber,
+            email: this.expertForm.email,
+            firstName: this.expertForm.fullName.split(' ')[1],
+            lastName: this.expertForm.fullName.split(' ')[0],
+            mobileNumber: this.mobileNumberFormatted,
             password: expert.password,
-            patronymic: expert.patronymic,
+            patronymic: this.expertForm.fullName.split(' ')[2],
             role: Roles.EXPERT,
             id: this.editingExpertId
           }
 
           const response = await this.userResolver.update(editedExpert)
           if (response.status === 200) {
-            this.experts = response.message
+            this.cancelEdit()
           } else {
             this.errors.toastPopup = {
               title: response.status,
@@ -330,16 +299,16 @@ export default {
           firstName: this.expertForm.fullName.split(' ')[1],
           patronymic: this.expertForm.fullName.split(' ')[2],
           email: this.expertForm.email,
-          mobileNumber: this.expertForm.phone,
-          password: undefined,
-          dateOfBirth: this.dateOfBirthFormatted,
+          mobileNumber: this.mobileNumberFormatted,
+          password: "Expert$pa33word",
           role: Roles.EXPERT,
+          dateOfBirth: this.dateOfBirthFormatted,
           avatarId: null
         }
 
         const response = await this.userResolver.create(newExpert)
         if (response.status === 200) {
-          this.experts = response.message
+          this.cancelEdit()
         } else {
           this.errors.toastPopup = {
             title: response.status,
@@ -348,7 +317,6 @@ export default {
         }
       }
       await this.loadExperts()
-      this.cancelEdit()
     },
     cancelEdit() {
       this.isEditing = false
@@ -365,14 +333,29 @@ export default {
       this.showAddExpertDialog = false
     },
     validateForm() {
-      if (!this.registerForm.birthDate.trim()) return false
+      let isValid = true
 
-      return this.expertForm.fullName && 
-             this.expertForm.email && 
-             this.expertForm.phone && 
-             this.expertForm.position && 
-             this.expertForm.experience && 
-             this.expertForm.competencies.length > 0
+      if (!this.expertForm.fullName.trim()) {
+        this.errors.fullName = 'ФИО обязательно'
+        isValid = false
+      }
+
+      if (!this.expertForm.email.trim()) {
+        this.errors.email = 'email обязателен'
+        isValid = false
+      }
+
+      if (!this.expertForm.phone.trim()) {
+        this.errors.phone = 'Номер телефона обязателен'
+        isValid = false
+      }
+
+      if (!this.expertForm.birthDate.trim()) {
+        this.errors.birthDate = 'Дата рождения обязательна'
+        isValid = false
+      }
+
+      return isValid
     },
     async loadExperts() {
       const response = await this.userResolver.getAllByRole(Roles.EXPERT)
@@ -388,6 +371,16 @@ export default {
   },
   async mounted() {
     await this.loadExperts()
+  },
+  watch: {
+    showAddExpertDialog() {
+      this.errors = {
+        toastPopup: {
+          title: '',
+          message: ''
+        }
+      }
+    }
   }
 }
 </script>
@@ -605,6 +598,7 @@ export default {
 .form-field {
   display: flex;
   flex-direction: column;
+  margin: 1rem 0;
 }
 
 .form-field.full-width {

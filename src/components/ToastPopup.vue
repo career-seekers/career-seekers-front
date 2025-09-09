@@ -42,7 +42,7 @@ watch(() => propCopy.value, () => showToast.value = true )
   position: fixed;
   top: 1rem;
   right: 1rem;
-  z-index: 1001;
+  z-index: 2000;
   max-width: 400px;
   animation: slideInRight 0.3s ease-out;
 }
