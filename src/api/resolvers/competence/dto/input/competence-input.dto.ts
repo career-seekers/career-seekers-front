@@ -1,4 +1,4 @@
-import {AgeCategories} from "@/api/resolvers/competition/competition.resolver";
+import {AgeCategories} from "@/api/resolvers/competence/competence.resolver";
 
 export interface CompetenceInputDto {
     name: string;

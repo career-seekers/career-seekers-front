@@ -272,8 +272,8 @@
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
-import {CompetenceOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
-import {AgeCategories, CompetenceResolver} from "@/api/resolvers/competition/competition.resolver";
+import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import {AgeCategories, CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
 import {UserState} from "../../../state/UserState";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
 import {Roles} from "../../../state/UserState.types";

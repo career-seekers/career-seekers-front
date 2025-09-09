@@ -39,7 +39,7 @@
             <div class="competence-description">{{ competence.description }}</div>
           </div>
         </div>
-        
+
         <div class="competence-stats">
           <div class="stat-item">
             <div class="stat-number">{{ competence.participantsCount }}</div>
@@ -164,8 +164,8 @@
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
-import {CompetenceOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
-import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competition/competition.resolver';
+import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
 import {UserState} from "../../../state/UserState";
 
 export default {

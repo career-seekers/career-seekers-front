@@ -1,7 +1,8 @@
 import ApiResolver from "@/utils/ApiResolver";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
-import {CompetenceInputDto} from "@/api/resolvers/competition/dto/input/competition-input.dto";
-import {CompetenceOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
+import {CompetenceInputDto} from "@/api/resolvers/competence/dto/input/competence-input.dto";
+import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import {UpdateUserInputDto} from "@/api/resolvers/user/dto/input/update-user-input.dto";
 
 export enum AgeCategories {
     EARLY_PRESCHOOL = "PRESCHOOL_1",
@@ -66,6 +67,17 @@ export class CompetenceResolver {
                 `getByExpertId/${id}`,
                 "GET",
                 null,
+                this.token ? this.token : undefined
+            )
+    }
+
+    public async update(data: CompetenceInputDto) {
+        return await this
+            .apiResolver
+            .request<CompetenceInputDto, CommonOutputDto<string>>(
+                "",
+            "PATCH",
+                data,
                 this.token ? this.token : undefined
             )
     }
