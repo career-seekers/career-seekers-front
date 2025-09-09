@@ -48,38 +48,38 @@
         <div class="card-content">
           <div class="competencies-grid">
         <div 
-          v-for="competency in competencies" 
-          :key="competency.id" 
-          class="competency-card"
-          @click="goToCompetency(competency.id)"
+          v-for="competence in competencies"
+          :key="competence.id"
+          class="competence-card"
+          @click="goToCompetence(competence.id)"
         >
-          <div class="competency-header">
-            <h4 class="competency-name">{{ competency.name }}</h4>
-            <div class="competency-age">{{ competency.ageRange }}</div>
+          <div class="competence-header">
+            <h4 class="competence-name">{{ competence.name }}</h4>
+            <div class="competence-age">{{ competence.ageRange }}</div>
           </div>
-          <div class="competency-content">
-            <div class="competency-stats">
+          <div class="competence-content">
+            <div class="competence-stats">
               <div class="stat-item">
-                <span class="stat-number">{{ competency.participantsCount }}</span>
+                <span class="stat-number">{{ competence.participantsCount }}</span>
                 <span class="stat-label">Участников</span>
               </div>
               <div class="stat-item">
-                <span class="stat-number">{{ competency.eventsCount }}</span>
+                <span class="stat-number">{{ competence.eventsCount }}</span>
                 <span class="stat-label">Событий</span>
               </div>
             </div>
-            <div class="competency-actions">
+            <div class="competence-actions">
               <Button 
                 label="Участники" 
                 icon="pi pi-users"
                 class="p-button-sm p-button-outlined"
-                @click.stop="goToParticipants(competency.id)"
+                @click.stop="goToParticipants(competence.id)"
               />
               <Button 
                 label="Документы" 
                 icon="pi pi-file-text"
                 class="p-button-sm p-button-outlined"
-                @click.stop="goToDocuments(competency.id)"
+                @click.stop="goToDocuments(competence.id)"
               />
             </div>
           </div>
@@ -181,7 +181,7 @@
               </div>
               <div class="event-content">
                 <div class="event-title">{{ event.title }}</div>
-                <div class="event-competency">{{ event.competency }}</div>
+                <div class="event-competence">{{ event.competence }}</div>
                 <div class="event-date">{{ event.date }}</div>
               </div>
               <div class="event-status" :class="event.statusClass">
@@ -244,7 +244,7 @@ export default {
         {
           id: 1,
           title: 'Мастер-класс по нейронным сетям',
-          competency: 'Искусственный интеллект',
+          competence: 'Искусственный интеллект',
           date: '15.12.2024, 14:00',
           status: 'Запланировано',
           statusClass: 'status-planned',
@@ -253,7 +253,7 @@ export default {
         {
           id: 2,
           title: 'Практическое занятие по анализу данных',
-          competency: 'Анализ данных',
+          competence: 'Анализ данных',
           date: '12.12.2024, 10:00',
           status: 'Проведено',
           statusClass: 'status-completed',
@@ -262,7 +262,7 @@ export default {
         {
           id: 3,
           title: 'Введение в машинное обучение',
-          competency: 'Машинное обучение',
+          competence: 'Машинное обучение',
           date: '10.12.2024, 16:00',
           status: 'Проведено',
           statusClass: 'status-completed',
@@ -277,14 +277,14 @@ export default {
     }
   },
   methods: {
-    goToCompetency(competencyId) {
+    goToCompetence(competenceId) {
       this.$router.push(`/expert/competencies`)
     },
-    goToParticipants(competencyId) {
-      this.$router.push(`/expert/participants/${competencyId}`)
+    goToParticipants(competenceId) {
+      this.$router.push(`/expert/participants/${competenceId}`)
     },
-    goToDocuments(competencyId) {
-      this.$router.push(`/expert/documents/${competencyId}`)
+    goToDocuments(competenceId) {
+      this.$router.push(`/expert/documents/${competenceId}`)
     },
     goToAllCompetencies() {
       this.$router.push('/expert/competencies')
@@ -472,7 +472,7 @@ export default {
   align-items: stretch;
 }
 
-.competency-card {
+.competence-card {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 1rem;
@@ -486,26 +486,26 @@ export default {
   overflow: hidden;
 }
 
-.competency-card:hover {
+.competence-card:hover {
   background: #fff3e0;
   border-color: #ff9800;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
 }
 
-.competency-header {
+.competence-header {
   margin-bottom: 1rem;
   flex-shrink: 0;
 }
 
-.competency-name {
+.competence-name {
   color: #2c3e50;
   margin: 0 0 0.5rem 0;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
-.competency-age {
+.competence-age {
   color: #6c757d;
   font-size: 0.9rem;
   background: #e9ecef;
@@ -514,7 +514,7 @@ export default {
   display: inline-block;
 }
 
-.competency-stats {
+.competence-stats {
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
@@ -540,7 +540,7 @@ export default {
   font-weight: 500;
 }
 
-.competency-content {
+.competence-content {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -550,25 +550,25 @@ export default {
   padding-right: 4px;
 }
 
-.competency-content::-webkit-scrollbar {
+.competence-content::-webkit-scrollbar {
   width: 4px;
 }
 
-.competency-content::-webkit-scrollbar-track {
+.competence-content::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 2px;
 }
 
-.competency-content::-webkit-scrollbar-thumb {
+.competence-content::-webkit-scrollbar-thumb {
   background: #ff9800;
   border-radius: 2px;
 }
 
-.competency-content::-webkit-scrollbar-thumb:hover {
+.competence-content::-webkit-scrollbar-thumb:hover {
   background: #f57c00;
 }
 
-.competency-actions {
+.competence-actions {
   display: flex;
   gap: 0.5rem;
   margin-top: auto;
@@ -656,7 +656,7 @@ export default {
   margin-bottom: 0.25rem;
 }
 
-.event-competency {
+.event-competence {
   color: #6c757d;
   font-size: 0.8rem;
   margin-bottom: 0.25rem;
@@ -722,15 +722,15 @@ export default {
     grid-template-columns: 1fr;
   }
   
-  .competency-actions {
+  .competence-actions {
     flex-direction: column;
   }
   
-  .competency-card {
+  .competence-card {
     height: 250px;
   }
   
-  .competency-content {
+  .competence-content {
     max-height: 150px;
   }
   
@@ -768,19 +768,19 @@ export default {
     padding: 0.75rem;
   }
   
-  .competency-card {
+  .competence-card {
     padding: 0.75rem;
   }
   
-  .competency-actions {
+  .competence-actions {
     gap: 0.25rem;
   }
   
-  .competency-card {
+  .competence-card {
     height: 220px;
   }
   
-  .competency-content {
+  .competence-content {
     max-height: 120px;
   }
   

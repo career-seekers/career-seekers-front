@@ -1,6 +1,6 @@
 import {AgeCategories} from "@/api/resolvers/competition/competition.resolver";
 
-export interface CompetitionInputDto {
+export interface CompetenceInputDto {
     name: string;
     description: string;
     ageCategory: AgeCategories;

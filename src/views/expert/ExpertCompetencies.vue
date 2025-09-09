@@ -31,18 +31,18 @@
 
     <!-- Список компетенций -->
     <div class="competencies-grid">
-      <div v-for="competency in filteredCompetencies" :key="competency.id" class="competency-card">
-        <div class="competency-header">
-          <div class="competency-info">
-            <h3 class="competency-name">{{ competency.name }}</h3>
-            <div class="competency-age">{{ ageGroups.find(group => group.value === competency.ageCategory) }}</div>
-            <div class="competency-description">{{ competency.description }}</div>
+      <div v-for="competence in filteredCompetencies" :key="competence.id" class="competence-card">
+        <div class="competence-header">
+          <div class="competence-info">
+            <h3 class="competence-name">{{ competence.name }}</h3>
+            <div class="competence-age">{{ ageGroups.find(group => group.value === competence.ageCategory) }}</div>
+            <div class="competence-description">{{ competence.description }}</div>
           </div>
         </div>
         
-        <div class="competency-stats">
+        <div class="competence-stats">
           <div class="stat-item">
-            <div class="stat-number">{{ competency.participantsCount }}</div>
+            <div class="stat-number">{{ competence.participantsCount }}</div>
             <div class="stat-label">Участников</div>
           </div>
           <div class="stat-item">
@@ -51,30 +51,30 @@
           </div>
         </div>
         
-        <div class="competency-actions">
+        <div class="competence-actions">
           <Button 
             label="Участники" 
             icon="pi pi-users"
             class="p-button-outlined"
-            @click="goToParticipants(competency.id)"
+            @click="goToParticipants(competence.id)"
           />
           <Button 
             label="Документы" 
             icon="pi pi-file-text"
             class="p-button-outlined"
-            @click="goToDocuments(competency.id)"
+            @click="goToDocuments(competence.id)"
           />
           <Button 
             label="События" 
             icon="pi pi-calendar"
             class="p-button-outlined"
-            @click="goToEvents(competency.id)"
+            @click="goToEvents(competence.id)"
           />
           <Button 
             label="Подробнее" 
             icon="pi pi-eye"
             class="p-button-primary"
-            @click="viewDetails(competency.id)"
+            @click="viewDetails(competence.id)"
           />
         </div>
       </div>
@@ -83,20 +83,20 @@
     <!-- Диалог подробной информации -->
     <Dialog 
       v-model:visible="showDetailsDialog" 
-      :header="selectedCompetency?.name || 'Компетенция'"
+      :header="selectedCompetence?.name || 'Компетенция'"
       :modal="true"
       :style="{ width: '800px' }"
     >
-      <div v-if="selectedCompetency" class="competency-details">
+      <div v-if="selectedCompetence" class="competence-details">
         <div class="detail-section">
           <h4>Описание компетенции</h4>
-          <p>{{ selectedCompetency.fullDescription }}</p>
+          <p>{{ selectedCompetence.fullDescription }}</p>
         </div>
         
         <div class="detail-section">
           <h4>Требования к участникам</h4>
           <ul>
-            <li v-for="requirement in selectedCompetency.requirements" :key="requirement">
+            <li v-for="requirement in selectedCompetence.requirements" :key="requirement">
               {{ requirement }}
             </li>
           </ul>
@@ -106,7 +106,7 @@
           <h4>Программа обучения</h4>
           <div class="program-steps">
             <div 
-              v-for="(step, index) in selectedCompetency.programSteps" 
+              v-for="(step, index) in selectedCompetence.programSteps"
               :key="index"
               class="program-step"
             >
@@ -123,19 +123,19 @@
           <h4>Статистика</h4>
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetency.participantsCount }}</div>
+              <div class="stat-number">{{ selectedCompetence.participantsCount }}</div>
               <div class="stat-label">Участников</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetency.completedCount }}</div>
+              <div class="stat-number">{{ selectedCompetence.completedCount }}</div>
               <div class="stat-label">Завершили</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetency.eventsCount }}</div>
+              <div class="stat-number">{{ selectedCompetence.eventsCount }}</div>
               <div class="stat-label">Событий</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetency.documentsCount }}</div>
+              <div class="stat-number">{{ selectedCompetence.documentsCount }}</div>
               <div class="stat-label">Документов</div>
             </div>
           </div>
@@ -153,7 +153,7 @@
           label="Участники" 
           icon="pi pi-users" 
           class="p-button-primary"
-          @click="goToParticipants(selectedCompetency?.id)"
+          @click="goToParticipants(selectedCompetence?.id)"
         />
       </template>
     </Dialog>
@@ -164,8 +164,8 @@
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
-import {CompetitionOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
-import {AgeCategories, CompetitionResolver} from "@/api/resolvers/competition/competition.resolver";
+import {CompetenceOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
+import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competition/competition.resolver';
 import {UserState} from "../../../state/UserState";
 
 export default {
@@ -179,15 +179,15 @@ export default {
     return {
       selectedAge: null as AgeCategories | null,
       showDetailsDialog: false,
-      selectedCompetency: null,
+      selectedCompetence: null,
       ageGroups: [
-        { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5" },
-        { value: AgeCategories.PRESCHOOL, label: "6-7" },
-        { value: AgeCategories.EARLY_SCHOOL, label: "7-8" },
-        { value: AgeCategories.SCHOOL, label: "9-11" },
-        { value: AgeCategories.HIGH_SCHOOL, label: "12-13" },
+        { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет" },
+        { value: AgeCategories.PRESCHOOL, label: "6-7 лет" },
+        { value: AgeCategories.EARLY_SCHOOL, label: "7-8 лет" },
+        { value: AgeCategories.SCHOOL, label: "9-11 лет" },
+        { value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет" },
       ],
-      competencies: [] as CompetitionOutputDto[]
+      competencies: [] as CompetenceOutputDto[]
     }
   },
   computed: {
@@ -195,36 +195,36 @@ export default {
       let filtered = this.competencies
 
       if (this.selectedAge) {
-        filtered = filtered.filter(competition => competition.ageCategory == this.selectedAge)
+        filtered = filtered.filter(competence => competence.ageCategory == this.selectedAge)
       }
       
       return filtered
     }
   },
   methods: {
-    goToParticipants(competencyId) {
-      this.$router.push(`/expert/participants/${competencyId}`)
+    goToParticipants(competenceId) {
+      this.$router.push(`/expert/participants/${competenceId}`)
     },
-    goToDocuments(competencyId) {
-      this.$router.push(`/expert/documents/${competencyId}`)
+    goToDocuments(competenceId) {
+      this.$router.push(`/expert/documents/${competenceId}`)
     },
-    goToEvents(competencyId) {
-      this.$router.push(`/expert/events${competencyId}`)
+    goToEvents(competenceId) {
+      this.$router.push(`/expert/events${competenceId}`)
     },
-    viewDetails(competencyId) {
-      this.selectedCompetency = this.competencies.find(c => c.id === competencyId)
+    viewDetails(competenceId) {
+      this.selectedCompetence = this.competencies.find(c => c.id === competenceId)
       this.showDetailsDialog = true
     },
     closeDetails() {
       this.showDetailsDialog = false
-      this.selectedCompetency = null
+      this.selectedCompetence = null
     },
     resetFilters() {
       this.selectedAge = null
     },
     async loadCompetencies() {
-      const competitionResolver = new CompetitionResolver()
-      const response = await competitionResolver.getByExpertId(UserState.id)
+      const competenceResolver = new CompetenceResolver()
+      const response = await competenceResolver.getByExpertId(UserState.id)
       if (response.status === 200) this.competencies = response.message
     }
   },
@@ -307,7 +307,7 @@ export default {
   width: 100%;
 }
 
-.competency-card {
+.competence-card {
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -316,13 +316,13 @@ export default {
   transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
-.competency-card:hover {
+.competence-card:hover {
   box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2);
   border: 2px solid #ff9800;
   transform: translateY(-2px);
 }
 
-.competency-header {
+.competence-header {
   background: linear-gradient(135deg, #ff9800, #f57c00);
   color: white;
   padding: 1.5rem;
@@ -331,17 +331,17 @@ export default {
   align-items: flex-start;
 }
 
-.competency-info {
+.competence-info {
   flex: 1;
 }
 
-.competency-name {
+.competence-name {
   margin: 0 0 0.5rem 0;
   font-size: 1.25rem;
   font-weight: 600;
 }
 
-.competency-age {
+.competence-age {
   background: rgba(255, 255, 255, 0.2);
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
@@ -350,13 +350,13 @@ export default {
   margin-bottom: 0.5rem;
 }
 
-.competency-description {
+.competence-description {
   font-size: 0.9rem;
   opacity: 0.9;
   line-height: 1.4;
 }
 
-.competency-status {
+.competence-status {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -386,7 +386,7 @@ export default {
   border: 1px solid #6c757d;
 }
 
-.competency-stats {
+.competence-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
@@ -411,7 +411,7 @@ export default {
   font-weight: 500;
 }
 
-.competency-actions {
+.competence-actions {
   display: flex;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
@@ -419,7 +419,7 @@ export default {
 }
 
 /* Диалог подробной информации */
-.competency-details {
+.competence-details {
   padding: 1rem 0;
 }
 
@@ -526,18 +526,18 @@ export default {
     min-width: auto;
   }
   
-  .competency-header {
+  .competence-header {
     flex-direction: column;
     gap: 1rem;
   }
   
-  .competency-stats {
+  .competence-stats {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
     padding: 1rem;
   }
   
-  .competency-actions {
+  .competence-actions {
     flex-direction: column;
     gap: 0.5rem;
   }
@@ -563,20 +563,20 @@ export default {
     font-size: 0.9rem;
   }
   
-  .competency-header {
+  .competence-header {
     padding: 1rem;
   }
   
-  .competency-name {
+  .competence-name {
     font-size: 1.1rem;
   }
   
-  .competency-stats {
+  .competence-stats {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
   
-  .competency-actions {
+  .competence-actions {
     padding: 0.75rem 1rem;
   }
   

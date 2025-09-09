@@ -29,14 +29,14 @@
             <p class="expert-position">{{ expert.position }}</p>
           </div>
           <div class="expert-actions">
-            <Button 
-              icon="pi pi-pencil" 
+            <Button
+              icon="pi pi-pencil"
               class="p-button-text p-button-sm"
               @click="editExpert(expert)"
               v-tooltip="'Редактировать'"
             />
-            <Button 
-              icon="pi pi-trash" 
+            <Button
+              icon="pi pi-trash"
               class="p-button-text p-button-sm p-button-danger"
               @click="deleteExpert(expert)"
               v-tooltip="'Удалить'"
@@ -64,19 +64,13 @@
             <h4 class="competencies-title">Компетенции:</h4>
             <div class="competencies-list">
               <span 
-                v-for="competency in expert.competencies" 
-                :key="competency.id"
-                class="competency-tag"
+                v-for="competence in expert.competencies"
+                :key="competence.id"
+                class="competence-tag"
               >
-                {{ competency.name }}
+                {{ competence.name }}
               </span>
             </div>
-          </div>
-          
-          <div class="expert-status">
-            <span class="status-badge" :class="expert.statusClass">
-              {{ expert.status }}
-            </span>
           </div>
         </div>
       </div>
@@ -209,7 +203,11 @@ export default {
         toastPopup: {
           title: '',
           message: ''
-        }
+        },
+        email: '',
+        fullName: '',
+        birthDate: '',
+        phone: ''
       },
       experts: [] as UserOutputDto[],
       userResolver: new UserResolver()
@@ -547,7 +545,7 @@ export default {
   gap: 0.5rem;
 }
 
-.competency-tag {
+.competence-tag {
   background: #f8f9fa;
   color: #2c3e50;
   padding: 0.25rem 0.75rem;
@@ -704,7 +702,7 @@ export default {
     padding: 0.75rem;
   }
   
-  .competency-tag {
+  .competence-tag {
     font-size: 0.75rem;
     padding: 0.2rem 0.5rem;
   }

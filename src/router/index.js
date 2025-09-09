@@ -154,12 +154,12 @@ const routes = [
         component: ExpertCompetencies
       },
       {
-        path: 'participants/:competencyId',
+        path: 'participants/:competenceId',
         name: 'expert-participants',
         component: ExpertParticipants
       },
       {
-        path: 'documents/:competencyId',
+        path: 'documents/:competenceId',
         name: 'expert-documents',
         component: ExpertDocuments
       },

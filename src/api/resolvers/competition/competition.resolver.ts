@@ -1,7 +1,7 @@
 import ApiResolver from "@/utils/ApiResolver";
-import {CompetitionInputDto} from "@/api/resolvers/competition/dto/input/competition-input.dto";
-import {CompetitionOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
+import {CompetenceInputDto} from "@/api/resolvers/competition/dto/input/competition-input.dto";
+import {CompetenceOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
 
 export enum AgeCategories {
     EARLY_PRESCHOOL = "PRESCHOOL_1",
@@ -11,14 +11,14 @@ export enum AgeCategories {
     HIGH_SCHOOL = "SCHOOL_3",
 }
 
-export class CompetitionResolver {
+export class CompetenceResolver {
     private apiResolver = new ApiResolver("events-service/v1/directions")
     private token = localStorage.getItem('access_token')
 
-    public async create(data: CompetitionInputDto) {
+    public async create(data: CompetenceInputDto) {
         return await this
             .apiResolver
-            .request<CompetitionInputDto, CommonOutputDto<CompetitionOutputDto | string>>(
+            .request<CompetenceInputDto, CommonOutputDto<CompetenceOutputDto | string>>(
                 "",
                 "POST",
                 data,
@@ -29,7 +29,7 @@ export class CompetitionResolver {
     public async getAll() {
         return await this
             .apiResolver
-            .request<null, CommonOutputDto<CompetitionOutputDto[] | string>>(
+            .request<null, CommonOutputDto<CompetenceOutputDto[] | string>>(
                 "",
                 "GET",
                 null,
@@ -40,7 +40,7 @@ export class CompetitionResolver {
     public async getByAgeCategory(category: AgeCategories) {
         return await this
             .apiResolver
-            .request<null, CommonOutputDto<CompetitionOutputDto[] | string>>(
+            .request<null, CommonOutputDto<CompetenceOutputDto[] | string>>(
                 `getByAgeCategory/${category}`,
                 "GET",
                 null,
@@ -51,7 +51,7 @@ export class CompetitionResolver {
     public async getByUserId(id: number) {
         return await this
             .apiResolver
-            .request<null, CommonOutputDto<CompetitionOutputDto[] | string>>(
+            .request<null, CommonOutputDto<CompetenceOutputDto[] | string>>(
                 `getByUserId/${id}`,
                 "GET",
                 null,
@@ -62,7 +62,7 @@ export class CompetitionResolver {
     public async getByExpertId(id: number) {
         return await this
             .apiResolver
-            .request<null, CommonOutputDto<CompetitionOutputDto[] | string>>(
+            .request<null, CommonOutputDto<CompetenceOutputDto[] | string>>(
                 `getByExpertId/${id}`,
                 "GET",
                 null,
