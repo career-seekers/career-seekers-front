@@ -89,10 +89,11 @@ export const fillUserState = async () => {
             UserState.verified = userData.message.verified;
             UserState.isMentor = userData.message.isMentor;
             UserState.telegramLink = userData.message.telegramLink;
-
             switch (UserState.role) {
                 case Roles.TUTOR: {
-                    await router.push("/tutor");
+                    if (!history.state.current.includes("tutor")) {
+                        await router.push("/tutor");
+                    }
                     if (localStorage.getItem("dataToVerify")) {
                         const tutorDocsResolver = new TutorDocumentsResolver()
                         const registrationData: RegistrationData<
@@ -123,7 +124,9 @@ export const fillUserState = async () => {
                 }
 
                 case Roles.MENTOR: {
-                    await router.push("/mentor");
+                    if (!history.state.current.includes("mentor")) {
+                        await router.push("/mentor");
+                    }
                     if (localStorage.getItem("dataToVerify")) {
                         const mentorDocsResolver = new MentorDocumentsResolver()
                         const registrationData: RegistrationData<
@@ -154,7 +157,9 @@ export const fillUserState = async () => {
                 }
 
                 case Roles.USER: {
-                    await router.push("/parent");
+                    if (!!history.state.current.includes("parent")) {
+                        await router.push("/parent");
+                    }
                     if (localStorage.getItem("dataToVerify")) {
                         const userDocsResolver = new UserDocumentsResolver()
                         const registrationData: RegistrationData<
