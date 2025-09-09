@@ -143,9 +143,10 @@
 <!--              class="p-button-primary"-->
 <!--              @click="createEvent"-->
 <!--            />-->
-            <Button 
+            <Button
               label="Загрузить документ" 
               icon="pi pi-upload"
+              :disabled="competencies.length === 0"
               class="p-button-primary"
               @click="addDocument"
             />
@@ -220,6 +221,22 @@
         </div>
 
         <div class="form-field" style="gap: 0.5rem">
+          <label for="competenceList" class="field-label">Тип документа *</label>
+          <Dropdown
+              id="competenceList"
+              v-model="selectedDoctype"
+              :options="docTypes"
+              optionValue="value"
+              optionLabel="label"
+              placeholder="Не выбран"
+              class="competence-dropdown w-full"
+              :class="{ 'p-invalid': !selectedDoctype }"
+          >
+          </Dropdown>
+          <small v-if="!selectedDoctype" class="p-error">{{ errors.selectedDoctype }}</small>
+        </div>
+
+        <div class="form-field" style="gap: 0.5rem">
           <label for="competenceDocument" class="field-label">Документ *</label>
           <FileUpload
               id="competenceDocument"
@@ -264,6 +281,7 @@ import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver
 import Dialog from "primevue/dialog";
 import FileUpload from "primevue/fileupload";
 import Dropdown from "primevue/dropdown";
+import {FileType} from "@/api/resolvers/files/file.resolver";
 
 export default {
   name: 'ExpertDashboardHome',
@@ -275,6 +293,16 @@ export default {
   },
   data() {
     return {
+      docTypes: [
+        { label: "Конкурсное задание", value: FileType.TASK },
+        { label: "Критерии оценок", value: FileType.CRITERIA },
+        { label: "Итоговая ведомость", value: FileType.STATEMENT },
+        { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
+        { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
+        { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
+        { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
+      ],
+      selectedDoctype: null,
       showCompetenceDocModal: false,
       selectedCompetence: null as CompetenceOutputDto | null,
       competencies: [] as CompetenceOutputDto[],
@@ -287,6 +315,7 @@ export default {
         ageCategory: '',
         competenceDocument: '',
         selectedCompetence: '',
+        selectedDoctype: ''
       },
       recentEvents: [
         {
@@ -348,6 +377,10 @@ export default {
       }
       if (this.selectedDocument == null) {
         this.errors.competenceDocument = "Выберите документ"
+        isValid = false
+      }
+      if (this.selectedDoctype == null) {
+        this.errors.selectedDoctype = "Выберите тип документа"
         isValid = false
       }
       if (isValid) {
