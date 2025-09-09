@@ -53,21 +53,21 @@
           
           <div v-if="showRegisterOptions" class="register-options">
             <router-link to="/register/mentor" class="register-option" @click="closeRegisterOptions">
-              <div class="option-icon">👨‍🏫</div>
+              <i class="pi pi-user"></i>
               <div class="option-text">
                 <div class="option-title">Наставник</div>
                 <div class="option-desc">Для специалистов</div>
               </div>
             </router-link>
             <router-link to="/register/parent" class="register-option" @click="closeRegisterOptions">
-              <div class="option-icon">👨‍👩‍👧‍👦</div>
+              <i class="pi pi-users"></i>
               <div class="option-text">
                 <div class="option-title">Родитель</div>
                 <div class="option-desc">Для родителей с детьми</div>
               </div>
             </router-link>
             <router-link to="/register/tutor" class="register-option" @click="closeRegisterOptions">
-              <div class="option-icon">👩‍💼</div>
+              <i class="pi pi-book"></i>
               <div class="option-text">
                 <div class="option-title">Куратор</div>
                 <div class="option-desc">Для кураторов</div>
