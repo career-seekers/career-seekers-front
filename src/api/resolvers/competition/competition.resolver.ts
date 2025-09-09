@@ -18,7 +18,7 @@ export class CompetitionResolver {
     public async create(data: CompetitionInputDto) {
         return await this
             .apiResolver
-            .request<CompetitionInputDto, CommonOutputDto<CompetitionOutputDto>>(
+            .request<CompetitionInputDto, CommonOutputDto<CompetitionOutputDto | string>>(
                 "",
                 "POST",
                 data,
@@ -63,7 +63,7 @@ export class CompetitionResolver {
         return await this
             .apiResolver
             .request<null, CommonOutputDto<CompetitionOutputDto[] | string>>(
-                `/getByExpertId/${id}`,
+                `getByExpertId/${id}`,
                 "GET",
                 null,
                 this.token ? this.token : undefined

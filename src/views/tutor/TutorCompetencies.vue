@@ -281,6 +281,8 @@ export default {
   },
   data() {
     return {
+      competitionResolver: new CompetitionResolver(),
+      userResolver: new UserResolver(),
       experts: [] as UserOutputDto[],
       userResolver: new UserResolver(),
       selectedAge: null as AgeCategories | null,
@@ -302,8 +304,8 @@ export default {
       competitionForm: {
         name: '',
         description: '',
-        ageCategory: null,
-        expert: null,
+        ageCategory: null as AgeCategories | null,
+        expert: null as UserOutputDto | null,
       },
       ageGroups: [
         { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5" },
@@ -367,12 +369,25 @@ export default {
       }
       this.showAddCompetitionDialog = false
     },
-    saveCompetition() {
-
+    async saveCompetition() {
+      const response = await this.competitionResolver.create({
+        userId: UserState.id,
+        expertId: this.competitionForm.expert.id,
+        name: this.competitionForm.name,
+        description: this.competitionForm.description,
+        ageCategory: this.competitionForm.ageCategory,
+      })
+      if (typeof response.message === "string") {
+        this.errors.toastPopup = {
+          title: response.status,
+          message: response.message
+        }
+      }
+      this.cancelEdit()
+      await this.loadCompetencies()
     },
     async loadCompetencies() {
-      const competitionResolver = new CompetitionResolver()
-      const competitionResponse = await competitionResolver.getByUserId(UserState.id)
+      const competitionResponse = await this.competitionResolver.getByUserId(UserState.id)
       if (competitionResponse.status === 200) {
         this.competencies = competitionResponse.message
       } else {

@@ -5,4 +5,5 @@ export interface CompetitionInputDto {
     description: string;
     ageCategory: AgeCategories;
     userId: number;
+    expertId: number;
 }
