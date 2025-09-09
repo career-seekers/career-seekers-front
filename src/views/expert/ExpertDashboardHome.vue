@@ -147,7 +147,7 @@
               label="Загрузить документ" 
               icon="pi pi-upload"
               class="p-button-primary"
-              @click="uploadDocument"
+              @click="addDocument"
             />
 <!--            <Button -->
 <!--              label="Просмотреть события" -->
@@ -192,6 +192,67 @@
 <!--        </div>-->
 <!--      </div>-->
     </div>
+
+<!--    Модальное окно для загрузки документов конкретной компетенции-->
+    <Dialog
+        v-model:visible="showCompetenceDocModal"
+        header="Загрузить документ"
+        :modal="true"
+        :style="{ width: '600px' }"
+    >
+      <div class="competence-form">
+        <div class="form-field" style="gap: 0.5rem">
+          <label for="competenceList" class="field-label">Компетенция *</label>
+          <Dropdown
+              id="competenceList"
+              v-model="selectedCompetence"
+              :options="competencies"
+              optionLabel="name"
+              placeholder="Не выбран"
+              class="competence-dropdown w-full"
+              :class="{ 'p-invalid': !selectedCompetence }"
+          >
+            <template #value="{ value }">
+              {{ value ? value.name : 'Не выбран' }}
+            </template>
+          </Dropdown>
+          <small v-if="!selectedCompetence" class="p-error">{{ errors.selectedCompetence }}</small>
+        </div>
+
+        <div class="form-field" style="gap: 0.5rem">
+          <label for="competenceDocument" class="field-label">Документ *</label>
+          <FileUpload
+              id="competenceDocument"
+              mode="basic"
+              accept=".pdf, .docx"
+              :maxFileSize="5000000"
+              chooseLabel="Выберите файл"
+              class="w-full"
+              :class="{ 'p-invalid': errors.competenceDocument }"
+              @select="onDocumentSelect"
+              @remove="onDocumentRemove"
+          />
+          <small v-if="errors.competenceDocument" class="p-error">{{ errors.competenceDocument }}</small>
+          <small class="p-text-secondary">Поддерживаемые форматы: PDF, DOCX (максимум 5 МБ)</small>
+        </div>
+
+      </div>
+
+      <template #footer>
+        <Button
+            label="Отмена"
+            icon="pi pi-times"
+            class="p-button-text"
+            @click="cancelLoad"
+        />
+        <Button
+            label="Загрузить"
+            icon="pi pi-check"
+            class="p-button-primary"
+            @click="uploadDocument"
+        />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -200,20 +261,32 @@ import Button from 'primevue/button'
 import {UserState} from "../../../state/UserState";
 import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
 import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
+import Dialog from "primevue/dialog";
+import FileUpload from "primevue/fileupload";
+import Dropdown from "primevue/dropdown";
 
 export default {
   name: 'ExpertDashboardHome',
   components: {
+    FileUpload,
+    Dropdown,
+    Dialog,
     Button
   },
   data() {
     return {
+      showCompetenceDocModal: false,
+      selectedCompetence: null as CompetenceOutputDto | null,
       competencies: [] as CompetenceOutputDto[],
-      totalStats: {
-        competencies: 3,
-        participants: 35,
-        events: 9,
-        documents: 24
+      selectedDocument: null,
+      errors: {
+        toastPopup: {
+          title: '',
+          message: ''
+        },
+        ageCategory: '',
+        competenceDocument: '',
+        selectedCompetence: '',
       },
       recentEvents: [
         {
@@ -267,17 +340,35 @@ export default {
     goToAllCompetencies() {
       this.$router.push('/expert/competencies')
     },
-    createEvent() {
-      this.$router.push('/expert/events')
-    },
     uploadDocument() {
+      let isValid = true
+      if (this.selectedDocument == null) {
+        this.errors.selectedCompetence = "Выберите компетенцию"
+        isValid = false
+      }
+      if (this.selectedDocument == null) {
+        this.errors.competenceDocument = "Выберите документ"
+        isValid = false
+      }
+      if (isValid) {
 
+      }
     },
-    viewEvents() {
-      this.$router.push('/expert/events')
+    cancelLoad() {
+      this.showCompetenceDocModal = false
+    },
+    addDocument() {
+      this.showCompetenceDocModal = true
     },
     manageCompetencies() {
       this.$router.push('/expert/competencies')
+    },
+    onDocumentSelect(event) {
+      const file = event.files[0]
+    },
+    onDocumentRemove() {
+      this.selectedDocument = null
+      this.errors.selectedDocument = ''
     }
   },
   async mounted() {
@@ -297,6 +388,19 @@ export default {
   animation: slideInRight 0.4s ease-out;
   width: 100%;
   box-sizing: border-box;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+
+.form-field label {
+  color: #2c3e50;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 
 @keyframes slideInRight {
