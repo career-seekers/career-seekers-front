@@ -20,20 +20,8 @@
         />
       </div>
       <div class="filter-group">
-        <label for="statusFilter">Статус:</label>
-        <Dropdown 
-          id="statusFilter"
-          v-model="selectedStatus" 
-          :options="statusOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Все статусы"
-          class="filter-dropdown"
-        />
-      </div>
-      <div class="filter-group">
         <Button 
-          label="Сбросить фильтры" 
+          label="Сбросить фильтр"
           icon="pi pi-refresh"
           class="p-button-text p-button-sm"
           @click="resetFilters"
@@ -47,7 +35,7 @@
         <div class="competency-header">
           <div class="competency-info">
             <h3 class="competency-name">{{ competency.name }}</h3>
-            <div class="competency-age">{{ competency.ageRange }}</div>
+            <div class="competency-age">{{ ageGroups.find(group => group.value === competency.ageCategory) }}</div>
             <div class="competency-description">{{ competency.description }}</div>
           </div>
         </div>
@@ -172,10 +160,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
+import {CompetitionOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
+import {AgeCategories, CompetitionResolver} from "@/api/resolvers/competition/competition.resolver";
 
 export default {
   name: 'ExpertCompetencies',
@@ -186,147 +176,26 @@ export default {
   },
   data() {
     return {
-      selectedAge: null,
+      selectedAge: null as AgeCategories | null,
       selectedStatus: null,
       showDetailsDialog: false,
       selectedCompetency: null,
       ageGroups: [
-        { label: '14-16 лет', value: '14-16' },
-        { label: '16-18 лет', value: '16-18' },
-        { label: '14-18 лет', value: '14-18' }
+        { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5" },
+        { value: AgeCategories.PRESCHOOL, label: "6-7" },
+        { value: AgeCategories.EARLY_SCHOOL, label: "7-8" },
+        { value: AgeCategories.SCHOOL, label: "9-11" },
+        { value: AgeCategories.HIGH_SCHOOL, label: "12-13" },
       ],
-      statusOptions: [
-        { label: 'Активная', value: 'active' },
-        { label: 'Приостановлена', value: 'paused' },
-        { label: 'Завершена', value: 'completed' }
-      ],
-      competencies: [
-        {
-          id: 1,
-          name: 'Анализ данных',
-          ageRange: '14-17 лет',
-          description: 'Изучение основ анализа данных и визуализации',
-          fullDescription: 'Компетенция направлена на изучение современных методов анализа данных, работы с большими данными, создания интерактивных дашбордов и визуализации результатов.',
-          status: 'Активная',
-          statusClass: 'status-active',
-          participantsCount: 12,
-          eventsCount: 3,
-          documentsCount: 8,
-          completedCount: 5,
-          requirements: [
-            'Базовые знания математики и статистики',
-            'Опыт работы с компьютером',
-            'Желание изучать новые технологии'
-          ],
-          programSteps: [
-            {
-              title: 'Введение в анализ данных',
-              description: 'Основные понятия, инструменты и методы'
-            },
-            {
-              title: 'Работа с данными',
-              description: 'Очистка, обработка и подготовка данных'
-            },
-            {
-              title: 'Визуализация',
-              description: 'Создание графиков и дашбордов'
-            },
-            {
-              title: 'Практический проект',
-              description: 'Реализация собственного проекта'
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: 'Искусственный интеллект',
-          ageRange: '16-18 лет',
-          description: 'Основы машинного обучения и нейронных сетей',
-          fullDescription: 'Изучение современных технологий искусственного интеллекта, алгоритмов машинного обучения, создания и обучения нейронных сетей.',
-          status: 'Активная',
-          statusClass: 'status-active',
-          participantsCount: 8,
-          eventsCount: 2,
-          documentsCount: 12,
-          completedCount: 2,
-          requirements: [
-            'Знание основ программирования',
-            'Математическая подготовка',
-            'Логическое мышление'
-          ],
-          programSteps: [
-            {
-              title: 'Введение в ИИ',
-              description: 'История, области применения, перспективы'
-            },
-            {
-              title: 'Машинное обучение',
-              description: 'Алгоритмы обучения, классификация, регрессия'
-            },
-            {
-              title: 'Нейронные сети',
-              description: 'Архитектуры, обучение, применение'
-            },
-            {
-              title: 'Практические проекты',
-              description: 'Создание ИИ-приложений'
-            }
-          ]
-        },
-        {
-          id: 3,
-          name: 'Машинное обучение',
-          ageRange: '15-18 лет',
-          description: 'Практическое применение алгоритмов ML',
-          fullDescription: 'Глубокое изучение алгоритмов машинного обучения, их реализации и применения в реальных задачах.',
-          status: 'Активная',
-          statusClass: 'status-active',
-          participantsCount: 15,
-          eventsCount: 4,
-          documentsCount: 15,
-          completedCount: 8,
-          requirements: [
-            'Знание Python',
-            'Основы математики',
-            'Аналитическое мышление'
-          ],
-          programSteps: [
-            {
-              title: 'Основы ML',
-              description: 'Типы обучения, метрики, валидация'
-            },
-            {
-              title: 'Алгоритмы классификации',
-              description: 'Деревья решений, SVM, случайный лес'
-            },
-            {
-              title: 'Алгоритмы регрессии',
-              description: 'Линейная регрессия, полиномиальная, регуляризация'
-            },
-            {
-              title: 'Ансамбли и оптимизация',
-              description: 'Бустинг, бэггинг, гиперпараметры'
-            }
-          ]
-        }
-      ]
+      competencies: [] as CompetitionOutputDto[]
     }
   },
   computed: {
     filteredCompetencies() {
       let filtered = this.competencies
-      
+
       if (this.selectedAge) {
-        filtered = filtered.filter(comp => comp.ageRange.includes(this.selectedAge))
-      }
-      
-      if (this.selectedStatus) {
-        const statusMap = {
-          'active': 'Активная',
-          'paused': 'Приостановлена',
-          'completed': 'Завершена'
-        }
-        filtered = filtered.filter(comp => comp.status === statusMap[this.selectedStatus])
+        filtered = filtered.filter(competition => competition.ageCategory == this.selectedAge)
       }
       
       return filtered
@@ -352,8 +221,15 @@ export default {
     },
     resetFilters() {
       this.selectedAge = null
-      this.selectedStatus = null
+    },
+    async loadCompetencies() {
+      const competitionResolver = new CompetitionResolver()
+      const response = await competitionResolver.getAll()
+      if (response.status === 200) this.competencies = response.message
     }
+  },
+  async mounted() {
+    await this.loadCompetencies()
   }
 }
 </script>

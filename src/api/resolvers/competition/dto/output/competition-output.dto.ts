@@ -7,4 +7,5 @@ export interface CompetitionOutputDto {
     ageCategory: AgeCategories;
     iconId: number | null;
     userId: number;
+    participantsCount: number;
 }
