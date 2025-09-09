@@ -254,11 +254,16 @@ export default {
     reformatPhone(phone) {
       return `${phone.substring(0, 2)} (${phone.substring(2, 5)}) ${phone.substring(5, 8)}-${phone.substring(8, 10)}-${phone.substring(10, 12)}`
     },
-    deleteExpert(expert: UserOutputDto) {
+    async deleteExpert(expert: UserOutputDto) {
       if (confirm(`Вы уверены, что хотите удалить эксперта ${expert.firstName}?`)) {
-        const index = this.experts.findIndex(e => e.id === expert.id)
-        if (index > -1) {
-          this.experts.splice(index, 1)
+        const response = await this.userResolver.delete(expert.id)
+        if (response.status === 200) {
+          await this.loadExperts()
+        } else {
+          this.errors.toastPopup = {
+            title: response.status,
+            message: response.message
+          }
         }
       }
     },
