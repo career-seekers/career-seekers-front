@@ -36,4 +36,15 @@ export class CompetitionResolver {
                 this.token ? this.token : undefined
             )
     }
+
+    public async getAgeCategory(category: AgeCategories) {
+        return await this
+            .apiResolver
+            .request<null, CommonOutputDto<CompetitionOutputDto>>(
+                `getByAgeCategory/${category}`,
+                "GET",
+                null,
+                this.token ? this.token : undefined
+            )
+    }
 }
