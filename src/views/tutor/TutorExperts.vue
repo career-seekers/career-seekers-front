@@ -611,11 +611,11 @@ export default {
 }
 
 .form-field label {
-  color: #2c3e50;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
+   color: #2c3e50;
+   font-weight: 500;
+   margin-bottom: 0.5rem;
+   font-size: 0.9rem;
+ }
 
 /* Мобильные стили */
 @media (max-width: 768px) {

@@ -52,7 +52,7 @@ export class CompetitionResolver {
         return await this
             .apiResolver
             .request<null, CommonOutputDto<CompetitionOutputDto[] | string>>(
-                id,
+                `getByUserId/${id}`,
                 "GET",
                 null,
                 this.token ? this.token : undefined

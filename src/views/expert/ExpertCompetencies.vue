@@ -178,7 +178,6 @@ export default {
   data() {
     return {
       selectedAge: null as AgeCategories | null,
-      selectedStatus: null,
       showDetailsDialog: false,
       selectedCompetency: null,
       ageGroups: [
@@ -206,8 +205,11 @@ export default {
     goToParticipants(competencyId) {
       this.$router.push(`/expert/participants/${competencyId}`)
     },
+    goToDocuments(competencyId) {
+      this.$router.push(`/expert/documents/${competencyId}`)
+    },
     goToEvents(competencyId) {
-      this.$router.push('/expert/events')
+      this.$router.push(`/expert/events${competencyId}`)
     },
     viewDetails(competencyId) {
       this.selectedCompetency = this.competencies.find(c => c.id === competencyId)

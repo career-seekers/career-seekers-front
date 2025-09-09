@@ -1,4 +1,6 @@
 <template>
+
+  <ToastPopup :content="errors.toastPopup"/>
   <div class="competencies-page">
     <div class="page-header">
       <h1 class="page-title">Мои компетенции</h1>
@@ -25,6 +27,15 @@
           icon="pi pi-refresh"
           class="p-button-text p-button-sm"
           @click="resetFilters"
+        />
+      </div>
+      <div class="filter-group"
+      style="margin-left: auto">
+        <Button
+            label="Добавить компетенцию"
+            icon="pi pi-plus"
+            class="p-button-primary right"
+            @click="addCompetition"
         />
       </div>
     </div>
@@ -79,6 +90,89 @@
         </div>
       </div>
     </div>
+
+    <!-- Диалог добавления/редактирования эксперта -->
+    <Dialog
+        v-model:visible="showAddCompetitionDialog"
+        :header="isEditing ? 'Редактировать компетенцию' : 'Добавить компетенцию'"
+        :modal="true"
+        :style="{ width: '600px' }"
+    >
+      <div class="competition-form">
+        <div class="form-field">
+          <label for="name">Название *</label>
+          <InputText
+              id="name"
+              v-model="competitionForm.name"
+              placeholder="Введите название компетенции"
+              :class="{ 'p-invalid': !competitionForm.name }"
+          />
+          <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="name">Описание *</label>
+          <Textarea
+              id="name"
+              v-model="competitionForm.description"
+              placeholder="Введите описание компетенции"
+              :class="{ 'p-invalid': !competitionForm.description }"
+          />
+          <small v-if="errors.description" class="p-error">{{ errors.description }}</small>
+        </div>
+
+
+        <div class="form-field">
+          <label for="competitionAgeFilter" class="field-label">Возрастная категория *</label>
+          <Dropdown
+              id="competitionAgeFilter"
+              v-model="competitionForm.ageCategory"
+              :options="ageGroups"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Все возрасты"
+              class="filter-dropdown"
+              :class="{ 'p-invalid': !competitionForm.ageCategory }"
+          />
+          <small v-if="errors.ageCategory" class="p-error">{{ errors.ageCategory }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="competitionExpertList" class="field-label">Главный эксперт *</label>
+          <Dropdown
+              id="competitionExpertList"
+              v-model="competitionForm.expert"
+              :options="experts"
+              placeholder="Не выбран"
+              class="filter-dropdown"
+              :class="{ 'p-invalid': !competitionForm.expert }"
+          >
+            <template #option="slotProps">
+              {{ slotProps.option.firstName }} {{ slotProps.option.lastName }} {{ slotProps.option.patronymic }}
+            </template>
+            <template #value="{ value }">
+              {{ value ? `${value.firstName} ${value.lastName} ${value.patronymic}` : 'Не выбран' }}
+            </template>
+          </Dropdown>
+          <small v-if="errors.ageCategory" class="p-error">{{ errors.ageCategory }}</small>
+        </div>
+      </div>
+
+      <template #footer>
+        <Button
+            label="Отмена"
+            icon="pi pi-times"
+            class="p-button-text"
+            @click="cancelEdit"
+        />
+        <Button
+            :label="isEditing ? 'Сохранить' : 'Добавить'"
+            icon="pi pi-check"
+            class="p-button-primary"
+            @click="saveCompetition"
+        />
+      </template>
+    </Dialog>
 
     <!-- Диалог подробной информации -->
     <Dialog 
@@ -141,7 +235,6 @@
           </div>
         </div>
       </div>
-      
       <template #footer>
         <Button 
           label="Закрыть" 
@@ -157,6 +250,7 @@
         />
       </template>
     </Dialog>
+
   </div>
 </template>
 
@@ -166,20 +260,51 @@ import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
 import {CompetitionOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
 import {AgeCategories, CompetitionResolver} from "@/api/resolvers/competition/competition.resolver";
+import {UserState} from "../../../state/UserState";
+import {CompetitionInputDto} from "@/api/resolvers/competition/dto/input/competition-input.dto";
+import {UserResolver} from "@/api/resolvers/user/user.resolver";
+import {Roles} from "../../../state/UserState.types";
+import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
+import ToastPopup from "@/components/ToastPopup.vue";
+import InputText from "primevue/inputtext";
+import Textarea from "primevue/textarea";
 
 export default {
   name: 'ExpertCompetencies',
   components: {
+    ToastPopup,
     Button,
     Dialog,
+    InputText,
+    Textarea,
     Dropdown
   },
   data() {
     return {
+      experts: [] as UserOutputDto[],
+      userResolver: new UserResolver(),
       selectedAge: null as AgeCategories | null,
-      selectedStatus: null,
       showDetailsDialog: false,
       selectedCompetency: null,
+      showAddCompetitionDialog: false,
+      isEditing: false,
+      editingCompetitionId: null,
+      errors: {
+        toastPopup: {
+          title: '',
+          message: '',
+        },
+        name: '',
+        description: '',
+        ageCategory: '',
+        expert: '',
+      },
+      competitionForm: {
+        name: '',
+        description: '',
+        ageCategory: null,
+        expert: null,
+      },
       ageGroups: [
         { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5" },
         { value: AgeCategories.PRESCHOOL, label: "6-7" },
@@ -199,7 +324,7 @@ export default {
       }
       
       return filtered
-    }
+    },
   },
   methods: {
     goToParticipants(competencyId) {
@@ -222,10 +347,50 @@ export default {
     resetFilters() {
       this.selectedAge = null
     },
+    addCompetition() {
+      this.competitionForm = {
+        name: "",
+        description: "",
+        ageCategory: null,
+        expert: '',
+      }
+      this.showAddCompetitionDialog = true
+    },
+    cancelEdit() {
+      this.isEditing = false
+      this.editingCompetitionId = null
+      this.competitionForm = {
+        name: "",
+        description: "",
+        ageCategory: null,
+        expert: '',
+      }
+      this.showAddCompetitionDialog = false
+    },
+    saveCompetition() {
+
+    },
     async loadCompetencies() {
       const competitionResolver = new CompetitionResolver()
-      const response = await competitionResolver.getAll()
-      if (response.status === 200) this.competencies = response.message
+      const competitionResponse = await competitionResolver.getByUserId(UserState.id)
+      if (competitionResponse.status === 200) {
+        this.competencies = competitionResponse.message
+      } else {
+        this.errors.toastPopup = {
+          title: competitionResponse.status,
+          message: competitionResponse.message,
+        }
+      }
+
+      const expertResponse = await this.userResolver.getAllByRole(Roles.EXPERT)
+      if (expertResponse.status == 200) {
+        this.experts = expertResponse.message
+      } else {
+        this.errors.toastPopup = {
+          title: expertResponse.status,
+          message: expertResponse.message,
+        }
+      }
     }
   },
   async mounted() {
@@ -241,6 +406,19 @@ export default {
   animation: slideInRight 0.4s ease-out;
   width: 100%;
   box-sizing: border-box;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+
+.form-field label {
+  color: #2c3e50;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 
 @keyframes slideInRight {
