@@ -281,6 +281,7 @@ import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
 import ToastPopup from "@/components/ToastPopup.vue";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
+import {CompetenceInputDto} from "@/api/resolvers/competence/dto/input/competence-input.dto";
 
 export default {
   name: 'ExpertCompetencies',
@@ -407,13 +408,17 @@ export default {
       this.showAddCompetenceDialog = false
     },
     async saveCompetence() {
-      const response = await this.competenceResolver.create({
+      const data: CompetenceInputDto = {
         userId: UserState.id,
         expertId: this.competenceForm.expert.id,
         name: this.competenceForm.name,
         description: this.competenceForm.description,
         ageCategory: this.competenceForm.ageCategory,
-      })
+      }
+      const response = this.isEditing
+          ? await this.competenceResolver.update(data)
+          : await this.competenceResolver.create(data)
+
       if (typeof response.message === "string") {
         this.errors.toastPopup = {
           title: response.status,
