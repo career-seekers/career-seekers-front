@@ -50,9 +50,6 @@
             <div class="competency-age">{{ competency.ageRange }}</div>
             <div class="competency-description">{{ competency.description }}</div>
           </div>
-          <div class="competency-status" :class="competency.statusClass">
-            {{ competency.status }}
-          </div>
         </div>
         
         <div class="competency-stats">
@@ -61,12 +58,8 @@
             <div class="stat-label">Участников</div>
           </div>
           <div class="stat-item">
-            <div class="stat-number">{{ competency.eventsCount }}</div>
+            <div class="stat-number">-</div>
             <div class="stat-label">Событий</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">{{ competency.documentsCount }}</div>
-            <div class="stat-label">Документов</div>
           </div>
         </div>
         
@@ -519,7 +512,7 @@ export default {
 
 .competency-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   padding: 1.5rem;
   background: #f8f9fa;
@@ -663,7 +656,7 @@ export default {
   }
   
   .competency-stats {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
     padding: 1rem;
   }
