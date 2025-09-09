@@ -1,4 +1,7 @@
 import ApiResolver from "@/utils/ApiResolver";
+import {CompetitionInputDto} from "@/api/resolvers/competition/dto/input/competition-input.dto";
+import {CompetitionOutputDto} from "@/api/resolvers/competition/dto/output/competition-output.dto";
+import {CommonOutputDto} from "@/api/dto/common-output.dto";
 
 export enum AgeCategories {
     EARLY_PRESCHOOL = "PRESCHOOL_1",
@@ -9,6 +12,17 @@ export enum AgeCategories {
 }
 
 export class CompetitionResolver {
-    private apiResolver = new ApiResolver()
+    private apiResolver = new ApiResolver("events-service/v1/directions")
     private token = localStorage.getItem('access_token')
+
+    public async create(data: CompetitionInputDto) {
+        return await this
+            .apiResolver
+            .request<CompetitionInputDto, CommonOutputDto<CompetitionOutputDto>>(
+                "",
+                "POST",
+                data,
+                this.token ? this.token : undefined
+            )
+    }
 }
