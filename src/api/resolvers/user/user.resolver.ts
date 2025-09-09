@@ -24,7 +24,7 @@ export class UserResolver {
         return await this
             .apiResolver
             .request<null, CommonOutputDto<UserOutputDto[]>>(
-                `${role}`,
+                `/getByRole/${role}`,
                 "GET",
                 null,
                 this.token ? this.token : undefined
