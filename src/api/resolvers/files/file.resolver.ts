@@ -1,19 +1,29 @@
 import ApiResolver from "@/utils/ApiResolver";
-import {CommonInputFormDataDto} from "@/api/resolvers/files/dto/input/common-input-form-data.dto";
-import {CommonOutputFileUploadDto} from "@/api/resolvers/files/dto/output/common-output-file-upload.dto";
+import {DocsInputFormDataDto} from "@/api/resolvers/files/dto/input/docs-input-form-data.dto";
+import {DocsOutputFileUploadDto} from "@/api/resolvers/files/dto/output/docs-output-file-upload.dto";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
+
+export enum FileType {
+    TASK,
+    CRITERIA,
+    STATEMENT,
+    FINAL_TASK,
+    FINAL_CRITERIA,
+    FINAL_STATEMENT,
+    DESCRIPTION
+}
 
 export class FileResolver {
     private apiResolver = new ApiResolver("file-service/v1/files");
     private token = localStorage.getItem("access_token");
 
-    public async upload(data: CommonInputFormDataDto, endpoint: FileEndpoints) {
+    public async uploadCompetenceDocument(data: DocsInputFormDataDto, endpoint: FileEndpoints) {
         return await this
             .apiResolver
-            .request<FormData, CommonOutputFileUploadDto | CommonOutputDto<string>>(
+            .request<FormData, DocsOutputFileUploadDto | CommonOutputDto<string>>(
                 endpoint,
                 "POST",
-                this.DTOToFormData(data),
+                this.apiResolver.DTOToFormData(data),
                 this.token ? this.token : undefined
             )
     }
