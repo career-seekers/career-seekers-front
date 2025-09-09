@@ -38,6 +38,7 @@ import TutorExperts from '@/views/tutor/TutorExperts.vue'
 import TutorDocuments from '@/views/tutor/TutorDocuments.vue'
 import TutorVenueInfo from '@/views/tutor/TutorVenueInfo.vue'
 import {fillUserState} from "../../state/UserState";
+import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
 
 const routes = [
   {
@@ -186,6 +187,11 @@ const routes = [
         path: 'experts',
         name: 'tutor-experts',
         component: TutorExperts
+      },
+      {
+        path: 'competencies',
+        name: 'tutor-competencies',
+        component: TutorCompetencies
       },
       {
         path: 'documents',

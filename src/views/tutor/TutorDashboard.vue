@@ -30,6 +30,12 @@
             </router-link>
           </li>
           <li class="nav-item">
+            <router-link to="/tutor/competencies" class="nav-link" :class="{ active: $route.path === '/tutor/competencies' }" @click="closeSidebarOnMobile">
+              <i class="pi pi-briefcase"></i>
+              <span>Компетенции</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
             <router-link to="/tutor/documents" class="nav-link" :class="{ active: $route.path === '/tutor/documents' }" @click="closeSidebarOnMobile">
               <i class="pi pi-file"></i>
               <span>Документы</span>
