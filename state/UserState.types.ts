@@ -13,6 +13,7 @@ export interface UserStateInterface {
     avatarId: number | null;
     verified: boolean | undefined;
     isMentor: boolean | undefined;
+    position: string | null;
     telegramLink: string | null;
 }
 

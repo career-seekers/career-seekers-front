@@ -35,6 +35,7 @@ export const UserState = reactive<
     verified: undefined,
     isMentor: undefined,
     telegramLink: null,
+    position: null
 })
 
 interface UserJwt {

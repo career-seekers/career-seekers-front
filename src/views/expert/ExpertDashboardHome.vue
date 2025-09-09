@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ expertName }}!</h1>
+      <h1 class="page-title">Добро пожаловать, {{ UserState.firstName }}!</h1>
       <p class="page-subtitle">Управляйте компетенциями и участниками</p>
     </div>
 
@@ -19,19 +19,21 @@
             <h4 class="section-title">Персональные данные</h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
-              <span class="data-value">{{ expertData.fullName }}</span>
+              <span class="data-value">{{
+                `${UserState.lastName} ${UserState.firstName} ${UserState.patronymic}`
+                }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ expertData.email }}</span>
+              <span class="data-value">{{ UserState.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ expertData.phone }}</span>
+              <span class="data-value">{{ UserState.mobileNumber }}</span>
             </div>
             <div class="data-item">
-              <span class="data-label">Специализация:</span>
-              <span class="data-value">{{ expertData.specialization }}</span>
+              <span class="data-label">Должность:</span>
+              <span class="data-value">{{ UserState.position ? UserState.position : 'Не указано' }}</span>
             </div>
           </div>
         </div>
@@ -195,8 +197,9 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from 'primevue/button'
+import {UserState} from "../../../state/UserState";
 
 export default {
   name: 'ExpertDashboardHome',
@@ -272,6 +275,9 @@ export default {
     }
   },
   computed: {
+    UserState() {
+      return UserState
+    },
     expertName() {
       return this.expertData.fullName.split(' ')[1] || 'Эксперт'
     }

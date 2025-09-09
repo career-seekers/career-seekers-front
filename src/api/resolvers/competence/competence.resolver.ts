@@ -2,7 +2,6 @@ import ApiResolver from "@/utils/ApiResolver";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
 import {CompetenceInputDto} from "@/api/resolvers/competence/dto/input/competence-input.dto";
 import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
-import {UpdateUserInputDto} from "@/api/resolvers/user/dto/input/update-user-input.dto";
 
 export enum AgeCategories {
     EARLY_PRESCHOOL = "PRESCHOOL_1",
