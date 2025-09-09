@@ -57,17 +57,13 @@
         >
           <div class="competence-header">
             <h4 class="competence-name">{{ competence.name }}</h4>
-            <div class="competence-age">{{ competence.ageRange }}</div>
+            <div class="competence-age">{{ competence.ageCategory }}</div>
           </div>
           <div class="competence-content">
             <div class="competence-stats">
               <div class="stat-item">
                 <span class="stat-number">{{ competence.participantsCount }}</span>
                 <span class="stat-label">Участников</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-number">{{ competence.eventsCount }}</span>
-                <span class="stat-label">Событий</span>
               </div>
             </div>
             <div class="competence-actions">
@@ -100,34 +96,36 @@
       </div>
 
       <!-- Статистика -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-chart-bar"></i>
-            Общая статистика
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-number">{{ totalStats.competencies }}</div>
-              <div class="stat-label">Компетенций</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">{{ totalStats.participants }}</div>
-              <div class="stat-label">Участников</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">{{ totalStats.events }}</div>
-              <div class="stat-label">Событий</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">{{ totalStats.documents }}</div>
-              <div class="stat-label">Документов</div>
-            </div>
-          </div>
-        </div>
-      </div>
+<!--      <div class="info-card">-->
+<!--        <div class="card-header">-->
+<!--          <h3 class="card-title">-->
+<!--            <i class="pi pi-chart-bar"></i>-->
+<!--            Общая статистика-->
+<!--          </h3>-->
+<!--        </div>-->
+<!--        <div class="card-content">-->
+<!--          <div class="stats-grid">-->
+<!--            <div class="stat-item">-->
+<!--              <div class="stat-number">{{ competencies.length }}</div>-->
+<!--              <div class="stat-label">Компетенций</div>-->
+<!--            </div>-->
+<!--            <div class="stat-item">-->
+<!--              <div class="stat-number">{{-->
+<!--                  competencies.reduce((acc, competence) => competence.participantsCount + acc, 0)-->
+<!--                }}</div>-->
+<!--              <div class="stat-label">Участников</div>-->
+<!--            </div>-->
+<!--            <div class="stat-item">-->
+<!--              <div class="stat-number">{{ totalStats.events }}</div>-->
+<!--              <div class="stat-label">Событий</div>-->
+<!--            </div>-->
+<!--            <div class="stat-item">-->
+<!--              <div class="stat-number">{{ totalStats.documents }}</div>-->
+<!--              <div class="stat-label">Документов</div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
 
       <!-- Быстрые действия -->
       <div class="info-card">
@@ -139,24 +137,24 @@
         </div>
         <div class="card-content">
           <div class="quick-actions">
-            <Button 
-              label="Создать событие" 
-              icon="pi pi-calendar-plus"
-              class="p-button-primary"
-              @click="createEvent"
-            />
+<!--            <Button -->
+<!--              label="Создать событие" -->
+<!--              icon="pi pi-calendar-plus"-->
+<!--              class="p-button-primary"-->
+<!--              @click="createEvent"-->
+<!--            />-->
             <Button 
               label="Загрузить документ" 
               icon="pi pi-upload"
-              class="p-button-outlined"
+              class="p-button-primary"
               @click="uploadDocument"
             />
-            <Button 
-              label="Просмотреть события" 
-              icon="pi pi-calendar"
-              class="p-button-outlined"
-              @click="viewEvents"
-            />
+<!--            <Button -->
+<!--              label="Просмотреть события" -->
+<!--              icon="pi pi-calendar"-->
+<!--              class="p-button-outlined"-->
+<!--              @click="viewEvents"-->
+<!--            />-->
             <Button 
               label="Управление компетенциями" 
               icon="pi pi-cog"
@@ -168,31 +166,31 @@
       </div>
 
       <!-- Последние события -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-clock"></i>
-            Последние события
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="events-list">
-            <div v-for="event in recentEvents" :key="event.id" class="event-item">
-              <div class="event-icon">
-                <i :class="event.icon"></i>
-              </div>
-              <div class="event-content">
-                <div class="event-title">{{ event.title }}</div>
-                <div class="event-competence">{{ event.competence }}</div>
-                <div class="event-date">{{ event.date }}</div>
-              </div>
-              <div class="event-status" :class="event.statusClass">
-                {{ event.status }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+<!--      <div class="info-card">-->
+<!--        <div class="card-header">-->
+<!--          <h3 class="card-title">-->
+<!--            <i class="pi pi-clock"></i>-->
+<!--            Последние события-->
+<!--          </h3>-->
+<!--        </div>-->
+<!--        <div class="card-content">-->
+<!--          <div class="events-list">-->
+<!--            <div v-for="event in recentEvents" :key="event.id" class="event-item">-->
+<!--              <div class="event-icon">-->
+<!--                <i :class="event.icon"></i>-->
+<!--              </div>-->
+<!--              <div class="event-content">-->
+<!--                <div class="event-title">{{ event.title }}</div>-->
+<!--                <div class="event-competence">{{ event.competence }}</div>-->
+<!--                <div class="event-date">{{ event.date }}</div>-->
+<!--              </div>-->
+<!--              <div class="event-status" :class="event.statusClass">-->
+<!--                {{ event.status }}-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
   </div>
 </template>
@@ -200,6 +198,8 @@
 <script lang="ts">
 import Button from 'primevue/button'
 import {UserState} from "../../../state/UserState";
+import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
 
 export default {
   name: 'ExpertDashboardHome',
@@ -208,35 +208,7 @@ export default {
   },
   data() {
     return {
-      expertData: {
-        fullName: 'Петров Игорь Сергеевич',
-        email: 'i.petrov@expert.ru',
-        phone: '+7 (999) 765-43-21',
-        specialization: 'Data Science и машинное обучение'
-      },
-      competencies: [
-        {
-          id: 1,
-          name: 'Анализ данных',
-          ageRange: '14-17 лет',
-          participantsCount: 12,
-          eventsCount: 3
-        },
-        {
-          id: 2,
-          name: 'Искусственный интеллект',
-          ageRange: '16-18 лет',
-          participantsCount: 8,
-          eventsCount: 2
-        },
-        {
-          id: 3,
-          name: 'Машинное обучение',
-          ageRange: '15-18 лет',
-          participantsCount: 15,
-          eventsCount: 4
-        }
-      ],
+      competencies: [] as CompetenceOutputDto[],
       totalStats: {
         competencies: 3,
         participants: 35,
@@ -284,7 +256,7 @@ export default {
   },
   methods: {
     goToCompetence(competenceId) {
-      this.$router.push(`/expert/competencies`)
+      this.$router.push(`/expert/competencies/${competenceId}`)
     },
     goToParticipants(competenceId) {
       this.$router.push(`/expert/participants/${competenceId}`)
@@ -299,14 +271,20 @@ export default {
       this.$router.push('/expert/events')
     },
     uploadDocument() {
-      // Логика загрузки документа
-      console.log('Загрузка документа')
+
     },
     viewEvents() {
       this.$router.push('/expert/events')
     },
     manageCompetencies() {
       this.$router.push('/expert/competencies')
+    }
+  },
+  async mounted() {
+    const competenceResolver = new CompetenceResolver()
+    const response = await competenceResolver.getAllByExpertId(UserState.id)
+    if (response.status === 200) {
+      this.competencies = response.message
     }
   }
 }

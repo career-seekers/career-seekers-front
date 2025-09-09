@@ -429,7 +429,7 @@ export default {
       await this.loadCompetencies()
     },
     async loadCompetencies() {
-      const competenceResponse = await this.competenceResolver.getByUserId(UserState.id)
+      const competenceResponse = await this.competenceResolver.getAllByUserId(UserState.id)
       if (competenceResponse.status === 200) {
         this.competencies = competenceResponse.message
       } else {

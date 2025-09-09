@@ -48,7 +48,7 @@ export class CompetenceResolver {
             )
     }
 
-    public async getByUserId(id: number) {
+    public async getAllByUserId(id: number) {
         return await this
             .apiResolver
             .request<null, CommonOutputDto<CompetenceOutputDto[] | string>>(
@@ -59,7 +59,7 @@ export class CompetenceResolver {
             )
     }
 
-    public async getByExpertId(id: number) {
+    public async getAllByExpertId(id: number) {
         return await this
             .apiResolver
             .request<null, CommonOutputDto<CompetenceOutputDto[] | string>>(

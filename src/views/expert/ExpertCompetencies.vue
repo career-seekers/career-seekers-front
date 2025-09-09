@@ -224,7 +224,7 @@ export default {
     },
     async loadCompetencies() {
       const competenceResolver = new CompetenceResolver()
-      const response = await competenceResolver.getByExpertId(UserState.id)
+      const response = await competenceResolver.getAllByExpertId(UserState.id)
       if (response.status === 200) this.competencies = response.message
     }
   },

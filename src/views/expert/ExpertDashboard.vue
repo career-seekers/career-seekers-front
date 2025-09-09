@@ -29,12 +29,12 @@
               <span>Компетенции</span>
             </router-link>
           </li>
-          <li class="nav-item">
-            <router-link to="/expert/events" class="nav-link" :class="{ active: $route.path === '/expert/events' }" @click="closeSidebarOnMobile">
-              <i class="pi pi-calendar"></i>
-              <span>События и рассылки</span>
-            </router-link>
-          </li>
+<!--          <li class="nav-item">-->
+<!--            <router-link to="/expert/events" class="nav-link" :class="{ active: $route.path === '/expert/events' }" @click="closeSidebarOnMobile">-->
+<!--              <i class="pi pi-calendar"></i>-->
+<!--              <span>События и рассылки</span>-->
+<!--            </router-link>-->
+<!--          </li>-->
         </ul>
       </nav>
       
