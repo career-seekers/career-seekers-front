@@ -25,4 +25,15 @@ export class CompetitionResolver {
                 this.token ? this.token : undefined
             )
     }
+
+    public async getAll() {
+        return await this
+            .apiResolver
+            .request<null, CommonOutputDto<CompetitionOutputDto[] | string>>(
+                "",
+                "GET",
+                null,
+                this.token ? this.token : undefined
+            )
+    }
 }
