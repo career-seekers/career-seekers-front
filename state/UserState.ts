@@ -207,6 +207,13 @@ export const fillUserState = async () => {
                     }
                     break
                 }
+
+                case Roles.EXPERT: {
+                    if (!history.state.current.includes("expert")) {
+                        await router.push("/expert");
+                    }
+                    break
+                }
             }
 
             const tgLink = localStorage.getItem("telegramLink");
