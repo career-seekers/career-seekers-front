@@ -40,23 +40,27 @@ export class FileResolver {
             )
     }
 
-    public downloadById(documentId: number) {
-        axios.get(`file-service/v1/files/download/${documentId}`,
-            { responseType: 'blob' })
-            .then(response => {
-                const blob = new Blob([response.data]);
-                const fileURL = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = fileURL;
-                link.setAttribute('download', `document-${documentId}` || 'file');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(fileURL);
-            })
-            .catch(error => {
-                console.error('Download error:', error);
-            });
+    public async downloadById(documentId: number) {
+        try {
+            const response = await this.apiResolver.request<null, Blob>(
+                `download/${documentId}`,
+                "GET",
+                null,
+                this.token ? this.token : undefined,
+                { responseType: 'blob' }
+            );
+            const blob = new Blob([response]);
+            const fileURL = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = fileURL;
+            link.setAttribute('download', `document-${documentId}` || 'file');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(fileURL);
+        } catch (error) {
+            console.error('Download error:', error);
+        }
     }
 }
 
