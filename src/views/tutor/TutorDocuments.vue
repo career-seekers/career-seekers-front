@@ -153,6 +153,7 @@ import {
   CompetenceDocumentsOutputDto
 } from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto";
 import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import {CompetenceDocumentsResolver} from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
 
 export default {
   name: 'TutorDocuments',
@@ -196,7 +197,8 @@ export default {
           message: ''
         }
       },
-      showPreviewDialog: false
+      showPreviewDialog: false,
+      competenceDocumentsResolver: new CompetenceDocumentsResolver()
     }
   },
   computed: {
@@ -233,9 +235,15 @@ export default {
     async downloadDocument(document) {
       await this.fileResolver.downloadById(document.documentId)
     },
-    deleteDocument(document) {
+    async deleteDocument(document) {
       if (confirm(`Вы уверены, что хотите удалить документ "${document.name}"?`)) {
-
+        const response = await this.competenceDocumentsResolver.delete(document.id)
+        if (response.status === 200) {
+          this.competencies = []
+          this.documents = []
+          this.experts = []
+          await this.loadCompetencies()
+        }
       }
     },
     resetFilters() {
