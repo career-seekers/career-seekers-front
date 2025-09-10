@@ -1,8 +1,8 @@
 import ApiResolver from "@/utils/ApiResolver";
-import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
+import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
 import {Roles} from "../../../../state/UserState.types";
-import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input-dto";
+import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input.dto";
 import {UpdateUserInputDto} from "@/api/resolvers/user/dto/input/update-user-input.dto";
 
 export class UserResolver {

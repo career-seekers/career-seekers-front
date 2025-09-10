@@ -179,7 +179,7 @@ import {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-ou
 import ToastPopup from "@/components/ToastPopup.vue";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
 import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
-import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
+import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
 import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
 import {Roles} from "../../../state/UserState.types";
 

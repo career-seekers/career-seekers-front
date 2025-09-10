@@ -164,9 +164,9 @@ import MultiSelect from 'primevue/multiselect'
 import Textarea from 'primevue/textarea'
 import {UserResolver} from "@/api/resolvers/user/user.resolver.js";
 import ToastPopup from "@/components/ToastPopup.vue";
-import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
+import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
 import {Roles} from "../../../state/UserState.types";
-import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input-dto";
+import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input.dto";
 import {UpdateUserInputDto} from "@/api/resolvers/user/dto/input/update-user-input.dto";
 import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
 import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";

@@ -276,7 +276,7 @@ import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/compete
 import {UserState} from "../../../state/UserState";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
 import {Roles} from "../../../state/UserState.types";
-import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
+import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
 import ToastPopup from "@/components/ToastPopup.vue";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
