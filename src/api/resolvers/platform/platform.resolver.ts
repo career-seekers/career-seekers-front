@@ -2,6 +2,7 @@ import ApiResolver from "@/utils/ApiResolver";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
 import {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-output.dto";
 import {CompetenceInputDto} from "@/api/resolvers/competence/dto/input/competence-input.dto";
+import {PlatformInputDto} from "@/api/resolvers/platform/dto/input/platform-input.dto";
 
 export class PlatformResolver {
     private apiResolver = new ApiResolver("events-service/v1/platforms");
@@ -14,6 +15,17 @@ export class PlatformResolver {
                 `getByUserId/${id}`,
                 "GET",
                 null,
+                this.token ? this.token : undefined
+            )
+    }
+
+    public async create(data: PlatformInputDto) {
+        return await this
+            .apiResolver
+            .request<PlatformInputDto, CommonOutputDto<PlatformOutputDto>>(
+                "",
+                "POST",
+                data,
                 this.token ? this.token : undefined
             )
     }
