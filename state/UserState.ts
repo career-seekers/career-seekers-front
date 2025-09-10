@@ -87,7 +87,7 @@ export const fillUserState = async () => {
             UserState.avatarId = userData.message.avatarId;
             UserState.verified = userData.message.verified;
             UserState.isMentor = userData.message.isMentor;
-            if (UserState.telegramLink != null) {
+            if (userData.message.telegramLink != null) {
                 UserState.telegramLink = userData.message.telegramLink.tgLink;
             }
             switch (UserState.role) {
