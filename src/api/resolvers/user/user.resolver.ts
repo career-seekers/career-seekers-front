@@ -13,7 +13,7 @@ export class UserResolver {
         return await this
             .apiResolver
             .request<number, CommonOutputDto<UserOutputDto | string>>(
-                id,
+                `${id}`,
                 "GET",
                 null,
                 this.token ? this.token : undefined
@@ -57,7 +57,7 @@ export class UserResolver {
         return await this
             .apiResolver
             .request<null, CommonOutputDto<string>>(
-                id,
+                `${id}`,
                 "DELETE",
                 null,
                 this.token ? this.token : undefined
