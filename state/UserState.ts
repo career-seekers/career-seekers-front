@@ -51,7 +51,9 @@ interface UserJwt {
 
 export const fillUserState = async () => {
     const access_token = localStorage.getItem("access_token");
-    if (access_token) {
+    const refresh_token =  localStorage.getItem("refresh_token")
+    const uuid =  localStorage.getItem("uuid")
+    if (access_token && refresh_token && uuid) {
         const userJwt = jwtDecode<UserJwt>(access_token);
         const userResolver = new UserResolver();
         const userData = await userResolver.getById(userJwt.id)
@@ -60,14 +62,20 @@ export const fillUserState = async () => {
             if (userData.status === 403) {
                 const authResolver = new AuthResolver();
                 const response = await authResolver.updateTokens({
-                    accessToken: localStorage.getItem("access_token"),
-                    refreshToken: localStorage.getItem("refresh_token"),
-                    uuid: localStorage.getItem("uuid"),
+                    accessToken: access_token,
+                    refreshToken: refresh_token,
+                    uuid: uuid,
                 })
                 if (response.status === 200 && typeof response.message !== "string") {
                     localStorage.setItem("access_token", response.message.accessToken)
                     localStorage.setItem("refresh_token", response.message.refreshToken)
-                } else await router.push('/login')
+                } else {
+                    localStorage.removeItem("access_token")
+                    localStorage.removeItem("refresh_token")
+                    localStorage.removeItem("uuid")
+                    if (!router.currentRoute.value.path.includes("login"))
+                        await router.push("/login");
+                }
             }
             return {
                 title: userData.status,
@@ -241,7 +249,13 @@ export const fillUserState = async () => {
                 message: ""
             }
         }
-    } else await router.push("/login");
+    } else {
+        localStorage.removeItem("access_token")
+        localStorage.removeItem("refresh_token")
+        localStorage.removeItem("uuid")
+        if (!router.currentRoute.value.path.includes("login"))
+            await router.push("/login");
+    }
 }
 
 export const clearUserState = () => {
