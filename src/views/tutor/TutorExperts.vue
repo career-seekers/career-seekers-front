@@ -16,7 +16,7 @@
     </div>
 
     <!-- Список экспертов -->
-    <div class="mentors-grid">
+    <div class="experts-grid">
       <div v-for="expert in experts" :key="expert.id" class="expert-card">
         <div class="expert-header">
           <div class="expert-avatar">
@@ -347,10 +347,7 @@ export default {
         fullName: '',
         email: '',
         phone: '',
-        position: '',
-        experience: '',
-        competencies: [],
-        description: ''
+        birthDate: ''
       }
       this.showAddExpertDialog = false
     },

@@ -129,12 +129,6 @@
               @click="addExpert"
             />
             <Button 
-              label="Загрузить документы" 
-              icon="pi pi-upload"
-              class="p-button-outlined"
-              @click="uploadDocuments"
-            />
-            <Button 
               label="Просмотреть документы" 
               icon="pi pi-file-text"
               class="p-button-outlined"
@@ -143,6 +137,80 @@
           </div>
         </div>
       </div>
+
+      <!-- Диалог добавления/редактирования эксперта -->
+      <Dialog
+          v-model:visible="showAddExpertDialog"
+          header="Добавить главного эксперта"
+          :modal="true"
+          :style="{ width: '600px' }"
+      >
+        <div class="expert-form">
+          <div class="form-field">
+            <label for="fullName">ФИО *</label>
+            <InputText
+                id="fullName"
+                v-model="expertForm.fullName"
+                placeholder="Введите ФИО эксперта"
+                :class="{ 'p-invalid': !expertForm.fullName }"
+            />
+            <small v-if="errors.fullName" class="p-error">{{ errors.fullName }}</small>
+          </div>
+
+          <div class="form-field">
+            <label for="birthDate">Дата рождения *</label>
+            <InputMask
+                id="birthDate"
+                v-model="expertForm.birthDate"
+                mask="99.99.9999"
+                class="w-full"
+                placeholder="дд.мм.гггг"
+                :class="{ 'p-invalid': !expertForm.birthDate }"
+            />
+            <small v-if="errors.birthDate" class="p-error">{{ errors.birthDate }}</small>
+          </div>
+
+          <div class="form-field">
+            <label for="email">Email *</label>
+            <InputText
+                id="email"
+                type="email"
+                v-model="expertForm.email"
+                placeholder="Введите email"
+                :class="{ 'p-invalid': !expertForm.email }"
+            />
+            <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
+          </div>
+
+          <div class="form-field">
+            <label for="parentPhone" class="field-label">Контактный телефон *</label>
+            <InputMask
+                id="parentPhone"
+                v-model="expertForm.phone"
+                mask="+7 (999) 999-99-99"
+                placeholder="+7 (___) ___-__-__"
+                class="w-full"
+                :class="{ 'p-invalid': !expertForm.phone }"
+            />
+            <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
+          </div>
+        </div>
+
+        <template #footer>
+          <Button
+              label="Отмена"
+              icon="pi pi-times"
+              class="p-button-text"
+              @click="cancelEdit"
+          />
+          <Button
+              label="Сохранить"
+              icon="pi pi-check"
+              class="p-button-primary"
+              @click="saveExpert"
+          />
+        </template>
+      </Dialog>
 
 <!--      &lt;!&ndash; Последние обновления &ndash;&gt;-->
 <!--      <div class="info-card">-->
@@ -182,10 +250,18 @@ import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver
 import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
 import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
 import {Roles} from "../../../state/UserState.types";
+import {UpdateUserInputDto} from "@/api/resolvers/user/dto/input/update-user-input.dto";
+import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input.dto";
+import InputText from "primevue/inputtext";
+import Dialog from "primevue/dialog";
+import InputMask from "primevue/inputmask";
 
 export default {
   name: 'TutorDashboardHome',
   components: {
+    InputText,
+    Dialog,
+    InputMask,
     ToastPopup,
     Button
   },
@@ -196,6 +272,13 @@ export default {
       competenceResolver: new CompetenceResolver(),
       experts: [] as UserOutputDto[],
       competencies: [] as CompetenceOutputDto[],
+      showAddExpertDialog: false,
+      expertForm: {
+        fullName: '',
+        birthDate: '',
+        email: '',
+        phone: '',
+      },
       venueData: {
         id: null,
         fullName: '',
@@ -215,6 +298,8 @@ export default {
         shortName: '',
         address: '',
         email: '',
+        phone: '',
+        birthDate: '',
       },
       recentUpdates: [
         {
@@ -256,14 +341,87 @@ export default {
       if (!this.venueData.verified) return 'На модерации'
       return 'Одобрен'
     },
+    dateOfBirthFormatted() {
+      const [day, month, year] = this.expertForm.birthDate.split('.');
+      const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
+      return date.toISOString()
+    },
+    mobileNumberFormatted() {
+      return this.expertForm.phone.replaceAll(/\s|-|\(|\)|/g, '')
+    },
   },
   methods: {
     goToExperts() {
       this.$router.push('/tutor/experts')
     },
     addExpert() {
-      // Логика добавления эксперта
-      console.log('Добавление главного эксперта')
+      this.expertForm = {
+        fullName: "",
+        email: "",
+        phone: "",
+        birthDate: ""
+      }
+      this.showAddExpertDialog = true
+    },
+    cancelEdit() {
+      this.expertForm = {
+        fullName: '',
+        email: '',
+        phone: '',
+        birthDate: ''
+      }
+      this.showAddExpertDialog = false
+    },
+    async saveExpert() {
+      if (!this.validateForm()) {
+        return
+      }
+      const newExpert: UserInputDto = {
+        lastName: this.expertForm.fullName.split(' ')[0],
+        firstName: this.expertForm.fullName.split(' ')[1],
+        patronymic: this.expertForm.fullName.split(' ')[2],
+        email: this.expertForm.email,
+        mobileNumber: this.mobileNumberFormatted,
+        password: "Expert$pa33word",
+        role: Roles.EXPERT,
+        dateOfBirth: this.dateOfBirthFormatted,
+        avatarId: null
+      }
+
+      const response = await this.userResolver.create(newExpert)
+      if (response.status === 200) {
+        this.cancelEdit()
+      } else {
+        this.errors.toastPopup = {
+          title: response.status,
+          message: response.message
+        }
+      }
+    },
+    validateForm() {
+      let isValid = true
+
+      if (!this.expertForm.fullName.trim()) {
+        this.errors.fullName = 'ФИО обязательно'
+        isValid = false
+      }
+
+      if (!this.expertForm.email.trim()) {
+        this.errors.email = 'email обязателен'
+        isValid = false
+      }
+
+      if (!this.expertForm.phone.trim()) {
+        this.errors.phone = 'Номер телефона обязателен'
+        isValid = false
+      }
+
+      if (!this.expertForm.birthDate.trim()) {
+        this.errors.birthDate = 'Дата рождения обязательна'
+        isValid = false
+      }
+
+      return isValid
     },
     editVenueInfo() {
       this.$router.push('/tutor/venue-info')
@@ -507,6 +665,23 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  color: #2c3e50;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 
 /* Обновления */
