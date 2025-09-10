@@ -25,11 +25,17 @@
           id="statusFilter"
           v-model="selectedCompetence"
           :options="competencies"
-          optionLabel="label"
-          optionValue="value"
+          :disabled="competencies.length === 0"
           placeholder="Все компетенции"
           class="filter-dropdown"
-        />
+        >
+          <template #option="slotProps">
+            {{ slotProps ? slotProps.option.name : 'Не выбран' }}
+          </template>
+          <template #value="{ value }">
+            {{ value ? value.name : 'Все компетенции' }}
+          </template>
+        </Dropdown>
       </div>
       <div class="filter-group">
         <Button 
@@ -101,73 +107,7 @@
       </div>
     </div>
 
-    <!-- Диалог создания ссылки -->
-    <Dialog 
-      v-model:visible="showLinkDialog" 
-      header="Создать ссылку на ЛК эксперта"
-      :modal="true"
-      :style="{ width: '500px' }"
-    >
-      <div class="link-form">
-        <div class="form-field">
-          <label for="MentorSelectLink">Эксперт *</label>
-          <Dropdown 
-            id="MentorSelectLink"
-            v-model="linkForm.MentorId"
-            :options="Mentors"
-            optionLabel="fullName"
-            optionValue="id"
-            placeholder="Выберите эксперта"
-            :class="{ 'p-invalid': !linkForm.expertId }"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="linkTitle">Название ссылки *</label>
-          <InputText 
-            id="linkTitle"
-            v-model="linkForm.title" 
-            placeholder="Например: Публичный профиль эксперта"
-            :class="{ 'p-invalid': !linkForm.title }"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="linkUrl">URL *</label>
-          <InputText 
-            id="linkUrl"
-            v-model="linkForm.url" 
-            placeholder="https://example.com/expert-profile"
-            :class="{ 'p-invalid': !linkForm.url }"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="linkDescription">Описание</label>
-          <Textarea 
-            id="linkDescription"
-            v-model="linkForm.description" 
-            placeholder="Описание ссылки"
-            rows="2"
-          />
-        </div>
-      </div>
-      
-      <template #footer>
-        <Button 
-          label="Отмена" 
-          icon="pi pi-times" 
-          class="p-button-text"
-          @click="cancelLink"
-        />
-        <Button 
-          label="Создать" 
-          icon="pi pi-link" 
-          class="p-button-primary"
-          @click="createLink"
-        />
-      </template>
-    </Dialog>
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
@@ -179,10 +119,15 @@ import Dropdown from 'primevue/dropdown'
 import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
 import {FileType} from "@/api/resolvers/files/file.resolver";
+import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
+import {UserState} from "../../../state/UserState";
+import ToastPopup from "@/components/ToastPopup.vue";
+import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
 
 export default {
   name: 'TutorDocuments',
   components: {
+    ToastPopup,
     Button,
     Dialog,
     InputText,
@@ -192,11 +137,12 @@ export default {
   },
   data() {
     return {
+      competenceResolver: new CompetenceResolver(),
       showUploadDialog: false,
       showLinkDialog: false,
       selectedType: null,
       selectedCompetence: null,
-      documents: [],
+      documents: [] ,
       competencies: [],
       docTypes: [
         { label: "Конкурсное задание", value: FileType.TASK },
@@ -207,6 +153,12 @@ export default {
         { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
         { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
       ],
+      errors: {
+        toastPopup: {
+          title: '',
+          message: ''
+        }
+      }
     }
   },
   computed: {
@@ -217,7 +169,7 @@ export default {
         filtered = filtered.filter(doc => doc.type === this.selectedType)
       }
       
-      if (this.selectedStatus) {
+      if (this.selectedCompetence) {
         filtered = filtered.filter()
       }
       
@@ -235,9 +187,6 @@ export default {
     downloadDocument(document) {
       console.log('Скачивание документа:', document.name)
     },
-    editDocument(document) {
-      console.log('Редактирование документа:', document.name)
-    },
     deleteDocument(document) {
       if (confirm(`Вы уверены, что хотите удалить документ "${document.name}"?`)) {
         const index = this.documents.findIndex(d => d.id === document.id)
@@ -246,86 +195,24 @@ export default {
         }
       }
     },
-    onFileSelect(event) {
-      this.uploadForm.file = event.files[0]
-    },
-    uploadDocument() {
-      if (!this.validateUploadForm()) {
-        return
-      }
-      
-      const newDocument = {
-        id: Date.now(),
-        name: this.uploadForm.name,
-        type: this.uploadForm.type,
-        size: this.uploadForm.file ? this.formatFileSize(this.uploadForm.file.size) : 'Ссылка',
-        uploadDate: new Date().toLocaleDateString('ru-RU'),
-        status: 'На проверке',
-        statusClass: 'status-pending',
-        description: this.uploadForm.description,
-        expertName: this.uploadForm.expertId ? 
-          this.experts.find(e => e.id === this.uploadForm.expertId)?.fullName : null
-      }
-      
-      this.documents.push(newDocument)
-      this.cancelUpload()
-    },
-    createLink() {
-      if (!this.validateLinkForm()) {
-        return
-      }
-      
-      const newDocument = {
-        id: Date.now(),
-        name: this.linkForm.title,
-        type: 'profile',
-        size: 'Ссылка',
-        uploadDate: new Date().toLocaleDateString('ru-RU'),
-        status: 'На проверке',
-        statusClass: 'status-pending',
-        description: this.linkForm.description,
-        expertName: this.experts.find(e => e.id === this.linkForm.expertId)?.fullName
-      }
-      
-      this.documents.push(newDocument)
-      this.cancelLink()
-    },
-    cancelUpload() {
-      this.uploadForm = {
-        name: '',
-        type: null,
-        expertId: null,
-        description: '',
-        file: null
-      }
-      this.showUploadDialog = false
-    },
-    cancelLink() {
-      this.linkForm = {
-        expertId: null,
-        title: '',
-        url: '',
-        description: ''
-      }
-      this.showLinkDialog = false
-    },
     resetFilters() {
       this.selectedType = null
       this.selectedStatus = null
     },
-    validateUploadForm() {
-      return this.uploadForm.name && this.uploadForm.type && this.uploadForm.file
-    },
-    validateLinkForm() {
-      return this.linkForm.expertId && this.linkForm.title && this.linkForm.url
-    },
-    formatFileSize(bytes) {
-      if (bytes === 0) return '0 Б'
-      const k = 1024
-      const sizes = ['Б', 'КБ', 'МБ', 'ГБ']
-      const i = Math.floor(Math.log(bytes) / Math.log(k))
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+    async loadCompetencies() {
+      const response = await this.competenceResolver.getAllByUserId(UserState.id)
+      if (response.status === 200 && typeof response.message !== 'string') {
+        response.message.forEach(competence => {
+          if (competence.documents.length > 0) {
+            this.competencies.push(competence)
+            this.documents.push(...competence.documents)
+          }
+        })
+      }
     }
+  },
+  async mounted() {
+    await this.loadCompetencies()
   }
 }
 </script>

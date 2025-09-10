@@ -212,10 +212,12 @@ const router = createRouter({
   routes
 })
 
-// Обновляем title при переходах между страницами
-router.afterEach(async (to) => {
-  const pageTitle = titleManager.getPageTitle(to.name)
+router.beforeEach(async (to) => {
   await fillUserState()
+})
+// Обновляем title при переходах между страницами
+router.afterEach((to) => {
+  const pageTitle = titleManager.getPageTitle(to.name)
   titleManager.setTitle(pageTitle)
 })
 

@@ -100,6 +100,7 @@ export const fillUserState = async () => {
             if (UserState.telegramLink != null) {
                 UserState.telegramLink = userData.message.telegramLink.tgLink;
             }
+
             switch (UserState.role) {
                 case Roles.TUTOR: {
                     if (!history.state.current.includes("tutor")) {
