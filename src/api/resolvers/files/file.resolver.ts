@@ -27,6 +27,17 @@ export class FileResolver {
                 this.token ? this.token : undefined
             )
     }
+
+    public async viewById(id: number) {
+        return await this
+            .apiResolver
+            .request<null, any>(
+                `view/${id}`,
+                "GET",
+                null,
+                this.token ? this.token : undefined
+            )
+    }
 }
 
 export enum FileEndpoints {

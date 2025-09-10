@@ -110,6 +110,33 @@
       </div>
     </div>
 
+    <Dialog
+        v-if="selectedDocument"
+        v-model:visible="showPreviewDialog"
+        :header="'Документ №' + selectedDocument.id"
+        :modal="true"
+        :style="{ width: '800px' }"
+    >
+      <div>
+        {{  }}
+      </div>
+
+      <template #footer>
+        <Button
+            label="Закрыть"
+            icon="pi pi-times"
+            class="p-button-text"
+            @click="showPreviewDialog = false"
+        />
+        <!--        <Button -->
+        <!--          label="Участники" -->
+        <!--          icon="pi pi-users" -->
+        <!--          class="p-button-primary"-->
+        <!--          @click="goToParticipants(selectedCompetence?.id)"-->
+        <!--        />-->
+      </template>
+    </Dialog>
+
     <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
@@ -148,6 +175,7 @@ export default {
       userResolver: new UserResolver(),
       showUploadDialog: false,
       showLinkDialog: false,
+      selectedDocument: null as CompetenceDocumentsOutputDto | null,
       selectedType: null,
       selectedCompetence: localStorage.getItem('selectedCompetence')
           ? JSON.parse(localStorage.getItem('selectedCompetence'))
@@ -169,7 +197,8 @@ export default {
           title: '',
           message: ''
         }
-      }
+      },
+      showPreviewDialog: false
     }
   },
   computed: {
@@ -199,7 +228,8 @@ export default {
       return this.experts.find(expert => expert.id === document.userId)
     },
     viewDocument(document) {
-      console.log('Просмотр документа:', document.name)
+      this.selectedDocument = document
+      this.showPreviewDialog = true
     },
     downloadDocument(document) {
       console.log('Скачивание документа:', document.name)
