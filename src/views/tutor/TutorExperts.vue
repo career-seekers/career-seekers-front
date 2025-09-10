@@ -322,7 +322,7 @@ export default {
           patronymic: this.expertForm.fullName.split(' ')[2],
           email: this.expertForm.email,
           mobileNumber: this.mobileNumberFormatted,
-          password: "Expert$pa33word",
+          password: null,
           role: Roles.EXPERT,
           dateOfBirth: this.dateOfBirthFormatted,
           avatarId: null
