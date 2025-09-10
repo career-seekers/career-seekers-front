@@ -58,13 +58,13 @@
             <h3 class="document-name">Документ №{{ document.id }}</h3>
           </div>
           <div class="document-actions">
-            <Button
-              icon="pi pi-eye"
-              style="background: white;"
-              class="p-button-text p-button-sm"
-              @click="viewDocument(document)"
-              v-tooltip="'Просмотреть'"
-            />
+<!--            <Button-->
+<!--              icon="pi pi-eye"-->
+<!--              style="background: white;"-->
+<!--              class="p-button-text p-button-sm"-->
+<!--              @click="viewDocument(document)"-->
+<!--              v-tooltip="'Просмотреть'"-->
+<!--            />-->
             <Button 
               icon="pi pi-download"
               style="background: white;"
@@ -117,10 +117,6 @@
         :modal="true"
         :style="{ width: '800px' }"
     >
-      <div>
-        {{  }}
-      </div>
-
       <template #footer>
         <Button
             label="Закрыть"
@@ -148,7 +144,7 @@ import InputText from 'primevue/inputtext'
 import Dropdown from 'primevue/dropdown'
 import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
-import {FileType} from "@/api/resolvers/files/file.resolver";
+import {FileResolver, FileType} from "@/api/resolvers/files/file.resolver";
 import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
 import { UserState} from "../../../state/UserState";
 import ToastPopup from "@/components/ToastPopup.vue";
@@ -169,8 +165,10 @@ export default {
     Textarea,
     FileUpload
   },
-  data() {
+  data: function () {
     return {
+      fileResolver: new FileResolver(),
+      filePreview: null,
       competenceResolver: new CompetenceResolver(),
       userResolver: new UserResolver(),
       showUploadDialog: false,
@@ -179,18 +177,18 @@ export default {
       selectedType: null,
       selectedCompetence: localStorage.getItem('selectedCompetence')
           ? JSON.parse(localStorage.getItem('selectedCompetence'))
-          : null,
+          : null as CompetenceOutputDto | null,
       documents: [] as CompetenceDocumentsOutputDto[],
       competencies: [],
       experts: [],
       docTypes: [
-        { label: "Конкурсное задание", value: FileType.TASK },
-        { label: "Критерии оценок", value: FileType.CRITERIA },
-        { label: "Итоговая ведомость", value: FileType.STATEMENT },
-        { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
-        { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
-        { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
-        { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
+        {label: "Конкурсное задание", value: FileType.TASK},
+        {label: "Критерии оценок", value: FileType.CRITERIA},
+        {label: "Итоговая ведомость", value: FileType.STATEMENT},
+        {label: "Конкурсное задание финала", value: FileType.FINAL_TASK},
+        {label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA},
+        {label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT},
+        {label: "Полное описание компетенции", value: FileType.DESCRIPTION},
       ],
       errors: {
         toastPopup: {
@@ -206,11 +204,11 @@ export default {
       let filtered = this.documents
       
       if (this.selectedType) {
-        filtered = filtered.filter(doc => doc.type === this.selectedType)
+        filtered = filtered.filter(doc => doc.documentType === this.selectedType)
       }
       
       if (this.selectedCompetence) {
-        filtered = filtered.filter()
+        filtered = filtered.filter(doc => this.selectedCompetence === this.documentCompetence(doc))
       }
       
       return filtered
@@ -227,19 +225,17 @@ export default {
     documentExpert(document) {
       return this.experts.find(expert => expert.id === document.userId)
     },
-    viewDocument(document) {
+    async viewDocument(document) {
+      const response = await this.fileResolver.viewById(document.documentId)
       this.selectedDocument = document
       this.showPreviewDialog = true
     },
-    downloadDocument(document) {
-      console.log('Скачивание документа:', document.name)
+    async downloadDocument(document) {
+      await this.fileResolver.downloadById(document.documentId)
     },
     deleteDocument(document) {
       if (confirm(`Вы уверены, что хотите удалить документ "${document.name}"?`)) {
-        const index = this.documents.findIndex(d => d.id === document.id)
-        if (index > -1) {
-          this.documents.splice(index, 1)
-        }
+
       }
     },
     resetFilters() {

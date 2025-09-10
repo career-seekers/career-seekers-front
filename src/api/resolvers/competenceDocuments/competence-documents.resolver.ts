@@ -21,4 +21,15 @@ export class CompetenceDocumentsResolver {
                 this.token ? this.token : undefined
             )
     }
+
+    public async delete(id: number) {
+        return await this
+            .apiResolver
+            .request<null, CommonOutputDto<CompetenceDocumentsOutputDto | string>>(
+                `${id}`,
+                "DELETE",
+                null,
+                this.token ? this.token : undefined
+            )
+    }
 }

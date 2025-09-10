@@ -2,6 +2,7 @@ import ApiResolver from "@/utils/ApiResolver";
 import {DocsInputFormDataDto} from "@/api/resolvers/files/dto/input/docs-input-form-data.dto";
 import {DocsOutputFileUploadDto} from "@/api/resolvers/files/dto/output/docs-output-file-upload.dto";
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
+import axios from "axios";
 
 export enum FileType {
     TASK= "TASK",
@@ -31,12 +32,31 @@ export class FileResolver {
     public async viewById(id: number) {
         return await this
             .apiResolver
-            .request<null, any>(
+            .request<null, Blob>(
                 `view/${id}`,
                 "GET",
                 null,
                 this.token ? this.token : undefined
             )
+    }
+
+    public downloadById(documentId: number) {
+        axios.get(`file-service/v1/files/download/${documentId}`,
+            { responseType: 'blob' })
+            .then(response => {
+                const blob = new Blob([response.data]);
+                const fileURL = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = fileURL;
+                link.setAttribute('download', `document-${documentId}` || 'file');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(fileURL);
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+            });
     }
 }
 
