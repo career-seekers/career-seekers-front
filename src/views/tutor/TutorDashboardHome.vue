@@ -144,28 +144,28 @@
         </div>
       </div>
 
-      <!-- Последние обновления -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-clock"></i>
-            Последние обновления
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="updates-list">
-            <div v-for="update in recentUpdates" :key="update.id" class="update-item">
-              <div class="update-icon">
-                <i :class="update.icon"></i>
-              </div>
-              <div class="update-content">
-                <div class="update-text">{{ update.text }}</div>
-                <div class="update-time">{{ update.time }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+<!--      &lt;!&ndash; Последние обновления &ndash;&gt;-->
+<!--      <div class="info-card">-->
+<!--        <div class="card-header">-->
+<!--          <h3 class="card-title">-->
+<!--            <i class="pi pi-clock"></i>-->
+<!--            Последние обновления-->
+<!--          </h3>-->
+<!--        </div>-->
+<!--        <div class="card-content">-->
+<!--          <div class="updates-list">-->
+<!--            <div v-for="update in recentUpdates" :key="update.id" class="update-item">-->
+<!--              <div class="update-icon">-->
+<!--                <i :class="update.icon"></i>-->
+<!--              </div>-->
+<!--              <div class="update-content">-->
+<!--                <div class="update-text">{{ update.text }}</div>-->
+<!--                <div class="update-time">{{ update.time }}</div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
     <ToastPopup :content="errors.toastPopup"/>
   </div>

@@ -393,7 +393,6 @@ export default {
         isValid = false
       }
       if (isValid) {
-
       }
     },
     cancelLoad() {
@@ -406,7 +405,7 @@ export default {
       this.$router.push('/expert/competencies')
     },
     onDocumentSelect(event) {
-      const file = event.files[0]
+      this.selectedDocument = event.files[0]
     },
     onDocumentRemove() {
       this.selectedDocument = null

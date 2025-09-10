@@ -163,6 +163,7 @@ export default {
   data() {
     return {
       platformResolver: new PlatformResolver(),
+      oldMail: '',
       venueData: {
         id: null,
         fullName: '',
@@ -228,7 +229,13 @@ export default {
         }
 
         const response = this.venueData.verified || this.venueData.id !== null
-            ? await this.platformResolver.update({ id: this.venueData.id, ...data})
+            ? await this.platformResolver.update({
+              id: this.venueData.id,
+              ...data,
+              email: this.oldMail === this.venueData.email
+                  ? undefined
+                  : this.venueData.email,
+            })
             : await this.platformResolver.create(data)
 
         if (response.status === 200) {
@@ -249,6 +256,7 @@ export default {
     async loadPlatform() {
       const response = await this.platformResolver.getByUserId(UserState.id)
       if (response.status === 200) {
+        this.oldMail = response.message.email
         this.venueData = response.message
       }
     },

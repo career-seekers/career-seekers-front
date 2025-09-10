@@ -180,6 +180,7 @@ export default {
   },
   data() {
     return {
+      oldMail: '',
       showAddExpertDialog: false,
       isEditing: false,
       editingExpertId: null,
@@ -217,7 +218,6 @@ export default {
     dateOfBirthFormatted() {
       const [day, month, year] = this.expertForm.birthDate.split('.');
       const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
-      console.log(date.toISOString())
       return date.toISOString()
     },
     mobileNumberFormatted() {
@@ -243,6 +243,7 @@ export default {
         phone: this.reformatPhone(expert.mobileNumber),
         birthDate: this.reformatDateOfBirth(expert.dateOfBirth)
       }
+      this.oldMail = expert.email
       this.showAddExpertDialog = true
     },
     reformatDateOfBirth(date) {
@@ -286,7 +287,12 @@ export default {
             id: this.editingExpertId
           }
 
-          const response = await this.userResolver.update(editedExpert)
+          const response = await this.userResolver.update({
+            ...editedExpert,
+            email: editedExpert.email === this.oldMail
+              ? undefined
+              : editedExpert.email,
+          })
           if (response.status === 200) {
             this.cancelEdit()
           } else {
