@@ -58,7 +58,11 @@
             </div>
             <div class="detail-item">
               <span class="detail-label">Должность:</span>
-              <span class="detail-value">{{ expert.position ? expert.position : 'Не указано'}}</span>
+              <span class="detail-value">{{ expert.expertDocuments ? expert.expertDocuments.post : 'Не указано'}}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Образовательное учреждение:</span>
+              <span class="detail-value">{{ expert.expertDocuments ? expert.expertDocuments.institution : 'Не указано'}}</span>
             </div>
           </div>
           
@@ -66,7 +70,7 @@
             <h4 class="competencies-title">Компетенции:</h4>
             <div class="competencies-list">
               <span 
-                v-for="competence in expertCompetencies.find(exComp => exComp.expertId === expert.id).competencies"
+                v-for="competence in expertCompetencies.find(exComp => exComp.expertId === expert.id)?.competencies"
                 :key="competence.id"
                 class="competence-tag"
               >
@@ -394,7 +398,6 @@ export default {
           message: response.message
         }
       }
-      console.log(this.expertCompetencies)
     }
   },
   async mounted() {
