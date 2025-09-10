@@ -99,7 +99,7 @@
                 label="Редактировать"
                 icon="pi pi-pencil"
                 class="p-button-outlined"
-                @click="saveDraft"
+                @click="editPlatform"
                 :disabled="!venueData.verified"
               />
               <Button
@@ -212,7 +212,7 @@ export default {
     }
   },
   methods: {
-    sendForModeration() {
+    async sendForModeration() {
       if (this.validateForm()) {
         this.venueData.moderationStatus = 'На модерации'
         this.addHistoryEntry('pi pi-send', 'Информация отправлена на модерацию')
@@ -226,6 +226,30 @@ export default {
           website: this.venueData.website,
           verified: false,
         }
+
+        const response = this.venueData.verified || this.venueData.id !== null
+            ? await this.platformResolver.update({ id: this.venueData.id, ...data})
+            : await this.platformResolver.create(data)
+
+        if (response.status === 200) {
+          await this.loadPlatform()
+        } else {
+          this.errors.toastPopup = {
+            title: response.status,
+            message: response.message
+          }
+        }
+      }
+    },
+    editPlatform() {
+      if (this.venueData.verified && this.venueData.id !== null) {
+        this.venueData.verified = false
+      }
+    },
+    async loadPlatform() {
+      const response = await this.platformResolver.getByUserId(UserState.id)
+      if (response.status === 200) {
+        this.venueData = response.message
       }
     },
     validateForm() {
@@ -257,6 +281,9 @@ export default {
       }
       this.changeHistory.unshift(newEntry)
     }
+  },
+  async mounted() {
+    await this.loadPlatform()
   }
 }
 </script>
