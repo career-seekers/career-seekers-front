@@ -283,7 +283,7 @@ import {AgeCategories, CompetenceResolver} from "@/api/resolvers/competence/comp
 import Dialog from "primevue/dialog";
 import FileUpload from "primevue/fileupload";
 import Dropdown from "primevue/dropdown";
-import {FileType} from "@/api/resolvers/files/file.resolver";
+import {FileEndpoints, FileResolver, FileType} from "@/api/resolvers/files/file.resolver";
 
 export default {
   name: 'ExpertDashboardHome',
@@ -378,9 +378,9 @@ export default {
     goToAllCompetencies() {
       this.$router.push('/expert/competencies')
     },
-    uploadDocument() {
+    async uploadDocument() {
       let isValid = true
-      if (this.selectedDocument == null) {
+      if (this.selectedCompetence == null) {
         this.errors.selectedCompetence = "Выберите компетенцию"
         isValid = false
       }
@@ -393,6 +393,7 @@ export default {
         isValid = false
       }
       if (isValid) {
+        const fileResolver = new FileResolver()
       }
     },
     cancelLoad() {

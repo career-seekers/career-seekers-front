@@ -37,5 +37,6 @@ export enum FileEndpoints {
     SNILS_CHILD = "uploadSnils",
     BIRTH_CHILD_CERTIFICATE = "uploadBirthCertificate",
     SCHOOL_CERTIFICATE = "uploadStudyingCertificate",
-    PLATFORM_CERTIFICATE = "uploadAdditionalStudyingCertificate"
+    PLATFORM_CERTIFICATE = "uploadAdditionalStudyingCertificate",
+    COMPETENCE = "uploadDirectionsDocument"
 }

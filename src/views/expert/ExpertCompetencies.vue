@@ -86,60 +86,55 @@
     </div>
 
     <!-- Диалог подробной информации -->
-    <Dialog 
-      v-model:visible="showDetailsDialog" 
-      :header="selectedCompetence?.name || 'Компетенция'"
-      :modal="true"
-      :style="{ width: '800px' }"
+    <Dialog
+        v-model:visible="showDetailsDialog"
+        :header="selectedCompetence?.name || 'Компетенция'"
+        :modal="true"
+        :style="{ width: '800px' }"
     >
       <div v-if="selectedCompetence" class="competence-details">
         <div class="detail-section">
           <h4>Описание компетенции</h4>
           <p>{{ selectedCompetence.description }}</p>
         </div>
-        
-        <div class="detail-section">
-          <h4>Возрастная категория</h4>
-          <p>{{ ageGroups.find(group => group.value === selectedCompetence.ageCategory).label }}</p>
-        </div>
 
-        
         <div class="detail-section">
-          <h4>Загруженные документы</h4>
+          <h4>Статистика</h4>
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-number">{{ selectedCompetence.participantsCount }}</div>
               <div class="stat-label">Участников</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetence.completedCount }}</div>
-              <div class="stat-label">Завершили</div>
+              <div class="stat-number">
+                {{ ageGroups.find(group => group.value === selectedCompetence.ageCategory).label.split(' ')[0] }}
+              </div>
+              <div class="stat-label">лет</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetence.eventsCount }}</div>
+              <div class="stat-number">{{ 0 }}</div>
               <div class="stat-label">Событий</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetence.documentsCount }}</div>
+              <div class="stat-number">{{ selectedCompetence.documents.length }}</div>
               <div class="stat-label">Документов</div>
             </div>
           </div>
         </div>
       </div>
-      
       <template #footer>
-        <Button 
-          label="Закрыть" 
-          icon="pi pi-times" 
-          class="p-button-text"
-          @click="closeDetails"
+        <Button
+            label="Закрыть"
+            icon="pi pi-times"
+            class="p-button-text"
+            @click="closeDetails"
         />
-        <Button 
-          label="Участники" 
-          icon="pi pi-users" 
-          class="p-button-primary"
-          @click="goToParticipants(selectedCompetence?.id)"
-        />
+        <!--        <Button -->
+        <!--          label="Участники" -->
+        <!--          icon="pi pi-users" -->
+        <!--          class="p-button-primary"-->
+        <!--          @click="goToParticipants(selectedCompetence?.id)"-->
+        <!--        />-->
       </template>
     </Dialog>
   </div>
@@ -152,6 +147,7 @@ import Dropdown from 'primevue/dropdown'
 import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
 import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
 import {UserState} from "../../../state/UserState";
+import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
 
 export default {
   name: 'ExpertCompetencies',
