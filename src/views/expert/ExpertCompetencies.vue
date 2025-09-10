@@ -35,7 +35,7 @@
         <div class="competence-header">
           <div class="competence-info">
             <h3 class="competence-name">{{ competence.name }}</h3>
-            <div class="competence-age">{{ ageGroups.find(group => group.value === competence.ageCategory) }}</div>
+            <div class="competence-age">{{ ageGroups.find(group => group.value === competence.ageCategory).label }}</div>
             <div class="competence-description">{{ competence.description }}</div>
           </div>
         </div>
