@@ -234,7 +234,7 @@ export default {
       return date.toISOString()
     },
     mobileNumberFormatted() {
-      return this.expertForm.phone.replaceAll(/\s|-|\(|\)|/g, '')
+      return this.expertForm.phone.replaceAll(/\s|-|\(|\)/g, '')
     },
   },
   methods: {
