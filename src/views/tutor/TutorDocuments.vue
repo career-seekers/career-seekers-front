@@ -5,22 +5,6 @@
       <p class="page-subtitle">Управление документами, подтверждающими экспертность</p>
     </div>
 
-    <!-- Кнопки действий -->
-    <div class="page-actions">
-      <Button 
-        label="Загрузить документ" 
-        icon="pi pi-upload"
-        class="p-button-primary"
-        @click="showUploadDialog = true"
-      />
-      <Button 
-        label="Создать ссылку на ЛК эксперта" 
-        icon="pi pi-link"
-        class="p-button-outlined"
-        @click="showLinkDialog = true"
-      />
-    </div>
-
     <!-- Фильтры -->
     <div class="filters-section">
       <div class="filter-group">
@@ -28,7 +12,7 @@
         <Dropdown 
           id="typeFilter"
           v-model="selectedType" 
-          :options="documentTypes"
+          :options="docTypes"
           optionLabel="label"
           optionValue="value"
           placeholder="Все типы"
@@ -36,14 +20,14 @@
         />
       </div>
       <div class="filter-group">
-        <label for="statusFilter">Статус:</label>
+        <label for="statusFilter">Компетенция:</label>
         <Dropdown 
           id="statusFilter"
-          v-model="selectedStatus" 
-          :options="statusOptions"
+          v-model="selectedCompetence"
+          :options="competencies"
           optionLabel="label"
           optionValue="value"
-          placeholder="Все статусы"
+          placeholder="Все компетенции"
           class="filter-dropdown"
         />
       </div>
@@ -62,33 +46,30 @@
       <div v-for="document in filteredDocuments" :key="document.id" class="document-card">
         <div class="document-header">
           <div class="document-icon">
-            <i :class="getDocumentIcon(document.type)"></i>
+            <i class="pi pi-file"></i>
           </div>
           <div class="document-info">
             <h3 class="document-name">{{ document.name }}</h3>
             <p class="document-type">{{ getDocumentTypeLabel(document.type) }}</p>
           </div>
           <div class="document-actions">
-            <Button 
-              icon="pi pi-eye" 
+            <Button
+              icon="pi pi-eye"
+              style="background: white;"
               class="p-button-text p-button-sm"
               @click="viewDocument(document)"
               v-tooltip="'Просмотреть'"
             />
             <Button 
-              icon="pi pi-download" 
+              icon="pi pi-download"
+              style="background: white;"
               class="p-button-text p-button-sm"
               @click="downloadDocument(document)"
               v-tooltip="'Скачать'"
             />
             <Button 
-              icon="pi pi-pencil" 
-              class="p-button-text p-button-sm"
-              @click="editDocument(document)"
-              v-tooltip="'Редактировать'"
-            />
-            <Button 
-              icon="pi pi-trash" 
+              icon="pi pi-trash"
+              style="background: white;"
               class="p-button-text p-button-sm p-button-danger"
               @click="deleteDocument(document)"
               v-tooltip="'Удалить'"
@@ -99,119 +80,26 @@
         <div class="document-content">
           <div class="document-details">
             <div class="detail-item">
-              <span class="detail-label">Размер:</span>
-              <span class="detail-value">{{ document.size }}</span>
+              <span class="detail-label">Тип:</span>
+              <span class="detail-value">{{  }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Дата загрузки:</span>
-              <span class="detail-value">{{ document.uploadDate }}</span>
+              <span class="detail-value">{{  }}</span>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Статус:</span>
-              <span class="detail-value">
-                <span class="status-badge" :class="document.statusClass">
-                  {{ document.status }}
-                </span>
-              </span>
-            </div>
-            <div v-if="document.description" class="detail-item">
+            <div v-if="document" class="detail-item">
               <span class="detail-label">Описание:</span>
-              <span class="detail-value">{{ document.description }}</span>
+              <span class="detail-value">{{  }}</span>
             </div>
           </div>
           
-          <div v-if="document.mentorName" class="mentor-info">
+          <div v-if="document" class="mentor-info">
             <h4 class="mentor-title">Связанный эксперт:</h4>
-            <p class="mentor-name">{{ document.mentorName }}</p>
+            <p class="mentor-name">{{ document }}</p>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Диалог загрузки документа -->
-    <Dialog 
-      v-model:visible="showUploadDialog" 
-      header="Загрузить документ"
-      :modal="true"
-      :style="{ width: '500px' }"
-    >
-      <div class="upload-form">
-        <div class="form-field">
-          <label for="documentName">Название документа *</label>
-          <InputText 
-            id="documentName"
-            v-model="uploadForm.name" 
-            placeholder="Введите название документа"
-            :class="{ 'p-invalid': !uploadForm.name }"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="documentType">Тип документа *</label>
-          <Dropdown 
-            id="documentType"
-            v-model="uploadForm.type" 
-            :options="documentTypes"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Выберите тип документа"
-            :class="{ 'p-invalid': !uploadForm.type }"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="mentorSelect">Связать с экспертом</label>
-          <Dropdown 
-            id="mentorSelect"
-            v-model="uploadForm.mentorId"
-            :options="mentors"
-            optionLabel="fullName"
-            optionValue="id"
-            placeholder="Выберите эксперта (необязательно)"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="documentDescription">Описание</label>
-          <Textarea 
-            id="documentDescription"
-            v-model="uploadForm.description" 
-            placeholder="Введите описание документа"
-            rows="3"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="fileUpload">Файл *</label>
-          <FileUpload 
-            id="fileUpload"
-            mode="basic"
-            :auto="false"
-            :multiple="false"
-            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-            :maxFileSize="10000000"
-            @select="onFileSelect"
-            chooseLabel="Выбрать файл"
-            :class="{ 'p-invalid': !uploadForm.file }"
-          />
-        </div>
-      </div>
-      
-      <template #footer>
-        <Button 
-          label="Отмена" 
-          icon="pi pi-times" 
-          class="p-button-text"
-          @click="cancelUpload"
-        />
-        <Button 
-          label="Загрузить" 
-          icon="pi pi-upload" 
-          class="p-button-primary"
-          @click="uploadDocument"
-        />
-      </template>
-    </Dialog>
 
     <!-- Диалог создания ссылки -->
     <Dialog 
@@ -283,13 +171,14 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Dropdown from 'primevue/dropdown'
 import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
+import {FileType} from "@/api/resolvers/files/file.resolver";
 
 export default {
   name: 'TutorDocuments',
@@ -306,51 +195,18 @@ export default {
       showUploadDialog: false,
       showLinkDialog: false,
       selectedType: null,
-      selectedStatus: null,
-      uploadForm: {
-        name: '',
-        type: null,
-        expertId: null,
-        description: '',
-        file: null
-      },
-      linkForm: {
-        expertId: null,
-        title: '',
-        url: '',
-        description: ''
-      },
-      documentTypes: [
-        { label: 'Лицензия', value: 'license' },
-        { label: 'Сертификат', value: 'certificate' },
-        { label: 'Диплом', value: 'diploma' },
-        { label: 'Справка', value: 'reference' },
-        { label: 'Публичный профиль', value: 'profile' },
-        { label: 'Другое', value: 'other' }
+      selectedCompetence: null,
+      documents: [],
+      competencies: [],
+      docTypes: [
+        { label: "Конкурсное задание", value: FileType.TASK },
+        { label: "Критерии оценок", value: FileType.CRITERIA },
+        { label: "Итоговая ведомость", value: FileType.STATEMENT },
+        { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
+        { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
+        { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
+        { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
       ],
-      statusOptions: [
-        { label: 'Проверен', value: 'verified' },
-        { label: 'На проверке', value: 'pending' },
-        { label: 'Отклонен', value: 'rejected' }
-      ],
-      experts: [
-        { id: 1, fullName: 'Смирнов Алексей Владимирович' },
-        { id: 2, fullName: 'Козлова Елена Петровна' },
-        { id: 3, fullName: 'Петров Игорь Сергеевич' }
-      ],
-      documents: [
-        {
-          id: 1,
-          name: 'Публичный профиль эксперта - Смирнов А.В.',
-          type: 'profile',
-          size: 'Ссылка',
-          uploadDate: '10.12.2024',
-          status: 'Проверен',
-          statusClass: 'status-verified',
-          description: 'Профиль эксперта на сайте профессионального сообщества',
-          expertName: 'Смирнов Алексей Владимирович'
-        }
-      ]
     }
   },
   computed: {
@@ -362,24 +218,13 @@ export default {
       }
       
       if (this.selectedStatus) {
-        filtered = filtered.filter(doc => doc.statusClass === `status-${this.selectedStatus}`)
+        filtered = filtered.filter()
       }
       
       return filtered
     }
   },
   methods: {
-    getDocumentIcon(type) {
-      const icons = {
-        license: 'pi pi-file-pdf',
-        certificate: 'pi pi-certificate',
-        diploma: 'pi pi-graduation-cap',
-        reference: 'pi pi-file-text',
-        profile: 'pi pi-link',
-        other: 'pi pi-file'
-      }
-      return icons[type] || 'pi pi-file'
-    },
     getDocumentTypeLabel(type) {
       const typeObj = this.documentTypes.find(t => t.value === type)
       return typeObj ? typeObj.label : type
