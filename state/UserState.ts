@@ -243,7 +243,9 @@ export const redirectByUserState = async () => {
             break
         }
         default:
-            if (!history.state.current.includes("login")) {
+            if (!history.state.current.includes("login") &&
+            !history.state.current.includes("register") &&
+            !history.state.current.includes("email-confirmation")) {
                 await router.push("/login");
             }
             break
