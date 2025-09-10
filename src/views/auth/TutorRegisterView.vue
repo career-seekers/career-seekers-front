@@ -24,6 +24,19 @@
         </div>
 
         <div class="field">
+          <label for="parentBirthDate" class="field-label">Дата рождения *</label>
+          <InputMask
+              id="parentBirthDate"
+              v-model="registerForm.birthDate"
+              mask="99.99.9999"
+              placeholder="дд.мм.гггг"
+              class="w-full"
+              :class="{ 'p-invalid': errors.birthDate }"
+          />
+          <small v-if="errors.birthDate" class="p-error">{{ errors.birthDate }}</small>
+        </div>
+
+        <div class="field">
           <label for="educationalInstitution" class="field-label">Образовательное учреждение *</label>
           <InputText
             id="educationalInstitution"
@@ -45,6 +58,18 @@
             :class="{ 'p-invalid': errors.position }"
           />
           <small v-if="errors.position" class="p-error">{{ errors.position }}</small>
+        </div>
+
+        <div class="field">
+          <label for="telegramLink" class="field-label">Ссылка на Telegram *</label>
+            <InputText
+                id="relationship"
+                v-model="registerForm.telegramLink"
+                placeholder="Например, @telegram_username"
+                class="w-full"
+                :class="{ 'p-invalid': errors.telegramLink }"
+            />
+          <small v-if="errors.telegramLink" class="p-error">{{ errors.telegramLink }}</small>
         </div>
 
         <div class="field">
@@ -166,10 +191,12 @@
     <Dialog v-model:visible="showPrivacyDialog" modal header="Политика конфиденциальности" :style="{ width: '90vw', maxWidth: '500px' }" class="privacy-dialog">
       <p>Здесь будет политика конфиденциальности...</p>
     </Dialog>
+
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import InputText from 'primevue/inputtext'
 import InputMask from 'primevue/inputmask'
 import Password from 'primevue/password'
@@ -177,10 +204,16 @@ import Button from 'primevue/button'
 import FileUpload from 'primevue/fileupload'
 import Checkbox from 'primevue/checkbox'
 import Dialog from 'primevue/dialog'
+import ToastPopup from "@/components/ToastPopup.vue";
+import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
+import {UserRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto.js";
+import {RegistrationData, Roles, TutorStateInterface} from "../../../state/UserState.types.js";
+import {FileManager} from "@/utils/FileManager";
 
 export default {
   name: 'TutorRegisterView',
   components: {
+    ToastPopup,
     InputText,
     InputMask,
     Password,
@@ -196,8 +229,10 @@ export default {
       showPrivacyDialog: false,
       registerForm: {
         fullName: '',
+        birthDate: '',
         educationalInstitution: '',
         position: '',
+        telegramLink: '',
         phone: '',
         email: '',
         password: '',
@@ -206,9 +241,15 @@ export default {
         agreement: false
       },
       errors: {
+        toastPopup: {
+          title: '',
+          message: '',
+        },
         fullName: '',
+        birthDate: '',
         educationalInstitution: '',
         position: '',
+        telegramLink: '',
         phone: '',
         email: '',
         password: '',
@@ -216,6 +257,19 @@ export default {
         consentFile: '',
         agreement: ''
       }
+    }
+  },
+  computed: {
+    mobileNumberFormatted() {
+      return this.registerForm.phone.replaceAll(/\s|-|\(|\)|/g, '')
+    },
+    dateOfBirthFormatted() {
+      const [day, month, year] = this.registerForm.birthDate.split('.');
+      const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
+      return date.toISOString()
+    },
+    telegramLinkFormatted() {
+      return this.registerForm.telegramLink.replace("@", "https://t.me/")
     }
   },
   methods: {
@@ -243,6 +297,12 @@ export default {
         isValid = false
       }
 
+      //Проверка даты рождения
+      if (!this.registerForm.birthDate.trim()) {
+        this.errors.birthDate = 'Дата рождения обязательна'
+        isValid = false
+      }
+
       // Проверка образовательного учреждения
       if (!this.registerForm.educationalInstitution.trim()) {
         this.errors.educationalInstitution = 'Образовательное учреждение обязательно'
@@ -252,6 +312,11 @@ export default {
       // Проверка должности
       if (!this.registerForm.position.trim()) {
         this.errors.position = 'Должность обязательна'
+        isValid = false
+      }
+
+      if (!this.registerForm.telegramLink.trim()) {
+        this.errors.telegramLink = 'Ссылка обязательна для связи'
         isValid = false
       }
 
@@ -337,25 +402,55 @@ export default {
 
     async handleRegister() {
       if (!this.validateForm()) return
-
+      this.errors.toastPopup = {
+        title: '',
+        message: ''
+      }
       this.isLoading = true
-      
+
       try {
-        // Здесь будет логика регистрации
-        console.log('Данные для регистрации куратора:', this.registerForm)
-        
-        // Имитация запроса
-        await new Promise(resolve => setTimeout(resolve, 2000))
-        
-        // Сохраняем email для страницы подтверждения
-        localStorage.setItem('userEmail', this.registerForm.email)
-        
-        // После успешной регистрации перенаправляем на страницу подтверждения email
-        this.$router.push({
-          path: '/email-confirmation',
-          query: { email: this.registerForm.email }
+        const authResolver = new AuthResolver()
+        const response = await authResolver.preRegister({
+          email: this.registerForm.email,
+          mobileNumber: this.mobileNumberFormatted
         })
-        
+        if (response.status !== 200) {
+          this.errors.toastPopup = {
+            title: `Ошибка #${response.status}`,
+            message: response.message
+          }
+        } else {
+          const fileManager = new FileManager()
+          const registrationData: RegistrationData<
+              UserRegistrationDto,
+              TutorStateInterface
+          > = {
+            dto: {
+              type: "UserRegistrationDto",
+              verificationCode: "",
+              lastName: this.registerForm.fullName.split(' ')[0],
+              firstName: this.registerForm.fullName.split(' ')[1],
+              patronymic: this.registerForm.fullName.split(' ')[2],
+              dateOfBirth: this.dateOfBirthFormatted,
+              email: this.registerForm.email,
+              mobileNumber: this.mobileNumberFormatted,
+              password: this.registerForm.password,
+              role: Roles.TUTOR,
+              uuid: ""
+            },
+            extra: {
+              post: this.registerForm.position,
+              institution: this.registerForm.educationalInstitution,
+              consentFileName: await fileManager.saveFileToCache(this.registerForm.consentFile)
+            }
+          }
+          localStorage.setItem("dataToVerify", JSON.stringify(registrationData))
+          localStorage.setItem("telegramLink", JSON.stringify(this.telegramLinkFormatted))
+          this.$router.push({
+            path: '/email-confirmation',
+            query: {email: this.registerForm.email}
+          })
+        }
       } catch (error) {
         console.error('Ошибка регистрации:', error)
       } finally {

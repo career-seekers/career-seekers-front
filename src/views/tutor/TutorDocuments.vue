@@ -5,22 +5,6 @@
       <p class="page-subtitle">Управление документами, подтверждающими экспертность</p>
     </div>
 
-    <!-- Кнопки действий -->
-    <div class="page-actions">
-      <Button 
-        label="Загрузить документ" 
-        icon="pi pi-upload"
-        class="p-button-primary"
-        @click="showUploadDialog = true"
-      />
-      <Button 
-        label="Создать ссылку на ЛК эксперта" 
-        icon="pi pi-link"
-        class="p-button-outlined"
-        @click="showLinkDialog = true"
-      />
-    </div>
-
     <!-- Фильтры -->
     <div class="filters-section">
       <div class="filter-group">
@@ -28,7 +12,7 @@
         <Dropdown 
           id="typeFilter"
           v-model="selectedType" 
-          :options="documentTypes"
+          :options="docTypes"
           optionLabel="label"
           optionValue="value"
           placeholder="Все типы"
@@ -36,16 +20,22 @@
         />
       </div>
       <div class="filter-group">
-        <label for="statusFilter">Статус:</label>
+        <label for="statusFilter">Компетенция:</label>
         <Dropdown 
           id="statusFilter"
-          v-model="selectedStatus" 
-          :options="statusOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Все статусы"
+          v-model="selectedCompetence"
+          :options="competencies"
+          :disabled="competencies.length === 0"
+          placeholder="Все компетенции"
           class="filter-dropdown"
-        />
+        >
+          <template #option="slotProps">
+            {{ slotProps ? slotProps.option.name : 'Не выбран' }}
+          </template>
+          <template #value="{ value }">
+            {{ value ? value.name : 'Все компетенции' }}
+          </template>
+        </Dropdown>
       </div>
       <div class="filter-group">
         <Button 
@@ -62,33 +52,29 @@
       <div v-for="document in filteredDocuments" :key="document.id" class="document-card">
         <div class="document-header">
           <div class="document-icon">
-            <i :class="getDocumentIcon(document.type)"></i>
+            <i class="pi pi-file"></i>
           </div>
           <div class="document-info">
-            <h3 class="document-name">{{ document.name }}</h3>
-            <p class="document-type">{{ getDocumentTypeLabel(document.type) }}</p>
+            <h3 class="document-name">Документ №{{ document.id }}</h3>
           </div>
           <div class="document-actions">
+<!--            <Button-->
+<!--              icon="pi pi-eye"-->
+<!--              style="background: white;"-->
+<!--              class="p-button-text p-button-sm"-->
+<!--              @click="viewDocument(document)"-->
+<!--              v-tooltip="'Просмотреть'"-->
+<!--            />-->
             <Button 
-              icon="pi pi-eye" 
-              class="p-button-text p-button-sm"
-              @click="viewDocument(document)"
-              v-tooltip="'Просмотреть'"
-            />
-            <Button 
-              icon="pi pi-download" 
+              icon="pi pi-download"
+              style="background: white;"
               class="p-button-text p-button-sm"
               @click="downloadDocument(document)"
               v-tooltip="'Скачать'"
             />
             <Button 
-              icon="pi pi-pencil" 
-              class="p-button-text p-button-sm"
-              @click="editDocument(document)"
-              v-tooltip="'Редактировать'"
-            />
-            <Button 
-              icon="pi pi-trash" 
+              icon="pi pi-trash"
+              style="background: white;"
               class="p-button-text p-button-sm p-button-danger"
               @click="deleteDocument(document)"
               v-tooltip="'Удалить'"
@@ -99,201 +85,80 @@
         <div class="document-content">
           <div class="document-details">
             <div class="detail-item">
-              <span class="detail-label">Размер:</span>
-              <span class="detail-value">{{ document.size }}</span>
+              <span class="detail-label">Тип:</span>
+              <span class="detail-value">{{ docTypes.find(type => type.value === document.documentType).label }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Дата загрузки:</span>
-              <span class="detail-value">{{ document.uploadDate }}</span>
+              <span class="detail-value">{{ document.createdAt.substring(0, 10) }}</span>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Статус:</span>
-              <span class="detail-value">
-                <span class="status-badge" :class="document.statusClass">
-                  {{ document.status }}
-                </span>
-              </span>
-            </div>
-            <div v-if="document.description" class="detail-item">
-              <span class="detail-label">Описание:</span>
-              <span class="detail-value">{{ document.description }}</span>
+            <div v-if="document" class="detail-item">
+              <span class="detail-label">Компетенция:</span>
+              <span class="detail-value">{{ documentCompetence(document).name }}</span>
             </div>
           </div>
           
-          <div v-if="document.mentorName" class="mentor-info">
+          <div v-if="documentExpert(document)" class="mentor-info">
             <h4 class="mentor-title">Связанный эксперт:</h4>
-            <p class="mentor-name">{{ document.mentorName }}</p>
+            <p class="mentor-name">{{
+                documentExpert(document).lastName + " "
+                + documentExpert(document).firstName + " "
+                + documentExpert(document).patronymic
+              }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Диалог загрузки документа -->
-    <Dialog 
-      v-model:visible="showUploadDialog" 
-      header="Загрузить документ"
-      :modal="true"
-      :style="{ width: '500px' }"
+    <Dialog
+        v-if="selectedDocument"
+        v-model:visible="showPreviewDialog"
+        :header="'Документ №' + selectedDocument.id"
+        :modal="true"
+        :style="{ width: '800px' }"
     >
-      <div class="upload-form">
-        <div class="form-field">
-          <label for="documentName">Название документа *</label>
-          <InputText 
-            id="documentName"
-            v-model="uploadForm.name" 
-            placeholder="Введите название документа"
-            :class="{ 'p-invalid': !uploadForm.name }"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="documentType">Тип документа *</label>
-          <Dropdown 
-            id="documentType"
-            v-model="uploadForm.type" 
-            :options="documentTypes"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Выберите тип документа"
-            :class="{ 'p-invalid': !uploadForm.type }"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="mentorSelect">Связать с экспертом</label>
-          <Dropdown 
-            id="mentorSelect"
-            v-model="uploadForm.mentorId"
-            :options="mentors"
-            optionLabel="fullName"
-            optionValue="id"
-            placeholder="Выберите эксперта (необязательно)"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="documentDescription">Описание</label>
-          <Textarea 
-            id="documentDescription"
-            v-model="uploadForm.description" 
-            placeholder="Введите описание документа"
-            rows="3"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="fileUpload">Файл *</label>
-          <FileUpload 
-            id="fileUpload"
-            mode="basic"
-            :auto="false"
-            :multiple="false"
-            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-            :maxFileSize="10000000"
-            @select="onFileSelect"
-            chooseLabel="Выбрать файл"
-            :class="{ 'p-invalid': !uploadForm.file }"
-          />
-        </div>
-      </div>
-      
       <template #footer>
-        <Button 
-          label="Отмена" 
-          icon="pi pi-times" 
-          class="p-button-text"
-          @click="cancelUpload"
+        <Button
+            label="Закрыть"
+            icon="pi pi-times"
+            class="p-button-text"
+            @click="showPreviewDialog = false"
         />
-        <Button 
-          label="Загрузить" 
-          icon="pi pi-upload" 
-          class="p-button-primary"
-          @click="uploadDocument"
-        />
+        <!--        <Button -->
+        <!--          label="Участники" -->
+        <!--          icon="pi pi-users" -->
+        <!--          class="p-button-primary"-->
+        <!--          @click="goToParticipants(selectedCompetence?.id)"-->
+        <!--        />-->
       </template>
     </Dialog>
 
-    <!-- Диалог создания ссылки -->
-    <Dialog 
-      v-model:visible="showLinkDialog" 
-      header="Создать ссылку на ЛК эксперта"
-      :modal="true"
-      :style="{ width: '500px' }"
-    >
-      <div class="link-form">
-        <div class="form-field">
-          <label for="MentorSelectLink">Эксперт *</label>
-          <Dropdown 
-            id="MentorSelectLink"
-            v-model="linkForm.MentorId"
-            :options="Mentors"
-            optionLabel="fullName"
-            optionValue="id"
-            placeholder="Выберите эксперта"
-            :class="{ 'p-invalid': !linkForm.expertId }"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="linkTitle">Название ссылки *</label>
-          <InputText 
-            id="linkTitle"
-            v-model="linkForm.title" 
-            placeholder="Например: Публичный профиль эксперта"
-            :class="{ 'p-invalid': !linkForm.title }"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="linkUrl">URL *</label>
-          <InputText 
-            id="linkUrl"
-            v-model="linkForm.url" 
-            placeholder="https://example.com/expert-profile"
-            :class="{ 'p-invalid': !linkForm.url }"
-          />
-        </div>
-        
-        <div class="form-field">
-          <label for="linkDescription">Описание</label>
-          <Textarea 
-            id="linkDescription"
-            v-model="linkForm.description" 
-            placeholder="Описание ссылки"
-            rows="2"
-          />
-        </div>
-      </div>
-      
-      <template #footer>
-        <Button 
-          label="Отмена" 
-          icon="pi pi-times" 
-          class="p-button-text"
-          @click="cancelLink"
-        />
-        <Button 
-          label="Создать" 
-          icon="pi pi-link" 
-          class="p-button-primary"
-          @click="createLink"
-        />
-      </template>
-    </Dialog>
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Dropdown from 'primevue/dropdown'
 import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
+import {FileResolver, FileType} from "@/api/resolvers/files/file.resolver";
+import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
+import { UserState} from "../../../state/UserState";
+import ToastPopup from "@/components/ToastPopup.vue";
+import {UserResolver} from "@/api/resolvers/user/user.resolver";
+import {
+  CompetenceDocumentsOutputDto
+} from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto";
+import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import {CompetenceDocumentsResolver} from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
 
 export default {
   name: 'TutorDocuments',
   components: {
+    ToastPopup,
     Button,
     Dialog,
     InputText,
@@ -301,89 +166,39 @@ export default {
     Textarea,
     FileUpload
   },
-  data() {
+  data: function () {
     return {
+      fileResolver: new FileResolver(),
+      filePreview: null,
+      competenceResolver: new CompetenceResolver(),
+      userResolver: new UserResolver(),
       showUploadDialog: false,
       showLinkDialog: false,
+      selectedDocument: null as CompetenceDocumentsOutputDto | null,
       selectedType: null,
-      selectedStatus: null,
-      uploadForm: {
-        name: '',
-        type: null,
-        expertId: null,
-        description: '',
-        file: null
-      },
-      linkForm: {
-        expertId: null,
-        title: '',
-        url: '',
-        description: ''
-      },
-      documentTypes: [
-        { label: 'Лицензия', value: 'license' },
-        { label: 'Сертификат', value: 'certificate' },
-        { label: 'Диплом', value: 'diploma' },
-        { label: 'Справка', value: 'reference' },
-        { label: 'Публичный профиль', value: 'profile' },
-        { label: 'Другое', value: 'other' }
+      selectedCompetence: localStorage.getItem('selectedCompetence')
+          ? JSON.parse(localStorage.getItem('selectedCompetence'))
+          : null as CompetenceOutputDto | null,
+      documents: [] as CompetenceDocumentsOutputDto[],
+      competencies: [],
+      experts: [],
+      docTypes: [
+        {label: "Конкурсное задание", value: FileType.TASK},
+        {label: "Критерии оценок", value: FileType.CRITERIA},
+        {label: "Итоговая ведомость", value: FileType.STATEMENT},
+        {label: "Конкурсное задание финала", value: FileType.FINAL_TASK},
+        {label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA},
+        {label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT},
+        {label: "Полное описание компетенции", value: FileType.DESCRIPTION},
       ],
-      statusOptions: [
-        { label: 'Проверен', value: 'verified' },
-        { label: 'На проверке', value: 'pending' },
-        { label: 'Отклонен', value: 'rejected' }
-      ],
-      experts: [
-        { id: 1, fullName: 'Смирнов Алексей Владимирович' },
-        { id: 2, fullName: 'Козлова Елена Петровна' },
-        { id: 3, fullName: 'Петров Игорь Сергеевич' }
-      ],
-      documents: [
-        {
-          id: 1,
-          name: 'Лицензия на образовательную деятельность',
-          type: 'license',
-          size: '2.3 МБ',
-          uploadDate: '15.12.2024',
-          status: 'Проверен',
-          statusClass: 'status-verified',
-          description: 'Лицензия на осуществление образовательной деятельности',
-          expertName: null
-        },
-        {
-          id: 2,
-          name: 'Публичный профиль эксперта - Смирнов А.В.',
-          type: 'profile',
-          size: 'Ссылка',
-          uploadDate: '10.12.2024',
-          status: 'Проверен',
-          statusClass: 'status-verified',
-          description: 'Профиль эксперта на сайте профессионального сообщества',
-          expertName: 'Смирнов Алексей Владимирович'
-        },
-        {
-          id: 3,
-          name: 'Сертификат о повышении квалификации',
-          type: 'certificate',
-          size: '1.8 МБ',
-          uploadDate: '08.12.2024',
-          status: 'На проверке',
-          statusClass: 'status-pending',
-          description: 'Сертификат о прохождении курса повышения квалификации',
-          expertName: 'Козлова Елена Петровна'
-        },
-        {
-          id: 4,
-          name: 'Справка о трудовой деятельности',
-          type: 'reference',
-          size: '1.2 МБ',
-          uploadDate: '05.12.2024',
-          status: 'Отклонен',
-          statusClass: 'status-rejected',
-          description: 'Справка с места работы о занимаемой должности',
-          expertName: 'Петров Игорь Сергеевич'
+      errors: {
+        toastPopup: {
+          title: '',
+          message: ''
         }
-      ]
+      },
+      showPreviewDialog: false,
+      competenceDocumentsResolver: new CompetenceDocumentsResolver()
     }
   },
   computed: {
@@ -391,129 +206,71 @@ export default {
       let filtered = this.documents
       
       if (this.selectedType) {
-        filtered = filtered.filter(doc => doc.type === this.selectedType)
+        filtered = filtered.filter(doc => doc.documentType === this.selectedType)
       }
       
-      if (this.selectedStatus) {
-        filtered = filtered.filter(doc => doc.statusClass === `status-${this.selectedStatus}`)
+      if (this.selectedCompetence) {
+        filtered = filtered.filter(doc => this.selectedCompetence === this.documentCompetence(doc))
       }
       
       return filtered
     }
   },
   methods: {
-    getDocumentIcon(type) {
-      const icons = {
-        license: 'pi pi-file-pdf',
-        certificate: 'pi pi-certificate',
-        diploma: 'pi pi-graduation-cap',
-        reference: 'pi pi-file-text',
-        profile: 'pi pi-link',
-        other: 'pi pi-file'
-      }
-      return icons[type] || 'pi pi-file'
+    documentCompetence(document: CompetenceDocumentsOutputDto) {
+
+      return this.competencies.find((competence: CompetenceOutputDto) =>
+          competence.documents.some(doc => doc.id === document.id)
+      );
+
     },
-    getDocumentTypeLabel(type) {
-      const typeObj = this.documentTypes.find(t => t.value === type)
-      return typeObj ? typeObj.label : type
+    documentExpert(document) {
+      return this.experts.find(expert => expert.id === document.userId)
     },
-    viewDocument(document) {
-      console.log('Просмотр документа:', document.name)
+    async viewDocument(document) {
+      const response = await this.fileResolver.viewById(document.documentId)
+      this.selectedDocument = document
+      this.showPreviewDialog = true
     },
-    downloadDocument(document) {
-      console.log('Скачивание документа:', document.name)
+    async downloadDocument(document) {
+      await this.fileResolver.downloadById(document.documentId)
     },
-    editDocument(document) {
-      console.log('Редактирование документа:', document.name)
-    },
-    deleteDocument(document) {
+    async deleteDocument(document) {
       if (confirm(`Вы уверены, что хотите удалить документ "${document.name}"?`)) {
-        const index = this.documents.findIndex(d => d.id === document.id)
-        if (index > -1) {
-          this.documents.splice(index, 1)
+        const response = await this.competenceDocumentsResolver.delete(document.id)
+        if (response.status === 200) {
+          this.competencies = []
+          this.documents = []
+          this.experts = []
+          await this.loadCompetencies()
         }
       }
     },
-    onFileSelect(event) {
-      this.uploadForm.file = event.files[0]
-    },
-    uploadDocument() {
-      if (!this.validateUploadForm()) {
-        return
-      }
-      
-      const newDocument = {
-        id: Date.now(),
-        name: this.uploadForm.name,
-        type: this.uploadForm.type,
-        size: this.uploadForm.file ? this.formatFileSize(this.uploadForm.file.size) : 'Ссылка',
-        uploadDate: new Date().toLocaleDateString('ru-RU'),
-        status: 'На проверке',
-        statusClass: 'status-pending',
-        description: this.uploadForm.description,
-        expertName: this.uploadForm.expertId ? 
-          this.experts.find(e => e.id === this.uploadForm.expertId)?.fullName : null
-      }
-      
-      this.documents.push(newDocument)
-      this.cancelUpload()
-    },
-    createLink() {
-      if (!this.validateLinkForm()) {
-        return
-      }
-      
-      const newDocument = {
-        id: Date.now(),
-        name: this.linkForm.title,
-        type: 'profile',
-        size: 'Ссылка',
-        uploadDate: new Date().toLocaleDateString('ru-RU'),
-        status: 'На проверке',
-        statusClass: 'status-pending',
-        description: this.linkForm.description,
-        expertName: this.experts.find(e => e.id === this.linkForm.expertId)?.fullName
-      }
-      
-      this.documents.push(newDocument)
-      this.cancelLink()
-    },
-    cancelUpload() {
-      this.uploadForm = {
-        name: '',
-        type: null,
-        expertId: null,
-        description: '',
-        file: null
-      }
-      this.showUploadDialog = false
-    },
-    cancelLink() {
-      this.linkForm = {
-        expertId: null,
-        title: '',
-        url: '',
-        description: ''
-      }
-      this.showLinkDialog = false
-    },
     resetFilters() {
       this.selectedType = null
-      this.selectedStatus = null
+      this.selectedCompetence = null
     },
-    validateUploadForm() {
-      return this.uploadForm.name && this.uploadForm.type && this.uploadForm.file
-    },
-    validateLinkForm() {
-      return this.linkForm.expertId && this.linkForm.title && this.linkForm.url
-    },
-    formatFileSize(bytes) {
-      if (bytes === 0) return '0 Б'
-      const k = 1024
-      const sizes = ['Б', 'КБ', 'МБ', 'ГБ']
-      const i = Math.floor(Math.log(bytes) / Math.log(k))
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+    async loadCompetencies() {
+      const response = await this.competenceResolver.getAllByUserId(UserState.id)
+      if (response.status === 200 && typeof response.message !== 'string') {
+        response.message.forEach(competence => {
+          if (competence.documents.length > 0) {
+            this.competencies.push(competence)
+            this.documents.push(...competence.documents)
+            competence.documents.forEach(async (document) => {
+              const response = await this.userResolver.getById(document.userId)
+              if (response.status === 200) {
+                this.experts.push(response.message)
+              }
+            })
+          }
+        })
+      }
     }
+  },
+  async mounted() {
+    await this.loadCompetencies()
+    localStorage.removeItem('selectedCompetence')
   }
 }
 </script>

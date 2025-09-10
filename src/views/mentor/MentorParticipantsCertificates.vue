@@ -45,7 +45,7 @@
         <div class="participant-header">
           <div class="participant-info">
             <h3 class="participant-name">{{ participant.name }}</h3>
-            <p class="participant-details">{{ participant.age }} • {{ participant.competency }}</p>
+            <p class="participant-details">{{ participant.age }} • {{ participant.competence }}</p>
           </div>
           <div class="participant-stats">
             <div class="stat-item">
@@ -150,7 +150,7 @@ export default {
           id: 1,
           name: 'Иванов Петр Антонович',
           age: '14 лет',
-          competency: 'Веб-дизайн и разработка',
+          competence: 'Веб-дизайн и разработка',
           certificates: [
             {
               id: 1,
@@ -182,7 +182,7 @@ export default {
           id: 2,
           name: 'Петрова Анна Владимировна',
           age: '15 лет',
-          competency: '3D-моделирование',
+          competence: '3D-моделирование',
           certificates: [
             {
               id: 3,
@@ -226,7 +226,7 @@ export default {
           id: 3,
           name: 'Сидоров Максим Дмитриевич',
           age: '13 лет',
-          competency: 'Программирование на Python',
+          competence: 'Программирование на Python',
           certificates: [
             {
               id: 6,
@@ -267,7 +267,7 @@ export default {
         const query = this.searchQuery.toLowerCase()
         filtered = filtered.filter(p => 
           p.name.toLowerCase().includes(query) ||
-          p.competency.toLowerCase().includes(query)
+          p.competence.toLowerCase().includes(query)
         )
       }
 

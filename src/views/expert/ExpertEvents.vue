@@ -71,8 +71,8 @@
     <div class="filters-section">
       <div class="filter-group">
         <Dropdown 
-          v-model="selectedCompetency" 
-          :options="competencyOptions"
+          v-model="selectedCompetence"
+          :options="competenceOptions"
           optionLabel="label"
           optionValue="value"
           placeholder="Все компетенции"
@@ -113,7 +113,7 @@
         <div class="event-header">
           <div class="event-info">
             <h3 class="event-title">{{ event.title }}</h3>
-            <p class="event-competency">{{ event.competency }}</p>
+            <p class="event-competence">{{ event.competence }}</p>
             <div class="event-meta">
               <span class="event-date">
                 <i class="pi pi-calendar"></i>
@@ -200,11 +200,11 @@
         
         <div class="form-row">
           <div class="form-group">
-            <label for="eventCompetency">Компетенция *</label>
+            <label for="eventCompetence">Компетенция *</label>
             <Dropdown 
-              id="eventCompetency"
-              v-model="eventForm.competencyId" 
-              :options="competencyOptions"
+              id="eventCompetence"
+              v-model="eventForm.competenceId"
+              :options="competenceOptions"
               optionLabel="label"
               optionValue="value"
               placeholder="Выберите компетенцию"
@@ -379,7 +379,7 @@ export default {
     return {
       showCreateDialog: false,
       isEditing: false,
-      selectedCompetency: null,
+      selectedCompetence: null,
       selectedStatus: null,
       selectedDate: null,
       editorModules: {
@@ -410,7 +410,7 @@ export default {
       ],
       eventForm: {
         title: '',
-        competencyId: null,
+        competenceId: null,
         type: null,
         date: null,
         time: '',
@@ -422,7 +422,7 @@ export default {
         sendDate: null,
         sendTime: ''
       },
-      competencyOptions: [
+      competenceOptions: [
         { label: 'Анализ данных', value: 1 },
         { label: 'Искусственный интеллект', value: 2 },
         { label: 'Машинное обучение', value: 3 }
@@ -454,8 +454,8 @@ export default {
         {
           id: 1,
           title: 'Мастер-класс по нейронным сетям',
-          competency: 'Искусственный интеллект',
-          competencyId: 2,
+          competence: 'Искусственный интеллект',
+          competenceId: 2,
           type: 'masterclass',
           date: '15.12.2024',
           time: '14:00',
@@ -471,8 +471,8 @@ export default {
         {
           id: 2,
           title: 'Практическое занятие по анализу данных',
-          competency: 'Анализ данных',
-          competencyId: 1,
+          competence: 'Анализ данных',
+          competenceId: 1,
           type: 'practice',
           date: '12.12.2024',
           time: '10:00',
@@ -488,8 +488,8 @@ export default {
         {
           id: 3,
           title: 'Введение в машинное обучение',
-          competency: 'Машинное обучение',
-          competencyId: 3,
+          competence: 'Машинное обучение',
+          competenceId: 3,
           type: 'lecture',
           date: '10.12.2024',
           time: '16:00',
@@ -538,7 +538,7 @@ export default {
     resetForm() {
       this.eventForm = {
         title: '',
-        competencyId: null,
+        competenceId: null,
         type: null,
         date: null,
         time: '',
@@ -552,7 +552,7 @@ export default {
       }
     },
     resetFilters() {
-      this.selectedCompetency = null
+      this.selectedCompetence = null
       this.selectedStatus = null
       this.selectedDate = null
     }
@@ -562,8 +562,8 @@ export default {
       let filtered = this.events
       
       // Фильтр по компетенции
-      if (this.selectedCompetency) {
-        filtered = filtered.filter(e => e.competencyId === this.selectedCompetency)
+      if (this.selectedCompetence) {
+        filtered = filtered.filter(e => e.competenceId === this.selectedCompetence)
       }
       
       // Фильтр по статусу
@@ -781,7 +781,7 @@ export default {
   font-weight: 600;
 }
 
-.event-competency {
+.event-competence {
   margin: 0 0 1rem 0;
   font-size: 0.9rem;
   opacity: 0.9;

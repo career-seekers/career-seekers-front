@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ TutorName }}!</h1>
+      <h1 class="page-title">Добро пожаловать, {{ UserState.firstName }}!</h1>
       <p class="page-subtitle">Управляйте площадкой и главными экспертами</p>
     </div>
 
@@ -19,20 +19,22 @@
             <h4 class="section-title">Персональные данные</h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
-              <span class="data-value">{{ TutorData.fullName }}</span>
+              <span class="data-value">{{
+                  UserState.lastName + " " + UserState.firstName + " " + UserState.patronymic
+                }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ TutorData.email }}</span>
+              <span class="data-value">{{ UserState.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ TutorData.phone }}</span>
+              <span class="data-value">{{ UserState.mobileNumber }}</span>
             </div>
-            <div class="data-item">
-              <span class="data-label">Должность:</span>
-              <span class="data-value">{{ TutorData.position }}</span>
-            </div>
+<!--            <div class="data-item">-->
+<!--              <span class="data-label">Должность:</span>-->
+<!--              <span class="data-value">{{ UserState.position }}</span>-->
+<!--            </div>-->
           </div>
         </div>
       </div>
@@ -52,19 +54,19 @@
           <div class="data-section">
             <div class="data-item">
               <span class="data-label">Название:</span>
-              <span class="data-value">{{ venueData.name }}</span>
+              <span class="data-value">{{ venueData.fullName }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Адрес:</span>
               <span class="data-value">{{ venueData.address }}</span>
             </div>
             <div class="data-item">
-              <span class="data-label">Описание:</span>
-              <span class="data-value">{{ venueData.description }}</span>
+              <span class="data-label">Веб-сайт:</span>
+              <span class="data-value">{{ venueData.website ? venueData.website : 'Не указан' }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Статус модерации:</span>
-              <span class="data-value">{{ venueData.moderationStatus }}</span>
+              <span class="data-value">{{ venueData.verified ? 'Подтверждено' : 'На модерации' }}</span>
             </div>
           </div>
           
@@ -84,26 +86,18 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-users"></i>
-            Главные эксперты
+            Эксперты и Компетенции
           </h3>
         </div>
         <div class="card-content">
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-number">{{ mentorsStats.total }}</div>
+              <div class="stat-number">{{ experts.length }}</div>
               <div class="stat-label">Всего экспертов</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ mentorsStats.active }}</div>
-              <div class="stat-label">Активных</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">{{ mentorsStats.competencies }}</div>
+              <div class="stat-number">{{ competencies.length }}</div>
               <div class="stat-label">Компетенций</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">{{ mentorsStats.verified }}</div>
-              <div class="stat-label">Проверенных</div>
             </div>
           </div>
           
@@ -112,7 +106,7 @@
               label="Управление экспертами" 
               icon="pi pi-cog"
               class="p-button-outlined"
-              @click="goToMentors"
+              @click="goToExperts"
             />
           </div>
         </div>
@@ -132,13 +126,7 @@
               label="Добавить главного эксперта" 
               icon="pi pi-user-plus"
               class="p-button-primary"
-              @click="addMentor"
-            />
-            <Button 
-              label="Загрузить документы" 
-              icon="pi pi-upload"
-              class="p-button-outlined"
-              @click="uploadDocuments"
+              @click="addExpert"
             />
             <Button 
               label="Просмотреть документы" 
@@ -146,70 +134,172 @@
               class="p-button-outlined"
               @click="viewDocuments"
             />
-            <Button 
-              label="Отправить на модерацию" 
-              icon="pi pi-send"
-              class="p-button-outlined"
-              @click="sendForModeration"
-              :disabled="!canSendForModeration"
-            />
           </div>
         </div>
       </div>
 
-      <!-- Последние обновления -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-clock"></i>
-            Последние обновления
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="updates-list">
-            <div v-for="update in recentUpdates" :key="update.id" class="update-item">
-              <div class="update-icon">
-                <i :class="update.icon"></i>
-              </div>
-              <div class="update-content">
-                <div class="update-text">{{ update.text }}</div>
-                <div class="update-time">{{ update.time }}</div>
-              </div>
-            </div>
+      <!-- Диалог добавления/редактирования эксперта -->
+      <Dialog
+          v-model:visible="showAddExpertDialog"
+          header="Добавить главного эксперта"
+          :modal="true"
+          :style="{ width: '600px' }"
+      >
+        <div class="expert-form">
+          <div class="form-field">
+            <label for="fullName">ФИО *</label>
+            <InputText
+                id="fullName"
+                v-model="expertForm.fullName"
+                placeholder="Введите ФИО эксперта"
+                :class="{ 'p-invalid': !expertForm.fullName }"
+            />
+            <small v-if="errors.fullName" class="p-error">{{ errors.fullName }}</small>
+          </div>
+
+          <div class="form-field">
+            <label for="birthDate">Дата рождения *</label>
+            <InputMask
+                id="birthDate"
+                v-model="expertForm.birthDate"
+                mask="99.99.9999"
+                class="w-full"
+                placeholder="дд.мм.гггг"
+                :class="{ 'p-invalid': !expertForm.birthDate }"
+            />
+            <small v-if="errors.birthDate" class="p-error">{{ errors.birthDate }}</small>
+          </div>
+
+          <div class="form-field">
+            <label for="email">Email *</label>
+            <InputText
+                id="email"
+                type="email"
+                v-model="expertForm.email"
+                placeholder="Введите email"
+                :class="{ 'p-invalid': !expertForm.email }"
+            />
+            <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
+          </div>
+
+          <div class="form-field">
+            <label for="parentPhone" class="field-label">Контактный телефон *</label>
+            <InputMask
+                id="parentPhone"
+                v-model="expertForm.phone"
+                mask="+7 (999) 999-99-99"
+                placeholder="+7 (___) ___-__-__"
+                class="w-full"
+                :class="{ 'p-invalid': !expertForm.phone }"
+            />
+            <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
           </div>
         </div>
-      </div>
+
+        <template #footer>
+          <Button
+              label="Отмена"
+              icon="pi pi-times"
+              class="p-button-text"
+              @click="cancelEdit"
+          />
+          <Button
+              label="Сохранить"
+              icon="pi pi-check"
+              class="p-button-primary"
+              @click="saveExpert"
+          />
+        </template>
+      </Dialog>
+
+<!--      &lt;!&ndash; Последние обновления &ndash;&gt;-->
+<!--      <div class="info-card">-->
+<!--        <div class="card-header">-->
+<!--          <h3 class="card-title">-->
+<!--            <i class="pi pi-clock"></i>-->
+<!--            Последние обновления-->
+<!--          </h3>-->
+<!--        </div>-->
+<!--        <div class="card-content">-->
+<!--          <div class="updates-list">-->
+<!--            <div v-for="update in recentUpdates" :key="update.id" class="update-item">-->
+<!--              <div class="update-icon">-->
+<!--                <i :class="update.icon"></i>-->
+<!--              </div>-->
+<!--              <div class="update-content">-->
+<!--                <div class="update-text">{{ update.text }}</div>-->
+<!--                <div class="update-time">{{ update.time }}</div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from 'primevue/button'
+import {UserState} from "../../../state/UserState";
+import {PlatformResolver} from "@/api/resolvers/platform/platform.resolver.js";
+import {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-output.dto.js";
+import ToastPopup from "@/components/ToastPopup.vue";
+import {UserResolver} from "@/api/resolvers/user/user.resolver";
+import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
+import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
+import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import {Roles} from "../../../state/UserState.types";
+import {UpdateUserInputDto} from "@/api/resolvers/user/dto/input/update-user-input.dto";
+import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input.dto";
+import InputText from "primevue/inputtext";
+import Dialog from "primevue/dialog";
+import InputMask from "primevue/inputmask";
 
 export default {
   name: 'TutorDashboardHome',
   components: {
+    InputText,
+    Dialog,
+    InputMask,
+    ToastPopup,
     Button
   },
   data() {
     return {
-      TutorData: {
-        fullName: 'Петрова Мария Ивановна',
-        email: 'm.petrova@venue.ru',
-        phone: '+7 (999) 123-45-67',
-        position: 'Куратор образовательной площадки'
+      platformResolver: new PlatformResolver(),
+      userResolver: new UserResolver(),
+      competenceResolver: new CompetenceResolver(),
+      experts: [] as UserOutputDto[],
+      competencies: [] as CompetenceOutputDto[],
+      showAddExpertDialog: false,
+      expertForm: {
+        fullName: '',
+        birthDate: '',
+        email: '',
+        phone: '',
       },
       venueData: {
-        name: 'Центр дополнительного образования "ТехноМир"',
-        address: 'г. Москва, ул. Техническая, д. 15',
-        description: 'Современный образовательный центр с оборудованными лабораториями для проведения соревнований по техническим компетенциям',
-        moderationStatus: 'На модерации'
-      },
-      mentorsStats: {
-        total: 5,
-        active: 4,
-        competencies: 8,
-        verified: 3
+        id: null,
+        fullName: '',
+        shortName: '',
+        address: '',
+        email: '',
+        website: '',
+        verified: false,
+        userId: UserState.id
+      } as PlatformOutputDto,
+      errors: {
+        toastPopup: {
+          title: '',
+          message: ''
+        },
+        fullName: '',
+        shortName: '',
+        address: '',
+        email: '',
+        phone: '',
+        birthDate: '',
       },
       recentUpdates: [
         {
@@ -240,45 +330,130 @@ export default {
     }
   },
   computed: {
-    TutorName() {
-      return this.TutorData.fullName.split(' ')[1] || 'Куратор'
+    UserState() {
+      return UserState
     },
     venueStatusClass() {
-      const status = this.venueData.moderationStatus.toLowerCase()
-      if (status.includes('модерации')) return 'status-pending'
-      if (status.includes('одобрена')) return 'status-approved'
-      if (status.includes('отклонена')) return 'status-rejected'
-      return 'status-pending'
+      if (!this.venueData.verified) return 'status-pending'
+      return 'status-approved'
     },
     venueStatusText() {
-      return this.venueData.moderationStatus
+      if (!this.venueData.verified) return 'На модерации'
+      return 'Одобрен'
     },
-    canSendForModeration() {
-      return this.venueData.moderationStatus === 'Черновик' || this.venueData.moderationStatus === 'Отклонена'
-    }
+    dateOfBirthFormatted() {
+      const [day, month, year] = this.expertForm.birthDate.split('.');
+      const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
+      return date.toISOString()
+    },
+    mobileNumberFormatted() {
+      return this.expertForm.phone.replaceAll(/\s|-|\(|\)|/g, '')
+    },
   },
   methods: {
-    goToMentors() {
+    goToExperts() {
       this.$router.push('/tutor/experts')
     },
-    addMentor() {
-      // Логика добавления эксперта
-      console.log('Добавление главного эксперта')
+    addExpert() {
+      this.expertForm = {
+        fullName: "",
+        email: "",
+        phone: "",
+        birthDate: ""
+      }
+      this.showAddExpertDialog = true
+    },
+    cancelEdit() {
+      this.expertForm = {
+        fullName: '',
+        email: '',
+        phone: '',
+        birthDate: ''
+      }
+      this.showAddExpertDialog = false
+    },
+    async saveExpert() {
+      if (!this.validateForm()) {
+        return
+      }
+      const newExpert: UserInputDto = {
+        lastName: this.expertForm.fullName.split(' ')[0],
+        firstName: this.expertForm.fullName.split(' ')[1],
+        patronymic: this.expertForm.fullName.split(' ')[2],
+        email: this.expertForm.email,
+        mobileNumber: this.mobileNumberFormatted,
+        password: "Expert$pa33word",
+        role: Roles.EXPERT,
+        dateOfBirth: this.dateOfBirthFormatted,
+        avatarId: null
+      }
+
+      const response = await this.userResolver.create(newExpert)
+      if (response.status === 200) {
+        this.cancelEdit()
+      } else {
+        this.errors.toastPopup = {
+          title: response.status,
+          message: response.message
+        }
+      }
+    },
+    validateForm() {
+      let isValid = true
+
+      if (!this.expertForm.fullName.trim()) {
+        this.errors.fullName = 'ФИО обязательно'
+        isValid = false
+      }
+
+      if (!this.expertForm.email.trim()) {
+        this.errors.email = 'email обязателен'
+        isValid = false
+      }
+
+      if (!this.expertForm.phone.trim()) {
+        this.errors.phone = 'Номер телефона обязателен'
+        isValid = false
+      }
+
+      if (!this.expertForm.birthDate.trim()) {
+        this.errors.birthDate = 'Дата рождения обязательна'
+        isValid = false
+      }
+
+      return isValid
     },
     editVenueInfo() {
       this.$router.push('/tutor/venue-info')
     },
-    uploadDocuments() {
-      this.$router.push('/tutor/documents')
-    },
     viewDocuments() {
       this.$router.push('/tutor/documents')
     },
-    sendForModeration() {
-      // Логика отправки на модерацию
-      console.log('Отправка на модерацию')
-      this.venueData.moderationStatus = 'На модерации'
+    async loadPlatform() {
+      const response = await this.platformResolver.getByUserId(UserState.id)
+      if (response.status === 200) {
+        this.venueData = response.message
+      }
+    },
+    async loadExperts() {
+      const response = await this.userResolver.getAllByRole(Roles.EXPERT)
+      if (response.status === 200) {
+        this.experts = response.message
+      }
+    },
+    async loadCompetencies() {
+      const response = await this.competenceResolver.getAllByUserId(UserState.id)
+      if (response.status === 200) {
+        this.competencies = response.message
+      }
     }
+  },
+  async mounted() {
+    this.isLoading = true
+    await this.loadExperts()
+    await this.loadPlatform()
+    await this.loadCompetencies()
+    this.isLoading = false
   }
 }
 </script>
@@ -482,6 +657,23 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  color: #2c3e50;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 
 /* Обновления */

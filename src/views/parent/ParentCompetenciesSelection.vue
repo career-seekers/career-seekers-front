@@ -16,35 +16,35 @@
 
     <div class="competencies-grid">
       <div 
-        v-for="competency in competencies" 
-        :key="competency.id"
-        class="competency-card"
+        v-for="competence in competencies"
+        :key="competence.id"
+        class="competence-card"
         :class="{ 
-          selected: isSelected(competency.id),
-          disabled: !isSelected(competency.id) && selectedCompetencies.length >= 3
+          selected: isSelected(competence.id),
+          disabled: !isSelected(competence.id) && selectedCompetencies.length >= 3
         }"
-        @click="toggleCompetency(competency)"
+        @click="toggleCompetence(competence)"
       >
         <div class="card-header">
-          <div class="competency-icon">
-            <i :class="competency.icon"></i>
+          <div class="competence-icon">
+            <i :class="competence.icon"></i>
           </div>
-          <div class="selection-indicator" v-if="isSelected(competency.id)">
+          <div class="selection-indicator" v-if="isSelected(competence.id)">
             <i class="pi pi-check"></i>
           </div>
         </div>
         
         <div class="card-content">
-          <h3 class="competency-title">{{ competency.name }}</h3>
-          <p class="competency-description">{{ competency.shortDescription }}</p>
-          <div class="competency-meta">
+          <h3 class="competence-title">{{ competence.name }}</h3>
+          <p class="competence-description">{{ competence.shortDescription }}</p>
+          <div class="competence-meta">
             <span class="age-range">
               <i class="pi pi-calendar"></i>
-              {{ competency.ageRange }}
+              {{ competence.ageRange }}
             </span>
             <span class="duration">
               <i class="pi pi-clock"></i>
-              {{ competency.duration }}
+              {{ competence.duration }}
             </span>
           </div>
         </div>
@@ -54,7 +54,7 @@
             label="Подробнее" 
             icon="pi pi-info-circle"
             class="p-button-text p-button-sm"
-            @click.stop="showCompetencyDetails(competency)"
+            @click.stop="showCompetenceDetails(competence)"
           />
         </div>
       </div>
@@ -73,54 +73,54 @@
     <!-- Диалог с подробной информацией о компетенции -->
     <Dialog 
       v-model:visible="showDetailsDialog" 
-      :header="selectedCompetency?.name"
+      :header="selectedCompetence?.name"
       modal
       :style="{ width: '90vw', maxWidth: '500px' }"
-      class="competency-dialog"
+      class="competence-dialog"
     >
-      <div v-if="selectedCompetency" class="competency-details">
+      <div v-if="selectedCompetence" class="competence-details">
         <div class="details-header">
-          <div class="competency-image">
-            <img :src="selectedCompetency.image" :alt="selectedCompetency.name" />
+          <div class="competence-image">
+            <img :src="selectedCompetence.image" :alt="selectedCompetence.name" />
           </div>
           <div class="details-meta">
             <div class="meta-item">
               <i class="pi pi-calendar"></i>
-              <span>Возраст: {{ selectedCompetency.ageRange }}</span>
+              <span>Возраст: {{ selectedCompetence.ageRange }}</span>
             </div>
             <div class="meta-item">
               <i class="pi pi-clock"></i>
-              <span>Длительность: {{ selectedCompetency.duration }}</span>
+              <span>Длительность: {{ selectedCompetence.duration }}</span>
             </div>
             <div class="meta-item">
               <i class="pi pi-users"></i>
-              <span>Формат: {{ selectedCompetency.format }}</span>
+              <span>Формат: {{ selectedCompetence.format }}</span>
             </div>
           </div>
         </div>
         
         <div class="details-content">
           <h4>Описание</h4>
-          <p>{{ selectedCompetency.description }}</p>
+          <p>{{ selectedCompetence.description }}</p>
           
           <h4>Навыки и компетенции</h4>
           <ul class="skills-list">
-            <li v-for="skill in selectedCompetency.skills" :key="skill">{{ skill }}</li>
+            <li v-for="skill in selectedCompetence.skills" :key="skill">{{ skill }}</li>
           </ul>
           
           <h4>Контакты главного эксперта</h4>
           <div class="mentor-contacts">
             <div class="contact-item">
               <i class="pi pi-user"></i>
-              <span>{{ selectedCompetency.mentor.name }}</span>
+              <span>{{ selectedCompetence.mentor.name }}</span>
             </div>
             <div class="contact-item">
               <i class="pi pi-envelope"></i>
-              <span>{{ selectedCompetency.mentor.email }}</span>
+              <span>{{ selectedCompetence.mentor.email }}</span>
             </div>
             <div class="contact-item">
               <i class="pi pi-phone"></i>
-              <span>{{ selectedCompetency.mentor.phone }}</span>
+              <span>{{ selectedCompetence.mentor.phone }}</span>
             </div>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default {
     return {
       selectedCompetencies: [],
       showDetailsDialog: false,
-      selectedCompetency: null,
+      selectedCompetence: null,
       competencies: [
         {
           id: 1,
@@ -287,22 +287,22 @@ export default {
     }
   },
   methods: {
-    isSelected(competencyId) {
-      return this.selectedCompetencies.some(c => c.id === competencyId)
+    isSelected(competenceId) {
+      return this.selectedCompetencies.some(c => c.id === competenceId)
     },
     
-    toggleCompetency(competency) {
-      if (this.isSelected(competency.id)) {
+    toggleCompetence(competence) {
+      if (this.isSelected(competence.id)) {
         // Убираем из выбранных
-        this.selectedCompetencies = this.selectedCompetencies.filter(c => c.id !== competency.id)
+        this.selectedCompetencies = this.selectedCompetencies.filter(c => c.id !== competence.id)
       } else if (this.selectedCompetencies.length < 3) {
         // Добавляем к выбранным
-        this.selectedCompetencies.push(competency)
+        this.selectedCompetencies.push(competence)
       }
     },
     
-    showCompetencyDetails(competency) {
-      this.selectedCompetency = competency
+    showCompetenceDetails(competence) {
+      this.selectedCompetence = competence
       this.showDetailsDialog = true
     },
     
@@ -397,7 +397,7 @@ export default {
   margin-bottom: 2rem;
 }
 
-.competency-card {
+.competence-card {
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -407,17 +407,17 @@ export default {
   position: relative;
 }
 
-.competency-card:hover {
+.competence-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.competency-card.selected {
+.competence-card.selected {
   border: 2px solid #ff9800;
   box-shadow: 0 4px 20px rgba(255, 152, 0, 0.3);
 }
 
-.competency-card.disabled {
+.competence-card.disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -430,7 +430,7 @@ export default {
   align-items: center;
 }
 
-.competency-icon {
+.competence-icon {
   width: 60px;
   height: 60px;
   background: linear-gradient(135deg, #ff9800, #f57c00);
@@ -458,20 +458,20 @@ export default {
   padding: 1.5rem;
 }
 
-.competency-title {
+.competence-title {
   color: #2c3e50;
   margin: 0 0 0.75rem 0;
   font-size: 1.25rem;
   font-weight: 600;
 }
 
-.competency-description {
+.competence-description {
   color: #6c757d;
   margin: 0 0 1rem 0;
   line-height: 1.5;
 }
 
-.competency-meta {
+.competence-meta {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -500,7 +500,7 @@ export default {
   padding: 2rem 0;
 }
 
-.competency-details {
+.competence-details {
   max-height: 70vh;
   overflow-y: auto;
 }
@@ -511,11 +511,11 @@ export default {
   margin-bottom: 1.5rem;
 }
 
-.competency-image {
+.competence-image {
   flex-shrink: 0;
 }
 
-.competency-image img {
+.competence-image img {
   width: 200px;
   height: 120px;
   object-fit: cover;
@@ -609,7 +609,7 @@ export default {
     flex-direction: column;
   }
   
-  .competency-image img {
+  .competence-image img {
     width: 100%;
     height: 150px;
   }

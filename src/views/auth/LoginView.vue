@@ -53,21 +53,21 @@
           
           <div v-if="showRegisterOptions" class="register-options">
             <router-link to="/register/mentor" class="register-option" @click="closeRegisterOptions">
-              <div class="option-icon">👨‍🏫</div>
+              <i class="pi pi-user"></i>
               <div class="option-text">
                 <div class="option-title">Наставник</div>
                 <div class="option-desc">Для специалистов</div>
               </div>
             </router-link>
             <router-link to="/register/parent" class="register-option" @click="closeRegisterOptions">
-              <div class="option-icon">👨‍👩‍👧‍👦</div>
+              <i class="pi pi-users"></i>
               <div class="option-text">
                 <div class="option-title">Родитель</div>
                 <div class="option-desc">Для родителей с детьми</div>
               </div>
             </router-link>
             <router-link to="/register/tutor" class="register-option" @click="closeRegisterOptions">
-              <div class="option-icon">👩‍💼</div>
+              <i class="pi pi-book"></i>
               <div class="option-text">
                 <div class="option-title">Куратор</div>
                 <div class="option-desc">Для кураторов</div>
@@ -78,6 +78,9 @@
         </form>
       </div>
     </div>
+    <ToastPopup
+        :content="errors.toastPopup"
+    />
   </div>
 </template>
 
@@ -85,10 +88,17 @@
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
+import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
+import {v4 as generateUuidV4} from 'uuid'
+import ToastPopup from "@/components/ToastPopup.vue";
+import {fillUserState, redirectByUserState, UserState} from "../../../state/UserState";
+import router from "@/router/index.js";
+import {Roles} from "../../../state/UserState.types";
 
 export default {
   name: 'LoginView',
   components: {
+    ToastPopup,
     InputText,
     Password,
     Button
@@ -103,7 +113,11 @@ export default {
       },
       errors: {
         email: '',
-        password: ''
+        password: '',
+        toastPopup: {
+          title: "",
+          message: ""
+        }
       }
     }
   },
@@ -127,8 +141,8 @@ export default {
         return false
       }
 
-      if (this.loginForm.password.length < 6) {
-        this.errors.password = 'Пароль должен содержать минимум 6 символов'
+      if (this.loginForm.password.length < 5) {
+        this.errors.password = 'Пароль должен содержать минимум 5 символов'
         return false
       }
 
@@ -139,22 +153,32 @@ export default {
       if (!this.validateForm()) return
 
       this.isLoading = true
-      
-      try {
-        // Здесь будет логика авторизации
-        console.log('Данные для входа:', this.loginForm)
-        
-        // Имитация запроса
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // После успешной авторизации перенаправляем пользователя
-        // this.$router.push('/dashboard')
-        
-      } catch (error) {
-        console.error('Ошибка авторизации:', error)
-      } finally {
-        this.isLoading = false
+      this.errors.toastPopup = {
+        title: "",
+        message: ""
       }
+
+      const authResolver = new AuthResolver()
+      const uuid = generateUuidV4()
+      const response = await authResolver.login({
+        email: this.loginForm.email,
+        password: this.loginForm.password,
+        uuid: uuid
+      })
+
+      if (typeof response.message === "string") {
+        this.errors.toastPopup = {
+          title: `Ошибка #${response.status}`,
+          message: response.message
+        }
+      } else {
+        localStorage.setItem("access_token", response.message.accessToken)
+        localStorage.setItem("refresh_token", response.message.refreshToken)
+        localStorage.setItem("uuid", uuid)
+        await fillUserState()
+        await redirectByUserState()
+      }
+      this.isLoading = false
     },
 
     toggleRegisterOptions() {
@@ -163,7 +187,7 @@ export default {
 
     closeRegisterOptions() {
       this.showRegisterOptions = false
-    }
+    },
   }
 }
 </script>

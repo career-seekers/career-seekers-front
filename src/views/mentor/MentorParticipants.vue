@@ -89,7 +89,7 @@
               </div>
               <div class="info-item">
                 <span class="info-label">Компетенция:</span>
-                <span class="info-value">{{ participant.competency }}</span>
+                <span class="info-value">{{ participant.competence }}</span>
               </div>
             </div>
           </div>
@@ -195,7 +195,7 @@ export default {
           name: 'Иванов Петр Антонович',
           age: '14 лет',
           grade: '8 класс',
-          competency: 'Веб-дизайн и разработка',
+          competence: 'Веб-дизайн и разработка',
           status: {
             text: 'Участник',
             severity: 'info'
@@ -216,7 +216,7 @@ export default {
           name: 'Петрова Анна Владимировна',
           age: '15 лет',
           grade: '9 класс',
-          competency: '3D-моделирование',
+          competence: '3D-моделирование',
           status: {
             text: 'Прошла во 2 этап',
             severity: 'success'
@@ -237,7 +237,7 @@ export default {
           name: 'Сидоров Максим Дмитриевич',
           age: '13 лет',
           grade: '7 класс',
-          competency: 'Программирование на Python',
+          competence: 'Программирование на Python',
           status: {
             text: 'Активный',
             severity: 'warning'
@@ -272,7 +272,7 @@ export default {
         const query = this.searchQuery.toLowerCase()
         filtered = filtered.filter(p => 
           p.name.toLowerCase().includes(query) ||
-          p.competency.toLowerCase().includes(query) ||
+          p.competence.toLowerCase().includes(query) ||
           p.parent.name.toLowerCase().includes(query)
         )
       }

@@ -126,6 +126,7 @@
 
 <script>
 import Button from 'primevue/button'
+import {clearUserState} from "../../../state/UserState";
 
 export default {
   name: 'mentorDashboard',
@@ -149,9 +150,8 @@ export default {
     window.removeEventListener('resize', this.checkMobile)
   },
   methods: {
-    logout() {
-      // Логика выхода
-      this.$router.push('/login')
+    async logout() {
+      await clearUserState()
     },
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen

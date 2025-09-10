@@ -46,6 +46,19 @@
             </div>
 
             <div class="field">
+              <label for="parentBirthDate" class="field-label">Дата рождения *</label>
+              <InputMask
+                  id="parentBirthDate"
+                  v-model="parentForm.birthDate"
+                  mask="99.99.9999"
+                  placeholder="дд.мм.гггг"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.parentBirthDate }"
+              />
+              <small v-if="errors.parentBirthDate" class="p-error">{{ errors.parentBirthDate }}</small>
+            </div>
+
+            <div class="field">
               <label for="relationship" class="field-label">Кем приходится? *</label>
               <InputText
                 id="relationship"
@@ -58,6 +71,18 @@
             </div>
 
             <div class="field">
+              <label for="telegramLink" class="field-label">Ссылка на Telegram *</label>
+              <InputText
+                  id="relationship"
+                  v-model="parentForm.telegramLink"
+                  placeholder="Например, @telegram_username"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.telegramLink }"
+              />
+              <small v-if="errors.telegramLink" class="p-error">{{ errors.telegramLink }}</small>
+            </div>
+
+            <div class="field">
               <label for="parentPhone" class="field-label">Контактный телефон *</label>
               <InputMask
                 id="parentPhone"
@@ -65,9 +90,9 @@
                 mask="+7 (999) 999-99-99"
                 placeholder="+7 (___) ___-__-__"
                 class="w-full"
-                :class="{ 'p-invalid': errors.parentPhone }"
+                :class="{ 'p-invalid': errors.phone }"
               />
-              <small v-if="errors.parentPhone" class="p-error">{{ errors.parentPhone }}</small>
+              <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
             </div>
 
             <div class="field">
@@ -78,10 +103,10 @@
                 type="email"
                 placeholder="example@email.com"
                 class="w-full"
-                :class="{ 'p-invalid': errors.parentEmail }"
+                :class="{ 'p-invalid': errors.email }"
                 @blur="validateEmail"
               />
-              <small v-if="errors.parentEmail" class="p-error">{{ errors.parentEmail }}</small>
+              <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
             </div>
 
             <div class="field">
@@ -89,7 +114,7 @@
               <FileUpload
                 id="childConsentFile"
                 mode="basic"
-                accept=".pdf,.doc,.docx"
+                accept=".pdf"
                 :maxFileSize="5000000"
                 chooseLabel="Выберите файл"
                 class="w-full"
@@ -98,7 +123,7 @@
                 @remove="onChildConsentRemove"
               />
               <small v-if="errors.childConsentFile" class="p-error">{{ errors.childConsentFile }}</small>
-              <small class="p-text-secondary">Поддерживаемые форматы: PDF, DOC, DOCX (максимум 5 МБ)</small>
+              <small class="p-text-secondary">Поддерживаемые форматы: PDF (максимум 5 МБ)</small>
             </div>
           </div>
 
@@ -111,7 +136,7 @@
               <InputText
                 id="childFullName"
                 v-model="childForm.fullName"
-                placeholder="Введите полное имя ребенка"
+                placeholder="Введите полное имя ребенка, двойное имя вводите через '-'"
                 class="w-full"
                 :class="{ 'p-invalid': errors.childFullName }"
               />
@@ -119,20 +144,20 @@
             </div>
 
             <div class="field">
-              <label for="birthDate" class="field-label">Дата рождения *</label>
+              <label for="childBirthDate" class="field-label">Дата рождения *</label>
               <InputMask
-                id="birthDate"
+                id="childBirthDate"
                 v-model="childForm.birthDate"
                 mask="99.99.9999"
                 placeholder="дд.мм.гггг"
                 class="w-full"
-                :class="{ 'p-invalid': errors.birthDate }"
+                :class="{ 'p-invalid': errors.childBirthDate }"
               />
-              <small v-if="errors.birthDate" class="p-error">{{ errors.birthDate }}</small>
+              <small v-if="errors.childBirthDate" class="p-error">{{ errors.childBirthDate }}</small>
             </div>
 
             <div class="field">
-              <label for="birthCertificate" class="field-label">Скан свидетельства о рождении / паспорта *</label>
+              <label for="birthCertificate" class="field-label">Скан свидетельства о рождении *</label>
               <FileUpload
                 id="birthCertificate"
                 mode="basic"
@@ -179,6 +204,18 @@
             </div>
 
             <div class="field">
+              <label for="schoolName" class="field-label">Название ОУ *</label>
+              <InputText
+                  id="schoolName"
+                  v-model="childForm.schoolName"
+                  placeholder="Введите полное название учреждения"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.schoolName }"
+              />
+              <small v-if="errors.schoolName" class="p-error">{{ errors.schoolName }}</small>
+            </div>
+
+            <div class="field">
               <label for="grade" class="field-label">Класс обучения *</label>
               <Dropdown
                 id="grade"
@@ -191,6 +228,23 @@
                 optionValue="value"
               />
               <small v-if="errors.grade" class="p-error">{{ errors.grade }}</small>
+            </div>
+
+            <div class="field">
+              <label for="schoolCertificate" class="field-label">Скан справки из ОУ *</label>
+              <FileUpload
+                  id="schoolCertificate"
+                  mode="basic"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  :maxFileSize="10000000"
+                  chooseLabel="Выберите файл"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.schoolCertificate }"
+                  @select="onSchoolCertificateSelect"
+                  @remove="onSchoolCertificateRemove"
+              />
+              <small v-if="errors.schoolCertificate" class="p-error">{{ errors.schoolCertificate }}</small>
+              <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
             </div>
 
             <div class="field">
@@ -209,19 +263,19 @@
             </div>
 
             <div class="field">
-              <label for="schoolCertificate" class="field-label">Скан справки из ОУ *</label>
+              <label for="platformCertificate" class="field-label">Скан справки из площадки подготовки *</label>
               <FileUpload
-                id="schoolCertificate"
+                id="platformCertificate"
                 mode="basic"
                 accept=".pdf,.jpg,.jpeg,.png"
                 :maxFileSize="10000000"
                 chooseLabel="Выберите файл"
                 class="w-full"
-                :class="{ 'p-invalid': errors.schoolCertificate }"
-                @select="onSchoolCertificateSelect"
-                @remove="onSchoolCertificateRemove"
+                :class="{ 'p-invalid': errors.platformCertificate }"
+                @select="onPlatformCertificateSelect"
+                @remove="onPlatformCertificateRemove"
               />
-              <small v-if="errors.schoolCertificate" class="p-error">{{ errors.schoolCertificate }}</small>
+              <small v-if="errors.platformCertificate" class="p-error">{{ errors.platformCertificate }}</small>
               <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
             </div>
           </div>
@@ -354,10 +408,12 @@
     <Dialog v-model:visible="showPrivacyDialog" modal header="Политика конфиденциальности" :style="{ width: '90vw', maxWidth: '500px' }" class="privacy-dialog">
       <p>Здесь будет политика конфиденциальности...</p>
     </Dialog>
+
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import InputText from 'primevue/inputtext'
 import InputMask from 'primevue/inputmask'
 import Password from 'primevue/password'
@@ -366,10 +422,17 @@ import FileUpload from 'primevue/fileupload'
 import Checkbox from 'primevue/checkbox'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
+import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
+import ToastPopup from "@/components/ToastPopup.vue";
+import {UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
+import {ParentStateInterface, RegistrationData, Roles} from "../../../state/UserState.types";
+import {FileManager} from "@/utils/FileManager";
+
 
 export default {
   name: 'ParentRegisterView',
   components: {
+    ToastPopup,
     InputText,
     InputMask,
     Password,
@@ -388,7 +451,9 @@ export default {
       
       parentForm: {
         fullName: '',
+        birthDate: '',
         relationship: '',
+        telegramLink: '',
         phone: '',
         email: '',
         childConsentFile: null
@@ -400,9 +465,11 @@ export default {
         birthCertificate: null,
         snilsNumber: '',
         snilsScan: null,
+        schoolName: '',
         grade: null,
         platform: null,
-        schoolCertificate: null
+        schoolCertificate: null,
+        platformCertificate: null
       },
       
       mentorForm: {
@@ -413,7 +480,33 @@ export default {
         isParentMentor: false
       },
       
-      errors: {},
+      errors: {
+        mentor: '',
+        childFullName: '',
+        parentFullName: '',
+        childBirthDate: '',
+        parentBirthDate: '',
+        snilsNumber: '',
+        grade: '',
+        relationship: '',
+        telegramLink: '',
+        phone: '',
+        email: '',
+        childConsentFile: '',
+        snilsScan: '',
+        schoolName: '',
+        password: '',
+        platform: '',
+        confirmPassword: '',
+        birthCertificate: '',
+        schoolCertificate: '',
+        platformCertificate: '',
+        agreement: '',
+        toastPopup: {
+          title: '',
+          message: ''
+        }
+      },
       
       gradeOptions: [
         { label: '1 класс', value: '1' },
@@ -424,9 +517,6 @@ export default {
         { label: '6 класс', value: '6' },
         { label: '7 класс', value: '7' },
         { label: '8 класс', value: '8' },
-        { label: '9 класс', value: '9' },
-        { label: '10 класс', value: '10' },
-        { label: '11 класс', value: '11' }
       ],
       
       platformOptions: [
@@ -442,17 +532,61 @@ export default {
       ]
     }
   },
+  computed: {
+    mobileNumberFormatted() {
+      return this.parentForm.phone.replaceAll(/\s|-|\(|\)|/g, '')
+    },
+    snilsFormatted() {
+      return this.childForm.snilsNumber.replaceAll(/\s|-/g, '')
+    },
+    telegramLinkFormatted() {
+      return this.parentForm.telegramLink.replace("@", "https://t.me/")
+    }
+  },
   methods: {
     validateEmail() {
       if (this.parentForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.parentForm.email)) {
-        this.errors.parentEmail = 'Введите корректный email'
+        this.errors.email = 'Введите корректный email'
       } else {
-        this.errors.parentEmail = ''
+        this.errors.email = ''
       }
     },
 
+    formatBirthDate(birthDate) {
+      const [day, month, year] = birthDate.split('.');
+      const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
+      return date.toISOString()
+    },
+
     validateStep(step) {
-      this.errors = {}
+      this.errors =  {
+        mentor: '',
+        childFullName: '',
+        parentFullName: '',
+        childBirthDate: '',
+        parentBirthDate: '',
+        snilsNumber: '',
+        grade: '',
+        relationship: '',
+        telegramLink: '',
+        phone: '',
+        email: '',
+        childConsentFile: '',
+        snilsScan: '',
+        schoolName: '',
+        password: '',
+        platform: '',
+        confirmPassword: '',
+        birthCertificate: '',
+        schoolCertificate: '',
+        platformCertificate: '',
+        agreement: '',
+        toastPopup: {
+          title: '',
+          message: ''
+        }
+      }
+
       let isValid = true
 
       if (step === 1) {
@@ -464,6 +598,16 @@ export default {
 
         if (!this.parentForm.relationship.trim()) {
           this.errors.relationship = 'Укажите, кем вы приходитесь ребенку'
+          isValid = false
+        }
+
+        if (!this.parentForm.telegramLink.trim()) {
+          this.errors.telegramLink = 'Ссылка обязательна для связи'
+          isValid = false
+        }
+
+        if (!this.parentForm.birthDate.trim()) {
+          this.errors.parentBirthDate = 'Дата рождения обязательна'
           isValid = false
         }
 
@@ -497,7 +641,7 @@ export default {
         }
 
         if (!this.childForm.birthDate) {
-          this.errors.birthDate = 'Дата рождения обязательна'
+          this.errors.childBirthDate = 'Дата рождения обязательна'
           isValid = false
         } else if (!/^\d{2}\.\d{2}\.\d{4}$/.test(this.childForm.birthDate)) {
           this.errors.birthDate = 'Введите дату в формате дд.мм.гггг'
@@ -524,6 +668,11 @@ export default {
           isValid = false
         }
 
+        if (!this.childForm.schoolName) {
+          this.errors.schoolName = 'Название учреждения обязательно'
+          isValid = false
+        }
+
         if (!this.childForm.platform) {
           this.errors.platform = 'Выберите площадку подготовки'
           isValid = false
@@ -531,6 +680,11 @@ export default {
 
         if (!this.childForm.schoolCertificate) {
           this.errors.schoolCertificate = 'Необходимо загрузить справку из ОУ'
+          isValid = false
+        }
+
+        if (!this.childForm.platformCertificate) {
+          this.errors.platformCertificate = 'Необходимо загрузить справку из площадки подготовки'
           isValid = false
         }
       }
@@ -614,6 +768,15 @@ export default {
       this.errors.schoolCertificate = ''
     },
 
+    onPlatformCertificateSelect(event) {
+      this.handleFileSelect(event, 'platformCertificate')
+    },
+
+    onPlatformCertificateRemove() {
+      this.childForm.platformCertificate = null
+      this.errors.platformCertificate = ''
+    },
+
     handleFileSelect(event, fieldName) {
       const file = event.files[0]
       if (file) {
@@ -637,29 +800,73 @@ export default {
       }
     },
 
-    async handleSubmit() {
+    handleSubmit: async function () {
       if (!this.validateStep(3)) return
 
       this.isLoading = true
-      
+      this.errors.toastPopup = {
+        title: '',
+        message: ''
+      }
+
       try {
-        const registrationData = {
-          parent: this.parentForm,
-          child: this.childForm,
-          mentor: this.mentorForm
-        }
-        
-        console.log('Данные для регистрации родителя:', registrationData)
-        
-        await new Promise(resolve => setTimeout(resolve, 2000))
-        
-        localStorage.setItem('userEmail', this.parentForm.email)
-        
-        this.$router.push({
-          path: '/email-confirmation',
-          query: { email: this.parentForm.email }
+        const authResolver = new AuthResolver()
+        const response = await authResolver.preRegister({
+          email: this.parentForm.email,
+          mobileNumber: this.parentForm.phone,
         })
-        
+
+        if (response.status !== 200) {
+          this.errors.toastPopup = {
+            title: `Ошибка #${response.status}`,
+            message: response.message
+          }
+        } else {
+          const fileManager = new FileManager()
+          const registrationData: RegistrationData<
+              UserWithChildRegistrationDto,
+              ParentStateInterface
+          > = {
+            dto: {
+              type: "UserWithChildRegistrationDto",
+              verificationCode: "",
+              lastName: this.parentForm.fullName.split(' ')[0],
+              firstName: this.parentForm.fullName.split(' ')[1],
+              patronymic: this.parentForm.fullName.split(' ')[2],
+              dateOfBirth: this.formatBirthDate(this.parentForm.birthDate),
+              email: this.parentForm.email,
+              mobileNumber: this.mobileNumberFormatted,
+              password: this.mentorForm.password,
+              role: Roles.USER,
+              uuid: "",
+              mentorEqualsUser: this.mentorForm.isParentMentor,
+              childLastName: this.childForm.fullName.split(' ')[0],
+              childFirstName: this.childForm.fullName.split(' ')[1],
+              childPatronymic: this.childForm.fullName.split(' ')[2],
+              childDateOfBirth: this.formatBirthDate(this.childForm.birthDate),
+              mentorId: this.mentorForm.isParentMentor ? null : 0,
+            },
+            extra: {
+              snilsNumber: this.snilsFormatted,
+              snilsFileName: await fileManager.saveFileToCache(this.childForm.snilsScan),
+              studyingPlace: this.childForm.schoolName,
+              studyingCertificateFileName: await fileManager.saveFileToCache(this.childForm.schoolCertificate),
+              learningClass: this.childForm.grade,
+              trainingGround: this.childForm.platform,
+              additionalStudyingCertificateFileName: await fileManager.saveFileToCache(this.childForm.platformCertificate),
+              parentRole: this.parentForm.relationship,
+              consentToChildPdpFileName: await fileManager.saveFileToCache(this.parentForm.childConsentFile),
+              birthCertificateFileName: await fileManager.saveFileToCache(this.childForm.birthCertificate)
+            }
+          }
+          localStorage.setItem("dataToVerify", JSON.stringify(registrationData))
+          localStorage.setItem("telegramLink", JSON.stringify(this.telegramLinkFormatted))
+          this.$router.push({
+            path: '/email-confirmation',
+            query: {email: this.parentForm.email}
+          })
+        }
+
       } catch (error) {
         console.error('Ошибка регистрации:', error)
       } finally {

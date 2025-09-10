@@ -30,8 +30,14 @@
             </router-link>
           </li>
           <li class="nav-item">
+            <router-link to="/tutor/competencies" class="nav-link" :class="{ active: $route.path === '/tutor/competencies' }" @click="closeSidebarOnMobile">
+              <i class="pi pi-briefcase"></i>
+              <span>Компетенции</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
             <router-link to="/tutor/documents" class="nav-link" :class="{ active: $route.path === '/tutor/documents' }" @click="closeSidebarOnMobile">
-              <i class="pi pi-file-text"></i>
+              <i class="pi pi-file"></i>
               <span>Документы</span>
             </router-link>
           </li>
@@ -72,6 +78,7 @@
 
 <script>
 import Button from 'primevue/button'
+import {clearUserState} from "../../../state/UserState";
 
 export default {
   name: 'TutorDashboard',
@@ -92,9 +99,8 @@ export default {
     window.removeEventListener('resize', this.checkMobile)
   },
   methods: {
-    logout() {
-      // Логика выхода
-      this.$router.push('/login')
+    async logout() {
+      await clearUserState()
     },
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen

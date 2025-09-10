@@ -49,16 +49,29 @@
         </form>
       </div>
     </div>
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
+import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
+import {v4 as generateUuidV4} from 'uuid'
+import ToastPopup from "@/components/ToastPopup.vue";
+import {
+  MentorStateInterface,
+  ParentStateInterface,
+  RegistrationData,
+  TutorStateInterface
+} from "../../../state/UserState.types";
+import {fillUserState} from "../../../state/UserState";
 
 export default {
   name: 'EmailConfirmationView',
   components: {
+    ToastPopup,
     InputText,
     Button
   },
@@ -70,8 +83,18 @@ export default {
         code: ''
       },
       errors: {
+        toastPopup: {
+          title: '',
+          message: ''
+        },
         code: ''
-      }
+      },
+      authResolver: new AuthResolver(),
+      registrationData: (JSON.parse(localStorage.getItem("dataToVerify")) as
+          RegistrationData<
+              UserWithChildRegistrationDto | UserRegistrationDto,
+              TutorStateInterface | MentorStateInterface | ParentStateInterface
+          >).dto as UserRegistrationDto | UserWithChildRegistrationDto
     }
   },
   mounted() {
@@ -104,20 +127,30 @@ export default {
       if (!this.validateForm()) return
 
       this.isLoading = true
-      
+      this.errors.toastPopup = {
+        title: '',
+        message: '',
+      }
+
       try {
-        // Здесь будет логика подтверждения кода
-        console.log('Код подтверждения:', this.confirmationForm.code)
-        console.log('Email:', this.userEmail)
-        
-        // Имитация запроса
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        
-        // После успешного подтверждения перенаправляем на страницу входа
-        this.$router.push('/login')
-        
+        if (this.registrationData.childPatronymic)
+          this.registrationData.type = "UserWithChildRegistrationDto"
+        else this.registrationData.type = "UserRegistrationDto"
+        this.registrationData.uuid = generateUuidV4()
+        this.registrationData.verificationCode = this.confirmationForm.code
+        const response = await this.authResolver.register(this.registrationData)
+        if (typeof response.message === "string") {
+          this.errors.toastPopup = {
+            title: `Ошибка #${response.status}`,
+            message: response.message
+          }
+        } else {
+          localStorage.setItem("access_token", response.message.accessToken)
+          localStorage.setItem("refresh_token", response.message.refreshToken)
+          localStorage.setItem("uuid", this.registrationData.uuid)
+          await fillUserState()
+        }
       } catch (error) {
-        console.error('Ошибка подтверждения:', error)
         this.errors.code = 'Неверный код подтверждения'
       } finally {
         this.isLoading = false
@@ -126,15 +159,22 @@ export default {
 
     async resendCode() {
       try {
-        // Здесь будет логика повторной отправки кода
-        console.log('Повторная отправка кода на:', this.userEmail)
-        
-        // Имитация запроса
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // Показываем уведомление (можно добавить Toast)
-        alert('Код подтверждения отправлен повторно')
-        
+        const response = await this.authResolver.preRegister({
+          email: this.userEmail,
+          mobileNumber: this.registrationData.mobileNumber
+        })
+
+        if (response.status !== 200) {
+          this.errors.toastPopup = {
+            title: `Ошибка #${response.status}`,
+            message: response.message
+          }
+        } else {
+          this.errors.toastPopup = {
+            title: "Код отправлен",
+            message: "Проверьте почтовый ящик"
+          }
+        }
       } catch (error) {
         console.error('Ошибка повторной отправки:', error)
       }

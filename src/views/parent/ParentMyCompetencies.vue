@@ -21,43 +21,43 @@
 
     <div v-else class="competencies-list">
       <div 
-        v-for="competency in myCompetencies" 
-        :key="competency.id"
-        class="competency-item"
+        v-for="competence in myCompetencies"
+        :key="competence.id"
+        class="competence-item"
       >
-        <div class="competency-header">
-          <div class="competency-info">
-            <div class="competency-icon">
-              <i :class="competency.icon"></i>
+        <div class="competence-header">
+          <div class="competence-info">
+            <div class="competence-icon">
+              <i :class="competence.icon"></i>
             </div>
-            <div class="competency-details">
-              <h3 class="competency-name">{{ competency.name }}</h3>
-              <div class="competency-meta">
+            <div class="competence-details">
+              <h3 class="competence-name">{{ competence.name }}</h3>
+              <div class="competence-meta">
                 <span class="age-range">
                   <i class="pi pi-calendar"></i>
-                  {{ competency.ageRange }}
+                  {{ competence.ageRange }}
                 </span>
                 <span class="duration">
                   <i class="pi pi-clock"></i>
-                  {{ competency.duration }}
+                  {{ competence.duration }}
                 </span>
                 <span class="format">
                   <i class="pi pi-users"></i>
-                  {{ competency.format }}
+                  {{ competence.format }}
                 </span>
               </div>
             </div>
           </div>
-          <div class="competency-status">
+          <div class="competence-status">
             <Tag 
-              :value="competency.status.text" 
-              :severity="competency.status.severity"
+              :value="competence.status.text"
+              :severity="competence.status.severity"
               class="status-tag"
             />
           </div>
         </div>
 
-        <div class="competency-content">
+        <div class="competence-content">
           <div class="mentor-info">
             <h4 class="section-title">
               <i class="pi pi-user"></i>
@@ -67,17 +67,17 @@
               <div class="contact-item">
                 <i class="pi pi-user"></i>
                 <span class="contact-label">ФИО:</span>
-                <span class="contact-value">{{ competency.mentor.name }}</span>
+                <span class="contact-value">{{ competence.mentor.name }}</span>
               </div>
               <div class="contact-item">
                 <i class="pi pi-envelope"></i>
                 <span class="contact-label">Email:</span>
-                <span class="contact-value">{{ competency.mentor.email }}</span>
+                <span class="contact-value">{{ competence.mentor.email }}</span>
               </div>
               <div class="contact-item">
                 <i class="pi pi-phone"></i>
                 <span class="contact-label">Телефон:</span>
-                <span class="contact-value">{{ competency.mentor.phone }}</span>
+                <span class="contact-value">{{ competence.mentor.phone }}</span>
               </div>
             </div>
           </div>
@@ -89,7 +89,7 @@
             </h4>
             <div class="schedule-timeline">
               <div 
-                v-for="event in competency.schedule" 
+                v-for="event in competence.schedule"
                 :key="event.id"
                 class="timeline-item"
                 :class="{ 
@@ -110,18 +110,18 @@
             </div>
           </div>
 
-          <div class="competency-actions">
+          <div class="competence-actions">
             <Button 
               label="Подробнее" 
               icon="pi pi-info-circle"
               class="p-button-outlined p-button-sm"
-              @click="showCompetencyDetails(competency)"
+              @click="showCompetenceDetails(competence)"
             />
             <Button 
               label="Изменить" 
               icon="pi pi-pencil"
               class="p-button-text p-button-sm"
-              @click="editCompetency(competency)"
+              @click="editCompetence(competence)"
             />
           </div>
         </div>
@@ -131,28 +131,28 @@
     <!-- Диалог с подробной информацией -->
     <Dialog 
       v-model:visible="showDetailsDialog" 
-      :header="selectedCompetency?.name"
+      :header="selectedCompetence?.name"
       modal
       :style="{ width: '90vw', maxWidth: '500px' }"
-      class="competency-dialog"
+      class="competence-dialog"
     >
-      <div v-if="selectedCompetency" class="competency-details">
+      <div v-if="selectedCompetence" class="competence-details">
         <div class="details-content">
           <h4>Описание</h4>
-          <p>{{ selectedCompetency.description }}</p>
+          <p>{{ selectedCompetence.description }}</p>
           
           <h4>Навыки и компетенции</h4>
           <ul class="skills-list">
-            <li v-for="skill in selectedCompetency.skills" :key="skill">{{ skill }}</li>
+            <li v-for="skill in selectedCompetence.skills" :key="skill">{{ skill }}</li>
           </ul>
           
           <h4>Текущий статус</h4>
           <div class="status-info">
             <Tag 
-              :value="selectedCompetency.status.text" 
-              :severity="selectedCompetency.status.severity"
+              :value="selectedCompetence.status.text"
+              :severity="selectedCompetence.status.severity"
             />
-            <p class="status-description">{{ selectedCompetency.status.description }}</p>
+            <p class="status-description">{{ selectedCompetence.status.description }}</p>
           </div>
         </div>
       </div>
@@ -175,7 +175,7 @@ export default {
   data() {
     return {
       showDetailsDialog: false,
-      selectedCompetency: null,
+      selectedCompetence: null,
       myCompetencies: [
         {
           id: 1,
@@ -297,12 +297,12 @@ export default {
       this.$router.push('/parent/competencies')
     },
     
-    showCompetencyDetails(competency) {
-      this.selectedCompetency = competency
+    showCompetenceDetails(competence) {
+      this.selectedCompetence = competence
       this.showDetailsDialog = true
     },
     
-    editCompetency(competency) {
+    editCompetence(competence) {
       // Переходим к странице выбора компетенций для редактирования
       this.$router.push('/parent/competencies')
     },
@@ -397,7 +397,7 @@ export default {
   gap: 2rem;
 }
 
-.competency-item {
+.competence-item {
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -405,12 +405,12 @@ export default {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.competency-item:hover {
+.competence-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
-.competency-header {
+.competence-header {
   background: linear-gradient(135deg, #f8f9fa, #e9ecef);
   padding: 1.5rem;
   display: flex;
@@ -418,14 +418,14 @@ export default {
   align-items: flex-start;
 }
 
-.competency-info {
+.competence-info {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   flex: 1;
 }
 
-.competency-icon {
+.competence-icon {
   width: 60px;
   height: 60px;
   background: linear-gradient(135deg, #ff9800, #f57c00);
@@ -438,18 +438,18 @@ export default {
   flex-shrink: 0;
 }
 
-.competency-details {
+.competence-details {
   flex: 1;
 }
 
-.competency-name {
+.competence-name {
   color: #2c3e50;
   margin: 0 0 0.75rem 0;
   font-size: 1.5rem;
   font-weight: 600;
 }
 
-.competency-meta {
+.competence-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
@@ -471,7 +471,7 @@ export default {
   color: #ff9800;
 }
 
-.competency-status {
+.competence-status {
   flex-shrink: 0;
 }
 
@@ -479,7 +479,7 @@ export default {
   font-weight: 600;
 }
 
-.competency-content {
+.competence-content {
   padding: 1.5rem;
 }
 
@@ -620,7 +620,7 @@ export default {
   font-size: 0.9rem;
 }
 
-.competency-actions {
+.competence-actions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
@@ -628,7 +628,7 @@ export default {
   border-top: 1px solid #e9ecef;
 }
 
-.competency-details {
+.competence-details {
   max-height: 70vh;
   overflow-y: auto;
 }
@@ -680,21 +680,21 @@ export default {
     font-size: 1.5rem;
   }
   
-  .competency-header {
+  .competence-header {
     flex-direction: column;
     gap: 1rem;
   }
   
-  .competency-info {
+  .competence-info {
     flex-direction: column;
     text-align: center;
   }
   
-  .competency-meta {
+  .competence-meta {
     justify-content: center;
   }
   
-  .competency-actions {
+  .competence-actions {
     flex-direction: column;
   }
   

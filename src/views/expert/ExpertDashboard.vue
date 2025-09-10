@@ -29,12 +29,12 @@
               <span>Компетенции</span>
             </router-link>
           </li>
-          <li class="nav-item">
-            <router-link to="/expert/events" class="nav-link" :class="{ active: $route.path === '/expert/events' }" @click="closeSidebarOnMobile">
-              <i class="pi pi-calendar"></i>
-              <span>События и рассылки</span>
-            </router-link>
-          </li>
+<!--          <li class="nav-item">-->
+<!--            <router-link to="/expert/events" class="nav-link" :class="{ active: $route.path === '/expert/events' }" @click="closeSidebarOnMobile">-->
+<!--              <i class="pi pi-calendar"></i>-->
+<!--              <span>События и рассылки</span>-->
+<!--            </router-link>-->
+<!--          </li>-->
         </ul>
       </nav>
       
@@ -64,8 +64,9 @@
   </div>
 </template>
 
-<script>
+<script  lang="ts">
 import Button from 'primevue/button'
+import {clearUserState} from "../../../state/UserState";
 
 export default {
   name: 'ExpertDashboard',
@@ -86,9 +87,8 @@ export default {
     window.removeEventListener('resize', this.checkMobile)
   },
   methods: {
-    logout() {
-      // Логика выхода
-      this.$router.push('/login')
+    async logout() {
+      await clearUserState()
     },
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen

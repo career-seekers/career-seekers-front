@@ -73,16 +73,16 @@
             
             <div class="selected-competencies">
               <div 
-                v-for="competency in selectedCompetencies" 
-                :key="competency.id"
-                class="competency-item"
+                v-for="competence in selectedCompetencies"
+                :key="competence.id"
+                class="competence-item"
               >
-                <div class="competency-icon">
-                  <i :class="competency.icon"></i>
+                <div class="competence-icon">
+                  <i :class="competence.icon"></i>
                 </div>
-                <div class="competency-info">
-                  <h4 class="competency-name">{{ competency.name }}</h4>
-                  <p class="competency-status">{{ competency.status }}</p>
+                <div class="competence-info">
+                  <h4 class="competence-name">{{ competence.name }}</h4>
+                  <p class="competence-status">{{ competence.status }}</p>
                 </div>
               </div>
             </div>
@@ -437,7 +437,7 @@ export default {
   margin: 1rem 0;
 }
 
-.competency-item {
+.competence-item {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -448,11 +448,11 @@ export default {
   border-left: 3px solid #ff9800;
 }
 
-.competency-item:last-child {
+.competence-item:last-child {
   margin-bottom: 0;
 }
 
-.competency-icon {
+.competence-icon {
   width: 40px;
   height: 40px;
   background: linear-gradient(135deg, #ff9800, #f57c00);
@@ -465,18 +465,18 @@ export default {
   flex-shrink: 0;
 }
 
-.competency-info {
+.competence-info {
   flex: 1;
 }
 
-.competency-name {
+.competence-name {
   color: #2c3e50;
   margin: 0 0 0.25rem 0;
   font-size: 1rem;
   font-weight: 600;
 }
 
-.competency-status {
+.competence-status {
   color: #6c757d;
   margin: 0;
   font-size: 0.85rem;
@@ -545,7 +545,7 @@ export default {
     gap: 0.5rem;
   }
   
-  .competency-item {
+  .competence-item {
     flex-direction: column;
     text-align: center;
     gap: 0.75rem;
@@ -621,21 +621,21 @@ export default {
     font-size: 0.8rem;
   }
   
-  .competency-item {
+  .competence-item {
     padding: 0.5rem;
   }
   
-  .competency-icon {
+  .competence-icon {
     width: 30px;
     height: 30px;
     font-size: 0.9rem;
   }
   
-  .competency-name {
+  .competence-name {
     font-size: 0.85rem;
   }
   
-  .competency-status {
+  .competence-status {
     font-size: 0.75rem;
   }
   

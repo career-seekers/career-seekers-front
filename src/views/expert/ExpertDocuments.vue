@@ -8,10 +8,10 @@
             Компетенции
           </router-link>
           <i class="pi pi-chevron-right breadcrumb-separator"></i>
-          <span class="breadcrumb-current">{{ competencyName }}</span>
+          <span class="breadcrumb-current">{{ competenceName }}</span>
         </div>
         <h1 class="page-title">Документы компетенции</h1>
-        <p class="page-subtitle">{{ competencyDescription }}</p>
+        <p class="page-subtitle">{{ competenceDescription }}</p>
       </div>
     </div>
 
@@ -283,8 +283,8 @@ export default {
       showPreviewDialog: false,
       selectedDocument: null,
       uploadUrl: '/api/upload', // Замените на реальный URL
-      competencyName: 'Анализ данных',
-      competencyDescription: 'Изучение основ анализа данных и визуализации',
+      competenceName: 'Анализ данных',
+      competenceDescription: 'Изучение основ анализа данных и визуализации',
       typeOptions: [
         { label: 'Презентация', value: 'presentation' },
         { label: 'Документ', value: 'document' },

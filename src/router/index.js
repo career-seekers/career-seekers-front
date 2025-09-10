@@ -37,6 +37,8 @@ import TutorDashboardHome from '@/views/tutor/TutorDashboardHome.vue'
 import TutorExperts from '@/views/tutor/TutorExperts.vue'
 import TutorDocuments from '@/views/tutor/TutorDocuments.vue'
 import TutorVenueInfo from '@/views/tutor/TutorVenueInfo.vue'
+import {fillUserState, redirectByUserState} from "../../state/UserState";
+import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
 
 const routes = [
   {
@@ -152,12 +154,12 @@ const routes = [
         component: ExpertCompetencies
       },
       {
-        path: 'participants/:competencyId',
+        path: 'participants/:competenceId',
         name: 'expert-participants',
         component: ExpertParticipants
       },
       {
-        path: 'documents/:competencyId',
+        path: 'documents/:competenceId',
         name: 'expert-documents',
         component: ExpertDocuments
       },
@@ -187,6 +189,11 @@ const routes = [
         component: TutorExperts
       },
       {
+        path: 'competencies',
+        name: 'tutor-competencies',
+        component: TutorCompetencies
+      },
+      {
         path: 'documents',
         name: 'tutor-documents',
         component: TutorDocuments
@@ -205,10 +212,14 @@ const router = createRouter({
   routes
 })
 
+router.beforeEach( async (to) => {
+  await fillUserState()
+})
 // Обновляем title при переходах между страницами
-router.afterEach((to) => {
+router.afterEach(async (to) => {
   const pageTitle = titleManager.getPageTitle(to.name)
   titleManager.setTitle(pageTitle)
+  await redirectByUserState()
 })
 
 export default router
