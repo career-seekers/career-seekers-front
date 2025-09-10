@@ -136,6 +136,7 @@
         </div>
       </div>
     </div>
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
@@ -146,13 +147,14 @@ import Textarea from 'primevue/textarea'
 import InputNumber from 'primevue/inputnumber'
 import {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-output.dto";
 import {UserState} from "../../../state/UserState";
-import { platform } from 'node:process';
 import {PlatformInputDto} from "@/api/resolvers/platform/dto/input/platform-input.dto";
 import {PlatformResolver} from "@/api/resolvers/platform/platform.resolver";
+import ToastPopup from "@/components/ToastPopup.vue";
 
 export default {
   name: 'TutorVenueInfo',
   components: {
+    ToastPopup,
     Button,
     InputText,
     Textarea,
@@ -244,6 +246,7 @@ export default {
         this.errors.email = 'Адрес электронной почты обязателен';
         isValid = false
       }
+      return isValid
     },
     addHistoryEntry(icon, text) {
       const newEntry = {
