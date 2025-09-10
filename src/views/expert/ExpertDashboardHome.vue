@@ -284,6 +284,7 @@ import Dialog from "primevue/dialog";
 import FileUpload from "primevue/fileupload";
 import Dropdown from "primevue/dropdown";
 import {FileEndpoints, FileResolver, FileType} from "@/api/resolvers/files/file.resolver";
+import {CompetenceDocumentsResolver} from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
 
 export default {
   name: 'ExpertDashboardHome',
@@ -393,7 +394,19 @@ export default {
         isValid = false
       }
       if (isValid) {
-        const fileResolver = new FileResolver()
+        const competenceDocumentsResolver = new CompetenceDocumentsResolver()
+        const response = await competenceDocumentsResolver.create({
+          documentType: this.selectedDoctype,
+          document: this.selectedDocument,
+          userId: UserState.id,
+          directionId: this.selectedCompetence.id
+        })
+        if (response.status !== 200) {
+          this.errors.toastPopup = {
+            title: response.status,
+            message: response.message,
+          }
+        } else this.cancelLoad()
       }
     },
     cancelLoad() {

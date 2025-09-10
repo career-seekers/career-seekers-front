@@ -4,13 +4,13 @@ import {DocsOutputFileUploadDto} from "@/api/resolvers/files/dto/output/docs-out
 import {CommonOutputDto} from "@/api/dto/common-output.dto";
 
 export enum FileType {
-    TASK,
-    CRITERIA,
-    STATEMENT,
-    FINAL_TASK,
-    FINAL_CRITERIA,
-    FINAL_STATEMENT,
-    DESCRIPTION
+    TASK= "TASK",
+    CRITERIA = "CRITERIA",
+    STATEMENT = "STATEMENT",
+    FINAL_TASK = "FINAL_TASK",
+    FINAL_CRITERIA = "FINAL_CRITERIA",
+    FINAL_STATEMENT = "FINAL_STATEMENT",
+    DESCRIPTION = "DESCRIPTION",
 }
 
 export class FileResolver {

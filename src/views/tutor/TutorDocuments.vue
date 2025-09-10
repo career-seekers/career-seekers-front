@@ -179,7 +179,7 @@ export default {
   },
   methods: {
     getDocumentTypeLabel(type) {
-      const typeObj = this.documentTypes.find(t => t.value === type)
+      const typeObj = this.docTypes.find(t => t.value === type)
       return typeObj ? typeObj.label : type
     },
     viewDocument(document) {
