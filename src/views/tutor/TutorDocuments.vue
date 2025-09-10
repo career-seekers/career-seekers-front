@@ -120,7 +120,7 @@ import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
 import {FileType} from "@/api/resolvers/files/file.resolver";
 import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
-import {fillUserState, UserState} from "../../../state/UserState";
+import { UserState} from "../../../state/UserState";
 import ToastPopup from "@/components/ToastPopup.vue";
 
 export default {
@@ -140,7 +140,9 @@ export default {
       showUploadDialog: false,
       showLinkDialog: false,
       selectedType: null,
-      selectedCompetence: null,
+      selectedCompetence: localStorage.getItem('selectedCompetence')
+          ? JSON.parse(localStorage.getItem('selectedCompetence'))
+          : null,
       documents: [] ,
       competencies: [],
       docTypes: [
@@ -196,7 +198,7 @@ export default {
     },
     resetFilters() {
       this.selectedType = null
-      this.selectedStatus = null
+      this.selectedCompetence = null
     },
     async loadCompetencies() {
       const response = await this.competenceResolver.getAllByUserId(UserState.id)

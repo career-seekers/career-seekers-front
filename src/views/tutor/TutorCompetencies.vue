@@ -73,7 +73,7 @@
             label="Документы"
             icon="pi pi-file-text"
             class="p-button-outlined"
-            @click="goToDocuments(competence.id)"
+            @click="goToDocuments(competence)"
           />
 <!--          <Button -->
 <!--            label="События" -->
@@ -332,8 +332,9 @@ export default {
     goToParticipants(competenceId) {
       this.$router.push(`/expert/participants/${competenceId}`)
     },
-    goToDocuments(competenceId) {
-      this.$router.push(`/expert/documents/${competenceId}`)
+    goToDocuments(competence) {
+      localStorage.setItem("selectedCompetence", JSON.stringify(competence))
+      this.$router.push(`/tutor/documents`)
     },
     goToEvents(competenceId) {
       this.$router.push('/expert/events')
