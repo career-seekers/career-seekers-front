@@ -28,4 +28,15 @@ export class PlatformResolver {
                 this.token ? this.token : undefined
             )
     }
+
+    public async delete(id: number) {
+        return await this
+            .apiResolver
+            .request<null, CommonOutputDto<string>>(
+                `${id}`,
+                "DELETE",
+                null,
+                this.token ? this.token : undefined
+            )
+    }
 }
