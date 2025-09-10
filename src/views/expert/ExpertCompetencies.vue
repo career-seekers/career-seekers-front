@@ -57,24 +57,24 @@
         </div>
         
         <div class="competence-actions">
-          <Button 
-            label="Участники" 
-            icon="pi pi-users"
-            class="p-button-outlined"
-            @click="goToParticipants(competence.id)"
-          />
+<!--          <Button -->
+<!--            label="Участники" -->
+<!--            icon="pi pi-users"-->
+<!--            class="p-button-outlined"-->
+<!--            @click="goToParticipants(competence.id)"-->
+<!--          />-->
           <Button 
             label="Документы" 
             icon="pi pi-file-text"
             class="p-button-outlined"
             @click="goToDocuments(competence.id)"
           />
-          <Button 
-            label="События" 
-            icon="pi pi-calendar"
-            class="p-button-outlined"
-            @click="goToEvents(competence.id)"
-          />
+<!--          <Button -->
+<!--            label="События" -->
+<!--            icon="pi pi-calendar"-->
+<!--            class="p-button-outlined"-->
+<!--            @click="goToEvents(competence.id)"-->
+<!--          />-->
           <Button 
             label="Подробнее" 
             icon="pi pi-eye"
