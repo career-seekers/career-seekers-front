@@ -57,7 +57,9 @@
         >
           <div class="competence-header">
             <h4 class="competence-name">{{ competence.name }}</h4>
-            <div class="competence-age">{{ competence.ageCategory }}</div>
+            <div class="competence-age">
+              {{ ageGroups.find(group => group.value === competence.ageCategory).label }}
+            </div>
           </div>
           <div class="competence-content">
             <div class="competence-stats">
@@ -277,7 +279,7 @@
 import Button from 'primevue/button'
 import {UserState} from "../../../state/UserState";
 import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
-import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
+import {AgeCategories, CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
 import Dialog from "primevue/dialog";
 import FileUpload from "primevue/fileupload";
 import Dropdown from "primevue/dropdown";
@@ -301,6 +303,13 @@ export default {
         { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
         { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
         { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
+      ],
+      ageGroups: [
+        { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет" },
+        { value: AgeCategories.PRESCHOOL, label: "6-7 лет" },
+        { value: AgeCategories.EARLY_SCHOOL, label: "7-8 лет" },
+        { value: AgeCategories.SCHOOL, label: "9-11 лет" },
+        { value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет" },
       ],
       selectedDoctype: null,
       showCompetenceDocModal: false,
