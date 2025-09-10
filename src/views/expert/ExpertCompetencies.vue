@@ -36,7 +36,12 @@
           <div class="competence-info">
             <h3 class="competence-name">{{ competence.name }}</h3>
             <div class="competence-age">{{ ageGroups.find(group => group.value === competence.ageCategory).label }}</div>
-            <div class="competence-description">{{ competence.description }}</div>
+            <div class="competence-description">
+              {{ competence.description.length > 30
+                ? competence.description.substring(0,30) + "..."
+                : competence.description
+              }}
+            </div>
           </div>
         </div>
 
@@ -90,37 +95,17 @@
       <div v-if="selectedCompetence" class="competence-details">
         <div class="detail-section">
           <h4>Описание компетенции</h4>
-          <p>{{ selectedCompetence.fullDescription }}</p>
+          <p>{{ selectedCompetence.description }}</p>
         </div>
         
         <div class="detail-section">
-          <h4>Требования к участникам</h4>
-          <ul>
-            <li v-for="requirement in selectedCompetence.requirements" :key="requirement">
-              {{ requirement }}
-            </li>
-          </ul>
+          <h4>Возрастная категория</h4>
+          <p>{{ ageGroups.find(group => group.value === selectedCompetence.ageCategory).label }}</p>
         </div>
+
         
         <div class="detail-section">
-          <h4>Программа обучения</h4>
-          <div class="program-steps">
-            <div 
-              v-for="(step, index) in selectedCompetence.programSteps"
-              :key="index"
-              class="program-step"
-            >
-              <div class="step-number">{{ index + 1 }}</div>
-              <div class="step-content">
-                <div class="step-title">{{ step.title }}</div>
-                <div class="step-description">{{ step.description }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="detail-section">
-          <h4>Статистика</h4>
+          <h4>Загруженные документы</h4>
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-number">{{ selectedCompetence.participantsCount }}</div>
@@ -179,7 +164,7 @@ export default {
     return {
       selectedAge: null as AgeCategories | null,
       showDetailsDialog: false,
-      selectedCompetence: null,
+      selectedCompetence: null as CompetenceOutputDto | null,
       ageGroups: [
         { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет" },
         { value: AgeCategories.PRESCHOOL, label: "6-7 лет" },
