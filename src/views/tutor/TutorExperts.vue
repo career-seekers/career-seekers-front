@@ -17,8 +17,8 @@
 
     <!-- Список экспертов -->
     <div class="mentors-grid">
-      <div v-for="expert in experts" :key="expert.id" class="mentor-card">
-        <div class="mentor-header">
+      <div v-for="expert in experts" :key="expert.id" class="expert-card">
+        <div class="expert-header">
           <div class="expert-avatar">
             <i class="pi pi-user"></i>
           </div>
@@ -26,18 +26,20 @@
             <h3 class="expert-name">{{
                 expert.lastName + " " + expert.firstName + " " + expert.patronymic
               }}</h3>
-            <p class="expert-position">{{ expert.position }}</p>
+            <p class="expert-position">{{ expert.expertDocuments }}</p>
           </div>
           <div class="expert-actions">
             <Button
               icon="pi pi-pencil"
               class="p-button-text p-button-sm"
+              style="background: white;"
               @click="editExpert(expert)"
               v-tooltip="'Редактировать'"
             />
             <Button
               icon="pi pi-trash"
               class="p-button-text p-button-sm p-button-danger"
+              style="background: white;"
               @click="deleteExpert(expert)"
               v-tooltip="'Удалить'"
             />
@@ -64,7 +66,7 @@
             <h4 class="competencies-title">Компетенции:</h4>
             <div class="competencies-list">
               <span 
-                v-for="competence in expert.competencies"
+                v-for="competence in expertCompetencies.find(exComp => exComp.expertId === expert.id).competencies"
                 :key="competence.id"
                 class="competence-tag"
               >
@@ -166,6 +168,8 @@ import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
 import {Roles} from "../../../state/UserState.types";
 import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input-dto";
 import {UpdateUserInputDto} from "@/api/resolvers/user/dto/input/update-user-input.dto";
+import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
 
 export default {
   name: 'TutorExperts',
@@ -210,8 +214,13 @@ export default {
         birthDate: '',
         phone: ''
       },
+      expertCompetencies: [] as {
+        expertId: number,
+        competencies: CompetenceOutputDto[]
+      }[],
       experts: [] as UserOutputDto[],
-      userResolver: new UserResolver()
+      userResolver: new UserResolver(),
+      competenceResolver: new CompetenceResolver(),
     }
   },
   computed: {
@@ -370,12 +379,22 @@ export default {
       const response = await this.userResolver.getAllByRole(Roles.EXPERT)
       if (response.status === 200) {
         this.experts = response.message
+        for (const expert of this.experts) {
+          const response = await this.competenceResolver.getAllByExpertId(expert.id)
+          if (response.status === 200) {
+            this.expertCompetencies.push({
+              expertId: expert.id,
+              competencies: response.message
+            })
+          }
+        }
       } else {
         this.errors.toastPopup = {
           title: response.status,
           message: response.message
         }
       }
+      console.log(this.expertCompetencies)
     }
   },
   async mounted() {
