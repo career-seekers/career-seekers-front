@@ -16,161 +16,103 @@
             {{ venueData.moderationStatus }}
           </div>
         </div>
-        
+
         <div class="form-content">
           <form @submit.prevent="saveVenueInfo">
             <div class="form-section">
               <h4 class="section-title">Общие данные</h4>
-              
+
               <div class="form-row">
                 <div class="form-field full-width">
                   <label for="venueName">Название площадки *</label>
-                  <InputText 
+                  <InputText
                     id="venueName"
-                    v-model="venueData.name" 
+                    v-model="venueData.fullName"
                     placeholder="Введите название площадки"
-                    :class="{ 'p-invalid': !venueData.name }"
-                    :disabled="isModerationPending"
+                    :class="{ 'p-invalid': !venueData.fullName }"
+                    :disabled="venueData.verified"
                   />
+                  <small v-if="errors.fullName" class="p-error">{{ errors.fullName }}</small>
                 </div>
               </div>
-              
+
+              <div class="form-row">
+                <div class="form-field full-width">
+                  <label for="venueName">Краткое название площадки *</label>
+                  <InputText
+                      id="venueName"
+                      v-model="venueData.shortName"
+                      placeholder="Введите краткое название площадки"
+                      :class="{ 'p-invalid': !venueData.shortName }"
+                      :disabled="venueData.verified"
+                  />
+                  <small v-if="errors.shortName" class="p-error">{{ errors.shortName }}</small>
+                </div>
+              </div>
+
               <div class="form-row">
                 <div class="form-field full-width">
                   <label for="venueAddress">Адрес *</label>
-                  <InputText 
+                  <InputText
                     id="venueAddress"
-                    v-model="venueData.address" 
+                    v-model="venueData.address"
                     placeholder="Введите полный адрес площадки"
                     :class="{ 'p-invalid': !venueData.address }"
-                    :disabled="isModerationPending"
+                    :disabled="venueData.verified"
                   />
+                  <small v-if="errors.address" class="p-error">{{ errors.address }}</small>
                 </div>
               </div>
-              
-              <div class="form-row">
-                <div class="form-field full-width">
-                  <label for="venueDescription">Описание площадки *</label>
-                  <Textarea 
-                    id="venueDescription"
-                    v-model="venueData.description" 
-                    placeholder="Опишите вашу площадку, её возможности и особенности"
-                    rows="4"
-                    :class="{ 'p-invalid': !venueData.description }"
-                    :disabled="isModerationPending"
-                  />
-                </div>
-              </div>
+
             </div>
-            
+
             <div class="form-section">
               <h4 class="section-title">Контактная информация</h4>
-              
-              <div class="form-row">
-                <div class="form-field">
-                  <label for="contactPhone">Телефон *</label>
-                  <InputText 
-                    id="contactPhone"
-                    v-model="venueData.contactPhone" 
-                    placeholder="+7 (999) 123-45-67"
-                    :class="{ 'p-invalid': !venueData.contactPhone }"
-                    :disabled="isModerationPending"
-                  />
-                </div>
-                <div class="form-field">
-                  <label for="contactEmail">Email *</label>
-                  <InputText 
+
+              <div class="form-field">
+                <label for="contactEmail">Email *</label>
+                <InputText
                     id="contactEmail"
-                    v-model="venueData.contactEmail" 
+                    v-model="venueData.email"
                     placeholder="info@venue.ru"
-                    :class="{ 'p-invalid': !venueData.contactEmail }"
-                    :disabled="isModerationPending"
-                  />
-                </div>
+                    :class="{ 'p-invalid': !venueData.email }"
+                    :disabled="venueData.verified"
+                />
+                <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
               </div>
-              
-              <div class="form-row">
-                <div class="form-field">
-                  <label for="website">Веб-сайт</label>
-                  <InputText 
+
+              <div class="form-row"></div>
+
+              <div class="form-field">
+                <label for="website">Веб-сайт</label>
+                <InputText
                     id="website"
-                    v-model="venueData.website" 
+                    v-model="venueData.website"
                     placeholder="https://venue.ru"
-                    :disabled="isModerationPending"
-                  />
-                </div>
-                <div class="form-field">
-                  <label for="workingHours">Режим работы</label>
-                  <InputText 
-                    id="workingHours"
-                    v-model="venueData.workingHours" 
-                    placeholder="Пн-Пт: 9:00-18:00"
-                    :disabled="isModerationPending"
-                  />
-                </div>
+                    :disabled="venueData.verified"
+                />
               </div>
             </div>
-            
-            <div class="form-section">
-              <h4 class="section-title">Дополнительная информация</h4>
-              
-              <div class="form-row">
-                <div class="form-field">
-                  <label for="capacity">Вместимость</label>
-                  <InputNumber 
-                    id="capacity"
-                    v-model="venueData.capacity" 
-                    placeholder="50"
-                    :min="1"
-                    :max="1000"
-                    :disabled="isModerationPending"
-                  />
-                </div>
-                <div class="form-field">
-                  <label for="equipment">Оборудование</label>
-                  <InputText 
-                    id="equipment"
-                    v-model="venueData.equipment" 
-                    placeholder="Компьютеры, проекторы, лаборатории"
-                    :disabled="isModerationPending"
-                  />
-                </div>
-              </div>
-              
-              <div class="form-row">
-                <div class="form-field full-width">
-                  <label for="specialFeatures">Особенности площадки</label>
-                  <Textarea 
-                    id="specialFeatures"
-                    v-model="venueData.specialFeatures" 
-                    placeholder="Опишите уникальные особенности вашей площадки"
-                    rows="3"
-                    :disabled="isModerationPending"
-                  />
-                </div>
-              </div>
-            </div>
-            
+
             <div class="form-actions">
-              <Button 
-                label="Сохранить черновик" 
-                icon="pi pi-save"
+              <Button
+                label="Редактировать"
+                icon="pi pi-pencil"
                 class="p-button-outlined"
                 @click="saveDraft"
-                :disabled="isModerationPending"
+                :disabled="!venueData.verified"
               />
-              <Button 
-                label="Отправить на модерацию" 
+              <Button
+                label="Отправить на модерацию"
                 icon="pi pi-send"
                 class="p-button-primary"
                 @click="sendForModeration"
-                :disabled="!canSendForModeration"
               />
             </div>
           </form>
         </div>
       </div>
-      
+
       <!-- История изменений -->
       <div class="history-card">
         <div class="card-header">
@@ -197,11 +139,16 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import InputNumber from 'primevue/inputnumber'
+import {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-output.dto";
+import {UserState} from "../../../state/UserState";
+import { platform } from 'node:process';
+import {PlatformInputDto} from "@/api/resolvers/platform/dto/input/platform-input.dto";
+import {PlatformResolver} from "@/api/resolvers/platform/platform.resolver";
 
 export default {
   name: 'TutorVenueInfo',
@@ -213,18 +160,26 @@ export default {
   },
   data() {
     return {
+      platformResolver: new PlatformResolver(),
       venueData: {
-        name: 'Центр дополнительного образования "ТехноМир"',
-        address: 'г. Москва, ул. Техническая, д. 15',
-        description: 'Современный образовательный центр с оборудованными лабораториями для проведения соревнований по техническим компетенциям',
-        contactPhone: '+7 (999) 123-45-67',
-        contactEmail: 'info@technomir.ru',
-        website: 'https://technomir.ru',
-        workingHours: 'Пн-Пт: 9:00-18:00, Сб: 10:00-16:00',
-        capacity: 100,
-        equipment: 'Компьютеры, проекторы, 3D-принтеры, робототехнические наборы',
-        specialFeatures: 'Специализированные лаборатории по робототехнике, 3D-моделированию и программированию',
-        moderationStatus: 'На модерации'
+        id: null,
+        fullName: '',
+        shortName: '',
+        address: '',
+        email: '',
+        website: '',
+        verified: false,
+        userId: UserState.id
+      } as PlatformOutputDto,
+      errors: {
+        toastPopup: {
+          title: '',
+          message: ''
+        },
+        fullName: '',
+        shortName: '',
+        address: '',
+        email: '',
       },
       changeHistory: [
         {
@@ -254,48 +209,41 @@ export default {
       ]
     }
   },
-  computed: {
-    venueStatusClass() {
-      const status = this.venueData.moderationStatus.toLowerCase()
-      if (status.includes('модерации')) return 'status-pending'
-      if (status.includes('одобрена')) return 'status-approved'
-      if (status.includes('отклонена')) return 'status-rejected'
-      return 'status-draft'
-    },
-    isModerationPending() {
-      return this.venueData.moderationStatus === 'На модерации'
-    },
-    canSendForModeration() {
-      return this.venueData.moderationStatus === 'Черновик' || 
-             this.venueData.moderationStatus === 'Отклонена'
-    }
-  },
   methods: {
-    saveDraft() {
-      if (this.validateForm()) {
-        this.venueData.moderationStatus = 'Черновик'
-        this.addHistoryEntry('pi pi-save', 'Черновик сохранен')
-        console.log('Черновик сохранен')
-      }
-    },
     sendForModeration() {
       if (this.validateForm()) {
         this.venueData.moderationStatus = 'На модерации'
         this.addHistoryEntry('pi pi-send', 'Информация отправлена на модерацию')
-        console.log('Отправлено на модерацию')
-      }
-    },
-    saveVenueInfo() {
-      if (this.validateForm()) {
-        console.log('Информация о площадке сохранена')
+
+        const data: PlatformInputDto = {
+          userId: UserState.id,
+          fullName: this.venueData.fullName,
+          shortName: this.venueData.shortName,
+          address: this.venueData.address,
+          email: this.venueData.email,
+          website: this.venueData.website,
+          verified: false,
+        }
       }
     },
     validateForm() {
-      return this.venueData.name && 
-             this.venueData.address && 
-             this.venueData.description && 
-             this.venueData.contactPhone && 
-             this.venueData.contactEmail
+      let isValid = true;
+      if (!this.venueData.fullName.trim()) {
+        this.errors.fullName = 'Полное название обязательно';
+        isValid = false
+      }
+      if (!this.venueData.shortName.trim()) {
+        this.errors.shortName = 'Краткое название обязательно';
+        isValid = false
+      }
+      if (!this.venueData.address.trim()) {
+        this.errors.address = 'Адрес обязателен';
+        isValid = false
+      }
+      if (!this.venueData.email.trim()) {
+        this.errors.email = 'Адрес электронной почты обязателен';
+        isValid = false
+      }
     },
     addHistoryEntry(icon, text) {
       const newEntry = {
@@ -567,30 +515,30 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .venue-form-container {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .form-content {
     padding: 1.5rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .form-actions {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .card-content {
     padding: 1rem;
   }
@@ -603,61 +551,61 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .form-header {
     padding: 1rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .form-content {
     padding: 1rem;
   }
-  
+
   .form-section {
     margin-bottom: 1.5rem;
   }
-  
+
   .section-title {
     font-size: 1rem;
   }
-  
+
   .form-row {
     gap: 0.75rem;
   }
-  
+
   .form-actions {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
   }
-  
+
   .card-header {
     padding: 1rem;
   }
-  
+
   .card-content {
     padding: 0.75rem;
   }
-  
+
   .history-icon {
     width: 28px;
     height: 28px;
     font-size: 0.8rem;
   }
-  
+
   .history-text {
     font-size: 0.85rem;
   }
-  
+
   .history-time {
     font-size: 0.75rem;
   }

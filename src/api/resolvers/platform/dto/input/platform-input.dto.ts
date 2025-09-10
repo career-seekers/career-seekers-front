@@ -1,5 +1,4 @@
-export interface PlatformOutputDto {
-    id: number;
+export interface PlatformInputDto {
     fullName: string;
     shortName: string;
     address: string;
