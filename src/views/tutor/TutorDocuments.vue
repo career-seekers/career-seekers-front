@@ -214,6 +214,7 @@ export default {
   },
   async mounted() {
     await this.loadCompetencies()
+    localStorage.removeItem('selectedCompetence')
   }
 }
 </script>

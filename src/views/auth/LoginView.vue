@@ -91,7 +91,7 @@ import Button from 'primevue/button'
 import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
 import {v4 as generateUuidV4} from 'uuid'
 import ToastPopup from "@/components/ToastPopup.vue";
-import {fillUserState, UserState} from "../../../state/UserState";
+import {fillUserState, redirectByUserState, UserState} from "../../../state/UserState";
 import router from "@/router/index.js";
 import {Roles} from "../../../state/UserState.types";
 
@@ -176,6 +176,7 @@ export default {
         localStorage.setItem("refresh_token", response.message.refreshToken)
         localStorage.setItem("uuid", uuid)
         await fillUserState()
+        await redirectByUserState()
       }
       this.isLoading = false
     },

@@ -426,16 +426,8 @@ export default {
     editVenueInfo() {
       this.$router.push('/tutor/venue-info')
     },
-    uploadDocuments() {
-      this.$router.push('/tutor/documents')
-    },
     viewDocuments() {
       this.$router.push('/tutor/documents')
-    },
-    sendForModeration() {
-      // Логика отправки на модерацию
-      console.log('Отправка на модерацию')
-      this.venueData.moderationStatus = 'На модерации'
     },
     async loadPlatform() {
       const response = await this.platformResolver.getByUserId(UserState.id)

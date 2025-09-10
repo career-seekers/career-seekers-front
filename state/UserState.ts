@@ -203,7 +203,6 @@ export const fillUserState = async () => {
                     }
                 }
             }
-
             return {
                 title: "",
                 message: ""
@@ -214,9 +213,6 @@ export const fillUserState = async () => {
         localStorage.removeItem("access_token")
         localStorage.removeItem("refresh_token")
         localStorage.removeItem("uuid")
-        if (!router.currentRoute.value.path.includes("login") &&
-            router.currentRoute.value.path !== "/")
-            await router.push("/login");
     }
 }
 
@@ -246,14 +242,22 @@ export const redirectByUserState = async () => {
             }
             break
         }
+        default:
+            if (!history.state.current.includes("login")) {
+                await router.push("/login");
+            }
+            break
     }
 }
 
 export const clearUserState = async () => {
+    for (const key in UserState) {
+        if (UserState.hasOwnProperty(key)) {
+            UserState[key] = undefined;
+        }
+    }
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('uuid')
-    if (!router.currentRoute.value.path.includes("login")  &&
-        router.currentRoute.value.path !== "/")
-        await router.push("/login");
+    await router.push("/login")
 }
