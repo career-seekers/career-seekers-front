@@ -55,8 +55,7 @@
             <i class="pi pi-file"></i>
           </div>
           <div class="document-info">
-            <h3 class="document-name">{{ document.name }}</h3>
-            <p class="document-type">{{ getDocumentTypeLabel(document.type) }}</p>
+            <h3 class="document-name">Документ №{{ document.id }}</h3>
           </div>
           <div class="document-actions">
             <Button
@@ -87,21 +86,25 @@
           <div class="document-details">
             <div class="detail-item">
               <span class="detail-label">Тип:</span>
-              <span class="detail-value">{{  }}</span>
+              <span class="detail-value">{{ docTypes.find(type => type.value === document.documentType).label }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Дата загрузки:</span>
-              <span class="detail-value">{{  }}</span>
+              <span class="detail-value">{{ document.createdAt.substring(0, 10) }}</span>
             </div>
             <div v-if="document" class="detail-item">
-              <span class="detail-label">Описание:</span>
-              <span class="detail-value">{{  }}</span>
+              <span class="detail-label">Компетенция:</span>
+              <span class="detail-value">{{ documentCompetence(document).name }}</span>
             </div>
           </div>
           
-          <div v-if="document" class="mentor-info">
+          <div v-if="documentExpert(document)" class="mentor-info">
             <h4 class="mentor-title">Связанный эксперт:</h4>
-            <p class="mentor-name">{{ document }}</p>
+            <p class="mentor-name">{{
+                documentExpert(document).lastName + " "
+                + documentExpert(document).firstName + " "
+                + documentExpert(document).patronymic
+              }}</p>
           </div>
         </div>
       </div>
@@ -122,6 +125,11 @@ import {FileType} from "@/api/resolvers/files/file.resolver";
 import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
 import { UserState} from "../../../state/UserState";
 import ToastPopup from "@/components/ToastPopup.vue";
+import {UserResolver} from "@/api/resolvers/user/user.resolver";
+import {
+  CompetenceDocumentsOutputDto
+} from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto";
+import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
 
 export default {
   name: 'TutorDocuments',
@@ -137,14 +145,16 @@ export default {
   data() {
     return {
       competenceResolver: new CompetenceResolver(),
+      userResolver: new UserResolver(),
       showUploadDialog: false,
       showLinkDialog: false,
       selectedType: null,
       selectedCompetence: localStorage.getItem('selectedCompetence')
           ? JSON.parse(localStorage.getItem('selectedCompetence'))
           : null,
-      documents: [] ,
+      documents: [] as CompetenceDocumentsOutputDto[],
       competencies: [],
+      experts: [],
       docTypes: [
         { label: "Конкурсное задание", value: FileType.TASK },
         { label: "Критерии оценок", value: FileType.CRITERIA },
@@ -178,9 +188,15 @@ export default {
     }
   },
   methods: {
-    getDocumentTypeLabel(type) {
-      const typeObj = this.docTypes.find(t => t.value === type)
-      return typeObj ? typeObj.label : type
+    documentCompetence(document: CompetenceDocumentsOutputDto) {
+
+      return this.competencies.find((competence: CompetenceOutputDto) =>
+          competence.documents.some(doc => doc.id === document.id)
+      );
+
+    },
+    documentExpert(document) {
+      return this.experts.find(expert => expert.id === document.userId)
     },
     viewDocument(document) {
       console.log('Просмотр документа:', document.name)
@@ -207,6 +223,12 @@ export default {
           if (competence.documents.length > 0) {
             this.competencies.push(competence)
             this.documents.push(...competence.documents)
+            competence.documents.forEach(async (document) => {
+              const response = await this.userResolver.getById(document.userId)
+              if (response.status === 200) {
+                this.experts.push(response.message)
+              }
+            })
           }
         })
       }
