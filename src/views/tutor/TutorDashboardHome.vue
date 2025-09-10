@@ -54,19 +54,19 @@
           <div class="data-section">
             <div class="data-item">
               <span class="data-label">Название:</span>
-              <span class="data-value">{{ venueData.name }}</span>
+              <span class="data-value">{{ venueData.fullName }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Адрес:</span>
               <span class="data-value">{{ venueData.address }}</span>
             </div>
             <div class="data-item">
-              <span class="data-label">Описание:</span>
-              <span class="data-value">{{ venueData.description }}</span>
+              <span class="data-label">Веб-сайт:</span>
+              <span class="data-value">{{ venueData.website ? venueData.website : 'Не указан' }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Статус модерации:</span>
-              <span class="data-value">{{ venueData.moderationStatus }}</span>
+              <span class="data-value">{{ venueData.verified ? 'Подтверждено' : 'На модерации' }}</span>
             </div>
           </div>
           
@@ -92,11 +92,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.total }}</div>
+              <div class="stat-number">{{ experts.length }}</div>
               <div class="stat-label">Всего экспертов</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ expertsStats.competencies }}</div>
+              <div class="stat-number">{{ competencies.length }}</div>
               <div class="stat-label">Компетенций</div>
             </div>
           </div>
@@ -140,13 +140,6 @@
               class="p-button-outlined"
               @click="viewDocuments"
             />
-            <Button 
-              label="Отправить на модерацию" 
-              icon="pi pi-send"
-              class="p-button-outlined"
-              @click="sendForModeration"
-              :disabled="!canSendForModeration"
-            />
           </div>
         </div>
       </div>
@@ -174,31 +167,54 @@
         </div>
       </div>
     </div>
+    <ToastPopup :content="errors.toastPopup"/>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from 'primevue/button'
 import {UserState} from "../../../state/UserState";
+import {PlatformResolver} from "@/api/resolvers/platform/platform.resolver.js";
+import {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-output.dto.js";
+import ToastPopup from "@/components/ToastPopup.vue";
+import {UserResolver} from "@/api/resolvers/user/user.resolver";
+import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
+import {UserOutputDto} from "@/api/resolvers/auth/dto/output/user-output.dto";
+import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import {Roles} from "../../../state/UserState.types";
 
 export default {
   name: 'TutorDashboardHome',
   components: {
+    ToastPopup,
     Button
   },
   data() {
     return {
+      platformResolver: new PlatformResolver(),
+      userResolver: new UserResolver(),
+      competenceResolver: new CompetenceResolver(),
+      experts: [] as UserOutputDto[],
+      competencies: [] as CompetenceOutputDto[],
       venueData: {
-        name: 'Центр дополнительного образования "ТехноМир"',
-        address: 'г. Москва, ул. Техническая, д. 15',
-        description: 'Современный образовательный центр с оборудованными лабораториями для проведения соревнований по техническим компетенциям',
-        moderationStatus: 'На модерации'
-      },
-      expertsStats: {
-        total: 5,
-        active: 4,
-        competencies: 8,
-        verified: 3
+        id: null,
+        fullName: '',
+        shortName: '',
+        address: '',
+        email: '',
+        website: '',
+        verified: false,
+        userId: UserState.id
+      } as PlatformOutputDto,
+      errors: {
+        toastPopup: {
+          title: '',
+          message: ''
+        },
+        fullName: '',
+        shortName: '',
+        address: '',
+        email: '',
       },
       recentUpdates: [
         {
@@ -232,22 +248,14 @@ export default {
     UserState() {
       return UserState
     },
-    tutorName() {
-      return this.tutorData.fullName.split(' ')[1] || 'Куратор'
-    },
     venueStatusClass() {
-      const status = this.venueData.moderationStatus.toLowerCase()
-      if (status.includes('модерации')) return 'status-pending'
-      if (status.includes('одобрена')) return 'status-approved'
-      if (status.includes('отклонена')) return 'status-rejected'
-      return 'status-pending'
+      if (!this.venueData.verified) return 'status-pending'
+      return 'status-approved'
     },
     venueStatusText() {
-      return this.venueData.moderationStatus
+      if (!this.venueData.verified) return 'На модерации'
+      return 'Одобрен'
     },
-    canSendForModeration() {
-      return this.venueData.moderationStatus === 'Черновик' || this.venueData.moderationStatus === 'Отклонена'
-    }
   },
   methods: {
     goToExperts() {
@@ -270,7 +278,30 @@ export default {
       // Логика отправки на модерацию
       console.log('Отправка на модерацию')
       this.venueData.moderationStatus = 'На модерации'
+    },
+    async loadPlatform() {
+      const response = await this.platformResolver.getByUserId(UserState.id)
+      if (response.status === 200) {
+        this.venueData = response.message
+      }
+    },
+    async loadExperts() {
+      const response = await this.userResolver.getAllByRole(Roles.EXPERT)
+      if (response.status === 200) {
+        this.experts = response.message
+      }
+    },
+    async loadCompetencies() {
+      const response = await this.competenceResolver.getAllByUserId(UserState.id)
+      if (response.status === 200) {
+        this.competencies = response.message
+      }
     }
+  },
+  async mounted() {
+    await this.loadExperts()
+    await this.loadPlatform()
+    await this.loadCompetencies()
   }
 }
 </script>
