@@ -87,9 +87,8 @@ export default {
     window.removeEventListener('resize', this.checkMobile)
   },
   methods: {
-    logout() {
-      clearUserState()
-      this.$router.push('/login')
+    async logout() {
+      await clearUserState()
     },
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen

@@ -187,12 +187,6 @@ export default {
     closeRegisterOptions() {
       this.showRegisterOptions = false
     },
-  },
-  async mounted() {
-    if (localStorage.getItem("access_token") &&
-        localStorage.getItem("refresh_token")) {
-      await fillUserState()
-    }
   }
 }
 </script>

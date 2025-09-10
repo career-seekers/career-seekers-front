@@ -53,11 +53,11 @@ export const fillUserState = async () => {
     const access_token = localStorage.getItem("access_token");
     const refresh_token =  localStorage.getItem("refresh_token")
     const uuid =  localStorage.getItem("uuid")
+
     if (access_token && refresh_token && uuid) {
         const userJwt = jwtDecode<UserJwt>(access_token);
         const userResolver = new UserResolver();
         const userData = await userResolver.getById(userJwt.id)
-
         if (typeof userData.message === "string") {
             if (userData.status === 403) {
                 const authResolver = new AuthResolver();
@@ -69,17 +69,7 @@ export const fillUserState = async () => {
                 if (response.status === 200 && typeof response.message !== "string") {
                     localStorage.setItem("access_token", response.message.accessToken)
                     localStorage.setItem("refresh_token", response.message.refreshToken)
-                } else {
-                    localStorage.removeItem("access_token")
-                    localStorage.removeItem("refresh_token")
-                    localStorage.removeItem("uuid")
-                    if (!router.currentRoute.value.path.includes("login"))
-                        await router.push("/login");
                 }
-            }
-            return {
-                title: userData.status,
-                message: userData.message,
             }
         } else {
             const fileManager = new FileManager();
@@ -100,12 +90,8 @@ export const fillUserState = async () => {
             if (UserState.telegramLink != null) {
                 UserState.telegramLink = userData.message.telegramLink.tgLink;
             }
-
             switch (UserState.role) {
                 case Roles.TUTOR: {
-                    if (!history.state.current.includes("tutor")) {
-                        await router.push("/tutor");
-                    }
                     if (localStorage.getItem("dataToVerify")) {
                         const tutorDocsResolver = new TutorDocumentsResolver()
                         const registrationData: RegistrationData<
@@ -123,22 +109,12 @@ export const fillUserState = async () => {
                         })
                         await fileManager.removeFileFromCache(registrationData.extra.consentFileName);
 
-                        if (response.status === 200) {
-                            localStorage.removeItem("dataToVerify");
-                        } else {
-                            return {
-                                title: response.status,
-                                message: response.message
-                            }
-                        }
+                        if (response.status === 200) localStorage.removeItem("dataToVerify");
                     }
                     break
                 }
 
                 case Roles.MENTOR: {
-                    if (!history.state.current.includes("mentor")) {
-                        await router.push("/mentor");
-                    }
                     if (localStorage.getItem("dataToVerify")) {
                         const mentorDocsResolver = new MentorDocumentsResolver()
                         const registrationData: RegistrationData<
@@ -156,22 +132,12 @@ export const fillUserState = async () => {
                         })
                         await fileManager.removeFileFromCache(registrationData.extra.consentFileName);
 
-                        if (response.status === 200) {
-                            localStorage.removeItem("dataToVerify");
-                        } else {
-                            return {
-                                title: response.status,
-                                message: response.message
-                            }
-                        }
+                        if (response.status === 200) localStorage.removeItem("dataToVerify");
                     }
                     break
                 }
 
                 case Roles.USER: {
-                    if (!!history.state.current.includes("parent")) {
-                        await router.push("/parent");
-                    }
                     if (localStorage.getItem("dataToVerify")) {
                         const userDocsResolver = new UserDocumentsResolver()
                         const registrationData: RegistrationData<
@@ -219,13 +185,6 @@ export const fillUserState = async () => {
                     }
                     break
                 }
-
-                case Roles.EXPERT: {
-                    if (!history.state.current.includes("expert")) {
-                        await router.push("/expert");
-                    }
-                    break
-                }
             }
 
             const tgLink = localStorage.getItem("telegramLink");
@@ -250,18 +209,51 @@ export const fillUserState = async () => {
                 message: ""
             }
         }
+
     } else {
         localStorage.removeItem("access_token")
         localStorage.removeItem("refresh_token")
         localStorage.removeItem("uuid")
-        if (!router.currentRoute.value.path.includes("login"))
+        if (!router.currentRoute.value.path.includes("login") &&
+            router.currentRoute.value.path !== "/")
             await router.push("/login");
     }
 }
 
-export const clearUserState = () => {
-    Object.assign(UserState, {})
+export const redirectByUserState = async () => {
+    switch (UserState.role) {
+        case Roles.USER: {
+            if (!!history.state.current.includes("parent")) {
+                await router.push("/parent");
+            }
+            break
+        }
+        case Roles.MENTOR: {
+            if (!history.state.current.includes("mentor")) {
+                await router.push("/mentor");
+            }
+            break
+        }
+        case Roles.TUTOR: {
+            if (!history.state.current.includes("tutor")) {
+                await router.push("/tutor");
+            }
+            break
+        }
+        case Roles.EXPERT: {
+            if (!history.state.current.includes("expert")) {
+                await router.push("/expert");
+            }
+            break
+        }
+    }
+}
+
+export const clearUserState = async () => {
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('uuid')
+    if (!router.currentRoute.value.path.includes("login")  &&
+        router.currentRoute.value.path !== "/")
+        await router.push("/login");
 }

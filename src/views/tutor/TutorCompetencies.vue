@@ -63,24 +63,24 @@
         </div>
         
         <div class="competence-actions">
-          <Button 
-            label="Участники" 
-            icon="pi pi-users"
-            class="p-button-outlined"
-            @click="goToParticipants(competence.id)"
-          />
-          <Button 
-            label="Документы" 
+<!--          <Button-->
+<!--            label="Участники"-->
+<!--            icon="pi pi-users"-->
+<!--            class="p-button-outlined"-->
+<!--            @click="goToParticipants(competence.id)"-->
+<!--          />-->
+          <Button
+            label="Документы"
             icon="pi pi-file-text"
             class="p-button-outlined"
             @click="goToDocuments(competence.id)"
           />
-          <Button 
-            label="События" 
-            icon="pi pi-calendar"
-            class="p-button-outlined"
-            @click="goToEvents(competence.id)"
-          />
+<!--          <Button -->
+<!--            label="События" -->
+<!--            icon="pi pi-calendar"-->
+<!--            class="p-button-outlined"-->
+<!--            @click="goToEvents(competence.id)"-->
+<!--          />-->
           <Button 
             label="Подробнее" 
             icon="pi pi-eye"
@@ -198,33 +198,15 @@
       <div v-if="selectedCompetence" class="competence-details">
         <div class="detail-section">
           <h4>Описание компетенции</h4>
-          <p>{{ selectedCompetence.fullDescription }}</p>
+          <p>{{ selectedCompetence.description }}</p>
         </div>
-        
+
         <div class="detail-section">
-          <h4>Требования к участникам</h4>
-          <ul>
-            <li v-for="requirement in selectedCompetence.requirements" :key="requirement">
-              {{ requirement }}
-            </li>
-          </ul>
-        </div>
-        
-        <div class="detail-section">
-          <h4>Программа обучения</h4>
-          <div class="program-steps">
-            <div 
-              v-for="(step, index) in selectedCompetence.programSteps"
-              :key="index"
-              class="program-step"
-            >
-              <div class="step-number">{{ index + 1 }}</div>
-              <div class="step-content">
-                <div class="step-title">{{ step.title }}</div>
-                <div class="step-description">{{ step.description }}</div>
-              </div>
-            </div>
-          </div>
+          <h4>Главный эксперт</h4>
+          <p>{{ competenceExpert(selectedCompetence).lastName + " " +
+                competenceExpert(selectedCompetence).firstName + " " +
+                competenceExpert(selectedCompetence).patronymic
+            }}</p>
         </div>
         
         <div class="detail-section">
@@ -235,15 +217,17 @@
               <div class="stat-label">Участников</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetence.completedCount }}</div>
-              <div class="stat-label">Завершили</div>
+              <div class="stat-number">
+                {{ ageGroups.find(group => group.value === selectedCompetence.ageCategory).label.split(' ')[0] }}
+              </div>
+              <div class="stat-label">лет</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetence.eventsCount }}</div>
+              <div class="stat-number">{{ 0 }}</div>
               <div class="stat-label">Событий</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetence.documentsCount }}</div>
+              <div class="stat-number">{{ selectedCompetence.documents.length }}</div>
               <div class="stat-label">Документов</div>
             </div>
           </div>
@@ -256,12 +240,12 @@
           class="p-button-text"
           @click="closeDetails"
         />
-        <Button 
-          label="Участники" 
-          icon="pi pi-users" 
-          class="p-button-primary"
-          @click="goToParticipants(selectedCompetence?.id)"
-        />
+<!--        <Button -->
+<!--          label="Участники" -->
+<!--          icon="pi pi-users" -->
+<!--          class="p-button-primary"-->
+<!--          @click="goToParticipants(selectedCompetence?.id)"-->
+<!--        />-->
       </template>
     </Dialog>
 
@@ -273,7 +257,7 @@ import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
 import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
-import {UserState} from "../../../state/UserState";
+import {fillUserState, UserState} from "../../../state/UserState";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
 import {Roles} from "../../../state/UserState.types";
 import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
@@ -300,7 +284,7 @@ export default {
       experts: [] as UserOutputDto[],
       selectedAge: null as AgeCategories | null,
       showDetailsDialog: false,
-      selectedCompetence: null,
+      selectedCompetence: null as null | CompetenceOutputDto,
       showAddCompetenceDialog: false,
       isEditing: false,
       editingCompetenceId: null,
@@ -335,13 +319,16 @@ export default {
       let filtered = this.competencies
 
       if (this.selectedAge) {
-        filtered = filtered.filter(competence => competence.ageCategory == this.selectedAge)
+        filtered = filtered.filter((competence: CompetenceOutputDto) => competence.ageCategory == this.selectedAge)
       }
       
       return filtered
     },
   },
   methods: {
+    competenceExpert(selectedCompetence: CompetenceOutputDto): UserOutputDto {
+      return this.experts.find((expert: UserOutputDto) => expert.id === selectedCompetence.expertId)
+    },
     goToParticipants(competenceId) {
       this.$router.push(`/expert/participants/${competenceId}`)
     },

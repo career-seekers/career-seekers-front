@@ -299,9 +299,11 @@ export default {
     }
   },
   async mounted() {
+    this.isLoading = true
     await this.loadExperts()
     await this.loadPlatform()
     await this.loadCompetencies()
+    this.isLoading = false
   }
 }
 </script>

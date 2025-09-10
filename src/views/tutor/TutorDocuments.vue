@@ -120,9 +120,8 @@ import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
 import {FileType} from "@/api/resolvers/files/file.resolver";
 import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
-import {UserState} from "../../../state/UserState";
+import {fillUserState, UserState} from "../../../state/UserState";
 import ToastPopup from "@/components/ToastPopup.vue";
-import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
 
 export default {
   name: 'TutorDocuments',
