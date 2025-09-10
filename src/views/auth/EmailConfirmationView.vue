@@ -66,7 +66,7 @@ import {
   RegistrationData,
   TutorStateInterface
 } from "../../../state/UserState.types";
-import {fillUserState} from "../../../state/UserState";
+import {fillUserState, redirectByUserState} from "../../../state/UserState";
 
 export default {
   name: 'EmailConfirmationView',
@@ -149,6 +149,7 @@ export default {
           localStorage.setItem("refresh_token", response.message.refreshToken)
           localStorage.setItem("uuid", this.registrationData.uuid)
           await fillUserState()
+          await redirectByUserState()
         }
       } catch (error) {
         this.errors.code = 'Неверный код подтверждения'
