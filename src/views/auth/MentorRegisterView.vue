@@ -245,7 +245,7 @@
       >
         <VuePdfEmbed
           style="width: 100%; position: absolute"
-          source="/public/docs/agreement.pdf"
+          source="/docs/agreement.pdf"
         />
         <Button
           style="
@@ -290,7 +290,7 @@
         "
       >
         <div style="height: 100%; overflow: scroll">
-          <VuePdfEmbed source="/public/docs/politics.pdf" />
+          <VuePdfEmbed source="/docs/politics.pdf" />
         </div>
         <Button
           style="

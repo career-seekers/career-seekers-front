@@ -442,7 +442,7 @@
                 <label for="agreement" class="ml-2 agreement-label">
                   Я согласен с
                   <a href="#" class="link" @click.prevent="showPolitics"
-                  >политикой использования сервиса</a
+                    >политикой использования сервиса</a
                   >
                 </label>
               </div>
@@ -517,7 +517,7 @@
       >
         <VuePdfEmbed
           style="width: 100%; position: absolute"
-          source="/public/docs/agreement.pdf"
+          source="/docs/agreement.pdf"
         />
         <Button
           style="
