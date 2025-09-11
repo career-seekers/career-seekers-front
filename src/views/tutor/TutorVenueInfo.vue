@@ -123,31 +123,31 @@
       </div>
 
       <!-- История изменений -->
-      <div class="history-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-history"></i>
-            История изменений
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="history-list">
-            <div
-              v-for="change in changeHistory"
-              :key="change.id"
-              class="history-item"
-            >
-              <div class="history-icon">
-                <i :class="change.icon"></i>
-              </div>
-              <div class="history-content">
-                <div class="history-text">{{ change.text }}</div>
-                <div class="history-time">{{ change.time }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+<!--      <div class="history-card">-->
+<!--        <div class="card-header">-->
+<!--          <h3 class="card-title">-->
+<!--            <i class="pi pi-history"></i>-->
+<!--            История изменений-->
+<!--          </h3>-->
+<!--        </div>-->
+<!--        <div class="card-content">-->
+<!--          <div class="history-list">-->
+<!--            <div-->
+<!--              v-for="change in changeHistory"-->
+<!--              :key="change.id"-->
+<!--              class="history-item"-->
+<!--            >-->
+<!--              <div class="history-icon">-->
+<!--                <i :class="change.icon"></i>-->
+<!--              </div>-->
+<!--              <div class="history-content">-->
+<!--                <div class="history-text">{{ change.text }}</div>-->
+<!--                <div class="history-time">{{ change.time }}</div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
     <ToastPopup :content="errors.toastPopup" />
   </div>
