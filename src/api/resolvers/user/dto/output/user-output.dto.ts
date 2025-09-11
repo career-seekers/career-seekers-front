@@ -15,6 +15,7 @@ export interface UserOutputDto {
   avatarId: number | null;
   verified: boolean;
   isMentor: boolean;
+  tutorId: number | null;
   userDocuments: null;
   expertDocuments: UserOutputExpertDocsDto;
   tutorDocuments: UserOutputTutorDocsDto;
