@@ -456,7 +456,7 @@ export default {
       }
     },
     async loadExperts() {
-      const response = await this.userResolver.getAllByRole(Roles.EXPERT);
+      const response = await this.userResolver.getAllByTutorId(UserState.id);
       if (response.status === 200) {
         this.experts = response.message;
       }
