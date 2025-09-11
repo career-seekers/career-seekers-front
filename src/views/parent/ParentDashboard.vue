@@ -123,7 +123,8 @@
       <!-- Футер -->
       <footer class="dashboard-footer">
         <p class="footer-text">
-          Академия Технического Творчества и Цифровых Технологий
+          Академия Технического Творчества и Цифровых Технологий <b>|</b>
+          <a href="https://t.me/career_seekers_help">Техническая поддержка</a>
         </p>
       </footer>
     </div>
@@ -379,6 +380,20 @@ export default {
   margin: 0;
   font-size: 0.9rem;
   font-weight: 500;
+
+  b {
+    margin: 0 1rem;
+  }
+
+  a {
+    color: darkcyan;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  a:hover {
+    color: #ff9800;
+  }
 }
 
 /* Стили для тестового тоста */
