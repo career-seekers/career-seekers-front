@@ -116,6 +116,7 @@
                 icon="pi pi-send"
                 class="p-button-primary"
                 @click="sendForModeration"
+                :disabled="!isChanged"
               />
             </div>
           </form>
@@ -177,6 +178,8 @@ export default {
     return {
       platformResolver: new PlatformResolver(),
       oldMail: "",
+      cachedData: null,
+      isChanged: false,
       venueData: {
         id: null,
         fullName: "",
@@ -224,6 +227,16 @@ export default {
         },
       ],
     };
+  },
+  watch: {
+    venueData: {
+      handler() {
+        if (this.cachedData === null) this.cachedData = { ...this.venueData };
+        this.isChanged =
+          JSON.stringify(this.venueData) !== JSON.stringify(this.cachedData);
+      },
+      deep: true,
+    },
   },
   methods: {
     async sendForModeration() {
@@ -276,6 +289,7 @@ export default {
       if (response.status === 200) {
         this.oldMail = response.message.email;
         this.venueData = response.message;
+        this.cachedData = null;
       }
     },
     validateForm() {
