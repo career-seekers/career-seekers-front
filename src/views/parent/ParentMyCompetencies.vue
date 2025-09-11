@@ -2,7 +2,9 @@
   <div class="my-competencies">
     <div class="page-header">
       <h1 class="page-title">Мои компетенции</h1>
-      <p class="page-subtitle">Управление выбранными компетенциями и отслеживание прогресса</p>
+      <p class="page-subtitle">
+        Управление выбранными компетенциями и отслеживание прогресса
+      </p>
     </div>
 
     <div v-if="myCompetencies.length === 0" class="empty-state">
@@ -10,8 +12,8 @@
         <i class="pi pi-list empty-icon"></i>
         <h3 class="empty-title">Компетенции не выбраны</h3>
         <p class="empty-text">Выберите компетенции для участия в чемпионате</p>
-        <Button 
-          label="Выбрать компетенции" 
+        <Button
+          label="Выбрать компетенции"
           icon="pi pi-plus"
           class="p-button-primary"
           @click="goToSelection"
@@ -20,7 +22,7 @@
     </div>
 
     <div v-else class="competencies-list">
-      <div 
+      <div
         v-for="competence in myCompetencies"
         :key="competence.id"
         class="competence-item"
@@ -49,7 +51,7 @@
             </div>
           </div>
           <div class="competence-status">
-            <Tag 
+            <Tag
               :value="competence.status.text"
               :severity="competence.status.severity"
               class="status-tag"
@@ -88,14 +90,14 @@
               Расписание
             </h4>
             <div class="schedule-timeline">
-              <div 
+              <div
                 v-for="event in competence.schedule"
                 :key="event.id"
                 class="timeline-item"
-                :class="{ 
+                :class="{
                   completed: event.status === 'completed',
                   current: event.status === 'current',
-                  upcoming: event.status === 'upcoming'
+                  upcoming: event.status === 'upcoming',
                 }"
               >
                 <div class="timeline-marker">
@@ -104,21 +106,23 @@
                 <div class="timeline-content">
                   <div class="event-title">{{ event.title }}</div>
                   <div class="event-date">{{ event.date }}</div>
-                  <div v-if="event.description" class="event-description">{{ event.description }}</div>
+                  <div v-if="event.description" class="event-description">
+                    {{ event.description }}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="competence-actions">
-            <Button 
-              label="Подробнее" 
+            <Button
+              label="Подробнее"
               icon="pi pi-info-circle"
               class="p-button-outlined p-button-sm"
               @click="showCompetenceDetails(competence)"
             />
-            <Button 
-              label="Изменить" 
+            <Button
+              label="Изменить"
               icon="pi pi-pencil"
               class="p-button-text p-button-sm"
               @click="editCompetence(competence)"
@@ -129,8 +133,8 @@
     </div>
 
     <!-- Диалог с подробной информацией -->
-    <Dialog 
-      v-model:visible="showDetailsDialog" 
+    <Dialog
+      v-model:visible="showDetailsDialog"
       :header="selectedCompetence?.name"
       modal
       :style="{ width: '90vw', maxWidth: '500px' }"
@@ -140,19 +144,23 @@
         <div class="details-content">
           <h4>Описание</h4>
           <p>{{ selectedCompetence.description }}</p>
-          
+
           <h4>Навыки и компетенции</h4>
           <ul class="skills-list">
-            <li v-for="skill in selectedCompetence.skills" :key="skill">{{ skill }}</li>
+            <li v-for="skill in selectedCompetence.skills" :key="skill">
+              {{ skill }}
+            </li>
           </ul>
-          
+
           <h4>Текущий статус</h4>
           <div class="status-info">
-            <Tag 
+            <Tag
               :value="selectedCompetence.status.text"
               :severity="selectedCompetence.status.severity"
             />
-            <p class="status-description">{{ selectedCompetence.status.description }}</p>
+            <p class="status-description">
+              {{ selectedCompetence.status.description }}
+            </p>
           </div>
         </div>
       </div>
@@ -161,16 +169,16 @@
 </template>
 
 <script>
-import Button from 'primevue/button'
-import Tag from 'primevue/tag'
-import Dialog from 'primevue/dialog'
+import Button from "primevue/button";
+import Tag from "primevue/tag";
+import Dialog from "primevue/dialog";
 
 export default {
-  name: 'ParentMyCompetencies',
+  name: "ParentMyCompetencies",
   components: {
     Button,
     Tag,
-    Dialog
+    Dialog,
   },
   data() {
     return {
@@ -179,148 +187,146 @@ export default {
       myCompetencies: [
         {
           id: 1,
-          name: 'Веб-дизайн и разработка',
-          description: 'Компетенция включает в себя создание пользовательских интерфейсов, верстку, программирование на современных технологиях и оптимизацию веб-приложений.',
-          ageRange: '14-16 лет',
-          duration: '2 дня',
-          format: 'Индивидуальное',
-          icon: 'pi pi-desktop',
+          name: "Веб-дизайн и разработка",
+          description:
+            "Компетенция включает в себя создание пользовательских интерфейсов, верстку, программирование на современных технологиях и оптимизацию веб-приложений.",
+          ageRange: "14-16 лет",
+          duration: "2 дня",
+          format: "Индивидуальное",
+          icon: "pi pi-desktop",
           skills: [
-            'HTML/CSS',
-            'JavaScript',
-            'Responsive Design',
-            'UI/UX Design',
-            'Frameworks (React, Vue)'
+            "HTML/CSS",
+            "JavaScript",
+            "Responsive Design",
+            "UI/UX Design",
+            "Frameworks (React, Vue)",
           ],
           mentor: {
-            name: 'Петров Иван Сергеевич',
-            email: 'i.petrov@mentor.ru',
-            phone: '+7 (999) 111-22-33'
+            name: "Петров Иван Сергеевич",
+            email: "i.petrov@mentor.ru",
+            phone: "+7 (999) 111-22-33",
           },
           status: {
-            text: 'Участник',
-            severity: 'info',
-            description: 'Ваш ребенок зарегистрирован как участник данной компетенции'
+            text: "Участник",
+            severity: "info",
+            description:
+              "Ваш ребенок зарегистрирован как участник данной компетенции",
           },
           schedule: [
             {
               id: 1,
-              title: 'Регистрация',
-              date: '15.01.2024',
-              status: 'completed',
-              description: 'Успешно завершена'
+              title: "Регистрация",
+              date: "15.01.2024",
+              status: "completed",
+              description: "Успешно завершена",
             },
             {
               id: 2,
-              title: 'Отборочный тур',
-              date: '20.02.2024',
-              status: 'current',
-              description: 'В процессе'
+              title: "Отборочный тур",
+              date: "20.02.2024",
+              status: "current",
+              description: "В процессе",
             },
             {
               id: 3,
-              title: 'Полуфинал',
-              date: '15.03.2024',
-              status: 'upcoming',
-              description: 'Ожидается'
+              title: "Полуфинал",
+              date: "15.03.2024",
+              status: "upcoming",
+              description: "Ожидается",
             },
             {
               id: 4,
-              title: 'Финал',
-              date: '20.04.2024',
-              status: 'upcoming',
-              description: 'Ожидается'
-            }
-          ]
+              title: "Финал",
+              date: "20.04.2024",
+              status: "upcoming",
+              description: "Ожидается",
+            },
+          ],
         },
         {
           id: 2,
-          name: '3D-моделирование',
-          description: 'Работа с 3D-графикой, создание моделей, текстур и анимации для различных областей применения.',
-          ageRange: '14-16 лет',
-          duration: '2 дня',
-          format: 'Индивидуальное',
-          icon: 'pi pi-box',
-          skills: [
-            'Blender',
-            '3ds Max',
-            'Maya',
-            'Texturing',
-            'Animation'
-          ],
+          name: "3D-моделирование",
+          description:
+            "Работа с 3D-графикой, создание моделей, текстур и анимации для различных областей применения.",
+          ageRange: "14-16 лет",
+          duration: "2 дня",
+          format: "Индивидуальное",
+          icon: "pi pi-box",
+          skills: ["Blender", "3ds Max", "Maya", "Texturing", "Animation"],
           mentor: {
-            name: 'Морозов Андрей Петрович',
-            email: 'a.morozov@mentor.ru',
-            phone: '+7 (999) 555-66-77'
+            name: "Морозов Андрей Петрович",
+            email: "a.morozov@mentor.ru",
+            phone: "+7 (999) 555-66-77",
           },
           status: {
-            text: 'Призер',
-            severity: 'success',
-            description: 'Поздравляем! Ваш ребенок стал призером в данной компетенции'
+            text: "Призер",
+            severity: "success",
+            description:
+              "Поздравляем! Ваш ребенок стал призером в данной компетенции",
           },
           schedule: [
             {
               id: 1,
-              title: 'Регистрация',
-              date: '10.01.2024',
-              status: 'completed',
-              description: 'Успешно завершена'
+              title: "Регистрация",
+              date: "10.01.2024",
+              status: "completed",
+              description: "Успешно завершена",
             },
             {
               id: 2,
-              title: 'Отборочный тур',
-              date: '18.02.2024',
-              status: 'completed',
-              description: 'Успешно пройден'
+              title: "Отборочный тур",
+              date: "18.02.2024",
+              status: "completed",
+              description: "Успешно пройден",
             },
             {
               id: 3,
-              title: 'Полуфинал',
-              date: '10.03.2024',
-              status: 'completed',
-              description: 'Успешно пройден'
+              title: "Полуфинал",
+              date: "10.03.2024",
+              status: "completed",
+              description: "Успешно пройден",
             },
             {
               id: 4,
-              title: 'Финал',
-              date: '15.04.2024',
-              status: 'completed',
-              description: 'Завершен - 2 место'
-            }
-          ]
-        }
-      ]
-    }
+              title: "Финал",
+              date: "15.04.2024",
+              status: "completed",
+              description: "Завершен - 2 место",
+            },
+          ],
+        },
+      ],
+    };
   },
   methods: {
     goToSelection() {
-      this.$router.push('/parent/competencies')
+      this.$router.push("/parent/competencies");
     },
-    
+
     showCompetenceDetails(competence) {
-      this.selectedCompetence = competence
-      this.showDetailsDialog = true
+      this.selectedCompetence = competence;
+      this.showDetailsDialog = true;
     },
-    
-    editCompetence(competence) {
+
+    editCompetence() {
       // Переходим к странице выбора компетенций для редактирования
-      this.$router.push('/parent/competencies')
+      this.$router.push("/parent/competencies");
     },
-    
+
     getEventIcon(status) {
       switch (status) {
-        case 'completed':
-          return 'pi pi-check'
-        case 'current':
-          return 'pi pi-clock'
-        case 'upcoming':
-          return 'pi pi-calendar'
+        case "completed":
+          return "pi pi-check";
+        case "current":
+          return "pi pi-clock";
+        case "upcoming":
+          return "pi pi-calendar";
         default:
-          return 'pi pi-circle'
+          return "pi pi-circle";
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -350,7 +356,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -402,7 +408,9 @@ export default {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .competence-item:hover {
@@ -538,7 +546,7 @@ export default {
 }
 
 .schedule-timeline::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 15px;
   top: 0;
@@ -679,33 +687,33 @@ export default {
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .competence-header {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .competence-info {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .competence-meta {
     justify-content: center;
   }
-  
+
   .competence-actions {
     flex-direction: column;
   }
-  
+
   .schedule-timeline {
     padding-left: 1.5rem;
   }
-  
+
   .timeline-item {
     padding-left: 1.5rem;
   }
-  
+
   .timeline-marker {
     left: -1.5rem;
     width: 25px;

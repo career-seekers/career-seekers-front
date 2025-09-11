@@ -2,6 +2,5 @@
 *.conf.js
 
 node_modules
-dist
 .github
 .idea

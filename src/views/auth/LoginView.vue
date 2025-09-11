@@ -8,188 +8,201 @@
         <h1 class="login-title">Вход в систему</h1>
         <div class="divider"></div>
       </div>
-      
+
       <div class="login-content">
         <form @submit.prevent="handleLogin" class="login-form">
-        <div class="field">
-          <label for="email" class="field-label">Email</label>
-          <InputText
-            id="email"
-            v-model="loginForm.email"
-            type="email"
-            placeholder="Введите ваш email"
-            class="w-full"
-            :class="{ 'p-invalid': errors.email }"
-          />
-          <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
-        </div>
-
-        <div class="field">
-          <label for="password" class="field-label">Пароль</label>
-          <Password
-            id="password"
-            v-model="loginForm.password"
-            placeholder="Введите пароль"
-            class="w-full"
-            :class="{ 'p-invalid': errors.password }"
-            :feedback="false"
-            toggleMask
-          />
-          <small v-if="errors.password" class="p-error">{{ errors.password }}</small>
-        </div>
-
-        <Button
-          type="submit"
-          label="Войти"
-          class="w-full login-button"
-          :loading="isLoading"
-        />
-
-        <div class="register-section">
-          <div class="register-toggle" @click="toggleRegisterOptions">
-            <span class="register-text">Зарегистрироваться</span>
-            <i class="pi" :class="showRegisterOptions ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          <div class="field">
+            <label for="email" class="field-label">Email</label>
+            <InputText
+              id="email"
+              v-model="loginForm.email"
+              type="email"
+              placeholder="Введите ваш email"
+              class="w-full"
+              :class="{ 'p-invalid': errors.email }"
+            />
+            <small v-if="errors.email" class="p-error">{{
+              errors.email
+            }}</small>
           </div>
-          
-          <div v-if="showRegisterOptions" class="register-options">
-            <router-link to="/register/mentor" class="register-option" @click="closeRegisterOptions">
-              <i class="pi pi-user"></i>
-              <div class="option-text">
-                <div class="option-title">Наставник</div>
-                <div class="option-desc">Для специалистов</div>
-              </div>
-            </router-link>
-<!--            <router-link to="/register/parent" class="register-option" @click="closeRegisterOptions">-->
-<!--              <i class="pi pi-users"></i>-->
-<!--              <div class="option-text">-->
-<!--                <div class="option-title">Родитель</div>-->
-<!--                <div class="option-desc">Для родителей с детьми</div>-->
-<!--              </div>-->
-<!--            </router-link>-->
-            <router-link to="/register/tutor" class="register-option" @click="closeRegisterOptions">
-              <i class="pi pi-book"></i>
-              <div class="option-text">
-                <div class="option-title">Куратор</div>
-                <div class="option-desc">Для кураторов</div>
-              </div>
-            </router-link>
+
+          <div class="field">
+            <label for="password" class="field-label">Пароль</label>
+            <Password
+              id="password"
+              v-model="loginForm.password"
+              placeholder="Введите пароль"
+              class="w-full"
+              :class="{ 'p-invalid': errors.password }"
+              :feedback="false"
+              toggleMask
+            />
+            <small v-if="errors.password" class="p-error">{{
+              errors.password
+            }}</small>
           </div>
-        </div>
+
+          <Button
+            type="submit"
+            label="Войти"
+            class="w-full login-button"
+            :loading="isLoading"
+          />
+
+          <div class="register-section">
+            <div class="register-toggle" @click="toggleRegisterOptions">
+              <span class="register-text">Зарегистрироваться</span>
+              <i
+                class="pi"
+                :class="
+                  showRegisterOptions ? 'pi-chevron-up' : 'pi-chevron-down'
+                "
+              ></i>
+            </div>
+
+            <div v-if="showRegisterOptions" class="register-options">
+              <router-link
+                to="/register/mentor"
+                class="register-option"
+                @click="closeRegisterOptions"
+              >
+                <i class="pi pi-user"></i>
+                <div class="option-text">
+                  <div class="option-title">Наставник</div>
+                  <div class="option-desc">Для специалистов</div>
+                </div>
+              </router-link>
+              <!--            <router-link to="/register/parent" class="register-option" @click="closeRegisterOptions">-->
+              <!--              <i class="pi pi-users"></i>-->
+              <!--              <div class="option-text">-->
+              <!--                <div class="option-title">Родитель</div>-->
+              <!--                <div class="option-desc">Для родителей с детьми</div>-->
+              <!--              </div>-->
+              <!--            </router-link>-->
+              <router-link
+                to="/register/tutor"
+                class="register-option"
+                @click="closeRegisterOptions"
+              >
+                <i class="pi pi-book"></i>
+                <div class="option-text">
+                  <div class="option-title">Куратор</div>
+                  <div class="option-desc">Для кураторов</div>
+                </div>
+              </router-link>
+            </div>
+          </div>
         </form>
       </div>
     </div>
-    <ToastPopup
-        :content="errors.toastPopup"
-    />
+    <ToastPopup :content="errors.toastPopup" />
   </div>
 </template>
 
 <script>
-import InputText from 'primevue/inputtext'
-import Password from 'primevue/password'
-import Button from 'primevue/button'
-import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
-import {v4 as generateUuidV4} from 'uuid'
+import InputText from "primevue/inputtext";
+import Password from "primevue/password";
+import Button from "primevue/button";
+import { AuthResolver } from "@/api/resolvers/auth/auth.resolver";
+import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
-import {fillUserState, redirectByUserState, UserState} from "../../../state/UserState";
-import router from "@/router/index.js";
-import {Roles} from "../../../state/UserState.types";
+import { fillUserState, redirectByUserState } from "../../../state/UserState";
 
 export default {
-  name: 'LoginView',
+  name: "LoginView",
   components: {
     ToastPopup,
     InputText,
     Password,
-    Button
+    Button,
   },
   data() {
     return {
       isLoading: false,
       showRegisterOptions: false,
       loginForm: {
-        email: '',
-        password: ''
+        email: "",
+        password: "",
       },
       errors: {
-        email: '',
-        password: '',
+        email: "",
+        password: "",
         toastPopup: {
           title: "",
-          message: ""
-        }
-      }
-    }
+          message: "",
+        },
+      },
+    };
   },
   methods: {
     validateForm() {
-      this.errors.email = ''
-      this.errors.password = ''
+      this.errors.email = "";
+      this.errors.password = "";
 
       if (!this.loginForm.email) {
-        this.errors.email = 'Email обязателен'
-        return false
+        this.errors.email = "Email обязателен";
+        return false;
       }
 
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.loginForm.email)) {
-        this.errors.email = 'Введите корректный email'
-        return false
+        this.errors.email = "Введите корректный email";
+        return false;
       }
 
       if (!this.loginForm.password) {
-        this.errors.password = 'Пароль обязателен'
-        return false
+        this.errors.password = "Пароль обязателен";
+        return false;
       }
 
       if (this.loginForm.password.length < 5) {
-        this.errors.password = 'Пароль должен содержать минимум 5 символов'
-        return false
+        this.errors.password = "Пароль должен содержать минимум 5 символов";
+        return false;
       }
 
-      return true
+      return true;
     },
 
     async handleLogin() {
-      if (!this.validateForm()) return
+      if (!this.validateForm()) return;
 
-      this.isLoading = true
+      this.isLoading = true;
       this.errors.toastPopup = {
         title: "",
-        message: ""
-      }
+        message: "",
+      };
 
-      const authResolver = new AuthResolver()
-      const uuid = generateUuidV4()
+      const authResolver = new AuthResolver();
+      const uuid = generateUuidV4();
       const response = await authResolver.login({
         email: this.loginForm.email,
         password: this.loginForm.password,
-        uuid: uuid
-      })
+        uuid: uuid,
+      });
 
       if (typeof response.message === "string") {
         this.errors.toastPopup = {
           title: `Ошибка #${response.status}`,
-          message: response.message
-        }
+          message: response.message,
+        };
       } else {
-        localStorage.setItem("access_token", response.message.accessToken)
-        localStorage.setItem("refresh_token", response.message.refreshToken)
-        localStorage.setItem("uuid", uuid)
-        await fillUserState()
-        await redirectByUserState()
+        localStorage.setItem("access_token", response.message.accessToken);
+        localStorage.setItem("refresh_token", response.message.refreshToken);
+        localStorage.setItem("uuid", uuid);
+        await fillUserState();
+        await redirectByUserState();
       }
-      this.isLoading = false
+      this.isLoading = false;
     },
 
     toggleRegisterOptions() {
-      this.showRegisterOptions = !this.showRegisterOptions
+      this.showRegisterOptions = !this.showRegisterOptions;
     },
 
     closeRegisterOptions() {
-      this.showRegisterOptions = false
+      this.showRegisterOptions = false;
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -236,7 +249,13 @@ export default {
 
 .divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, #e0e0e0 20%, #e0e0e0 80%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #e0e0e0 20%,
+    #e0e0e0 80%,
+    transparent 100%
+  );
   margin: 1.5rem 0 0 0;
 }
 
@@ -263,7 +282,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 1.75rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .login-subtitle {
@@ -463,33 +482,33 @@ export default {
   .login-container {
     padding: 1rem;
   }
-  
+
   .login-card {
     margin: 0;
     border-radius: 12px;
   }
-  
+
   .login-header {
     padding: 1.5rem 1.5rem 1rem 1.5rem;
   }
-  
+
   .login-content {
     padding: 1rem 1.5rem 1.5rem 1.5rem;
   }
-  
+
   .login-title {
     font-size: 1.5rem;
   }
-  
+
   .field {
     margin-bottom: 1.25rem;
   }
-  
+
   .field-label {
     font-size: 0.85rem;
     margin-bottom: 0.5rem;
   }
-  
+
   /* Кнопки на всю ширину */
   .p-button {
     width: 100%;
@@ -497,24 +516,24 @@ export default {
     padding: 0.875rem 1rem;
     font-size: 1rem;
   }
-  
+
   /* Поля ввода */
   .p-inputtext,
   .p-password-input {
     padding: 0.875rem;
     font-size: 1rem;
   }
-  
+
   /* Регистрационные опции */
   .register-options {
     margin-top: 1rem;
   }
-  
+
   .register-option {
     width: 100%;
     margin-bottom: 0.75rem;
   }
-  
+
   .register-option .p-button {
     width: 100%;
     justify-content: center;

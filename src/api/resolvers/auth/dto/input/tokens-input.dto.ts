@@ -1,5 +1,5 @@
 export interface TokensInputDto {
-    accessToken: string;
-    refreshToken: string;
-    uuid: string
+  accessToken: string;
+  refreshToken: string;
+  uuid: string;
 }

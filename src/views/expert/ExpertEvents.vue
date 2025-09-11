@@ -2,7 +2,9 @@
   <div class="events-page">
     <div class="page-header">
       <h1 class="page-title">События и рассылки</h1>
-      <p class="page-subtitle">Создание и управление событиями по компетенциям</p>
+      <p class="page-subtitle">
+        Создание и управление событиями по компетенциям
+      </p>
     </div>
 
     <!-- Статистика -->
@@ -57,8 +59,8 @@
           </h3>
         </div>
         <div class="create-content">
-          <Button 
-            label="Создать событие" 
+          <Button
+            label="Создать событие"
             icon="pi pi-calendar-plus"
             class="p-button-primary"
             @click="showCreateDialog = true"
@@ -70,7 +72,7 @@
     <!-- Фильтры -->
     <div class="filters-section">
       <div class="filter-group">
-        <Dropdown 
+        <Dropdown
           v-model="selectedCompetence"
           :options="competenceOptions"
           optionLabel="label"
@@ -80,8 +82,8 @@
         />
       </div>
       <div class="filter-group">
-        <Dropdown 
-          v-model="selectedStatus" 
+        <Dropdown
+          v-model="selectedStatus"
           :options="statusOptions"
           optionLabel="label"
           optionValue="value"
@@ -90,16 +92,16 @@
         />
       </div>
       <div class="filter-group">
-        <Calendar 
-          v-model="selectedDate" 
+        <Calendar
+          v-model="selectedDate"
           placeholder="Выберите дату"
           dateFormat="dd.mm.yy"
           class="filter-calendar"
         />
       </div>
       <div class="filter-group">
-        <Button 
-          label="Сбросить фильтры" 
+        <Button
+          label="Сбросить фильтры"
           icon="pi pi-refresh"
           class="p-button-text p-button-sm"
           @click="resetFilters"
@@ -133,12 +135,12 @@
             {{ event.status }}
           </div>
         </div>
-        
+
         <div class="event-content">
           <div class="event-description">
             <p>{{ event.description }}</p>
           </div>
-          
+
           <div class="event-stats">
             <div class="stat-item">
               <i class="pi pi-users"></i>
@@ -153,22 +155,22 @@
               <span>{{ event.views }} просмотров</span>
             </div>
           </div>
-          
+
           <div class="event-actions">
-            <Button 
-              label="Редактировать" 
+            <Button
+              label="Редактировать"
               icon="pi pi-pencil"
               class="p-button-outlined p-button-sm"
               @click="editEvent(event)"
             />
-            <Button 
-              label="Дублировать" 
+            <Button
+              label="Дублировать"
               icon="pi pi-copy"
               class="p-button-outlined p-button-sm"
               @click="duplicateEvent(event)"
             />
-            <Button 
-              label="Удалить" 
+            <Button
+              label="Удалить"
               icon="pi pi-trash"
               class="p-button-outlined p-button-sm p-button-danger"
               @click="deleteEvent(event)"
@@ -179,8 +181,8 @@
     </div>
 
     <!-- Диалог создания/редактирования события -->
-    <Dialog 
-      v-model:visible="showCreateDialog" 
+    <Dialog
+      v-model:visible="showCreateDialog"
       :header="isEditing ? 'Редактировать событие' : 'Создать новое событие'"
       :modal="true"
       :style="{ width: '800px' }"
@@ -189,19 +191,19 @@
         <div class="form-row">
           <div class="form-group">
             <label for="eventTitle">Название события *</label>
-            <InputText 
+            <InputText
               id="eventTitle"
-              v-model="eventForm.title" 
+              v-model="eventForm.title"
               placeholder="Введите название события"
               class="form-input"
             />
           </div>
         </div>
-        
+
         <div class="form-row">
           <div class="form-group">
             <label for="eventCompetence">Компетенция *</label>
-            <Dropdown 
+            <Dropdown
               id="eventCompetence"
               v-model="eventForm.competenceId"
               :options="competenceOptions"
@@ -213,9 +215,9 @@
           </div>
           <div class="form-group">
             <label for="eventType">Тип события *</label>
-            <Dropdown 
+            <Dropdown
               id="eventType"
-              v-model="eventForm.type" 
+              v-model="eventForm.type"
               :options="eventTypeOptions"
               optionLabel="label"
               optionValue="value"
@@ -224,13 +226,13 @@
             />
           </div>
         </div>
-        
+
         <div class="form-row">
           <div class="form-group">
             <label for="eventDate">Дата проведения *</label>
-            <Calendar 
+            <Calendar
               id="eventDate"
-              v-model="eventForm.date" 
+              v-model="eventForm.date"
               dateFormat="dd.mm.yy"
               placeholder="Выберите дату"
               class="form-calendar"
@@ -238,30 +240,30 @@
           </div>
           <div class="form-group">
             <label for="eventTime">Время проведения *</label>
-            <InputText 
+            <InputText
               id="eventTime"
-              v-model="eventForm.time" 
+              v-model="eventForm.time"
               placeholder="Например: 14:00"
               class="form-input"
             />
           </div>
         </div>
-        
+
         <div class="form-row">
           <div class="form-group">
             <label for="eventLocation">Место проведения *</label>
-            <InputText 
+            <InputText
               id="eventLocation"
-              v-model="eventForm.location" 
+              v-model="eventForm.location"
               placeholder="Адрес или ссылка на онлайн-встречу"
               class="form-input"
             />
           </div>
           <div class="form-group">
             <label for="eventOnline">Тип проведения</label>
-            <Dropdown 
+            <Dropdown
               id="eventOnline"
-              v-model="eventForm.isOnline" 
+              v-model="eventForm.isOnline"
               :options="locationTypeOptions"
               optionLabel="label"
               optionValue="value"
@@ -270,41 +272,41 @@
             />
           </div>
         </div>
-        
+
         <div class="form-row">
           <div class="form-group full-width">
             <label for="eventDescription">Описание события *</label>
-            <Textarea 
+            <Textarea
               id="eventDescription"
-              v-model="eventForm.description" 
+              v-model="eventForm.description"
               placeholder="Подробное описание события"
               :rows="4"
               class="form-textarea"
             />
           </div>
         </div>
-        
+
         <div class="form-section">
           <h4 class="section-title">Настройки рассылки</h4>
-          
+
           <div class="form-row">
             <div class="form-group full-width">
               <label for="emailSubject">Тема письма *</label>
-              <InputText 
+              <InputText
                 id="emailSubject"
-                v-model="eventForm.emailSubject" 
+                v-model="eventForm.emailSubject"
                 placeholder="Тема письма для рассылки"
                 class="form-input"
               />
             </div>
           </div>
-          
+
           <div class="form-row">
             <div class="form-group full-width">
               <label for="emailBody">Текст письма *</label>
-              <Editor 
+              <Editor
                 id="emailBody"
-                v-model="eventForm.emailBody" 
+                v-model="eventForm.emailBody"
                 placeholder="Текст письма для рассылки"
                 :rows="6"
                 class="form-editor"
@@ -312,13 +314,13 @@
               />
             </div>
           </div>
-          
+
           <div class="form-row">
             <div class="form-group">
               <label for="sendDate">Дата отправки</label>
-              <Calendar 
+              <Calendar
                 id="sendDate"
-                v-model="eventForm.sendDate" 
+                v-model="eventForm.sendDate"
                 dateFormat="dd.mm.yy"
                 placeholder="Выберите дату отправки"
                 class="form-calendar"
@@ -326,9 +328,9 @@
             </div>
             <div class="form-group">
               <label for="sendTime">Время отправки</label>
-              <InputText 
+              <InputText
                 id="sendTime"
-                v-model="eventForm.sendTime" 
+                v-model="eventForm.sendTime"
                 placeholder="Например: 09:00"
                 class="form-input"
               />
@@ -336,17 +338,17 @@
           </div>
         </div>
       </div>
-      
+
       <template #footer>
-        <Button 
-          label="Отмена" 
-          icon="pi pi-times" 
+        <Button
+          label="Отмена"
+          icon="pi pi-times"
           class="p-button-text"
           @click="closeCreateDialog"
         />
-        <Button 
-          :label="isEditing ? 'Сохранить изменения' : 'Создать событие'" 
-          icon="pi pi-check" 
+        <Button
+          :label="isEditing ? 'Сохранить изменения' : 'Создать событие'"
+          icon="pi pi-check"
           class="p-button-primary"
           @click="saveEvent"
         />
@@ -356,16 +358,16 @@
 </template>
 
 <script>
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
-import Dropdown from 'primevue/dropdown'
-import Calendar from 'primevue/calendar'
-import Editor from 'primevue/editor'
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import Textarea from "primevue/textarea";
+import Dropdown from "primevue/dropdown";
+import Calendar from "primevue/calendar";
+import Editor from "primevue/editor";
 
 export default {
-  name: 'ExpertEvents',
+  name: "ExpertEvents",
   components: {
     Button,
     Dialog,
@@ -373,7 +375,7 @@ export default {
     Textarea,
     Dropdown,
     Calendar,
-    Editor
+    Editor,
   },
   data() {
     return {
@@ -384,209 +386,231 @@ export default {
       selectedDate: null,
       editorModules: {
         toolbar: [
-          ['bold', 'italic', 'underline', 'strike'],
-          ['blockquote', 'code-block'],
-          [{ 'header': 1 }, { 'header': 2 }],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          [{ 'script': 'sub'}, { 'script': 'super' }],
-          [{ 'indent': '-1'}, { 'indent': '+1' }],
-          [{ 'direction': 'rtl' }],
-          [{ 'size': ['small', false, 'large', 'huge'] }],
-          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'font': [] }],
-          [{ 'align': [] }],
-          ['clean'],
-          ['link', 'image']
-        ]
+          ["bold", "italic", "underline", "strike"],
+          ["blockquote", "code-block"],
+          [{ header: 1 }, { header: 2 }],
+          [{ list: "ordered" }, { list: "bullet" }],
+          [{ script: "sub" }, { script: "super" }],
+          [{ indent: "-1" }, { indent: "+1" }],
+          [{ direction: "rtl" }],
+          [{ size: ["small", false, "large", "huge"] }],
+          [{ header: [1, 2, 3, 4, 5, 6, false] }],
+          [{ color: [] }, { background: [] }],
+          [{ font: [] }],
+          [{ align: [] }],
+          ["clean"],
+          ["link", "image"],
+        ],
       },
       editorFormats: [
-        'bold', 'italic', 'underline', 'strike',
-        'blockquote', 'code-block',
-        'header', 'list', 'script',
-        'indent', 'direction', 'size',
-        'color', 'background', 'font',
-        'align', 'clean', 'link', 'image'
+        "bold",
+        "italic",
+        "underline",
+        "strike",
+        "blockquote",
+        "code-block",
+        "header",
+        "list",
+        "script",
+        "indent",
+        "direction",
+        "size",
+        "color",
+        "background",
+        "font",
+        "align",
+        "clean",
+        "link",
+        "image",
       ],
       eventForm: {
-        title: '',
+        title: "",
         competenceId: null,
         type: null,
         date: null,
-        time: '',
-        location: '',
+        time: "",
+        location: "",
         isOnline: false,
-        description: '',
-        emailSubject: '',
-        emailBody: '<p>Добро пожаловать на наше событие!</p><p>Мы рады пригласить вас на мероприятие, которое состоится в указанную дату и время.</p><p>С уважением,<br>Команда организаторов</p>',
+        description: "",
+        emailSubject: "",
+        emailBody:
+          "<p>Добро пожаловать на наше событие!</p><p>Мы рады пригласить вас на мероприятие, которое состоится в указанную дату и время.</p><p>С уважением,<br>Команда организаторов</p>",
         sendDate: null,
-        sendTime: ''
+        sendTime: "",
       },
       competenceOptions: [
-        { label: 'Анализ данных', value: 1 },
-        { label: 'Искусственный интеллект', value: 2 },
-        { label: 'Машинное обучение', value: 3 }
+        { label: "Анализ данных", value: 1 },
+        { label: "Искусственный интеллект", value: 2 },
+        { label: "Машинное обучение", value: 3 },
       ],
       statusOptions: [
-        { label: 'Опубликовано', value: 'published' },
-        { label: 'На модерации', value: 'moderation' },
-        { label: 'Черновик', value: 'draft' },
-        { label: 'Отменено', value: 'cancelled' }
+        { label: "Опубликовано", value: "published" },
+        { label: "На модерации", value: "moderation" },
+        { label: "Черновик", value: "draft" },
+        { label: "Отменено", value: "cancelled" },
       ],
       eventTypeOptions: [
-        { label: 'Мастер-класс', value: 'masterclass' },
-        { label: 'Лекция', value: 'lecture' },
-        { label: 'Практическое занятие', value: 'practice' },
-        { label: 'Встреча', value: 'meeting' },
-        { label: 'Экзамен', value: 'exam' }
+        { label: "Мастер-класс", value: "masterclass" },
+        { label: "Лекция", value: "lecture" },
+        { label: "Практическое занятие", value: "practice" },
+        { label: "Встреча", value: "meeting" },
+        { label: "Экзамен", value: "exam" },
       ],
       locationTypeOptions: [
-        { label: 'Офлайн', value: false },
-        { label: 'Онлайн', value: true }
+        { label: "Офлайн", value: false },
+        { label: "Онлайн", value: true },
       ],
       eventsStats: {
         total: 12,
         published: 8,
         pending: 3,
-        participants: 156
+        participants: 156,
       },
       events: [
         {
           id: 1,
-          title: 'Мастер-класс по нейронным сетям',
-          competence: 'Искусственный интеллект',
+          title: "Мастер-класс по нейронным сетям",
+          competence: "Искусственный интеллект",
           competenceId: 2,
-          type: 'masterclass',
-          date: '15.12.2024',
-          time: '14:00',
-          location: 'Аудитория 301, корпус А',
+          type: "masterclass",
+          date: "15.12.2024",
+          time: "14:00",
+          location: "Аудитория 301, корпус А",
           isOnline: false,
-          description: 'Практическое занятие по созданию и обучению нейронных сетей для решения задач классификации изображений.',
-          status: 'Опубликовано',
-          statusClass: 'status-published',
+          description:
+            "Практическое занятие по созданию и обучению нейронных сетей для решения задач классификации изображений.",
+          status: "Опубликовано",
+          statusClass: "status-published",
           participantsCount: 25,
           emailsSent: 25,
-          views: 45
+          views: 45,
         },
         {
           id: 2,
-          title: 'Практическое занятие по анализу данных',
-          competence: 'Анализ данных',
+          title: "Практическое занятие по анализу данных",
+          competence: "Анализ данных",
           competenceId: 1,
-          type: 'practice',
-          date: '12.12.2024',
-          time: '10:00',
-          location: 'https://meet.google.com/abc-defg-hij',
+          type: "practice",
+          date: "12.12.2024",
+          time: "10:00",
+          location: "https://meet.google.com/abc-defg-hij",
           isOnline: true,
-          description: 'Работа с реальными данными, создание визуализаций и построение дашбордов.',
-          status: 'Опубликовано',
-          statusClass: 'status-published',
+          description:
+            "Работа с реальными данными, создание визуализаций и построение дашбордов.",
+          status: "Опубликовано",
+          statusClass: "status-published",
           participantsCount: 18,
           emailsSent: 18,
-          views: 32
+          views: 32,
         },
         {
           id: 3,
-          title: 'Введение в машинное обучение',
-          competence: 'Машинное обучение',
+          title: "Введение в машинное обучение",
+          competence: "Машинное обучение",
           competenceId: 3,
-          type: 'lecture',
-          date: '10.12.2024',
-          time: '16:00',
-          location: 'Аудитория 205, корпус Б',
+          type: "lecture",
+          date: "10.12.2024",
+          time: "16:00",
+          location: "Аудитория 205, корпус Б",
           isOnline: false,
-          description: 'Теоретические основы машинного обучения, типы алгоритмов и их применение.',
-          status: 'На модерации',
-          statusClass: 'status-moderation',
+          description:
+            "Теоретические основы машинного обучения, типы алгоритмов и их применение.",
+          status: "На модерации",
+          statusClass: "status-moderation",
           participantsCount: 0,
           emailsSent: 0,
-          views: 8
-        }
-      ]
-    }
+          views: 8,
+        },
+      ],
+    };
   },
   methods: {
     editEvent(event) {
-      this.isEditing = true
-      this.eventForm = { ...event }
-      this.showCreateDialog = true
+      this.isEditing = true;
+      this.eventForm = { ...event };
+      this.showCreateDialog = true;
     },
     duplicateEvent(event) {
-      this.isEditing = false
-      this.eventForm = { 
-        ...event, 
-        id: null, 
-        title: event.title + ' (копия)',
-        status: 'Черновик'
-      }
-      this.showCreateDialog = true
+      this.isEditing = false;
+      this.eventForm = {
+        ...event,
+        id: null,
+        title: event.title + " (копия)",
+        status: "Черновик",
+      };
+      this.showCreateDialog = true;
     },
     deleteEvent(event) {
-      console.log('Удаление события:', event.title)
+      console.log("Удаление события:", event.title);
       // Логика удаления
     },
     saveEvent() {
-      console.log('Сохранение события:', this.eventForm)
+      console.log("Сохранение события:", this.eventForm);
       // Логика сохранения
-      this.closeCreateDialog()
+      this.closeCreateDialog();
     },
     closeCreateDialog() {
-      this.showCreateDialog = false
-      this.isEditing = false
-      this.resetForm()
+      this.showCreateDialog = false;
+      this.isEditing = false;
+      this.resetForm();
     },
     resetForm() {
       this.eventForm = {
-        title: '',
+        title: "",
         competenceId: null,
         type: null,
         date: null,
-        time: '',
-        location: '',
+        time: "",
+        location: "",
         isOnline: false,
-        description: '',
-        emailSubject: '',
-        emailBody: '<p>Добро пожаловать на наше событие!</p><p>Мы рады пригласить вас на мероприятие, которое состоится в указанную дату и время.</p><p>С уважением,<br>Команда организаторов</p>',
+        description: "",
+        emailSubject: "",
+        emailBody:
+          "<p>Добро пожаловать на наше событие!</p><p>Мы рады пригласить вас на мероприятие, которое состоится в указанную дату и время.</p><p>С уважением,<br>Команда организаторов</p>",
         sendDate: null,
-        sendTime: ''
-      }
+        sendTime: "",
+      };
     },
     resetFilters() {
-      this.selectedCompetence = null
-      this.selectedStatus = null
-      this.selectedDate = null
-    }
+      this.selectedCompetence = null;
+      this.selectedStatus = null;
+      this.selectedDate = null;
+    },
   },
   computed: {
     filteredEvents() {
-      let filtered = this.events
-      
+      let filtered = this.events;
+
       // Фильтр по компетенции
       if (this.selectedCompetence) {
-        filtered = filtered.filter(e => e.competenceId === this.selectedCompetence)
+        filtered = filtered.filter(
+          (e) => e.competenceId === this.selectedCompetence,
+        );
       }
-      
+
       // Фильтр по статусу
       if (this.selectedStatus) {
         const statusMap = {
-          'published': 'Опубликовано',
-          'moderation': 'На модерации',
-          'draft': 'Черновик',
-          'cancelled': 'Отменено'
-        }
-        filtered = filtered.filter(e => e.status === statusMap[this.selectedStatus])
+          published: "Опубликовано",
+          moderation: "На модерации",
+          draft: "Черновик",
+          cancelled: "Отменено",
+        };
+        filtered = filtered.filter(
+          (e) => e.status === statusMap[this.selectedStatus],
+        );
       }
-      
+
       // Фильтр по дате
       if (this.selectedDate) {
         // Логика фильтрации по дате
         // filtered = filtered.filter(e => e.date === this.selectedDate)
       }
-      
-      return filtered
-    }
-  }
-}
+
+      return filtered;
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -618,7 +642,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -754,7 +778,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .event-card:hover {
@@ -941,9 +967,8 @@ export default {
   min-height: 150px;
 }
 
-
 .form-editor .ql-tooltip.ql-editing .ql-tooltip-editor {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .form-section {
@@ -968,51 +993,51 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .events-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-group {
     min-width: auto;
   }
-  
+
   .event-header {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .event-meta {
     flex-direction: row;
     flex-wrap: wrap;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .form-editor {
     min-height: 150px;
   }
-  
+
   .form-editor .p-editor-content .p-editor-container .p-editor {
     min-height: 120px;
   }
-  
+
   .event-actions {
     justify-content: center;
   }
@@ -1025,45 +1050,45 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stat-card {
     padding: 1rem;
   }
-  
+
   .event-content {
     padding: 1rem;
   }
-  
+
   .event-stats {
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
   }
-  
+
   .form-editor {
     min-height: 120px;
   }
-  
+
   .form-editor .p-editor-content .p-editor-container .p-editor {
     min-height: 100px;
   }
-  
+
   .form-editor .p-editor-toolbar {
     padding: 0.25rem;
   }
-  
+
   .form-editor .p-editor-toolbar .p-button {
     margin-right: 0.125rem;
     margin-bottom: 0.125rem;

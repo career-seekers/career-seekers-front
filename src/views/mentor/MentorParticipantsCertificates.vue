@@ -8,27 +8,27 @@
     <!-- Фильтры -->
     <div class="filters-section">
       <div class="search-box">
-        <InputText 
-          v-model="searchQuery" 
+        <InputText
+          v-model="searchQuery"
           placeholder="Поиск по имени участника..."
           class="search-input"
         />
         <i class="pi pi-search search-icon"></i>
       </div>
-      
+
       <div class="filter-buttons">
-        <Button 
-          label="Все" 
+        <Button
+          label="Все"
           :class="{ 'p-button-primary': activeFilter === 'all' }"
           @click="setFilter('all')"
         />
-        <Button 
-          label="Полученные" 
+        <Button
+          label="Полученные"
           :class="{ 'p-button-primary': activeFilter === 'received' }"
           @click="setFilter('received')"
         />
-        <Button 
-          label="В процессе" 
+        <Button
+          label="В процессе"
           :class="{ 'p-button-primary': activeFilter === 'pending' }"
           @click="setFilter('pending')"
         />
@@ -37,27 +37,31 @@
 
     <!-- Список участников с сертификатами -->
     <div class="participants-list">
-      <div 
-        v-for="participant in filteredParticipants" 
+      <div
+        v-for="participant in filteredParticipants"
         :key="participant.id"
         class="participant-section"
       >
         <div class="participant-header">
           <div class="participant-info">
             <h3 class="participant-name">{{ participant.name }}</h3>
-            <p class="participant-details">{{ participant.age }} • {{ participant.competence }}</p>
+            <p class="participant-details">
+              {{ participant.age }} • {{ participant.competence }}
+            </p>
           </div>
           <div class="participant-stats">
             <div class="stat-item">
-              <span class="stat-number">{{ participant.certificates.length }}</span>
+              <span class="stat-number">{{
+                participant.certificates.length
+              }}</span>
               <span class="stat-label">Сертификатов</span>
             </div>
           </div>
         </div>
 
         <div class="certificates-grid">
-          <div 
-            v-for="certificate in participant.certificates" 
+          <div
+            v-for="certificate in participant.certificates"
             :key="certificate.id"
             class="certificate-card"
           >
@@ -68,8 +72,8 @@
               <div class="certificate-info">
                 <h4 class="certificate-title">{{ certificate.title }}</h4>
                 <div class="certificate-status">
-                  <Tag 
-                    :value="certificate.status.text" 
+                  <Tag
+                    :value="certificate.status.text"
                     :severity="certificate.status.severity"
                   />
                 </div>
@@ -91,14 +95,14 @@
                 </div>
               </div>
               <div class="certificate-actions">
-                <Button 
-                  label="Скачать" 
+                <Button
+                  label="Скачать"
                   icon="pi pi-download"
                   class="p-button-outlined p-button-sm"
                   @click="downloadCertificate(participant.id, certificate.id)"
                 />
-                <Button 
-                  label="Просмотреть" 
+                <Button
+                  label="Просмотреть"
                   icon="pi pi-eye"
                   class="p-button-outlined p-button-sm"
                   @click="viewCertificate(participant.id, certificate.id)"
@@ -115,8 +119,8 @@
               </div>
               <h4 class="empty-title">Добавить сертификат</h4>
               <p class="empty-text">Выдать новый сертификат участнику</p>
-              <Button 
-                label="Выдать" 
+              <Button
+                label="Выдать"
                 icon="pi pi-certificate"
                 class="p-button-outlined p-button-sm"
                 @click="issueCertificate(participant.id)"
@@ -130,165 +134,174 @@
 </template>
 
 <script>
-import InputText from 'primevue/inputtext'
-import Button from 'primevue/button'
-import Tag from 'primevue/tag'
+import InputText from "primevue/inputtext";
+import Button from "primevue/button";
+import Tag from "primevue/tag";
 
 export default {
-  name: 'MentorParticipantsCertificates',
+  name: "MentorParticipantsCertificates",
   components: {
     InputText,
     Button,
-    Tag
+    Tag,
   },
   data() {
     return {
-      searchQuery: '',
-      activeFilter: 'all',
+      searchQuery: "",
+      activeFilter: "all",
       participants: [
         {
           id: 1,
-          name: 'Иванов Петр Антонович',
-          age: '14 лет',
-          competence: 'Веб-дизайн и разработка',
+          name: "Иванов Петр Антонович",
+          age: "14 лет",
+          competence: "Веб-дизайн и разработка",
           certificates: [
             {
               id: 1,
-              title: 'Сертификат участника',
-              icon: 'pi pi-certificate',
+              title: "Сертификат участника",
+              icon: "pi pi-certificate",
               status: {
-                text: 'Получен',
-                severity: 'success'
+                text: "Получен",
+                severity: "success",
               },
-              issueDate: '15.03.2024',
-              number: 'PART-2024-001',
-              level: 'Участник'
+              issueDate: "15.03.2024",
+              number: "PART-2024-001",
+              level: "Участник",
             },
             {
               id: 2,
-              title: 'Диплом за участие',
-              icon: 'pi pi-award',
+              title: "Диплом за участие",
+              icon: "pi pi-award",
               status: {
-                text: 'Получен',
-                severity: 'success'
+                text: "Получен",
+                severity: "success",
               },
-              issueDate: '20.03.2024',
-              number: 'DIP-2024-001',
-              level: 'Участник'
-            }
-          ]
+              issueDate: "20.03.2024",
+              number: "DIP-2024-001",
+              level: "Участник",
+            },
+          ],
         },
         {
           id: 2,
-          name: 'Петрова Анна Владимировна',
-          age: '15 лет',
-          competence: '3D-моделирование',
+          name: "Петрова Анна Владимировна",
+          age: "15 лет",
+          competence: "3D-моделирование",
           certificates: [
             {
               id: 3,
-              title: 'Сертификат участника',
-              icon: 'pi pi-certificate',
+              title: "Сертификат участника",
+              icon: "pi pi-certificate",
               status: {
-                text: 'Получен',
-                severity: 'success'
+                text: "Получен",
+                severity: "success",
               },
-              issueDate: '10.03.2024',
-              number: 'PART-2024-002',
-              level: 'Участник'
+              issueDate: "10.03.2024",
+              number: "PART-2024-002",
+              level: "Участник",
             },
             {
               id: 4,
-              title: 'Сертификат 2 этапа',
-              icon: 'pi pi-trophy',
+              title: "Сертификат 2 этапа",
+              icon: "pi pi-trophy",
               status: {
-                text: 'Получен',
-                severity: 'success'
+                text: "Получен",
+                severity: "success",
               },
-              issueDate: '25.03.2024',
-              number: 'STAGE2-2024-001',
-              level: 'Призер'
+              issueDate: "25.03.2024",
+              number: "STAGE2-2024-001",
+              level: "Призер",
             },
             {
               id: 5,
-              title: 'Диплом финалиста',
-              icon: 'pi pi-medal',
+              title: "Диплом финалиста",
+              icon: "pi pi-medal",
               status: {
-                text: 'В процессе',
-                severity: 'warning'
+                text: "В процессе",
+                severity: "warning",
               },
-              issueDate: '—',
-              number: '—',
-              level: 'Финалист'
-            }
-          ]
+              issueDate: "—",
+              number: "—",
+              level: "Финалист",
+            },
+          ],
         },
         {
           id: 3,
-          name: 'Сидоров Максим Дмитриевич',
-          age: '13 лет',
-          competence: 'Программирование на Python',
+          name: "Сидоров Максим Дмитриевич",
+          age: "13 лет",
+          competence: "Программирование на Python",
           certificates: [
             {
               id: 6,
-              title: 'Сертификат участника',
-              icon: 'pi pi-certificate',
+              title: "Сертификат участника",
+              icon: "pi pi-certificate",
               status: {
-                text: 'Получен',
-                severity: 'success'
+                text: "Получен",
+                severity: "success",
               },
-              issueDate: '12.03.2024',
-              number: 'PART-2024-003',
-              level: 'Участник'
-            }
-          ]
-        }
-      ]
-    }
+              issueDate: "12.03.2024",
+              number: "PART-2024-003",
+              level: "Участник",
+            },
+          ],
+        },
+      ],
+    };
   },
   computed: {
     filteredParticipants() {
-      let filtered = this.participants
+      let filtered = this.participants;
 
       // Фильтр по статусу сертификатов
-      if (this.activeFilter === 'received') {
-        filtered = filtered.map(p => ({
-          ...p,
-          certificates: p.certificates.filter(c => c.status.severity === 'success')
-        })).filter(p => p.certificates.length > 0)
-      } else if (this.activeFilter === 'pending') {
-        filtered = filtered.map(p => ({
-          ...p,
-          certificates: p.certificates.filter(c => c.status.severity === 'warning')
-        })).filter(p => p.certificates.length > 0)
+      if (this.activeFilter === "received") {
+        filtered = filtered
+          .map((p) => ({
+            ...p,
+            certificates: p.certificates.filter(
+              (c) => c.status.severity === "success",
+            ),
+          }))
+          .filter((p) => p.certificates.length > 0);
+      } else if (this.activeFilter === "pending") {
+        filtered = filtered
+          .map((p) => ({
+            ...p,
+            certificates: p.certificates.filter(
+              (c) => c.status.severity === "warning",
+            ),
+          }))
+          .filter((p) => p.certificates.length > 0);
       }
 
       // Поиск
       if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase()
-        filtered = filtered.filter(p => 
-          p.name.toLowerCase().includes(query) ||
-          p.competence.toLowerCase().includes(query)
-        )
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (p) =>
+            p.name.toLowerCase().includes(query) ||
+            p.competence.toLowerCase().includes(query),
+        );
       }
 
-      return filtered
-    }
+      return filtered;
+    },
   },
   methods: {
     setFilter(filter) {
-      this.activeFilter = filter
+      this.activeFilter = filter;
     },
     downloadCertificate(participantId, certificateId) {
-      console.log('Скачивание сертификата:', participantId, certificateId)
+      console.log("Скачивание сертификата:", participantId, certificateId);
     },
     viewCertificate(participantId, certificateId) {
-      console.log('Просмотр сертификата:', participantId, certificateId)
+      console.log("Просмотр сертификата:", participantId, certificateId);
     },
     issueCertificate(participantId) {
-      console.log('Выдача сертификата участнику:', participantId)
-    }
-  }
-}
+      console.log("Выдача сертификата участнику:", participantId);
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -318,7 +331,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -430,7 +443,9 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .certificate-card:hover {
@@ -575,75 +590,75 @@ export default {
   .participants-certificates-page {
     padding: 0 1rem;
   }
-  
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
   }
-  
+
   .search-box {
     max-width: none;
   }
-  
+
   .filter-buttons {
     justify-content: center;
   }
-  
+
   .participant-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .participant-stats {
     align-self: stretch;
     justify-content: center;
   }
-  
+
   .certificates-grid {
     grid-template-columns: 1fr;
     gap: 0.75rem;
     padding: 1rem;
   }
-  
+
   .certificate-header {
     padding: 0.5rem;
   }
-  
+
   .certificate-icon {
     width: 30px;
     height: 30px;
     font-size: 0.8rem;
   }
-  
+
   .certificate-title {
     font-size: 0.85rem;
   }
-  
+
   .certificate-content {
     padding: 0.75rem;
   }
-  
+
   .detail-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  
+
   .detail-value {
     text-align: left;
   }
-  
+
   .certificate-actions .p-button {
     font-size: 0.75rem;
     padding: 0.35rem 0.5rem;
   }
-  
+
   .empty-content {
     padding: 1rem;
   }
-  
+
   .empty-icon {
     width: 35px;
     height: 35px;
@@ -656,89 +671,89 @@ export default {
   .participants-certificates-page {
     padding: 0 0.5rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .page-subtitle {
     font-size: 1rem;
   }
-  
+
   .participants-list {
     gap: 1.5rem;
   }
-  
+
   .participant-header {
     padding: 0.75rem 1rem;
   }
-  
+
   .participant-info h3 {
     font-size: 1rem;
   }
-  
+
   .participant-details {
     font-size: 0.8rem;
   }
-  
+
   .stat-number {
     font-size: 1.25rem;
   }
-  
+
   .stat-label {
     font-size: 0.7rem;
   }
-  
+
   .certificates-grid {
     gap: 0.5rem;
     padding: 0.75rem;
   }
-  
+
   .certificate-header {
     padding: 0.4rem;
   }
-  
+
   .certificate-icon {
     width: 28px;
     height: 28px;
     font-size: 0.7rem;
   }
-  
+
   .certificate-title {
     font-size: 0.8rem;
   }
-  
+
   .certificate-content {
     padding: 0.5rem;
   }
-  
+
   .detail-label {
     font-size: 0.75rem;
     min-width: 70px;
   }
-  
+
   .detail-value {
     font-size: 0.75rem;
   }
-  
+
   .empty-content {
     padding: 0.75rem;
   }
-  
+
   .empty-icon {
     width: 32px;
     height: 32px;
     font-size: 0.8rem;
   }
-  
+
   .empty-title {
     font-size: 0.8rem;
   }
-  
+
   .empty-text {
     font-size: 0.7rem;
   }
-  
+
   .certificate-actions .p-button {
     font-size: 0.7rem;
     padding: 0.3rem 0.4rem;

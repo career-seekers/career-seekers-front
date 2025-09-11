@@ -60,16 +60,16 @@
     <!-- Фильтры и поиск -->
     <div class="filters-section">
       <div class="search-group">
-        <InputText 
-          v-model="searchQuery" 
+        <InputText
+          v-model="searchQuery"
           placeholder="Поиск по имени или email..."
           class="search-input"
         />
         <i class="pi pi-search search-icon"></i>
       </div>
       <div class="filter-group">
-        <Dropdown 
-          v-model="selectedStatus" 
+        <Dropdown
+          v-model="selectedStatus"
           :options="statusOptions"
           optionLabel="label"
           optionValue="value"
@@ -78,8 +78,8 @@
         />
       </div>
       <div class="filter-group">
-        <Dropdown 
-          v-model="selectedAge" 
+        <Dropdown
+          v-model="selectedAge"
           :options="ageOptions"
           optionLabel="label"
           optionValue="value"
@@ -91,7 +91,11 @@
 
     <!-- Список участников -->
     <div class="participants-grid">
-      <div v-for="participant in filteredParticipants" :key="participant.id" class="participant-card">
+      <div
+        v-for="participant in filteredParticipants"
+        :key="participant.id"
+        class="participant-card"
+      >
         <div class="participant-header">
           <div class="participant-avatar">
             <i class="pi pi-user"></i>
@@ -104,21 +108,21 @@
             </div>
           </div>
           <div class="participant-actions">
-            <Button 
-              icon="pi pi-eye" 
+            <Button
+              icon="pi pi-eye"
               class="p-button-text p-button-sm"
               @click="viewProfile(participant)"
               v-tooltip="'Просмотреть профиль'"
             />
-            <Button 
-              icon="pi pi-envelope" 
+            <Button
+              icon="pi pi-envelope"
               class="p-button-text p-button-sm"
               @click="sendMessage(participant)"
               v-tooltip="'Отправить сообщение'"
             />
           </div>
         </div>
-        
+
         <div class="participant-content">
           <div class="participant-details">
             <div class="detail-item">
@@ -135,26 +139,30 @@
             </div>
             <div class="detail-item">
               <span class="detail-label">Дата регистрации:</span>
-              <span class="detail-value">{{ participant.registrationDate }}</span>
+              <span class="detail-value">{{
+                participant.registrationDate
+              }}</span>
             </div>
           </div>
-          
+
           <div class="participant-progress">
             <h4 class="progress-title">Прогресс обучения</h4>
             <div class="progress-bar">
-              <div 
-                class="progress-fill" 
+              <div
+                class="progress-fill"
                 :style="{ width: participant.progress + '%' }"
               ></div>
             </div>
-            <div class="progress-text">{{ participant.progress }}% завершено</div>
+            <div class="progress-text">
+              {{ participant.progress }}% завершено
+            </div>
           </div>
-          
+
           <div class="participant-achievements">
             <h4 class="achievements-title">Достижения</h4>
             <div class="achievements-list">
-              <span 
-                v-for="achievement in participant.achievements" 
+              <span
+                v-for="achievement in participant.achievements"
                 :key="achievement"
                 class="achievement-badge"
               >
@@ -167,8 +175,8 @@
     </div>
 
     <!-- Диалог профиля участника -->
-    <Dialog 
-      v-model:visible="showProfileDialog" 
+    <Dialog
+      v-model:visible="showProfileDialog"
       :header="selectedParticipant?.fullName || 'Профиль участника'"
       :modal="true"
       :style="{ width: '600px' }"
@@ -191,16 +199,20 @@
             </div>
           </div>
         </div>
-        
+
         <div class="profile-section">
           <h4>Статистика участия</h4>
           <div class="participation-stats">
             <div class="stat-item">
-              <div class="stat-number">{{ selectedParticipant.eventsAttended }}</div>
+              <div class="stat-number">
+                {{ selectedParticipant.eventsAttended }}
+              </div>
               <div class="stat-label">Событий посетил</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedParticipant.tasksCompleted }}</div>
+              <div class="stat-number">
+                {{ selectedParticipant.tasksCompleted }}
+              </div>
               <div class="stat-label">Заданий выполнил</div>
             </div>
             <div class="stat-item">
@@ -209,23 +221,23 @@
             </div>
           </div>
         </div>
-        
+
         <div class="profile-section">
           <h4>Последняя активность</h4>
           <p>{{ selectedParticipant.lastActivity }}</p>
         </div>
       </div>
-      
+
       <template #footer>
-        <Button 
-          label="Закрыть" 
-          icon="pi pi-times" 
+        <Button
+          label="Закрыть"
+          icon="pi pi-times"
           class="p-button-text"
           @click="closeProfile"
         />
-        <Button 
-          label="Отправить сообщение" 
-          icon="pi pi-envelope" 
+        <Button
+          label="Отправить сообщение"
+          icon="pi pi-envelope"
           class="p-button-primary"
           @click="sendMessage(selectedParticipant)"
         />
@@ -235,160 +247,167 @@
 </template>
 
 <script>
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
-import Dropdown from 'primevue/dropdown'
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import Dropdown from "primevue/dropdown";
 
 export default {
-  name: 'ExpertParticipants',
+  name: "ExpertParticipants",
   components: {
     Button,
     Dialog,
     InputText,
-    Dropdown
+    Dropdown,
   },
   data() {
     return {
-      searchQuery: '',
+      searchQuery: "",
       selectedStatus: null,
       selectedAge: null,
       showProfileDialog: false,
       selectedParticipant: null,
-      competenceName: 'Анализ данных',
-      competenceDescription: 'Изучение основ анализа данных и визуализации',
+      competenceName: "Анализ данных",
+      competenceDescription: "Изучение основ анализа данных и визуализации",
       statusOptions: [
-        { label: 'Активный', value: 'active' },
-        { label: 'Приостановлен', value: 'paused' },
-        { label: 'Завершил', value: 'completed' }
+        { label: "Активный", value: "active" },
+        { label: "Приостановлен", value: "paused" },
+        { label: "Завершил", value: "completed" },
       ],
       ageOptions: [
-        { label: '14 лет', value: 14 },
-        { label: '15 лет', value: 15 },
-        { label: '16 лет', value: 16 },
-        { label: '17 лет', value: 17 },
-        { label: '18 лет', value: 18 }
+        { label: "14 лет", value: 14 },
+        { label: "15 лет", value: 15 },
+        { label: "16 лет", value: 16 },
+        { label: "17 лет", value: 17 },
+        { label: "18 лет", value: 18 },
       ],
       participantsStats: {
         total: 12,
         active: 8,
         completed: 3,
-        events: 5
+        events: 5,
       },
       participants: [
         {
           id: 1,
-          fullName: 'Иванов Петр Сергеевич',
+          fullName: "Иванов Петр Сергеевич",
           age: 16,
-          email: 'p.ivanov@student.ru',
-          phone: '+7 (999) 123-45-67',
-          parentName: 'Иванова Мария Петровна',
-          registrationDate: '15.10.2024',
-          status: 'Активный',
-          statusClass: 'status-active',
+          email: "p.ivanov@student.ru",
+          phone: "+7 (999) 123-45-67",
+          parentName: "Иванова Мария Петровна",
+          registrationDate: "15.10.2024",
+          status: "Активный",
+          statusClass: "status-active",
           progress: 75,
-          achievements: ['Первые шаги', 'Аналитик данных'],
+          achievements: ["Первые шаги", "Аналитик данных"],
           eventsAttended: 4,
           tasksCompleted: 8,
-          lastActivity: '12.12.2024 - выполнил задание по визуализации'
+          lastActivity: "12.12.2024 - выполнил задание по визуализации",
         },
         {
           id: 2,
-          fullName: 'Петрова Анна Дмитриевна',
+          fullName: "Петрова Анна Дмитриевна",
           age: 17,
-          email: 'a.petrova@student.ru',
-          phone: '+7 (999) 234-56-78',
-          parentName: 'Петров Дмитрий Иванович',
-          registrationDate: '20.10.2024',
-          status: 'Активный',
-          statusClass: 'status-active',
+          email: "a.petrova@student.ru",
+          phone: "+7 (999) 234-56-78",
+          parentName: "Петров Дмитрий Иванович",
+          registrationDate: "20.10.2024",
+          status: "Активный",
+          statusClass: "status-active",
           progress: 60,
-          achievements: ['Первые шаги'],
+          achievements: ["Первые шаги"],
           eventsAttended: 3,
           tasksCompleted: 6,
-          lastActivity: '10.12.2024 - посетила мастер-класс'
+          lastActivity: "10.12.2024 - посетила мастер-класс",
         },
         {
           id: 3,
-          fullName: 'Сидоров Алексей Владимирович',
+          fullName: "Сидоров Алексей Владимирович",
           age: 15,
-          email: 'a.sidorov@student.ru',
-          phone: '+7 (999) 345-67-89',
-          parentName: 'Сидорова Елена Петровна',
-          registrationDate: '05.11.2024',
-          status: 'Завершил',
-          statusClass: 'status-completed',
+          email: "a.sidorov@student.ru",
+          phone: "+7 (999) 345-67-89",
+          parentName: "Сидорова Елена Петровна",
+          registrationDate: "05.11.2024",
+          status: "Завершил",
+          statusClass: "status-completed",
           progress: 100,
-          achievements: ['Первые шаги', 'Аналитик данных', 'Мастер визуализации'],
+          achievements: [
+            "Первые шаги",
+            "Аналитик данных",
+            "Мастер визуализации",
+          ],
           eventsAttended: 5,
           tasksCompleted: 12,
-          lastActivity: '08.12.2024 - завершил финальный проект'
+          lastActivity: "08.12.2024 - завершил финальный проект",
         },
         {
           id: 4,
-          fullName: 'Козлова Елена Сергеевна',
+          fullName: "Козлова Елена Сергеевна",
           age: 16,
-          email: 'e.kozlova@student.ru',
-          phone: '+7 (999) 456-78-90',
-          parentName: 'Козлов Сергей Александрович',
-          registrationDate: '12.11.2024',
-          status: 'Приостановлен',
-          statusClass: 'status-paused',
+          email: "e.kozlova@student.ru",
+          phone: "+7 (999) 456-78-90",
+          parentName: "Козлов Сергей Александрович",
+          registrationDate: "12.11.2024",
+          status: "Приостановлен",
+          statusClass: "status-paused",
           progress: 30,
-          achievements: ['Первые шаги'],
+          achievements: ["Первые шаги"],
           eventsAttended: 1,
           tasksCompleted: 2,
-          lastActivity: '25.11.2024 - последняя активность'
-        }
-      ]
-    }
+          lastActivity: "25.11.2024 - последняя активность",
+        },
+      ],
+    };
   },
   computed: {
     filteredParticipants() {
-      let filtered = this.participants
-      
+      let filtered = this.participants;
+
       // Поиск по имени или email
       if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase()
-        filtered = filtered.filter(p => 
-          p.fullName.toLowerCase().includes(query) || 
-          p.email.toLowerCase().includes(query)
-        )
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (p) =>
+            p.fullName.toLowerCase().includes(query) ||
+            p.email.toLowerCase().includes(query),
+        );
       }
-      
+
       // Фильтр по статусу
       if (this.selectedStatus) {
         const statusMap = {
-          'active': 'Активный',
-          'paused': 'Приостановлен',
-          'completed': 'Завершил'
-        }
-        filtered = filtered.filter(p => p.status === statusMap[this.selectedStatus])
+          active: "Активный",
+          paused: "Приостановлен",
+          completed: "Завершил",
+        };
+        filtered = filtered.filter(
+          (p) => p.status === statusMap[this.selectedStatus],
+        );
       }
-      
+
       // Фильтр по возрасту
       if (this.selectedAge) {
-        filtered = filtered.filter(p => p.age === this.selectedAge)
+        filtered = filtered.filter((p) => p.age === this.selectedAge);
       }
-      
-      return filtered
-    }
+
+      return filtered;
+    },
   },
   methods: {
     viewProfile(participant) {
-      this.selectedParticipant = participant
-      this.showProfileDialog = true
+      this.selectedParticipant = participant;
+      this.showProfileDialog = true;
     },
     closeProfile() {
-      this.showProfileDialog = false
-      this.selectedParticipant = null
+      this.showProfileDialog = false;
+      this.selectedParticipant = null;
     },
     sendMessage(participant) {
-      console.log('Отправка сообщения участнику:', participant.fullName)
+      console.log("Отправка сообщения участнику:", participant.fullName);
       // Логика отправки сообщения
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -458,7 +477,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -582,7 +601,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .participant-card:hover {
@@ -823,43 +844,43 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .participants-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .search-group {
     min-width: auto;
   }
-  
+
   .filter-group {
     min-width: auto;
   }
-  
+
   .participant-header {
     flex-direction: column;
     text-align: center;
     gap: 1rem;
   }
-  
+
   .participant-actions {
     justify-content: center;
   }
-  
+
   .participation-stats {
     grid-template-columns: 1fr;
   }
@@ -872,33 +893,33 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stat-card {
     padding: 1rem;
   }
-  
+
   .participant-content {
     padding: 1rem;
   }
-  
+
   .detail-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  
+
   .detail-value {
     text-align: left;
   }

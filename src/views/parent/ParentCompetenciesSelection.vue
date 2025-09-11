@@ -2,7 +2,9 @@
   <div class="competencies-selection">
     <div class="page-header">
       <h1 class="page-title">Выбор компетенций</h1>
-      <p class="page-subtitle">Выберите до 3 компетенций, подходящих по возрасту вашего ребенка</p>
+      <p class="page-subtitle">
+        Выберите до 3 компетенций, подходящих по возрасту вашего ребенка
+      </p>
       <div class="selection-info">
         <span class="selection-counter">
           Выбрано: {{ selectedCompetencies.length }}/3
@@ -15,13 +17,14 @@
     </div>
 
     <div class="competencies-grid">
-      <div 
+      <div
         v-for="competence in competencies"
         :key="competence.id"
         class="competence-card"
-        :class="{ 
+        :class="{
           selected: isSelected(competence.id),
-          disabled: !isSelected(competence.id) && selectedCompetencies.length >= 3
+          disabled:
+            !isSelected(competence.id) && selectedCompetencies.length >= 3,
         }"
         @click="toggleCompetence(competence)"
       >
@@ -33,10 +36,12 @@
             <i class="pi pi-check"></i>
           </div>
         </div>
-        
+
         <div class="card-content">
           <h3 class="competence-title">{{ competence.name }}</h3>
-          <p class="competence-description">{{ competence.shortDescription }}</p>
+          <p class="competence-description">
+            {{ competence.shortDescription }}
+          </p>
           <div class="competence-meta">
             <span class="age-range">
               <i class="pi pi-calendar"></i>
@@ -48,10 +53,10 @@
             </span>
           </div>
         </div>
-        
+
         <div class="card-footer">
-          <Button 
-            label="Подробнее" 
+          <Button
+            label="Подробнее"
             icon="pi pi-info-circle"
             class="p-button-text p-button-sm"
             @click.stop="showCompetenceDetails(competence)"
@@ -61,8 +66,8 @@
     </div>
 
     <div class="selection-actions">
-      <Button 
-        label="Сохранить выбор" 
+      <Button
+        label="Сохранить выбор"
         icon="pi pi-save"
         class="p-button-primary p-button-lg"
         :disabled="selectedCompetencies.length === 0"
@@ -71,8 +76,8 @@
     </div>
 
     <!-- Диалог с подробной информацией о компетенции -->
-    <Dialog 
-      v-model:visible="showDetailsDialog" 
+    <Dialog
+      v-model:visible="showDetailsDialog"
       :header="selectedCompetence?.name"
       modal
       :style="{ width: '90vw', maxWidth: '500px' }"
@@ -81,7 +86,10 @@
       <div v-if="selectedCompetence" class="competence-details">
         <div class="details-header">
           <div class="competence-image">
-            <img :src="selectedCompetence.image" :alt="selectedCompetence.name" />
+            <img
+              :src="selectedCompetence.image"
+              :alt="selectedCompetence.name"
+            />
           </div>
           <div class="details-meta">
             <div class="meta-item">
@@ -98,16 +106,18 @@
             </div>
           </div>
         </div>
-        
+
         <div class="details-content">
           <h4>Описание</h4>
           <p>{{ selectedCompetence.description }}</p>
-          
+
           <h4>Навыки и компетенции</h4>
           <ul class="skills-list">
-            <li v-for="skill in selectedCompetence.skills" :key="skill">{{ skill }}</li>
+            <li v-for="skill in selectedCompetence.skills" :key="skill">
+              {{ skill }}
+            </li>
           </ul>
-          
+
           <h4>Контакты главного эксперта</h4>
           <div class="mentor-contacts">
             <div class="contact-item">
@@ -130,14 +140,14 @@
 </template>
 
 <script>
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 
 export default {
-  name: 'ParentCompetenciesSelection',
+  name: "ParentCompetenciesSelection",
   components: {
     Button,
-    Dialog
+    Dialog,
   },
   data() {
     return {
@@ -147,186 +157,191 @@ export default {
       competencies: [
         {
           id: 1,
-          name: 'Веб-дизайн и разработка',
-          shortDescription: 'Создание современных веб-сайтов и приложений',
-          description: 'Компетенция включает в себя создание пользовательских интерфейсов, верстку, программирование на современных технологиях и оптимизацию веб-приложений.',
-          ageRange: '14-16 лет',
-          duration: '2 дня',
-          format: 'Индивидуальное',
-          icon: 'pi pi-desktop',
-          image: '/api/placeholder/400/200',
+          name: "Веб-дизайн и разработка",
+          shortDescription: "Создание современных веб-сайтов и приложений",
+          description:
+            "Компетенция включает в себя создание пользовательских интерфейсов, верстку, программирование на современных технологиях и оптимизацию веб-приложений.",
+          ageRange: "14-16 лет",
+          duration: "2 дня",
+          format: "Индивидуальное",
+          icon: "pi pi-desktop",
+          image: "/api/placeholder/400/200",
           skills: [
-            'HTML/CSS',
-            'JavaScript',
-            'Responsive Design',
-            'UI/UX Design',
-            'Frameworks (React, Vue)'
+            "HTML/CSS",
+            "JavaScript",
+            "Responsive Design",
+            "UI/UX Design",
+            "Frameworks (React, Vue)",
           ],
           mentor: {
-            name: 'Петров Иван Сергеевич',
-            email: 'i.petrov@mentor.ru',
-            phone: '+7 (999) 111-22-33'
-          }
+            name: "Петров Иван Сергеевич",
+            email: "i.petrov@mentor.ru",
+            phone: "+7 (999) 111-22-33",
+          },
         },
         {
           id: 2,
-          name: 'Мобильная разработка',
-          shortDescription: 'Разработка мобильных приложений для iOS и Android',
-          description: 'Создание нативных и кроссплатформенных мобильных приложений с использованием современных технологий и фреймворков.',
-          ageRange: '16-18 лет',
-          duration: '3 дня',
-          format: 'Командное',
-          icon: 'pi pi-mobile',
-          image: '/api/placeholder/400/200',
+          name: "Мобильная разработка",
+          shortDescription: "Разработка мобильных приложений для iOS и Android",
+          description:
+            "Создание нативных и кроссплатформенных мобильных приложений с использованием современных технологий и фреймворков.",
+          ageRange: "16-18 лет",
+          duration: "3 дня",
+          format: "Командное",
+          icon: "pi pi-mobile",
+          image: "/api/placeholder/400/200",
           skills: [
-            'Swift/Kotlin',
-            'React Native',
-            'Flutter',
-            'Mobile UI/UX',
-            'API Integration'
+            "Swift/Kotlin",
+            "React Native",
+            "Flutter",
+            "Mobile UI/UX",
+            "API Integration",
           ],
           mentor: {
-            name: 'Сидорова Мария Александровна',
-            email: 'm.sidorova@mentor.ru',
-            phone: '+7 (999) 222-33-44'
-          }
+            name: "Сидорова Мария Александровна",
+            email: "m.sidorova@mentor.ru",
+            phone: "+7 (999) 222-33-44",
+          },
         },
         {
           id: 3,
-          name: 'Кибербезопасность',
-          shortDescription: 'Защита информационных систем и данных',
-          description: 'Изучение методов защиты информации, выявление уязвимостей и создание безопасных систем.',
-          ageRange: '16-18 лет',
-          duration: '2 дня',
-          format: 'Индивидуальное',
-          icon: 'pi pi-shield',
-          image: '/api/placeholder/400/200',
+          name: "Кибербезопасность",
+          shortDescription: "Защита информационных систем и данных",
+          description:
+            "Изучение методов защиты информации, выявление уязвимостей и создание безопасных систем.",
+          ageRange: "16-18 лет",
+          duration: "2 дня",
+          format: "Индивидуальное",
+          icon: "pi pi-shield",
+          image: "/api/placeholder/400/200",
           skills: [
-            'Network Security',
-            'Penetration Testing',
-            'Cryptography',
-            'Incident Response',
-            'Security Auditing'
+            "Network Security",
+            "Penetration Testing",
+            "Cryptography",
+            "Incident Response",
+            "Security Auditing",
           ],
           mentor: {
-            name: 'Козлов Дмитрий Владимирович',
-            email: 'd.kozlov@mentor.ru',
-            phone: '+7 (999) 333-44-55'
-          }
+            name: "Козлов Дмитрий Владимирович",
+            email: "d.kozlov@mentor.ru",
+            phone: "+7 (999) 333-44-55",
+          },
         },
         {
           id: 4,
-          name: 'Искусственный интеллект',
-          shortDescription: 'Разработка AI-решений и машинное обучение',
-          description: 'Создание интеллектуальных систем, работа с данными и алгоритмами машинного обучения.',
-          ageRange: '16-18 лет',
-          duration: '3 дня',
-          format: 'Командное',
-          icon: 'pi pi-cog',
-          image: '/api/placeholder/400/200',
+          name: "Искусственный интеллект",
+          shortDescription: "Разработка AI-решений и машинное обучение",
+          description:
+            "Создание интеллектуальных систем, работа с данными и алгоритмами машинного обучения.",
+          ageRange: "16-18 лет",
+          duration: "3 дня",
+          format: "Командное",
+          icon: "pi pi-cog",
+          image: "/api/placeholder/400/200",
           skills: [
-            'Python',
-            'Machine Learning',
-            'Neural Networks',
-            'Data Analysis',
-            'TensorFlow/PyTorch'
+            "Python",
+            "Machine Learning",
+            "Neural Networks",
+            "Data Analysis",
+            "TensorFlow/PyTorch",
           ],
           mentor: {
-            name: 'Новикова Елена Игоревна',
-            email: 'e.novikova@mentor.ru',
-            phone: '+7 (999) 444-55-66'
-          }
+            name: "Новикова Елена Игоревна",
+            email: "e.novikova@mentor.ru",
+            phone: "+7 (999) 444-55-66",
+          },
         },
         {
           id: 5,
-          name: '3D-моделирование',
-          shortDescription: 'Создание трехмерных моделей и анимации',
-          description: 'Работа с 3D-графикой, создание моделей, текстур и анимации для различных областей применения.',
-          ageRange: '14-16 лет',
-          duration: '2 дня',
-          format: 'Индивидуальное',
-          icon: 'pi pi-box',
-          image: '/api/placeholder/400/200',
-          skills: [
-            'Blender',
-            '3ds Max',
-            'Maya',
-            'Texturing',
-            'Animation'
-          ],
+          name: "3D-моделирование",
+          shortDescription: "Создание трехмерных моделей и анимации",
+          description:
+            "Работа с 3D-графикой, создание моделей, текстур и анимации для различных областей применения.",
+          ageRange: "14-16 лет",
+          duration: "2 дня",
+          format: "Индивидуальное",
+          icon: "pi pi-box",
+          image: "/api/placeholder/400/200",
+          skills: ["Blender", "3ds Max", "Maya", "Texturing", "Animation"],
           mentor: {
-            name: 'Морозов Андрей Петрович',
-            email: 'a.morozov@mentor.ru',
-            phone: '+7 (999) 555-66-77'
-          }
+            name: "Морозов Андрей Петрович",
+            email: "a.morozov@mentor.ru",
+            phone: "+7 (999) 555-66-77",
+          },
         },
         {
           id: 6,
-          name: 'Робототехника',
-          shortDescription: 'Создание и программирование роботов',
-          description: 'Разработка роботизированных систем, программирование микроконтроллеров и создание автоматизированных решений.',
-          ageRange: '12-16 лет',
-          duration: '2 дня',
-          format: 'Командное',
-          icon: 'pi pi-cog',
-          image: '/api/placeholder/400/200',
+          name: "Робототехника",
+          shortDescription: "Создание и программирование роботов",
+          description:
+            "Разработка роботизированных систем, программирование микроконтроллеров и создание автоматизированных решений.",
+          ageRange: "12-16 лет",
+          duration: "2 дня",
+          format: "Командное",
+          icon: "pi pi-cog",
+          image: "/api/placeholder/400/200",
           skills: [
-            'Arduino',
-            'Raspberry Pi',
-            'C++',
-            'Electronics',
-            'Mechanics'
+            "Arduino",
+            "Raspberry Pi",
+            "C++",
+            "Electronics",
+            "Mechanics",
           ],
           mentor: {
-            name: 'Волков Сергей Николаевич',
-            email: 's.volkov@mentor.ru',
-            phone: '+7 (999) 666-77-88'
-          }
-        }
-      ]
-    }
+            name: "Волков Сергей Николаевич",
+            email: "s.volkov@mentor.ru",
+            phone: "+7 (999) 666-77-88",
+          },
+        },
+      ],
+    };
   },
   methods: {
     isSelected(competenceId) {
-      return this.selectedCompetencies.some(c => c.id === competenceId)
+      return this.selectedCompetencies.some((c) => c.id === competenceId);
     },
-    
+
     toggleCompetence(competence) {
       if (this.isSelected(competence.id)) {
         // Убираем из выбранных
-        this.selectedCompetencies = this.selectedCompetencies.filter(c => c.id !== competence.id)
+        this.selectedCompetencies = this.selectedCompetencies.filter(
+          (c) => c.id !== competence.id,
+        );
       } else if (this.selectedCompetencies.length < 3) {
         // Добавляем к выбранным
-        this.selectedCompetencies.push(competence)
+        this.selectedCompetencies.push(competence);
       }
     },
-    
+
     showCompetenceDetails(competence) {
-      this.selectedCompetence = competence
-      this.showDetailsDialog = true
+      this.selectedCompetence = competence;
+      this.showDetailsDialog = true;
     },
-    
+
     saveSelection() {
       if (this.selectedCompetencies.length === 0) {
-        return
+        return;
       }
-      
+
       // Сохраняем выбор (здесь будет API вызов)
-      console.log('Сохранение выбранных компетенций:', this.selectedCompetencies)
-      
+      console.log(
+        "Сохранение выбранных компетенций:",
+        this.selectedCompetencies,
+      );
+
       // Показываем уведомление об успехе
       this.$toast.add({
-        severity: 'success',
-        summary: 'Успешно',
+        severity: "success",
+        summary: "Успешно",
         detail: `Выбрано ${this.selectedCompetencies.length} компетенций`,
-        life: 3000
-      })
-      
+        life: 3000,
+      });
+
       // Переходим к странице "Мои компетенции"
-      this.$router.push('/parent/my-competencies')
-    }
-  }
-}
+      this.$router.push("/parent/my-competencies");
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -356,7 +371,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -594,21 +609,21 @@ export default {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .selection-info {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .details-header {
     flex-direction: column;
   }
-  
+
   .competence-image img {
     width: 100%;
     height: 150px;

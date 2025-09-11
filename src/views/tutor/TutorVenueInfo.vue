@@ -2,7 +2,9 @@
   <div class="venue-info-page">
     <div class="page-header">
       <h1 class="page-title">Информация о площадке</h1>
-      <p class="page-subtitle">Управление информацией о вашей образовательной площадке</p>
+      <p class="page-subtitle">
+        Управление информацией о вашей образовательной площадке
+      </p>
     </div>
 
     <div class="venue-form-container">
@@ -12,13 +14,13 @@
             <i class="pi pi-building"></i>
             Основная информация
           </h3>
-          <div class="status-badge" :class="venueStatusClass">
-            {{ venueData.moderationStatus }}
+          <div class="status-badge">
+            {{ venueData }}
           </div>
         </div>
 
         <div class="form-content">
-          <form @submit.prevent="saveVenueInfo">
+          <form @submit.prevent="">
             <div class="form-section">
               <h4 class="section-title">Общие данные</h4>
 
@@ -32,7 +34,9 @@
                     :class="{ 'p-invalid': !venueData.fullName }"
                     :disabled="venueData.verified"
                   />
-                  <small v-if="errors.fullName" class="p-error">{{ errors.fullName }}</small>
+                  <small v-if="errors.fullName" class="p-error">{{
+                    errors.fullName
+                  }}</small>
                 </div>
               </div>
 
@@ -40,13 +44,15 @@
                 <div class="form-field full-width">
                   <label for="venueName">Краткое название площадки *</label>
                   <InputText
-                      id="venueName"
-                      v-model="venueData.shortName"
-                      placeholder="Введите краткое название площадки"
-                      :class="{ 'p-invalid': !venueData.shortName }"
-                      :disabled="venueData.verified"
+                    id="venueName"
+                    v-model="venueData.shortName"
+                    placeholder="Введите краткое название площадки"
+                    :class="{ 'p-invalid': !venueData.shortName }"
+                    :disabled="venueData.verified"
                   />
-                  <small v-if="errors.shortName" class="p-error">{{ errors.shortName }}</small>
+                  <small v-if="errors.shortName" class="p-error">{{
+                    errors.shortName
+                  }}</small>
                 </div>
               </div>
 
@@ -60,10 +66,11 @@
                     :class="{ 'p-invalid': !venueData.address }"
                     :disabled="venueData.verified"
                   />
-                  <small v-if="errors.address" class="p-error">{{ errors.address }}</small>
+                  <small v-if="errors.address" class="p-error">{{
+                    errors.address
+                  }}</small>
                 </div>
               </div>
-
             </div>
 
             <div class="form-section">
@@ -72,13 +79,15 @@
               <div class="form-field">
                 <label for="contactEmail">Email *</label>
                 <InputText
-                    id="contactEmail"
-                    v-model="venueData.email"
-                    placeholder="info@venue.ru"
-                    :class="{ 'p-invalid': !venueData.email }"
-                    :disabled="venueData.verified"
+                  id="contactEmail"
+                  v-model="venueData.email"
+                  placeholder="info@venue.ru"
+                  :class="{ 'p-invalid': !venueData.email }"
+                  :disabled="venueData.verified"
                 />
-                <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
+                <small v-if="errors.email" class="p-error">{{
+                  errors.email
+                }}</small>
               </div>
 
               <div class="form-row"></div>
@@ -86,10 +95,10 @@
               <div class="form-field">
                 <label for="website">Веб-сайт</label>
                 <InputText
-                    id="website"
-                    v-model="venueData.website"
-                    placeholder="https://venue.ru"
-                    :disabled="venueData.verified"
+                  id="website"
+                  v-model="venueData.website"
+                  placeholder="https://venue.ru"
+                  :disabled="venueData.verified"
                 />
               </div>
             </div>
@@ -123,7 +132,11 @@
         </div>
         <div class="card-content">
           <div class="history-list">
-            <div v-for="change in changeHistory" :key="change.id" class="history-item">
+            <div
+              v-for="change in changeHistory"
+              :key="change.id"
+              class="history-item"
+            >
               <div class="history-icon">
                 <i :class="change.icon"></i>
               </div>
@@ -136,87 +149,90 @@
         </div>
       </div>
     </div>
-    <ToastPopup :content="errors.toastPopup"/>
+    <ToastPopup :content="errors.toastPopup" />
   </div>
 </template>
 
 <script lang="ts">
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
-import InputNumber from 'primevue/inputnumber'
-import {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-output.dto";
-import {UserState} from "../../../state/UserState";
-import {PlatformInputDto} from "@/api/resolvers/platform/dto/input/platform-input.dto";
-import {PlatformResolver} from "@/api/resolvers/platform/platform.resolver";
+import Button from "primevue/button";
+import InputText from "primevue/inputtext";
+import Textarea from "primevue/textarea";
+import InputNumber from "primevue/inputnumber";
+import { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto";
+import { UserState } from "../../../state/UserState";
+import { PlatformInputDto } from "@/api/resolvers/platform/dto/input/platform-input.dto";
+import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
 
 export default {
-  name: 'TutorVenueInfo',
+  name: "TutorVenueInfo",
   components: {
     ToastPopup,
     Button,
     InputText,
     Textarea,
-    InputNumber
+    InputNumber,
   },
   data() {
     return {
       platformResolver: new PlatformResolver(),
-      oldMail: '',
+      oldMail: "",
       venueData: {
         id: null,
-        fullName: '',
-        shortName: '',
-        address: '',
-        email: '',
-        website: '',
+        fullName: "",
+        shortName: "",
+        address: "",
+        email: "",
+        website: "",
         verified: false,
-        userId: UserState.id
+        userId: UserState.id,
       } as PlatformOutputDto,
       errors: {
         toastPopup: {
-          title: '',
-          message: ''
+          title: "",
+          message: "",
         },
-        fullName: '',
-        shortName: '',
-        address: '',
-        email: '',
+        fullName: "",
+        shortName: "",
+        address: "",
+        email: "",
       },
       changeHistory: [
         {
           id: 1,
-          icon: 'pi pi-send',
-          text: 'Информация отправлена на модерацию',
-          time: '15.12.2024, 14:30'
+          icon: "pi pi-send",
+          text: "Информация отправлена на модерацию",
+          time: "15.12.2024, 14:30",
         },
         {
           id: 2,
-          icon: 'pi pi-pencil',
-          text: 'Обновлено описание площадки',
-          time: '15.12.2024, 14:25'
+          icon: "pi pi-pencil",
+          text: "Обновлено описание площадки",
+          time: "15.12.2024, 14:25",
         },
         {
           id: 3,
-          icon: 'pi pi-plus',
-          text: 'Добавлена информация об оборудовании',
-          time: '15.12.2024, 14:20'
+          icon: "pi pi-plus",
+          text: "Добавлена информация об оборудовании",
+          time: "15.12.2024, 14:20",
         },
         {
           id: 4,
-          icon: 'pi pi-file-edit',
-          text: 'Создана первая версия информации о площадке',
-          time: '10.12.2024, 10:15'
-        }
-      ]
-    }
+          icon: "pi pi-file-edit",
+          text: "Создана первая версия информации о площадке",
+          time: "10.12.2024, 10:15",
+        },
+      ],
+    };
   },
   methods: {
     async sendForModeration() {
       if (this.validateForm()) {
-        this.venueData.moderationStatus = 'На модерации'
-        this.addHistoryEntry('pi pi-send', 'Информация отправлена на модерацию')
+        this.venueData.moderationStatus = "На модерации";
+        this.addHistoryEntry(
+          "pi pi-send",
+          "Информация отправлена на модерацию",
+        );
 
         const data: PlatformInputDto = {
           userId: UserState.id,
@@ -226,74 +242,76 @@ export default {
           email: this.venueData.email,
           website: this.venueData.website,
           verified: false,
-        }
+        };
 
-        const response = this.venueData.verified || this.venueData.id !== null
+        const response =
+          this.venueData.verified || this.venueData.id !== null
             ? await this.platformResolver.update({
-              id: this.venueData.id,
-              ...data,
-              email: this.oldMail === this.venueData.email
-                  ? undefined
-                  : this.venueData.email,
-            })
-            : await this.platformResolver.create(data)
+                id: this.venueData.id,
+                ...data,
+                email:
+                  this.oldMail === this.venueData.email
+                    ? undefined
+                    : this.venueData.email,
+              })
+            : await this.platformResolver.create(data);
 
         if (response.status === 200) {
-          await this.loadPlatform()
+          await this.loadPlatform();
         } else {
           this.errors.toastPopup = {
             title: response.status,
-            message: response.message
-          }
+            message: response.message,
+          };
         }
       }
     },
     editPlatform() {
       if (this.venueData.verified && this.venueData.id !== null) {
-        this.venueData.verified = false
+        this.venueData.verified = false;
       }
     },
     async loadPlatform() {
-      const response = await this.platformResolver.getByUserId(UserState.id)
+      const response = await this.platformResolver.getByUserId(UserState.id);
       if (response.status === 200) {
-        this.oldMail = response.message.email
-        this.venueData = response.message
+        this.oldMail = response.message.email;
+        this.venueData = response.message;
       }
     },
     validateForm() {
       let isValid = true;
       if (!this.venueData.fullName.trim()) {
-        this.errors.fullName = 'Полное название обязательно';
-        isValid = false
+        this.errors.fullName = "Полное название обязательно";
+        isValid = false;
       }
       if (!this.venueData.shortName.trim()) {
-        this.errors.shortName = 'Краткое название обязательно';
-        isValid = false
+        this.errors.shortName = "Краткое название обязательно";
+        isValid = false;
       }
       if (!this.venueData.address.trim()) {
-        this.errors.address = 'Адрес обязателен';
-        isValid = false
+        this.errors.address = "Адрес обязателен";
+        isValid = false;
       }
       if (!this.venueData.email.trim()) {
-        this.errors.email = 'Адрес электронной почты обязателен';
-        isValid = false
+        this.errors.email = "Адрес электронной почты обязателен";
+        isValid = false;
       }
-      return isValid
+      return isValid;
     },
     addHistoryEntry(icon, text) {
       const newEntry = {
         id: Date.now(),
         icon,
         text,
-        time: new Date().toLocaleString('ru-RU')
-      }
-      this.changeHistory.unshift(newEntry)
-    }
+        time: new Date().toLocaleString("ru-RU"),
+      };
+      this.changeHistory.unshift(newEntry);
+    },
   },
   async mounted() {
-    await this.loadPlatform()
-  }
-}
+    await this.loadPlatform();
+  },
+};
 </script>
 
 <style scoped>
@@ -325,7 +343,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -347,7 +365,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .form-card:hover {
@@ -469,7 +489,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   height: fit-content;
 }
 

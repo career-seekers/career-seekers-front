@@ -9,9 +9,9 @@
     <div class="filters-section">
       <div class="filter-group">
         <label for="ageFilter">Возрастная группа:</label>
-        <Dropdown 
+        <Dropdown
           id="ageFilter"
-          v-model="selectedAge" 
+          v-model="selectedAge"
           :options="ageGroups"
           optionLabel="label"
           optionValue="value"
@@ -20,7 +20,7 @@
         />
       </div>
       <div class="filter-group">
-        <Button 
+        <Button
           label="Сбросить фильтр"
           icon="pi pi-refresh"
           class="p-button-text p-button-sm"
@@ -31,15 +31,26 @@
 
     <!-- Список компетенций -->
     <div class="competencies-grid">
-      <div v-for="competence in filteredCompetencies" :key="competence.id" class="competence-card">
+      <div
+        v-for="competence in filteredCompetencies"
+        :key="competence.id"
+        class="competence-card"
+      >
         <div class="competence-header">
           <div class="competence-info">
             <h3 class="competence-name">{{ competence.name }}</h3>
-            <div class="competence-age">{{ ageGroups.find(group => group.value === competence.ageCategory).label }}</div>
+            <div class="competence-age">
+              {{
+                ageGroups.find(
+                  (group) => group.value === competence.ageCategory,
+                ).label
+              }}
+            </div>
             <div class="competence-description">
-              {{ competence.description.length > 30
-                ? competence.description.substring(0,30) + "..."
-                : competence.description
+              {{
+                competence.description.length > 30
+                  ? competence.description.substring(0, 30) + "..."
+                  : competence.description
               }}
             </div>
           </div>
@@ -55,28 +66,28 @@
             <div class="stat-label">Событий</div>
           </div>
         </div>
-        
+
         <div class="competence-actions">
-<!--          <Button -->
-<!--            label="Участники" -->
-<!--            icon="pi pi-users"-->
-<!--            class="p-button-outlined"-->
-<!--            @click="goToParticipants(competence.id)"-->
-<!--          />-->
-          <Button 
-            label="Документы" 
+          <!--          <Button -->
+          <!--            label="Участники" -->
+          <!--            icon="pi pi-users"-->
+          <!--            class="p-button-outlined"-->
+          <!--            @click="goToParticipants(competence.id)"-->
+          <!--          />-->
+          <Button
+            label="Документы"
             icon="pi pi-file-text"
             class="p-button-outlined"
             @click="goToDocuments(competence.id)"
           />
-<!--          <Button -->
-<!--            label="События" -->
-<!--            icon="pi pi-calendar"-->
-<!--            class="p-button-outlined"-->
-<!--            @click="goToEvents(competence.id)"-->
-<!--          />-->
-          <Button 
-            label="Подробнее" 
+          <!--          <Button -->
+          <!--            label="События" -->
+          <!--            icon="pi pi-calendar"-->
+          <!--            class="p-button-outlined"-->
+          <!--            @click="goToEvents(competence.id)"-->
+          <!--          />-->
+          <Button
+            label="Подробнее"
             icon="pi pi-eye"
             class="p-button-primary"
             @click="viewDetails(competence.id)"
@@ -87,10 +98,10 @@
 
     <!-- Диалог подробной информации -->
     <Dialog
-        v-model:visible="showDetailsDialog"
-        :header="selectedCompetence?.name || 'Компетенция'"
-        :modal="true"
-        :style="{ width: '800px' }"
+      v-model:visible="showDetailsDialog"
+      :header="selectedCompetence?.name || 'Компетенция'"
+      :modal="true"
+      :style="{ width: '800px' }"
     >
       <div v-if="selectedCompetence" class="competence-details">
         <div class="detail-section">
@@ -102,12 +113,20 @@
           <h4>Статистика</h4>
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetence.participantsCount }}</div>
+              <div class="stat-number">
+                {{ selectedCompetence.participantsCount }}
+              </div>
               <div class="stat-label">Участников</div>
             </div>
             <div class="stat-item">
               <div class="stat-number">
-                {{ ageGroups.find(group => group.value === selectedCompetence.ageCategory).label.split(' ')[0] }}
+                {{
+                  ageGroups
+                    .find(
+                      (group) => group.value === selectedCompetence.ageCategory,
+                    )
+                    .label.split(" ")[0]
+                }}
               </div>
               <div class="stat-label">лет</div>
             </div>
@@ -116,7 +135,9 @@
               <div class="stat-label">Событий</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetence.documents.length }}</div>
+              <div class="stat-number">
+                {{ selectedCompetence.documents.length }}
+              </div>
               <div class="stat-label">Документов</div>
             </div>
           </div>
@@ -124,10 +145,10 @@
       </div>
       <template #footer>
         <Button
-            label="Закрыть"
-            icon="pi pi-times"
-            class="p-button-text"
-            @click="closeDetails"
+          label="Закрыть"
+          icon="pi pi-times"
+          class="p-button-text"
+          @click="closeDetails"
         />
         <!--        <Button -->
         <!--          label="Участники" -->
@@ -141,20 +162,22 @@
 </template>
 
 <script lang="ts">
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import Dropdown from 'primevue/dropdown'
-import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
-import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
-import {UserState} from "../../../state/UserState";
-import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import Dropdown from "primevue/dropdown";
+import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import {
+  AgeCategories,
+  CompetenceResolver,
+} from "@/api/resolvers/competence/competence.resolver";
+import { UserState } from "../../../state/UserState";
 
 export default {
-  name: 'ExpertCompetencies',
+  name: "ExpertCompetencies",
   components: {
     Button,
     Dialog,
-    Dropdown
+    Dropdown,
   },
   data() {
     return {
@@ -168,51 +191,55 @@ export default {
         { value: AgeCategories.SCHOOL, label: "9-11 лет" },
         { value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет" },
       ],
-      competencies: [] as CompetenceOutputDto[]
-    }
+      competencies: [] as CompetenceOutputDto[],
+    };
   },
   computed: {
     filteredCompetencies() {
-      let filtered = this.competencies
+      let filtered = this.competencies;
 
       if (this.selectedAge) {
-        filtered = filtered.filter(competence => competence.ageCategory == this.selectedAge)
+        filtered = filtered.filter(
+          (competence) => competence.ageCategory == this.selectedAge,
+        );
       }
-      
-      return filtered
-    }
+
+      return filtered;
+    },
   },
   methods: {
     goToParticipants(competenceId) {
-      this.$router.push(`/expert/participants/${competenceId}`)
+      this.$router.push(`/expert/participants/${competenceId}`);
     },
     goToDocuments(competenceId) {
-      this.$router.push(`/expert/documents/${competenceId}`)
+      this.$router.push(`/expert/documents/${competenceId}`);
     },
     goToEvents(competenceId) {
-      this.$router.push(`/expert/events${competenceId}`)
+      this.$router.push(`/expert/events${competenceId}`);
     },
     viewDetails(competenceId) {
-      this.selectedCompetence = this.competencies.find(c => c.id === competenceId)
-      this.showDetailsDialog = true
+      this.selectedCompetence = this.competencies.find(
+        (c) => c.id === competenceId,
+      );
+      this.showDetailsDialog = true;
     },
     closeDetails() {
-      this.showDetailsDialog = false
-      this.selectedCompetence = null
+      this.showDetailsDialog = false;
+      this.selectedCompetence = null;
     },
     resetFilters() {
-      this.selectedAge = null
+      this.selectedAge = null;
     },
     async loadCompetencies() {
-      const competenceResolver = new CompetenceResolver()
-      const response = await competenceResolver.getAllByExpertId(UserState.id)
-      if (response.status === 200) this.competencies = response.message
-    }
+      const competenceResolver = new CompetenceResolver();
+      const response = await competenceResolver.getAllByExpertId(UserState.id);
+      if (response.status === 200) this.competencies = response.message;
+    },
   },
   async mounted() {
-    await this.loadCompetencies()
-  }
-}
+    await this.loadCompetencies();
+  },
+};
 </script>
 
 <style scoped>
@@ -244,7 +271,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -294,7 +321,10 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .competence-card:hover {
@@ -488,41 +518,41 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .competencies-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-group {
     min-width: auto;
   }
-  
+
   .competence-header {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .competence-stats {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
     padding: 1rem;
   }
-  
+
   .competence-actions {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -535,32 +565,32 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .competence-header {
     padding: 1rem;
   }
-  
+
   .competence-name {
     font-size: 1.1rem;
   }
-  
+
   .competence-stats {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
-  
+
   .competence-actions {
     padding: 0.75rem 1rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }

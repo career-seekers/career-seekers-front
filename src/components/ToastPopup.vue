@@ -1,27 +1,36 @@
 <script setup lang="ts">
-
 import Button from "primevue/button";
-import {computed, ref, watch} from "vue";
+import { computed, ref, watch } from "vue";
 
 const props = defineProps<{
   content: {
     title: string;
     message: string;
-  }
-}>()
+  };
+}>();
 
-const propCopy = computed(() => ({...props.content}))
-const showToast = ref(true)
-const closeToast = () => showToast.value = false
+const propCopy = computed(() => ({ ...props.content }));
+const showToast = ref(true);
+const closeToast = () => (showToast.value = false);
 
-watch(() => propCopy.value, () => showToast.value = true )
+watch(
+  () => propCopy.value,
+  () => (showToast.value = true),
+);
 </script>
 
 <template>
-  <div v-if="
-      showToast && content && content.title && content.message &&
-      content.title !== '' && content.message !== ''
-    " class="toast">
+  <div
+    v-if="
+      showToast &&
+      content &&
+      content.title &&
+      content.message &&
+      content.title !== '' &&
+      content.message !== ''
+    "
+    class="toast"
+  >
     <div class="toast-content">
       <div class="toast-icon">
         <i class="pi pi-info-circle"></i>
@@ -30,9 +39,9 @@ watch(() => propCopy.value, () => showToast.value = true )
         <h4 class="toast-title">{{ content.title }}</h4>
         <p class="toast-message">{{ content.message }}</p>
       </div>
-      <button class="toast-close" @click="closeToast">
+      <Button class="toast-close" @click="closeToast">
         <i class="pi pi-times"></i>
-      </button>
+      </Button>
     </div>
   </div>
 </template>

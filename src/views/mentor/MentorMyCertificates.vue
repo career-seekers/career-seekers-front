@@ -39,14 +39,14 @@
             </div>
           </div>
           <div class="certificate-actions">
-            <Button 
-              label="Скачать PDF" 
+            <Button
+              label="Скачать PDF"
               icon="pi pi-download"
               class="p-button-outlined"
               @click="downloadCertificate('mentor')"
             />
-            <Button 
-              label="Просмотреть" 
+            <Button
+              label="Просмотреть"
               icon="pi pi-eye"
               class="p-button-outlined"
               @click="viewCertificate('mentor')"
@@ -88,14 +88,14 @@
             </div>
           </div>
           <div class="certificate-actions">
-            <Button 
-              label="Скачать PDF" 
+            <Button
+              label="Скачать PDF"
               icon="pi pi-download"
               class="p-button-outlined"
               @click="downloadCertificate('mentor')"
             />
-            <Button 
-              label="Просмотреть" 
+            <Button
+              label="Просмотреть"
               icon="pi pi-eye"
               class="p-button-outlined"
               @click="viewCertificate('mentor')"
@@ -121,7 +121,9 @@
           <div class="certificate-details">
             <div class="detail-item">
               <span class="detail-label">Курс:</span>
-              <span class="detail-value">Современные технологии веб-разработки</span>
+              <span class="detail-value"
+                >Современные технологии веб-разработки</span
+              >
             </div>
             <div class="detail-item">
               <span class="detail-label">Прогресс:</span>
@@ -137,14 +139,14 @@
             </div>
           </div>
           <div class="certificate-actions">
-            <Button 
-              label="Продолжить курс" 
+            <Button
+              label="Продолжить курс"
               icon="pi pi-play"
               class="p-button-primary"
               @click="continueCourse"
             />
-            <Button 
-              label="Подробнее" 
+            <Button
+              label="Подробнее"
               icon="pi pi-info-circle"
               class="p-button-outlined"
               @click="viewCourseDetails"
@@ -161,8 +163,8 @@
           </div>
           <h3 class="empty-title">Добавить сертификат</h3>
           <p class="empty-text">Загрузите новый сертификат или диплом</p>
-          <Button 
-            label="Загрузить" 
+          <Button
+            label="Загрузить"
             icon="pi pi-upload"
             class="p-button-outlined"
             @click="uploadCertificate"
@@ -174,33 +176,33 @@
 </template>
 
 <script>
-import Button from 'primevue/button'
-import Tag from 'primevue/tag'
+import Button from "primevue/button";
+import Tag from "primevue/tag";
 
 export default {
-  name: 'MentorMyCertificates',
+  name: "MentorMyCertificates",
   components: {
     Button,
-    Tag
+    Tag,
   },
   methods: {
     downloadCertificate(type) {
-      console.log('Скачивание сертификата:', type)
+      console.log("Скачивание сертификата:", type);
     },
     viewCertificate(type) {
-      console.log('Просмотр сертификата:', type)
+      console.log("Просмотр сертификата:", type);
     },
     continueCourse() {
-      console.log('Продолжение курса')
+      console.log("Продолжение курса");
     },
     viewCourseDetails() {
-      console.log('Подробности курса')
+      console.log("Подробности курса");
     },
     uploadCertificate() {
-      console.log('Загрузка сертификата')
-    }
-  }
-}
+      console.log("Загрузка сертификата");
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -230,7 +232,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -251,7 +253,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .certificate-card:hover {
@@ -393,49 +397,49 @@ export default {
   .certificates-page {
     padding: 0 1rem;
   }
-  
+
   .certificates-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .certificate-header {
     padding: 0.75rem;
   }
-  
+
   .certificate-icon {
     width: 40px;
     height: 40px;
     font-size: 1rem;
   }
-  
+
   .certificate-title {
     font-size: 1rem;
   }
-  
+
   .certificate-content {
     padding: 1rem;
   }
-  
+
   .detail-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  
+
   .detail-value {
     text-align: left;
   }
-  
+
   .certificate-actions .p-button {
     font-size: 0.85rem;
     padding: 0.4rem 0.6rem;
   }
-  
+
   .empty-content {
     padding: 1.5rem;
   }
-  
+
   .empty-icon {
     width: 50px;
     height: 50px;
@@ -448,64 +452,64 @@ export default {
   .certificates-page {
     padding: 0 0.5rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .page-subtitle {
     font-size: 1rem;
   }
-  
+
   .certificates-grid {
     gap: 0.75rem;
   }
-  
+
   .certificate-header {
     padding: 0.5rem;
   }
-  
+
   .certificate-icon {
     width: 35px;
     height: 35px;
     font-size: 0.9rem;
   }
-  
+
   .certificate-title {
     font-size: 0.9rem;
   }
-  
+
   .certificate-content {
     padding: 0.75rem;
   }
-  
+
   .detail-label {
     font-size: 0.85rem;
     min-width: 100px;
   }
-  
+
   .detail-value {
     font-size: 0.9rem;
   }
-  
+
   .empty-content {
     padding: 1rem;
   }
-  
+
   .empty-icon {
     width: 45px;
     height: 45px;
     font-size: 1rem;
   }
-  
+
   .empty-title {
     font-size: 1rem;
   }
-  
+
   .empty-text {
     font-size: 0.8rem;
   }
-  
+
   .certificate-actions .p-button {
     font-size: 0.8rem;
     padding: 0.35rem 0.5rem;

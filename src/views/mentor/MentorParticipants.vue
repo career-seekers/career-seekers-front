@@ -8,27 +8,27 @@
     <!-- Фильтры и поиск -->
     <div class="filters-section">
       <div class="search-box">
-        <InputText 
-          v-model="searchQuery" 
+        <InputText
+          v-model="searchQuery"
           placeholder="Поиск по имени или компетенции..."
           class="search-input"
         />
         <i class="pi pi-search search-icon"></i>
       </div>
-      
+
       <div class="filter-buttons">
-        <Button 
-          label="Все" 
+        <Button
+          label="Все"
           :class="{ 'p-button-primary': activeFilter === 'all' }"
           @click="setFilter('all')"
         />
-        <Button 
-          label="Активные" 
+        <Button
+          label="Активные"
           :class="{ 'p-button-primary': activeFilter === 'active' }"
           @click="setFilter('active')"
         />
-        <Button 
-          label="Прошли во 2 этап" 
+        <Button
+          label="Прошли во 2 этап"
           :class="{ 'p-button-primary': activeFilter === 'stage2' }"
           @click="setFilter('stage2')"
         />
@@ -37,8 +37,8 @@
 
     <!-- Список участников -->
     <div class="participants-grid">
-      <div 
-        v-for="participant in filteredParticipants" 
+      <div
+        v-for="participant in filteredParticipants"
         :key="participant.id"
         class="participant-card"
       >
@@ -49,28 +49,28 @@
           <div class="participant-info">
             <h3 class="participant-name">{{ participant.name }}</h3>
             <div class="participant-status">
-              <Tag 
-                :value="participant.status.text" 
+              <Tag
+                :value="participant.status.text"
                 :severity="participant.status.severity"
               />
             </div>
           </div>
           <div class="card-actions">
-            <Button 
-              icon="pi pi-pencil" 
+            <Button
+              icon="pi pi-pencil"
               class="p-button-text p-button-sm"
               @click="editParticipant(participant)"
               v-tooltip="'Редактировать'"
             />
-            <Button 
-              icon="pi pi-times" 
+            <Button
+              icon="pi pi-times"
               class="p-button-text p-button-sm p-button-danger"
               @click="removeParticipant(participant)"
               v-tooltip="'Удалить'"
             />
           </div>
         </div>
-        
+
         <div class="card-content">
           <!-- Информация о ребенке -->
           <div class="info-section">
@@ -144,14 +144,14 @@
 
           <!-- Действия -->
           <div class="card-actions-bottom">
-            <Button 
-              label="Связаться с родителем" 
+            <Button
+              label="Связаться с родителем"
               icon="pi pi-envelope"
               class="p-button-outlined p-button-sm"
               @click="contactParent(participant)"
             />
-            <Button 
-              label="Посмотреть прогресс" 
+            <Button
+              label="Посмотреть прогресс"
               icon="pi pi-chart-line"
               class="p-button-outlined p-button-sm"
               @click="viewProgress(participant)"
@@ -163,8 +163,8 @@
 
     <!-- Кнопка добавления -->
     <div class="add-participant-section">
-      <Button 
-        label="Добавить участника" 
+      <Button
+        label="Добавить участника"
         icon="pi pi-user-plus"
         class="p-button-primary p-button-lg"
         @click="addParticipant"
@@ -174,133 +174,137 @@
 </template>
 
 <script>
-import InputText from 'primevue/inputtext'
-import Button from 'primevue/button'
-import Tag from 'primevue/tag'
+import InputText from "primevue/inputtext";
+import Button from "primevue/button";
+import Tag from "primevue/tag";
 
 export default {
-  name: 'MentorParticipants',
+  name: "MentorParticipants",
   components: {
     InputText,
     Button,
-    Tag
+    Tag,
   },
   data() {
     return {
-      searchQuery: '',
-      activeFilter: 'all',
+      searchQuery: "",
+      activeFilter: "all",
       participants: [
         {
           id: 1,
-          name: 'Иванов Петр Антонович',
-          age: '14 лет',
-          grade: '8 класс',
-          competence: 'Веб-дизайн и разработка',
+          name: "Иванов Петр Антонович",
+          age: "14 лет",
+          grade: "8 класс",
+          competence: "Веб-дизайн и разработка",
           status: {
-            text: 'Участник',
-            severity: 'info'
+            text: "Участник",
+            severity: "info",
           },
           parent: {
-            name: 'Иванова Анна Петровна',
-            phone: '+7 (999) 123-45-67',
-            email: 'anna.ivanova@email.com'
+            name: "Иванова Анна Петровна",
+            phone: "+7 (999) 123-45-67",
+            email: "anna.ivanova@email.com",
           },
           Mentor: {
-            name: 'Морозов Андрей Сергеевич',
-            email: 'a.morozov@mentor.ru',
-            phone: '+7 (000) 555 66 77'
-          }
+            name: "Морозов Андрей Сергеевич",
+            email: "a.morozov@mentor.ru",
+            phone: "+7 (000) 555 66 77",
+          },
         },
         {
           id: 2,
-          name: 'Петрова Анна Владимировна',
-          age: '15 лет',
-          grade: '9 класс',
-          competence: '3D-моделирование',
+          name: "Петрова Анна Владимировна",
+          age: "15 лет",
+          grade: "9 класс",
+          competence: "3D-моделирование",
           status: {
-            text: 'Прошла во 2 этап',
-            severity: 'success'
+            text: "Прошла во 2 этап",
+            severity: "success",
           },
           parent: {
-            name: 'Петров Владимир Иванович',
-            phone: '+7 (999) 234-56-78',
-            email: 'v.petrov@email.com'
+            name: "Петров Владимир Иванович",
+            phone: "+7 (999) 234-56-78",
+            email: "v.petrov@email.com",
           },
           Mentor: {
-            name: 'Козлова Елена Михайловна',
-            email: 'e.kozlova@mentor.ru',
-            phone: '+7 (000) 555 88 99'
-          }
+            name: "Козлова Елена Михайловна",
+            email: "e.kozlova@mentor.ru",
+            phone: "+7 (000) 555 88 99",
+          },
         },
         {
           id: 3,
-          name: 'Сидоров Максим Дмитриевич',
-          age: '13 лет',
-          grade: '7 класс',
-          competence: 'Программирование на Python',
+          name: "Сидоров Максим Дмитриевич",
+          age: "13 лет",
+          grade: "7 класс",
+          competence: "Программирование на Python",
           status: {
-            text: 'Активный',
-            severity: 'warning'
+            text: "Активный",
+            severity: "warning",
           },
           parent: {
-            name: 'Сидорова Ольга Николаевна',
-            phone: '+7 (999) 345-67-89',
-            email: 'o.sidorova@email.com'
+            name: "Сидорова Ольга Николаевна",
+            phone: "+7 (999) 345-67-89",
+            email: "o.sidorova@email.com",
           },
           Mentor: {
-            name: 'Новиков Игорь Александрович',
-            email: 'i.novikov@mentor.ru',
-            phone: '+7 (000) 555 11 22'
-          }
-        }
-      ]
-    }
+            name: "Новиков Игорь Александрович",
+            email: "i.novikov@mentor.ru",
+            phone: "+7 (000) 555 11 22",
+          },
+        },
+      ],
+    };
   },
   computed: {
     filteredParticipants() {
-      let filtered = this.participants
+      let filtered = this.participants;
 
       // Фильтр по статусу
-      if (this.activeFilter === 'active') {
-        filtered = filtered.filter(p => p.status.severity === 'warning' || p.status.severity === 'info')
-      } else if (this.activeFilter === 'stage2') {
-        filtered = filtered.filter(p => p.status.severity === 'success')
+      if (this.activeFilter === "active") {
+        filtered = filtered.filter(
+          (p) =>
+            p.status.severity === "warning" || p.status.severity === "info",
+        );
+      } else if (this.activeFilter === "stage2") {
+        filtered = filtered.filter((p) => p.status.severity === "success");
       }
 
       // Поиск
       if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase()
-        filtered = filtered.filter(p => 
-          p.name.toLowerCase().includes(query) ||
-          p.competence.toLowerCase().includes(query) ||
-          p.parent.name.toLowerCase().includes(query)
-        )
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (p) =>
+            p.name.toLowerCase().includes(query) ||
+            p.competence.toLowerCase().includes(query) ||
+            p.parent.name.toLowerCase().includes(query),
+        );
       }
 
-      return filtered
-    }
+      return filtered;
+    },
   },
   methods: {
     setFilter(filter) {
-      this.activeFilter = filter
+      this.activeFilter = filter;
     },
     addParticipant() {
-      console.log('Добавление участника')
+      console.log("Добавление участника");
     },
     editParticipant(participant) {
-      console.log('Редактирование участника:', participant.name)
+      console.log("Редактирование участника:", participant.name);
     },
     removeParticipant(participant) {
-      console.log('Удаление участника:', participant.name)
+      console.log("Удаление участника:", participant.name);
     },
     contactParent(participant) {
-      console.log('Связь с родителем:', participant.parent.name)
+      console.log("Связь с родителем:", participant.parent.name);
     },
     viewProgress(participant) {
-      console.log('Просмотр прогресса:', participant.name)
-    }
-  }
-}
+      console.log("Просмотр прогресса:", participant.name);
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -330,7 +334,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -386,7 +390,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .participant-card:hover {
@@ -558,60 +564,60 @@ export default {
   .participants-page {
     padding: 0 1rem;
   }
-  
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
   }
-  
+
   .search-box {
     max-width: none;
   }
-  
+
   .filter-buttons {
     justify-content: center;
   }
-  
+
   .participants-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .card-header {
     padding: 0.75rem;
   }
-  
+
   .participant-avatar {
     width: 40px;
     height: 40px;
     font-size: 1rem;
   }
-  
+
   .participant-name {
     font-size: 1rem;
   }
-  
+
   .card-content {
     padding: 1rem;
   }
-  
+
   .info-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  
+
   .info-value {
     text-align: left;
   }
-  
+
   .Mentor-info {
     flex-direction: column;
     text-align: center;
     gap: 0.75rem;
   }
-  
+
   .card-actions-bottom {
     flex-direction: column;
     gap: 0.5rem;
@@ -623,64 +629,64 @@ export default {
   .participants-page {
     padding: 0 0.5rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .page-subtitle {
     font-size: 1rem;
   }
-  
+
   .participants-grid {
     gap: 0.75rem;
   }
-  
+
   .card-header {
     padding: 0.5rem;
   }
-  
+
   .participant-avatar {
     width: 35px;
     height: 35px;
     font-size: 0.9rem;
   }
-  
+
   .participant-name {
     font-size: 0.9rem;
   }
-  
+
   .card-content {
     padding: 0.75rem;
   }
-  
+
   .section-title {
     font-size: 0.9rem;
   }
-  
+
   .info-label {
     font-size: 0.85rem;
     min-width: 80px;
   }
-  
+
   .info-value {
     font-size: 0.9rem;
   }
-  
+
   .Mentor-info {
     padding: 0.75rem;
   }
-  
+
   .Mentor-avatar {
     width: 35px;
     height: 35px;
     font-size: 0.9rem;
   }
-  
+
   .Mentor-name {
     font-size: 0.9rem;
   }
-  
+
   .contact-item {
     font-size: 0.8rem;
   }
