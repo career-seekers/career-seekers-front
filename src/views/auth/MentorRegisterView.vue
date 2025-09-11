@@ -67,6 +67,7 @@
               v-model="registerForm.telegramLink"
               placeholder="Например, @telegram_username"
               class="w-full"
+              @blur="validateTelegramLink"
               :class="{ 'p-invalid': errors.telegramLink }"
           />
           <small v-if="errors.telegramLink" class="p-error">{{ errors.telegramLink }}</small>
@@ -276,9 +277,13 @@ export default {
     validateEmail() {
       if (this.registerForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.registerForm.email)) {
         this.errors.email = 'Введите корректный email'
-      } else {
-        this.errors.email = ''
-      }
+      } else this.errors.email = ''
+    },
+
+    validateTelegramLink() {
+      if (this.registerForm.telegramLink && !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.registerForm.telegramLink)) {
+        this.errors.telegramLink = 'Введите корректную ссылку'
+      } else this.errors.telegramLink = ''
     },
 
     validateForm() {
@@ -316,8 +321,12 @@ export default {
         isValid = false
       }
 
+      //Проверка телеграм ссылки
       if (!this.registerForm.telegramLink.trim()) {
         this.errors.telegramLink = 'Ссылка обязательна для связи'
+        isValid = false
+      } else if (!/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.registerForm.telegramLink)) {
+        this.errors.telegramLink = 'Введите корректную ссылку'
         isValid = false
       }
 

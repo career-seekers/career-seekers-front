@@ -78,6 +78,7 @@
                   placeholder="Например, @telegram_username"
                   class="w-full"
                   :class="{ 'p-invalid': errors.telegramLink }"
+                  @blur="validateTelegramLink"
               />
               <small v-if="errors.telegramLink" class="p-error">{{ errors.telegramLink }}</small>
             </div>
@@ -604,6 +605,9 @@ export default {
         if (!this.parentForm.telegramLink.trim()) {
           this.errors.telegramLink = 'Ссылка обязательна для связи'
           isValid = false
+        } else if (!/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.registerForm.telegramLink)) {
+          this.errors.telegramLink = 'Введите корректную ссылку'
+          isValid = false
         }
 
         if (!this.parentForm.birthDate.trim()) {
@@ -775,6 +779,12 @@ export default {
     onPlatformCertificateRemove() {
       this.childForm.platformCertificate = null
       this.errors.platformCertificate = ''
+    },
+
+    validateTelegramLink() {
+      if (this.registerForm.telegramLink && !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.registerForm.telegramLink)) {
+        this.errors.telegramLink = 'Введите корректную ссылку'
+      } else this.errors.telegramLink = ''
     },
 
     handleFileSelect(event, fieldName) {
