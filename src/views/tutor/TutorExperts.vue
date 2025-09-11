@@ -202,7 +202,7 @@ import { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto";
 import { UpdateUserInputDto } from "@/api/resolvers/user/dto/input/update-user-input.dto";
 import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
 import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
-import {UserState} from "../../../state/UserState";
+import { UserState } from "../../../state/UserState";
 
 export default {
   name: "TutorExperts",

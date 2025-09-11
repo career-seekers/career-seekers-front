@@ -161,44 +161,37 @@
           </div>
 
           <div class="field">
-            <label for="consentFile" class="field-label"
-              >Согласие на обработку персональных данных *</label
-            >
-            <FileUpload
-              id="consentFile"
-              mode="basic"
-              accept=".pdf,.doc,.docx"
-              :maxFileSize="5000000"
-              chooseLabel="Выберите файл"
-              class="w-full"
-              :class="{ 'p-invalid': errors.consentFile }"
-              @select="onFileSelect"
-              @remove="onFileRemove"
-            />
-            <small v-if="errors.consentFile" class="p-error">{{
-              errors.consentFile
+            <div class="flex align-items-center">
+              <Checkbox
+                input-id="consent"
+                v-model="registerForm.consent"
+                :binary="true"
+                :class="{ 'p-invalid': errors.consent }"
+              />
+              <label for="consent" class="ml-2 agreement-label">
+                Я согласен(-а) на
+                <a href="#" class="link" @click.prevent="showAgreement">
+                  обработку персональных данных
+                </a>
+              </label>
+            </div>
+            <small v-if="errors.consent" class="p-error">{{
+              errors.consent
             }}</small>
-            <small class="p-text-secondary"
-              >Поддерживаемые форматы: PDF, DOC, DOCX (максимум 5 МБ)</small
-            >
           </div>
 
           <div class="field">
             <div class="flex align-items-center">
               <Checkbox
-                id="agreement"
+                input-id="agreement"
                 v-model="registerForm.agreement"
                 :binary="true"
                 :class="{ 'p-invalid': errors.agreement }"
               />
               <label for="agreement" class="ml-2 agreement-label">
                 Я согласен с
-                <a href="#" class="link" @click.prevent="showTerms"
-                  >условиями использования</a
-                >
-                и
-                <a href="#" class="link" @click.prevent="showPrivacy"
-                  >политикой конфиденциальности</a
+                <a href="#" class="link" @click.prevent="showPolitics"
+                  >политикой использования сервиса</a
                 >
               </label>
             </div>
@@ -226,24 +219,94 @@
 
     <!-- Диалог условий использования -->
     <Dialog
-      v-model:visible="showTermsDialog"
+      v-model:visible="showAgreementDialog"
       modal
-      header="Условия использования"
-      :style="{ width: '90vw', maxWidth: '500px' }"
-      class="terms-dialog"
+      :show-header="false"
+      :style="{
+        width: '90vw',
+        maxWidth: '650px',
+        height: '90vh',
+        position: 'relative',
+        borderRadius: '6px',
+      }"
+      class="privacy-dialog"
     >
-      <p>Здесь будут условия использования сервиса...</p>
+      <div
+        style="
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 90vh;
+          width: 100%;
+          overflow: hidden;
+          background-color: white;
+          border-radius: 6px;
+        "
+      >
+        <VuePdfEmbed
+          style="width: 100%; position: absolute"
+          source="/docs/agreement.pdf"
+        />
+        <Button
+          style="
+            position: absolute;
+            top: 0.5rem;
+            padding: 1rem;
+            right: 0.5rem;
+            width: auto;
+            height: 5%;
+          "
+          icon="pi pi-times"
+          class="p-button-text p-button-plain"
+          aria-label="Close"
+          @click="showAgreementDialog = false"
+        />
+      </div>
     </Dialog>
 
     <!-- Диалог политики конфиденциальности -->
     <Dialog
-      v-model:visible="showPrivacyDialog"
+      v-model:visible="showPoliticsDialog"
       modal
-      header="Политика конфиденциальности"
-      :style="{ width: '90vw', maxWidth: '500px' }"
+      :show-header="false"
+      :style="{
+        width: '90vw',
+        maxWidth: '650px',
+        height: '90vh',
+        position: 'relative',
+        borderRadius: '6px',
+      }"
       class="privacy-dialog"
     >
-      <p>Здесь будет политика конфиденциальности...</p>
+      <div
+        style="
+          position: absolute;
+          padding: 3rem 0;
+          left: 0;
+          height: 90vh;
+          width: 100%;
+          background-color: white;
+          border-radius: 6px;
+        "
+      >
+        <div style="height: 100%; overflow: scroll">
+          <VuePdfEmbed source="/docs/politics.pdf" />
+        </div>
+        <Button
+          style="
+            position: fixed;
+            top: 0.5rem;
+            padding: 1rem;
+            right: 0.5rem;
+            width: auto;
+            height: 5%;
+          "
+          icon="pi pi-times"
+          class="p-button-text p-button-plain"
+          aria-label="Close"
+          @click="showPoliticsDialog = false"
+        />
+      </div>
     </Dialog>
 
     <ToastPopup :content="errors.toastPopup" />
@@ -267,6 +330,7 @@ import {
   TutorStateInterface,
 } from "../../../state/UserState.types.js";
 import { FileManager } from "@/utils/FileManager";
+import VuePdfEmbed from "vue-pdf-embed";
 
 export default {
   name: "TutorRegisterView",
@@ -279,12 +343,13 @@ export default {
     FileUpload,
     Checkbox,
     Dialog,
+    VuePdfEmbed,
   },
   data() {
     return {
       isLoading: false,
-      showTermsDialog: false,
-      showPrivacyDialog: false,
+      showAgreementDialog: false,
+      showPoliticsDialog: false,
       registerForm: {
         fullName: "",
         birthDate: "",
@@ -295,8 +360,11 @@ export default {
         email: "",
         password: "",
         confirmPassword: "",
-        consentFile: null,
+        consent: false,
         agreement: false,
+        consentFile: new File(["Содержимое файла"], "myfile.txt", {
+          type: "text/plain",
+        }),
       },
       errors: {
         toastPopup: {
@@ -312,7 +380,7 @@ export default {
         email: "",
         password: "",
         confirmPassword: "",
-        consentFile: "",
+        consent: "",
         agreement: "",
       },
     };
@@ -442,52 +510,21 @@ export default {
         isValid = false;
       }
 
-      // Проверка файла согласия
-      if (!this.registerForm.consentFile) {
-        this.errors.consentFile =
-          "Необходимо загрузить согласие на обработку персональных данных";
+      // Проверка согласия на обработку данных
+      if (!this.registerForm.consent) {
+        this.errors.consent =
+          "Необходимо согласиться с обработкой персональных данных";
         isValid = false;
       }
 
-      // Проверка согласия с условиями
+      // Проверка согласия с условиями использования
       if (!this.registerForm.agreement) {
         this.errors.agreement =
-          "Необходимо согласиться с условиями использования";
+          "Необходимо согласиться с политикой использования сервиса";
         isValid = false;
       }
 
       return isValid;
-    },
-
-    onFileSelect(event) {
-      const file = event.files[0];
-      if (file) {
-        // Проверяем размер файла (5 МБ)
-        if (file.size > 5000000) {
-          this.errors.consentFile = "Размер файла не должен превышать 5 МБ";
-          return;
-        }
-
-        // Проверяем тип файла
-        const allowedTypes = [
-          "application/pdf",
-          "application/msword",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        ];
-        if (!allowedTypes.includes(file.type)) {
-          this.errors.consentFile =
-            "Поддерживаются только файлы PDF, DOC и DOCX";
-          return;
-        }
-
-        this.registerForm.consentFile = file;
-        this.errors.consentFile = "";
-      }
-    },
-
-    onFileRemove() {
-      this.registerForm.consentFile = null;
-      this.errors.consentFile = "";
     },
 
     async handleRegister() {
@@ -556,12 +593,12 @@ export default {
       }
     },
 
-    showTerms() {
-      this.showTermsDialog = true;
+    showAgreement() {
+      this.showAgreementDialog = true;
     },
 
-    showPrivacy() {
-      this.showPrivacyDialog = true;
+    showPolitics() {
+      this.showPoliticsDialog = true;
     },
   },
 };
