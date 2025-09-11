@@ -163,12 +163,12 @@
           <div class="field">
             <div class="flex align-items-center">
               <Checkbox
-                id="agreement"
+                input-id="consent"
                 v-model="registerForm.consent"
                 :binary="true"
                 :class="{ 'p-invalid': errors.consent }"
               />
-              <label for="agreement" class="ml-2 agreement-label">
+              <label for="consent" class="ml-2 agreement-label">
                 Я согласен(-а) на
                 <a href="#" class="link" @click.prevent="showAgreement">
                   обработку персональных данных
@@ -176,14 +176,14 @@
               </label>
             </div>
             <small v-if="errors.consent" class="p-error">{{
-              errors.agreement
+              errors.consent
             }}</small>
           </div>
 
           <div class="field">
             <div class="flex align-items-center">
               <Checkbox
-                id="agreement"
+                input-id="agreement"
                 v-model="registerForm.agreement"
                 :binary="true"
                 :class="{ 'p-invalid': errors.agreement }"
