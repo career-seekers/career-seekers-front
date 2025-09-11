@@ -14,9 +14,9 @@
             <i class="pi pi-building"></i>
             Основная информация
           </h3>
-          <div class="status-badge">
-            {{ venueData }}
-          </div>
+<!--          <div class="status-badge">-->
+<!--            {{ venueData }}-->
+<!--          </div>-->
         </div>
 
         <div class="form-content">
