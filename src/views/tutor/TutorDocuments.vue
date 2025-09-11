@@ -2,16 +2,18 @@
   <div class="documents-page">
     <div class="page-header">
       <h1 class="page-title">Документы</h1>
-      <p class="page-subtitle">Управление документами, подтверждающими экспертность</p>
+      <p class="page-subtitle">
+        Управление документами, подтверждающими экспертность
+      </p>
     </div>
 
     <!-- Фильтры -->
     <div class="filters-section">
       <div class="filter-group">
         <label for="typeFilter">Тип документа:</label>
-        <Dropdown 
+        <Dropdown
           id="typeFilter"
-          v-model="selectedType" 
+          v-model="selectedType"
           :options="docTypes"
           optionLabel="label"
           optionValue="value"
@@ -21,7 +23,7 @@
       </div>
       <div class="filter-group">
         <label for="statusFilter">Компетенция:</label>
-        <Dropdown 
+        <Dropdown
           id="statusFilter"
           v-model="selectedCompetence"
           :options="competencies"
@@ -30,16 +32,16 @@
           class="filter-dropdown"
         >
           <template #option="slotProps">
-            {{ slotProps ? slotProps.option.name : 'Не выбран' }}
+            {{ slotProps ? slotProps.option.name : "Не выбран" }}
           </template>
           <template #value="{ value }">
-            {{ value ? value.name : 'Все компетенции' }}
+            {{ value ? value.name : "Все компетенции" }}
           </template>
         </Dropdown>
       </div>
       <div class="filter-group">
-        <Button 
-          label="Сбросить фильтры" 
+        <Button
+          label="Сбросить фильтры"
           icon="pi pi-refresh"
           class="p-button-text p-button-sm"
           @click="resetFilters"
@@ -49,7 +51,11 @@
 
     <!-- Список документов -->
     <div class="documents-grid">
-      <div v-for="document in filteredDocuments" :key="document.id" class="document-card">
+      <div
+        v-for="document in filteredDocuments"
+        :key="document.id"
+        class="document-card"
+      >
         <div class="document-header">
           <div class="document-icon">
             <i class="pi pi-file"></i>
@@ -58,71 +64,82 @@
             <h3 class="document-name">Документ №{{ document.id }}</h3>
           </div>
           <div class="document-actions">
-<!--            <Button-->
-<!--              icon="pi pi-eye"-->
-<!--              style="background: white;"-->
-<!--              class="p-button-text p-button-sm"-->
-<!--              @click="viewDocument(document)"-->
-<!--              v-tooltip="'Просмотреть'"-->
-<!--            />-->
-            <Button 
+            <!--            <Button-->
+            <!--              icon="pi pi-eye"-->
+            <!--              style="background: white;"-->
+            <!--              class="p-button-text p-button-sm"-->
+            <!--              @click="viewDocument(document)"-->
+            <!--              v-tooltip="'Просмотреть'"-->
+            <!--            />-->
+            <Button
               icon="pi pi-download"
-              style="background: white;"
+              style="background: white"
               class="p-button-text p-button-sm"
               @click="downloadDocument(document)"
               v-tooltip="'Скачать'"
             />
-            <Button 
+            <Button
               icon="pi pi-trash"
-              style="background: white;"
+              style="background: white"
               class="p-button-text p-button-sm p-button-danger"
               @click="deleteDocument(document)"
               v-tooltip="'Удалить'"
             />
           </div>
         </div>
-        
+
         <div class="document-content">
           <div class="document-details">
             <div class="detail-item">
               <span class="detail-label">Тип:</span>
-              <span class="detail-value">{{ docTypes.find(type => type.value === document.documentType).label }}</span>
+              <span class="detail-value">{{
+                docTypes.find((type) => type.value === document.documentType)
+                  .label
+              }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Дата загрузки:</span>
-              <span class="detail-value">{{ document.createdAt.substring(0, 10) }}</span>
+              <span class="detail-value">{{
+                document.createdAt.substring(0, 10)
+              }}</span>
             </div>
             <div v-if="document" class="detail-item">
               <span class="detail-label">Компетенция:</span>
-              <span class="detail-value">{{ documentCompetence(document).name }}</span>
+              <span class="detail-value">{{
+                documentCompetence(document).name
+              }}</span>
             </div>
           </div>
-          
+
           <div v-if="documentExpert(document)" class="mentor-info">
             <h4 class="mentor-title">Связанный эксперт:</h4>
-            <p class="mentor-name">{{
-                documentExpert(document).lastName + " "
-                + documentExpert(document).firstName + " "
-                + documentExpert(document).patronymic
-              }}</p>
+            <p class="mentor-name">
+              {{
+                documentExpert(document).lastName +
+                " " +
+                documentExpert(document).firstName +
+                " " +
+                documentExpert(document).patronymic
+              }}
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <Dialog
-        v-if="selectedDocument"
-        v-model:visible="showPreviewDialog"
-        :header="'Документ №' + selectedDocument.id"
-        :modal="true"
-        :style="{ width: '800px' }"
+      v-if="selectedDocument"
+      v-model:visible="showPreviewDialog"
+      :header="'Документ №' + selectedDocument.id"
+      :modal="true"
+      :style="{ width: '800px' }"
     >
       <template #footer>
         <Button
-            label="Закрыть"
-            icon="pi pi-times"
-            class="p-button-text"
-            @click="showPreviewDialog = false"
+          label="Закрыть"
+          icon="pi pi-times"
+          class="p-button-text"
+          @click="showPreviewDialog = false"
         />
         <!--        <Button -->
         <!--          label="Участники" -->
@@ -133,30 +150,28 @@
       </template>
     </Dialog>
 
-    <ToastPopup :content="errors.toastPopup"/>
+    <ToastPopup :content="errors.toastPopup" />
   </div>
 </template>
 
 <script lang="ts">
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
-import Dropdown from 'primevue/dropdown'
-import Textarea from 'primevue/textarea'
-import FileUpload from 'primevue/fileupload'
-import {FileResolver, FileType} from "@/api/resolvers/files/file.resolver";
-import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
-import { UserState} from "../../../state/UserState";
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import Dropdown from "primevue/dropdown";
+import Textarea from "primevue/textarea";
+import FileUpload from "primevue/fileupload";
+import { FileResolver, FileType } from "@/api/resolvers/files/file.resolver";
+import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
+import { UserState } from "../../../state/UserState";
 import ToastPopup from "@/components/ToastPopup.vue";
-import {UserResolver} from "@/api/resolvers/user/user.resolver";
-import {
-  CompetenceDocumentsOutputDto
-} from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto";
-import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
-import {CompetenceDocumentsResolver} from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
+import { UserResolver } from "@/api/resolvers/user/user.resolver";
+import { CompetenceDocumentsOutputDto } from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto";
+import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
 
 export default {
-  name: 'TutorDocuments',
+  name: "TutorDocuments",
   components: {
     ToastPopup,
     Button,
@@ -164,7 +179,7 @@ export default {
     InputText,
     Dropdown,
     Textarea,
-    FileUpload
+    FileUpload,
   },
   data: function () {
     return {
@@ -176,103 +191,111 @@ export default {
       showLinkDialog: false,
       selectedDocument: null as CompetenceDocumentsOutputDto | null,
       selectedType: null,
-      selectedCompetence: localStorage.getItem('selectedCompetence')
-          ? JSON.parse(localStorage.getItem('selectedCompetence'))
-          : null as CompetenceOutputDto | null,
+      selectedCompetence: localStorage.getItem("selectedCompetence")
+        ? JSON.parse(localStorage.getItem("selectedCompetence"))
+        : (null as CompetenceOutputDto | null),
       documents: [] as CompetenceDocumentsOutputDto[],
       competencies: [],
       experts: [],
       docTypes: [
-        {label: "Конкурсное задание", value: FileType.TASK},
-        {label: "Критерии оценок", value: FileType.CRITERIA},
-        {label: "Итоговая ведомость", value: FileType.STATEMENT},
-        {label: "Конкурсное задание финала", value: FileType.FINAL_TASK},
-        {label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA},
-        {label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT},
-        {label: "Полное описание компетенции", value: FileType.DESCRIPTION},
+        { label: "Конкурсное задание", value: FileType.TASK },
+        { label: "Критерии оценок", value: FileType.CRITERIA },
+        { label: "Итоговая ведомость", value: FileType.STATEMENT },
+        { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
+        { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
+        { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
+        { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
       ],
       errors: {
         toastPopup: {
-          title: '',
-          message: ''
-        }
+          title: "",
+          message: "",
+        },
       },
       showPreviewDialog: false,
-      competenceDocumentsResolver: new CompetenceDocumentsResolver()
-    }
+      competenceDocumentsResolver: new CompetenceDocumentsResolver(),
+    };
   },
   computed: {
     filteredDocuments() {
-      let filtered = this.documents
-      
+      let filtered = this.documents;
+
       if (this.selectedType) {
-        filtered = filtered.filter(doc => doc.documentType === this.selectedType)
+        filtered = filtered.filter(
+          (doc) => doc.documentType === this.selectedType,
+        );
       }
-      
+
       if (this.selectedCompetence) {
-        filtered = filtered.filter(doc => this.selectedCompetence === this.documentCompetence(doc))
+        filtered = filtered.filter(
+          (doc) => this.selectedCompetence === this.documentCompetence(doc),
+        );
       }
-      
-      return filtered
-    }
+
+      return filtered;
+    },
   },
   methods: {
     documentCompetence(document: CompetenceDocumentsOutputDto) {
-
       return this.competencies.find((competence: CompetenceOutputDto) =>
-          competence.documents.some(doc => doc.id === document.id)
+        competence.documents.some((doc) => doc.id === document.id),
       );
-
     },
     documentExpert(document) {
-      return this.experts.find(expert => expert.id === document.userId)
+      return this.experts.find((expert) => expert.id === document.userId);
     },
     async viewDocument(document) {
-      const response = await this.fileResolver.viewById(document.documentId)
-      this.selectedDocument = document
-      this.showPreviewDialog = true
+      await this.fileResolver.viewById(document.documentId);
+      this.selectedDocument = document;
+      this.showPreviewDialog = true;
     },
     async downloadDocument(document) {
-      await this.fileResolver.downloadById(document.documentId)
+      await this.fileResolver.downloadById(document.documentId);
     },
     async deleteDocument(document) {
-      if (confirm(`Вы уверены, что хотите удалить документ "${document.name}"?`)) {
-        const response = await this.competenceDocumentsResolver.delete(document.id)
+      if (
+        confirm(`Вы уверены, что хотите удалить документ "${document.name}"?`)
+      ) {
+        const response = await this.competenceDocumentsResolver.delete(
+          document.id,
+        );
         if (response.status === 200) {
-          this.competencies = []
-          this.documents = []
-          this.experts = []
-          await this.loadCompetencies()
+          this.competencies = [];
+          this.documents = [];
+          this.experts = [];
+          await this.loadCompetencies();
         }
       }
     },
     resetFilters() {
-      this.selectedType = null
-      this.selectedCompetence = null
+      this.selectedType = null;
+      this.selectedCompetence = null;
     },
     async loadCompetencies() {
-      const response = await this.competenceResolver.getAllByUserId(UserState.id)
-      if (response.status === 200 && typeof response.message !== 'string') {
-        response.message.forEach(competence => {
+      const response = await this.competenceResolver.getAllByUserId(
+        UserState.id,
+      );
+      if (response.status === 200 && typeof response.message !== "string") {
+        response.message.forEach((competence) => {
           if (competence.documents.length > 0) {
-            this.competencies.push(competence)
-            this.documents.push(...competence.documents)
+            this.competencies.push(competence);
+            this.documents.push(...competence.documents);
             competence.documents.forEach(async (document) => {
-              const response = await this.userResolver.getById(document.userId)
+              const response = await this.userResolver.getById(document.userId);
               if (response.status === 200) {
-                this.experts.push(response.message)
+                this.experts.push(response.message);
               }
-            })
+            });
           }
-        })
+        });
       }
-    }
+    },
   },
   async mounted() {
-    await this.loadCompetencies()
-    localStorage.removeItem('selectedCompetence')
-  }
-}
+    await this.loadCompetencies();
+    localStorage.removeItem("selectedCompetence");
+  },
+};
 </script>
 
 <style scoped>
@@ -304,7 +327,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -361,7 +384,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .document-card:hover {
@@ -516,52 +541,52 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .documents-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .page-actions {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-group {
     min-width: auto;
   }
-  
+
   .document-header {
     padding: 1rem;
     flex-direction: column;
     text-align: center;
   }
-  
+
   .document-icon {
     width: 50px;
     height: 50px;
     font-size: 1.2rem;
   }
-  
+
   .document-content {
     padding: 1rem;
   }
-  
+
   .detail-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  
+
   .detail-value {
     text-align: left;
   }
@@ -574,37 +599,37 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .document-header {
     padding: 0.75rem;
   }
-  
+
   .document-icon {
     width: 40px;
     height: 40px;
     font-size: 1rem;
   }
-  
+
   .document-name {
     font-size: 1rem;
   }
-  
+
   .document-type {
     font-size: 0.8rem;
   }
-  
+
   .document-content {
     padding: 0.75rem;
   }
-  
+
   .expert-info {
     padding: 0.75rem;
   }

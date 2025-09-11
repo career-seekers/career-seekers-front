@@ -1,4 +1,4 @@
 export interface PreRegisterInputDto {
-    email: string;
-    mobileNumber: string;
+  email: string;
+  mobileNumber: string;
 }

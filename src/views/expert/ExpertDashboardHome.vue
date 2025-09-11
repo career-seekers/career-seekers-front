@@ -21,7 +21,7 @@
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{
                 `${UserState.lastName} ${UserState.firstName} ${UserState.patronymic}`
-                }}</span>
+              }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
@@ -33,7 +33,9 @@
             </div>
             <div class="data-item">
               <span class="data-label">Должность:</span>
-              <span class="data-value">{{ UserState.position ? UserState.position : 'Не указано' }}</span>
+              <span class="data-value">{{
+                UserState.position ? UserState.position : "Не указано"
+              }}</span>
             </div>
           </div>
         </div>
@@ -49,46 +51,52 @@
         </div>
         <div class="card-content">
           <div class="competencies-grid">
-        <div 
-          v-for="competence in competencies"
-          :key="competence.id"
-          class="competence-card"
-          @click="goToCompetence(competence.id)"
-        >
-          <div class="competence-header">
-            <h4 class="competence-name">{{ competence.name }}</h4>
-            <div class="competence-age">
-              {{ ageGroups.find(group => group.value === competence.ageCategory).label }}
-            </div>
-          </div>
-          <div class="competence-content">
-            <div class="competence-stats">
-              <div class="stat-item">
-                <span class="stat-number">{{ competence.participantsCount }}</span>
-                <span class="stat-label">Участников</span>
+            <div
+              v-for="competence in competencies"
+              :key="competence.id"
+              class="competence-card"
+              @click="goToCompetence(competence.id)"
+            >
+              <div class="competence-header">
+                <h4 class="competence-name">{{ competence.name }}</h4>
+                <div class="competence-age">
+                  {{
+                    ageGroups.find(
+                      (group) => group.value === competence.ageCategory,
+                    ).label
+                  }}
+                </div>
+              </div>
+              <div class="competence-content">
+                <div class="competence-stats">
+                  <div class="stat-item">
+                    <span class="stat-number">{{
+                      competence.participantsCount
+                    }}</span>
+                    <span class="stat-label">Участников</span>
+                  </div>
+                </div>
+                <div class="competence-actions">
+                  <Button
+                    label="Участники"
+                    icon="pi pi-users"
+                    class="p-button-sm p-button-outlined"
+                    @click.stop="goToParticipants(competence.id)"
+                  />
+                  <Button
+                    label="Документы"
+                    icon="pi pi-file-text"
+                    class="p-button-sm p-button-outlined"
+                    @click.stop="goToDocuments(competence.id)"
+                  />
+                </div>
               </div>
             </div>
-            <div class="competence-actions">
-              <Button 
-                label="Участники" 
-                icon="pi pi-users"
-                class="p-button-sm p-button-outlined"
-                @click.stop="goToParticipants(competence.id)"
-              />
-              <Button 
-                label="Документы" 
-                icon="pi pi-file-text"
-                class="p-button-sm p-button-outlined"
-                @click.stop="goToDocuments(competence.id)"
-              />
-            </div>
           </div>
-        </div>
-          </div>
-          
+
           <div class="card-actions">
-            <Button 
-              label="Все компетенции" 
+            <Button
+              label="Все компетенции"
               icon="pi pi-list"
               class="p-button-outlined"
               @click="goToAllCompetencies"
@@ -98,36 +106,36 @@
       </div>
 
       <!-- Статистика -->
-<!--      <div class="info-card">-->
-<!--        <div class="card-header">-->
-<!--          <h3 class="card-title">-->
-<!--            <i class="pi pi-chart-bar"></i>-->
-<!--            Общая статистика-->
-<!--          </h3>-->
-<!--        </div>-->
-<!--        <div class="card-content">-->
-<!--          <div class="stats-grid">-->
-<!--            <div class="stat-item">-->
-<!--              <div class="stat-number">{{ competencies.length }}</div>-->
-<!--              <div class="stat-label">Компетенций</div>-->
-<!--            </div>-->
-<!--            <div class="stat-item">-->
-<!--              <div class="stat-number">{{-->
-<!--                  competencies.reduce((acc, competence) => competence.participantsCount + acc, 0)-->
-<!--                }}</div>-->
-<!--              <div class="stat-label">Участников</div>-->
-<!--            </div>-->
-<!--            <div class="stat-item">-->
-<!--              <div class="stat-number">{{ totalStats.events }}</div>-->
-<!--              <div class="stat-label">Событий</div>-->
-<!--            </div>-->
-<!--            <div class="stat-item">-->
-<!--              <div class="stat-number">{{ totalStats.documents }}</div>-->
-<!--              <div class="stat-label">Документов</div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
+      <!--      <div class="info-card">-->
+      <!--        <div class="card-header">-->
+      <!--          <h3 class="card-title">-->
+      <!--            <i class="pi pi-chart-bar"></i>-->
+      <!--            Общая статистика-->
+      <!--          </h3>-->
+      <!--        </div>-->
+      <!--        <div class="card-content">-->
+      <!--          <div class="stats-grid">-->
+      <!--            <div class="stat-item">-->
+      <!--              <div class="stat-number">{{ competencies.length }}</div>-->
+      <!--              <div class="stat-label">Компетенций</div>-->
+      <!--            </div>-->
+      <!--            <div class="stat-item">-->
+      <!--              <div class="stat-number">{{-->
+      <!--                  competencies.reduce((acc, competence) => competence.participantsCount + acc, 0)-->
+      <!--                }}</div>-->
+      <!--              <div class="stat-label">Участников</div>-->
+      <!--            </div>-->
+      <!--            <div class="stat-item">-->
+      <!--              <div class="stat-number">{{ totalStats.events }}</div>-->
+      <!--              <div class="stat-label">Событий</div>-->
+      <!--            </div>-->
+      <!--            <div class="stat-item">-->
+      <!--              <div class="stat-number">{{ totalStats.documents }}</div>-->
+      <!--              <div class="stat-label">Документов</div>-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
 
       <!-- Быстрые действия -->
       <div class="info-card">
@@ -139,27 +147,27 @@
         </div>
         <div class="card-content">
           <div class="quick-actions">
-<!--            <Button -->
-<!--              label="Создать событие" -->
-<!--              icon="pi pi-calendar-plus"-->
-<!--              class="p-button-primary"-->
-<!--              @click="createEvent"-->
-<!--            />-->
+            <!--            <Button -->
+            <!--              label="Создать событие" -->
+            <!--              icon="pi pi-calendar-plus"-->
+            <!--              class="p-button-primary"-->
+            <!--              @click="createEvent"-->
+            <!--            />-->
             <Button
-              label="Загрузить документ" 
+              label="Загрузить документ"
               icon="pi pi-upload"
               :disabled="competencies.length === 0"
               class="p-button-primary"
               @click="addDocument"
             />
-<!--            <Button -->
-<!--              label="Просмотреть события" -->
-<!--              icon="pi pi-calendar"-->
-<!--              class="p-button-outlined"-->
-<!--              @click="viewEvents"-->
-<!--            />-->
-            <Button 
-              label="Управление компетенциями" 
+            <!--            <Button -->
+            <!--              label="Просмотреть события" -->
+            <!--              icon="pi pi-calendar"-->
+            <!--              class="p-button-outlined"-->
+            <!--              @click="viewEvents"-->
+            <!--            />-->
+            <Button
+              label="Управление компетенциями"
               icon="pi pi-cog"
               class="p-button-outlined"
               @click="manageCompetencies"
@@ -169,106 +177,115 @@
       </div>
 
       <!-- Последние события -->
-<!--      <div class="info-card">-->
-<!--        <div class="card-header">-->
-<!--          <h3 class="card-title">-->
-<!--            <i class="pi pi-clock"></i>-->
-<!--            Последние события-->
-<!--          </h3>-->
-<!--        </div>-->
-<!--        <div class="card-content">-->
-<!--          <div class="events-list">-->
-<!--            <div v-for="event in recentEvents" :key="event.id" class="event-item">-->
-<!--              <div class="event-icon">-->
-<!--                <i :class="event.icon"></i>-->
-<!--              </div>-->
-<!--              <div class="event-content">-->
-<!--                <div class="event-title">{{ event.title }}</div>-->
-<!--                <div class="event-competence">{{ event.competence }}</div>-->
-<!--                <div class="event-date">{{ event.date }}</div>-->
-<!--              </div>-->
-<!--              <div class="event-status" :class="event.statusClass">-->
-<!--                {{ event.status }}-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
+      <!--      <div class="info-card">-->
+      <!--        <div class="card-header">-->
+      <!--          <h3 class="card-title">-->
+      <!--            <i class="pi pi-clock"></i>-->
+      <!--            Последние события-->
+      <!--          </h3>-->
+      <!--        </div>-->
+      <!--        <div class="card-content">-->
+      <!--          <div class="events-list">-->
+      <!--            <div v-for="event in recentEvents" :key="event.id" class="event-item">-->
+      <!--              <div class="event-icon">-->
+      <!--                <i :class="event.icon"></i>-->
+      <!--              </div>-->
+      <!--              <div class="event-content">-->
+      <!--                <div class="event-title">{{ event.title }}</div>-->
+      <!--                <div class="event-competence">{{ event.competence }}</div>-->
+      <!--                <div class="event-date">{{ event.date }}</div>-->
+      <!--              </div>-->
+      <!--              <div class="event-status" :class="event.statusClass">-->
+      <!--                {{ event.status }}-->
+      <!--              </div>-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
     </div>
 
-<!--    Модальное окно для загрузки документов конкретной компетенции-->
+    <!--    Модальное окно для загрузки документов конкретной компетенции-->
     <Dialog
-        v-model:visible="showCompetenceDocModal"
-        header="Загрузить документ"
-        :modal="true"
-        :style="{ width: '600px' }"
+      v-model:visible="showCompetenceDocModal"
+      header="Загрузить документ"
+      :modal="true"
+      :style="{ width: '600px' }"
     >
       <div class="competence-form">
         <div class="form-field" style="gap: 0.5rem">
           <label for="competenceList" class="field-label">Компетенция *</label>
           <Dropdown
-              id="competenceList"
-              v-model="selectedCompetence"
-              :options="competencies"
-              optionLabel="name"
-              placeholder="Не выбран"
-              class="competence-dropdown w-full"
-              :class="{ 'p-invalid': !selectedCompetence }"
+            id="competenceList"
+            v-model="selectedCompetence"
+            :options="competencies"
+            optionLabel="name"
+            placeholder="Не выбран"
+            class="competence-dropdown w-full"
+            :class="{ 'p-invalid': !selectedCompetence }"
           >
             <template #value="{ value }">
-              {{ value ? value.name : 'Не выбран' }}
+              {{ value ? value.name : "Не выбран" }}
             </template>
           </Dropdown>
-          <small v-if="!selectedCompetence" class="p-error">{{ errors.selectedCompetence }}</small>
+          <small v-if="!selectedCompetence" class="p-error">{{
+            errors.selectedCompetence
+          }}</small>
         </div>
 
         <div class="form-field" style="gap: 0.5rem">
-          <label for="competenceList" class="field-label">Тип документа *</label>
+          <label for="competenceList" class="field-label"
+            >Тип документа *</label
+          >
           <Dropdown
-              id="competenceList"
-              v-model="selectedDoctype"
-              :options="docTypes"
-              optionValue="value"
-              optionLabel="label"
-              placeholder="Не выбран"
-              class="competence-dropdown w-full"
-              :class="{ 'p-invalid': !selectedDoctype }"
+            id="competenceList"
+            v-model="selectedDoctype"
+            :options="docTypes"
+            optionValue="value"
+            optionLabel="label"
+            placeholder="Не выбран"
+            class="competence-dropdown w-full"
+            :class="{ 'p-invalid': !selectedDoctype }"
           >
           </Dropdown>
-          <small v-if="!selectedDoctype" class="p-error">{{ errors.selectedDoctype }}</small>
+          <small v-if="!selectedDoctype" class="p-error">{{
+            errors.selectedDoctype
+          }}</small>
         </div>
 
         <div class="form-field" style="gap: 0.5rem">
           <label for="competenceDocument" class="field-label">Документ *</label>
           <FileUpload
-              id="competenceDocument"
-              mode="basic"
-              accept=".pdf, .docx"
-              :maxFileSize="5000000"
-              chooseLabel="Выберите файл"
-              class="w-full"
-              :class="{ 'p-invalid': errors.competenceDocument }"
-              @select="onDocumentSelect"
-              @remove="onDocumentRemove"
+            id="competenceDocument"
+            mode="basic"
+            accept=".pdf, .docx"
+            :maxFileSize="5000000"
+            chooseLabel="Выберите файл"
+            class="w-full"
+            :class="{ 'p-invalid': errors.competenceDocument }"
+            @select="onDocumentSelect"
+            @remove="onDocumentRemove"
           />
-          <small v-if="errors.competenceDocument" class="p-error">{{ errors.competenceDocument }}</small>
-          <small class="p-text-secondary">Поддерживаемые форматы: PDF, DOCX (максимум 5 МБ)</small>
+          <small v-if="errors.competenceDocument" class="p-error">{{
+            errors.competenceDocument
+          }}</small>
+          <small class="p-text-secondary"
+            >Поддерживаемые форматы: PDF, DOCX (максимум 5 МБ)</small
+          >
         </div>
-
       </div>
 
       <template #footer>
         <Button
-            label="Отмена"
-            icon="pi pi-times"
-            class="p-button-text"
-            @click="cancelLoad"
+          label="Отмена"
+          icon="pi pi-times"
+          class="p-button-text"
+          @click="cancelLoad"
         />
         <Button
-            label="Загрузить"
-            icon="pi pi-check"
-            class="p-button-primary"
-            @click="uploadDocument"
+          label="Загрузить"
+          icon="pi pi-check"
+          class="p-button-primary"
+          @click="uploadDocument"
         />
       </template>
     </Dialog>
@@ -276,23 +293,26 @@
 </template>
 
 <script lang="ts">
-import Button from 'primevue/button'
-import {UserState} from "../../../state/UserState";
-import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
-import {AgeCategories, CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
+import Button from "primevue/button";
+import { UserState } from "../../../state/UserState";
+import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import {
+  AgeCategories,
+  CompetenceResolver,
+} from "@/api/resolvers/competence/competence.resolver";
 import Dialog from "primevue/dialog";
 import FileUpload from "primevue/fileupload";
 import Dropdown from "primevue/dropdown";
-import {FileEndpoints, FileResolver, FileType} from "@/api/resolvers/files/file.resolver";
-import {CompetenceDocumentsResolver} from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
+import { FileType } from "@/api/resolvers/files/file.resolver";
+import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
 
 export default {
-  name: 'ExpertDashboardHome',
+  name: "ExpertDashboardHome",
   components: {
     FileUpload,
     Dropdown,
     Dialog,
-    Button
+    Button,
   },
   data() {
     return {
@@ -319,121 +339,121 @@ export default {
       selectedDocument: null,
       errors: {
         toastPopup: {
-          title: '',
-          message: ''
+          title: "",
+          message: "",
         },
-        ageCategory: '',
-        competenceDocument: '',
-        selectedCompetence: '',
-        selectedDoctype: ''
+        ageCategory: "",
+        competenceDocument: "",
+        selectedCompetence: "",
+        selectedDoctype: "",
       },
       recentEvents: [
         {
           id: 1,
-          title: 'Мастер-класс по нейронным сетям',
-          competence: 'Искусственный интеллект',
-          date: '15.12.2024, 14:00',
-          status: 'Запланировано',
-          statusClass: 'status-planned',
-          icon: 'pi pi-calendar'
+          title: "Мастер-класс по нейронным сетям",
+          competence: "Искусственный интеллект",
+          date: "15.12.2024, 14:00",
+          status: "Запланировано",
+          statusClass: "status-planned",
+          icon: "pi pi-calendar",
         },
         {
           id: 2,
-          title: 'Практическое занятие по анализу данных',
-          competence: 'Анализ данных',
-          date: '12.12.2024, 10:00',
-          status: 'Проведено',
-          statusClass: 'status-completed',
-          icon: 'pi pi-check-circle'
+          title: "Практическое занятие по анализу данных",
+          competence: "Анализ данных",
+          date: "12.12.2024, 10:00",
+          status: "Проведено",
+          statusClass: "status-completed",
+          icon: "pi pi-check-circle",
         },
         {
           id: 3,
-          title: 'Введение в машинное обучение',
-          competence: 'Машинное обучение',
-          date: '10.12.2024, 16:00',
-          status: 'Проведено',
-          statusClass: 'status-completed',
-          icon: 'pi pi-check-circle'
-        }
-      ]
-    }
+          title: "Введение в машинное обучение",
+          competence: "Машинное обучение",
+          date: "10.12.2024, 16:00",
+          status: "Проведено",
+          statusClass: "status-completed",
+          icon: "pi pi-check-circle",
+        },
+      ],
+    };
   },
   computed: {
     UserState() {
-      return UserState
+      return UserState;
     },
     expertName() {
-      return this.expertData.fullName.split(' ')[1] || 'Эксперт'
-    }
+      return this.expertData.fullName.split(" ")[1] || "Эксперт";
+    },
   },
   methods: {
     goToCompetence(competenceId) {
-      this.$router.push(`/expert/competencies/${competenceId}`)
+      this.$router.push(`/expert/competencies/${competenceId}`);
     },
     goToParticipants(competenceId) {
-      this.$router.push(`/expert/participants/${competenceId}`)
+      this.$router.push(`/expert/participants/${competenceId}`);
     },
     goToDocuments(competenceId) {
-      this.$router.push(`/expert/documents/${competenceId}`)
+      this.$router.push(`/expert/documents/${competenceId}`);
     },
     goToAllCompetencies() {
-      this.$router.push('/expert/competencies')
+      this.$router.push("/expert/competencies");
     },
     async uploadDocument() {
-      let isValid = true
+      let isValid = true;
       if (this.selectedCompetence == null) {
-        this.errors.selectedCompetence = "Выберите компетенцию"
-        isValid = false
+        this.errors.selectedCompetence = "Выберите компетенцию";
+        isValid = false;
       }
       if (this.selectedDocument == null) {
-        this.errors.competenceDocument = "Выберите документ"
-        isValid = false
+        this.errors.competenceDocument = "Выберите документ";
+        isValid = false;
       }
       if (this.selectedDoctype == null) {
-        this.errors.selectedDoctype = "Выберите тип документа"
-        isValid = false
+        this.errors.selectedDoctype = "Выберите тип документа";
+        isValid = false;
       }
       if (isValid) {
-        const competenceDocumentsResolver = new CompetenceDocumentsResolver()
+        const competenceDocumentsResolver = new CompetenceDocumentsResolver();
         const response = await competenceDocumentsResolver.create({
           documentType: this.selectedDoctype,
           document: this.selectedDocument,
           userId: UserState.id,
-          directionId: this.selectedCompetence.id
-        })
+          directionId: this.selectedCompetence.id,
+        });
         if (response.status !== 200) {
           this.errors.toastPopup = {
             title: response.status,
             message: response.message,
-          }
-        } else this.cancelLoad()
+          };
+        } else this.cancelLoad();
       }
     },
     cancelLoad() {
-      this.showCompetenceDocModal = false
+      this.showCompetenceDocModal = false;
     },
     addDocument() {
-      this.showCompetenceDocModal = true
+      this.showCompetenceDocModal = true;
     },
     manageCompetencies() {
-      this.$router.push('/expert/competencies')
+      this.$router.push("/expert/competencies");
     },
     onDocumentSelect(event) {
-      this.selectedDocument = event.files[0]
+      this.selectedDocument = event.files[0];
     },
     onDocumentRemove() {
-      this.selectedDocument = null
-      this.errors.selectedDocument = ''
-    }
+      this.selectedDocument = null;
+      this.errors.selectedDocument = "";
+    },
   },
   async mounted() {
-    const competenceResolver = new CompetenceResolver()
-    const response = await competenceResolver.getAllByExpertId(UserState.id)
+    const competenceResolver = new CompetenceResolver();
+    const response = await competenceResolver.getAllByExpertId(UserState.id);
     if (response.status === 200) {
-      this.competencies = response.message
+      this.competencies = response.message;
     }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -478,7 +498,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -502,7 +522,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   width: 100%;
   max-width: 100%;
   max-height: 30rem;
@@ -836,7 +858,7 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -845,47 +867,47 @@ export default {
     padding: 0;
     margin: 0;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .info-card {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0;
     max-height: 20rem;
   }
-  
+
   .card-content {
     padding: 1rem;
   }
-  
+
   .competencies-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .competence-actions {
     flex-direction: column;
   }
-  
+
   .competence-card {
     height: 250px;
   }
-  
+
   .competence-content {
     max-height: 150px;
   }
-  
+
   .quick-actions {
     gap: 0.5rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
   }
-  
+
   .stat-number {
     font-size: 1.5rem;
   }
@@ -898,43 +920,43 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .card-content {
     padding: 0.75rem;
   }
-  
+
   .competence-card {
     padding: 0.75rem;
   }
-  
+
   .competence-actions {
     gap: 0.25rem;
   }
-  
+
   .competence-card {
     height: 220px;
   }
-  
+
   .competence-content {
     max-height: 120px;
   }
-  
+
   .stats-grid {
     gap: 0.5rem;
   }
-  
+
   .stat-item {
     padding: 0.75rem;
   }
-  
+
   .stat-number {
     font-size: 1.25rem;
   }

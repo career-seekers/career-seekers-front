@@ -2,7 +2,9 @@
   <div class="dashboard-home">
     <div class="page-header">
       <h1 class="page-title">Добро пожаловать, {{ parentName }}!</h1>
-      <p class="page-subtitle">Управляйте участием вашего ребенка в чемпионате</p>
+      <p class="page-subtitle">
+        Управляйте участием вашего ребенка в чемпионате
+      </p>
     </div>
 
     <div class="dashboard-grid">
@@ -30,7 +32,7 @@
               <span class="data-value">{{ parentData.email }}</span>
             </div>
           </div>
-          
+
           <div class="data-section">
             <h4 class="section-title">Ребенок</h4>
             <div class="data-item">
@@ -61,18 +63,20 @@
           <div v-if="!hasSelectedCompetencies" class="empty-state">
             <i class="pi pi-exclamation-triangle empty-icon"></i>
             <p class="empty-text">Вы еще не выбрали компетенции</p>
-            <Button 
-              label="Выбрать компетенции" 
+            <Button
+              label="Выбрать компетенции"
               icon="pi pi-plus"
               class="p-button-primary"
               @click="goToCompetencies"
             />
           </div>
           <div v-else class="competencies-preview">
-            <p class="preview-text">Выбрано компетенций: {{ selectedCompetenciesCount }}/3</p>
-            
+            <p class="preview-text">
+              Выбрано компетенций: {{ selectedCompetenciesCount }}/3
+            </p>
+
             <div class="selected-competencies">
-              <div 
+              <div
                 v-for="competence in selectedCompetencies"
                 :key="competence.id"
                 class="competence-item"
@@ -86,16 +90,16 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="competencies-actions">
-              <Button 
-                label="Мои компетенции" 
+              <Button
+                label="Мои компетенции"
                 icon="pi pi-star"
                 class="p-button-outlined"
                 @click="goToMyCompetencies"
               />
-              <Button 
-                label="Изменить" 
+              <Button
+                label="Изменить"
                 icon="pi pi-pencil"
                 class="p-button-text"
                 @click="goToCompetencies"
@@ -155,7 +159,9 @@
           <div class="empty-state">
             <i class="pi pi-clock empty-icon"></i>
             <p class="empty-text">Раздел в разработке</p>
-            <small class="empty-subtitle">Скоро здесь будут отображаться достижения вашего ребенка</small>
+            <small class="empty-subtitle"
+              >Скоро здесь будут отображаться достижения вашего ребенка</small
+            >
           </div>
         </div>
       </div>
@@ -164,63 +170,63 @@
 </template>
 
 <script>
-import Button from 'primevue/button'
+import Button from "primevue/button";
 
 export default {
-  name: 'ParentDashboardHome',
+  name: "ParentDashboardHome",
   components: {
-    Button
+    Button,
   },
   data() {
     return {
       parentData: {
-        fullName: 'Иванова Анна Петровна',
-        phone: '+7 (999) 123-45-67',
-        email: 'anna.ivanova@email.com'
+        fullName: "Иванова Анна Петровна",
+        phone: "+7 (999) 123-45-67",
+        email: "anna.ivanova@email.com",
       },
       childData: {
-        fullName: 'Иванов Петр Антонович',
-        birthDate: '15.03.2010',
-        grade: '8 класс'
+        fullName: "Иванов Петр Антонович",
+        birthDate: "15.03.2010",
+        grade: "8 класс",
       },
       mentorData: {
-        name: 'Смирнов Алексей Владимирович',
-        email: 'a.smirnov@mentor.ru',
-        phone: '+7 (999) 987-65-43',
-        telegram: '@alex_mentor'
+        name: "Смирнов Алексей Владимирович",
+        email: "a.smirnov@mentor.ru",
+        phone: "+7 (999) 987-65-43",
+        telegram: "@alex_mentor",
       },
       selectedCompetenciesCount: 2,
       hasSelectedCompetencies: true,
       selectedCompetencies: [
         {
           id: 1,
-          name: 'Веб-дизайн и разработка',
-          icon: 'pi pi-desktop',
-          status: 'Участник'
+          name: "Веб-дизайн и разработка",
+          icon: "pi pi-desktop",
+          status: "Участник",
         },
         {
           id: 2,
-          name: '3D-моделирование',
-          icon: 'pi pi-box',
-          status: 'Призер'
-        }
-      ]
-    }
+          name: "3D-моделирование",
+          icon: "pi pi-box",
+          status: "Призер",
+        },
+      ],
+    };
   },
   computed: {
     parentName() {
-      return this.parentData.fullName.split(' ')[1] || 'Родитель'
-    }
+      return this.parentData.fullName.split(" ")[1] || "Родитель";
+    },
   },
   methods: {
     goToCompetencies() {
-      this.$router.push('/parent/competencies')
+      this.$router.push("/parent/competencies");
     },
     goToMyCompetencies() {
-      this.$router.push('/parent/my-competencies')
-    }
-  }
-}
+      this.$router.push("/parent/my-competencies");
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -252,7 +258,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -276,7 +282,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -497,7 +505,7 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -506,45 +514,45 @@ export default {
     padding: 0;
     margin: 0;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .info-card {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0;
   }
-  
+
   .card-header {
     padding: 1rem;
   }
-  
+
   .card-content {
     padding: 1rem;
   }
-  
+
   .data-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  
+
   .data-value {
     text-align: left;
   }
-  
+
   .mentor-info {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .competencies-actions {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .competence-item {
     flex-direction: column;
     text-align: center;
@@ -559,7 +567,7 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .dashboard-grid {
     gap: 0.75rem;
     width: 100%;
@@ -567,90 +575,90 @@ export default {
     padding: 0;
     margin: 0;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .info-card {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box;
     margin: 0;
   }
-  
+
   .card-header {
     padding: 0.75rem;
   }
-  
+
   .card-title {
     font-size: 1rem;
   }
-  
+
   .card-content {
     padding: 0.75rem;
   }
-  
+
   .data-item {
     padding: 0.5rem 0;
   }
-  
+
   .data-label {
     font-size: 0.85rem;
   }
-  
+
   .data-value {
     font-size: 0.9rem;
   }
-  
+
   .mentor-avatar {
     width: 45px;
     height: 45px;
     font-size: 1.1rem;
   }
-  
+
   .mentor-name {
     font-size: 0.95rem;
   }
-  
+
   .contact-item {
     font-size: 0.8rem;
   }
-  
+
   .competence-item {
     padding: 0.5rem;
   }
-  
+
   .competence-icon {
     width: 30px;
     height: 30px;
     font-size: 0.9rem;
   }
-  
+
   .competence-name {
     font-size: 0.85rem;
   }
-  
+
   .competence-status {
     font-size: 0.75rem;
   }
-  
+
   .empty-state {
     padding: 1rem 0.25rem;
   }
-  
+
   .empty-icon {
     font-size: 2rem;
   }
-  
+
   .empty-text {
     font-size: 0.9rem;
   }
-  
+
   .empty-subtitle {
     font-size: 0.8rem;
   }

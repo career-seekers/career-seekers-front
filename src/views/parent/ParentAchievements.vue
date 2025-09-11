@@ -10,8 +10,8 @@
         <i class="pi pi-trophy coming-soon-icon"></i>
         <h2 class="coming-soon-title">Раздел в разработке</h2>
         <p class="coming-soon-text">
-          Здесь будут отображаться все достижения вашего ребенка: 
-          сертификаты, дипломы, награды и результаты участия в чемпионате.
+          Здесь будут отображаться все достижения вашего ребенка: сертификаты,
+          дипломы, награды и результаты участия в чемпионате.
         </p>
         <div class="coming-soon-features">
           <div class="feature-item">
@@ -31,8 +31,8 @@
             <span>Скачивание документов</span>
           </div>
         </div>
-        <Button 
-          label="Вернуться на главную" 
+        <Button
+          label="Вернуться на главную"
           icon="pi pi-home"
           class="p-button-primary"
           @click="goHome"
@@ -43,19 +43,19 @@
 </template>
 
 <script>
-import Button from 'primevue/button'
+import Button from "primevue/button";
 
 export default {
-  name: 'ParentAchievements',
+  name: "ParentAchievements",
   components: {
-    Button
+    Button,
   },
   methods: {
     goHome() {
-      this.$router.push('/parent/dashboard')
-    }
-  }
-}
+      this.$router.push("/parent/dashboard");
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -85,7 +85,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -156,11 +156,11 @@ export default {
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .coming-soon-title {
     font-size: 1.5rem;
   }
-  
+
   .coming-soon-features {
     grid-template-columns: 1fr;
   }

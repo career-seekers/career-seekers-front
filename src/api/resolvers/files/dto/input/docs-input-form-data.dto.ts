@@ -1,6 +1,6 @@
-import {FileType} from "@/api/resolvers/files/file.resolver";
+import { FileType } from "@/api/resolvers/files/file.resolver";
 
 export interface DocsInputFormDataDto {
-    file: File;
-    type: FileType;
+  file: File;
+  type: FileType;
 }

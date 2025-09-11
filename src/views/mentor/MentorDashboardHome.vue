@@ -2,7 +2,9 @@
   <div class="dashboard-home">
     <div class="page-header">
       <h1 class="page-title">Добро пожаловать, {{ MentorName }}!</h1>
-      <p class="page-subtitle">Управляйте участниками и отслеживайте их прогресс</p>
+      <p class="page-subtitle">
+        Управляйте участниками и отслеживайте их прогресс
+      </p>
     </div>
 
     <div class="dashboard-grid">
@@ -34,7 +36,7 @@
               <span class="data-value">{{ MentorData.telegram }}</span>
             </div>
           </div>
-          
+
           <div class="data-section">
             <h4 class="section-title">Профессиональная информация</h4>
             <div class="data-item">
@@ -72,7 +74,9 @@
               <div class="stat-label">Активных</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ participantsStats.competencies }}</div>
+              <div class="stat-number">
+                {{ participantsStats.competencies }}
+              </div>
               <div class="stat-label">Компетенций</div>
             </div>
             <div class="stat-item">
@@ -80,10 +84,10 @@
               <div class="stat-label">Прошли во 2 этап</div>
             </div>
           </div>
-          
+
           <div class="stats-actions">
-            <Button 
-              label="Управление участниками" 
+            <Button
+              label="Управление участниками"
               icon="pi pi-cog"
               class="p-button-outlined"
               @click="goToParticipants"
@@ -102,26 +106,26 @@
         </div>
         <div class="card-content">
           <div class="quick-actions">
-            <Button 
-              label="Добавить участника" 
+            <Button
+              label="Добавить участника"
               icon="pi pi-user-plus"
               class="p-button-primary"
               @click="addParticipant"
             />
-            <Button 
-              label="Изменить состав" 
+            <Button
+              label="Изменить состав"
               icon="pi pi-pencil"
               class="p-button-outlined"
               @click="editParticipants"
             />
-            <Button 
-              label="Связаться с родителями" 
+            <Button
+              label="Связаться с родителями"
               icon="pi pi-envelope"
               class="p-button-outlined"
               @click="contactParents"
             />
-            <Button 
-              label="Просмотреть сертификаты" 
+            <Button
+              label="Просмотреть сертификаты"
               icon="pi pi-certificate"
               class="p-button-outlined"
               @click="viewCertificates"
@@ -140,7 +144,11 @@
         </div>
         <div class="card-content">
           <div class="updates-list">
-            <div v-for="update in recentUpdates" :key="update.id" class="update-item">
+            <div
+              v-for="update in recentUpdates"
+              :key="update.id"
+              class="update-item"
+            >
               <div class="update-icon">
                 <i :class="update.icon"></i>
               </div>
@@ -157,84 +165,84 @@
 </template>
 
 <script>
-import Button from 'primevue/button'
+import Button from "primevue/button";
 
 export default {
-  name: 'MentorDashboardHome',
+  name: "MentorDashboardHome",
   components: {
-    Button
+    Button,
   },
   data() {
     return {
       MentorData: {
-        fullName: 'Смирнов Алексей Владимирович',
-        email: 'a.smirnov@mentor.ru',
-        phone: '+7 (999) 987-65-43',
-        telegram: '@alex_mentor',
-        specialization: 'Веб-разработка и дизайн',
-        experience: '5 лет',
-        status: 'Активный наставник'
+        fullName: "Смирнов Алексей Владимирович",
+        email: "a.smirnov@mentor.ru",
+        phone: "+7 (999) 987-65-43",
+        telegram: "@alex_mentor",
+        specialization: "Веб-разработка и дизайн",
+        experience: "5 лет",
+        status: "Активный наставник",
       },
       participantsStats: {
         total: 8,
         active: 6,
         competencies: 12,
-        stage2: 3
+        stage2: 3,
       },
       recentUpdates: [
         {
           id: 1,
-          icon: 'pi pi-user-plus',
-          text: 'Добавлен новый участник: Иванов Петр',
-          time: '2 часа назад'
+          icon: "pi pi-user-plus",
+          text: "Добавлен новый участник: Иванов Петр",
+          time: "2 часа назад",
         },
         {
           id: 2,
-          icon: 'pi pi-trophy',
-          text: 'Петров Анна прошла во второй этап',
-          time: '1 день назад'
+          icon: "pi pi-trophy",
+          text: "Петров Анна прошла во второй этап",
+          time: "1 день назад",
         },
         {
           id: 3,
-          icon: 'pi pi-envelope',
-          text: 'Получено сообщение от родителя',
-          time: '2 дня назад'
+          icon: "pi pi-envelope",
+          text: "Получено сообщение от родителя",
+          time: "2 дня назад",
         },
         {
           id: 4,
-          icon: 'pi pi-certificate',
-          text: 'Выдан сертификат участнику',
-          time: '3 дня назад'
-        }
-      ]
-    }
+          icon: "pi pi-certificate",
+          text: "Выдан сертификат участнику",
+          time: "3 дня назад",
+        },
+      ],
+    };
   },
   computed: {
     MentorName() {
-      return this.MentorData.fullName.split(' ')[1] || 'Наставник'
-    }
+      return this.MentorData.fullName.split(" ")[1] || "Наставник";
+    },
   },
   methods: {
     goToParticipants() {
-      this.$router.push('/mentor/participants')
+      this.$router.push("/mentor/participants");
     },
     addParticipant() {
       // Логика добавления участника
-      console.log('Добавление участника')
+      console.log("Добавление участника");
     },
     editParticipants() {
       // Логика изменения состава
-      console.log('Изменение состава участников')
+      console.log("Изменение состава участников");
     },
     contactParents() {
       // Логика связи с родителями
-      console.log('Связь с родителями')
+      console.log("Связь с родителями");
     },
     viewCertificates() {
-      this.$router.push('/mentor/my-certificates')
-    }
-  }
-}
+      this.$router.push("/mentor/my-certificates");
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -266,7 +274,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -290,7 +298,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -457,7 +467,7 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -466,53 +476,53 @@ export default {
     padding: 0;
     margin: 0;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .info-card {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0;
   }
-  
+
   .card-header {
     padding: 1rem;
   }
-  
+
   .card-content {
     padding: 1rem;
   }
-  
+
   .data-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  
+
   .data-value {
     text-align: left;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
   }
-  
+
   .stat-number {
     font-size: 1.5rem;
   }
-  
+
   .quick-actions {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .update-item {
     padding: 0.5rem 0;
   }
-  
+
   .update-icon {
     width: 28px;
     height: 28px;
@@ -527,7 +537,7 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .dashboard-grid {
     gap: 0.75rem;
     width: 100%;
@@ -535,81 +545,81 @@ export default {
     padding: 0;
     margin: 0;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .info-card {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box;
     margin: 0;
   }
-  
+
   .card-header {
     padding: 0.75rem;
   }
-  
+
   .card-title {
     font-size: 1rem;
   }
-  
+
   .card-content {
     padding: 0.75rem;
   }
-  
+
   .data-item {
     padding: 0.5rem 0;
   }
-  
+
   .data-label {
     font-size: 0.85rem;
   }
-  
+
   .data-value {
     font-size: 0.9rem;
   }
-  
+
   .stats-grid {
     gap: 0.5rem;
   }
-  
+
   .stat-item {
     padding: 0.75rem;
   }
-  
+
   .stat-number {
     font-size: 1.25rem;
   }
-  
+
   .stat-label {
     font-size: 0.8rem;
   }
-  
+
   .quick-actions {
     flex-direction: column;
     gap: 0.4rem;
   }
-  
+
   .update-item {
     padding: 0.4rem 0;
   }
-  
+
   .update-icon {
     width: 24px;
     height: 24px;
     font-size: 0.7rem;
   }
-  
+
   .update-text {
     font-size: 0.8rem;
   }
-  
+
   .update-time {
     font-size: 0.7rem;
   }

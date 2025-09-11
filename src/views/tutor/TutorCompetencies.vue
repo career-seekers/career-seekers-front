@@ -1,6 +1,5 @@
 <template>
-
-  <ToastPopup :content="errors.toastPopup"/>
+  <ToastPopup :content="errors.toastPopup" />
   <div class="competencies-page">
     <div class="page-header">
       <h1 class="page-title">Мои компетенции</h1>
@@ -11,9 +10,9 @@
     <div class="filters-section">
       <div class="filter-group">
         <label for="ageFilter">Возрастная группа:</label>
-        <Dropdown 
+        <Dropdown
           id="ageFilter"
-          v-model="selectedAge" 
+          v-model="selectedAge"
           :options="ageGroups"
           optionLabel="label"
           optionValue="value"
@@ -22,35 +21,46 @@
         />
       </div>
       <div class="filter-group">
-        <Button 
+        <Button
           label="Сбросить фильтр"
           icon="pi pi-refresh"
           class="p-button-text p-button-sm"
           @click="resetFilters"
         />
       </div>
-      <div class="filter-group"
-      style="margin-left: auto">
+      <div class="filter-group" style="margin-left: auto">
         <Button
-            label="Добавить компетенцию"
-            icon="pi pi-plus"
-            class="p-button-primary right"
-            @click="addCompetence"
+          label="Добавить компетенцию"
+          icon="pi pi-plus"
+          class="p-button-primary right"
+          @click="addCompetence"
         />
       </div>
     </div>
 
     <!-- Список компетенций -->
     <div class="competencies-grid">
-      <div v-for="competence in filteredCompetencies" :key="competence.id" class="competence-card">
+      <div
+        v-for="competence in filteredCompetencies"
+        :key="competence.id"
+        class="competence-card"
+      >
         <div class="competence-header">
           <div class="competence-info">
             <h3 class="competence-name">{{ competence.name }}</h3>
-            <div class="competence-age">{{ ageGroups.find(group => group.value === competence.ageCategory).label }}</div>
-            <div class="competence-description">{{ competence.description }}</div>
+            <div class="competence-age">
+              {{
+                ageGroups.find(
+                  (group) => group.value === competence.ageCategory,
+                ).label
+              }}
+            </div>
+            <div class="competence-description">
+              {{ competence.description }}
+            </div>
           </div>
         </div>
-        
+
         <div class="competence-stats">
           <div class="stat-item">
             <div class="stat-number">{{ competence.participantsCount }}</div>
@@ -61,44 +71,44 @@
             <div class="stat-label">Событий</div>
           </div>
         </div>
-        
+
         <div class="competence-actions">
-<!--          <Button-->
-<!--            label="Участники"-->
-<!--            icon="pi pi-users"-->
-<!--            class="p-button-outlined"-->
-<!--            @click="goToParticipants(competence.id)"-->
-<!--          />-->
+          <!--          <Button-->
+          <!--            label="Участники"-->
+          <!--            icon="pi pi-users"-->
+          <!--            class="p-button-outlined"-->
+          <!--            @click="goToParticipants(competence.id)"-->
+          <!--          />-->
           <Button
             label="Документы"
             icon="pi pi-file-text"
             class="p-button-outlined"
             @click="goToDocuments(competence)"
           />
-<!--          <Button -->
-<!--            label="События" -->
-<!--            icon="pi pi-calendar"-->
-<!--            class="p-button-outlined"-->
-<!--            @click="goToEvents(competence.id)"-->
-<!--          />-->
-          <Button 
-            label="Подробнее" 
+          <!--          <Button -->
+          <!--            label="События" -->
+          <!--            icon="pi pi-calendar"-->
+          <!--            class="p-button-outlined"-->
+          <!--            @click="goToEvents(competence.id)"-->
+          <!--          />-->
+          <Button
+            label="Подробнее"
             icon="pi pi-eye"
             class="p-button-primary"
             @click="viewDetails(competence.id)"
           />
           <div>
             <Button
-                icon="pi pi-pencil"
-                class="p-button-text p-button-sm"
-                @click="editCompetence(competence)"
-                v-tooltip="'Редактировать'"
+              icon="pi pi-pencil"
+              class="p-button-text p-button-sm"
+              @click="editCompetence(competence)"
+              v-tooltip="'Редактировать'"
             />
             <Button
-                icon="pi pi-trash"
-                class="p-button-text p-button-sm p-button-danger"
-                @click="deleteCompetence(competence)"
-                v-tooltip="'Удалить'"
+              icon="pi pi-trash"
+              class="p-button-text p-button-sm p-button-danger"
+              @click="deleteCompetence(competence)"
+              v-tooltip="'Удалить'"
             />
           </div>
         </div>
@@ -107,19 +117,19 @@
 
     <!-- Диалог добавления/редактирования эксперта -->
     <Dialog
-        v-model:visible="showAddCompetenceDialog"
-        :header="isEditing ? 'Редактировать компетенцию' : 'Добавить компетенцию'"
-        :modal="true"
-        :style="{ width: '600px' }"
+      v-model:visible="showAddCompetenceDialog"
+      :header="isEditing ? 'Редактировать компетенцию' : 'Добавить компетенцию'"
+      :modal="true"
+      :style="{ width: '600px' }"
     >
       <div class="competence-form">
         <div class="form-field">
           <label for="name">Название *</label>
           <InputText
-              id="name"
-              v-model="competenceForm.name"
-              placeholder="Введите название компетенции"
-              :class="{ 'p-invalid': !competenceForm.name }"
+            id="name"
+            v-model="competenceForm.name"
+            placeholder="Введите название компетенции"
+            :class="{ 'p-invalid': !competenceForm.name }"
           />
           <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
         </div>
@@ -127,70 +137,84 @@
         <div class="form-field">
           <label for="name">Описание *</label>
           <Textarea
-              id="name"
-              v-model="competenceForm.description"
-              placeholder="Введите описание компетенции"
-              :class="{ 'p-invalid': !competenceForm.description }"
+            id="name"
+            v-model="competenceForm.description"
+            placeholder="Введите описание компетенции"
+            :class="{ 'p-invalid': !competenceForm.description }"
           />
-          <small v-if="errors.description" class="p-error">{{ errors.description }}</small>
-        </div>
-
-
-        <div class="form-field">
-          <label for="competenceAgeFilter" class="field-label">Возрастная категория *</label>
-          <Dropdown
-              id="competenceAgeFilter"
-              v-model="competenceForm.ageCategory"
-              :options="ageGroups"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Все возрасты"
-              class="filter-dropdown"
-              :class="{ 'p-invalid': !competenceForm.ageCategory }"
-          />
-          <small v-if="errors.ageCategory" class="p-error">{{ errors.ageCategory }}</small>
+          <small v-if="errors.description" class="p-error">{{
+            errors.description
+          }}</small>
         </div>
 
         <div class="form-field">
-          <label for="competenceExpertList" class="field-label">Главный эксперт *</label>
+          <label for="competenceAgeFilter" class="field-label"
+            >Возрастная категория *</label
+          >
           <Dropdown
-              id="competenceExpertList"
-              v-model="competenceForm.expert"
-              :options="experts"
-              placeholder="Не выбран"
-              class="filter-dropdown"
-              :class="{ 'p-invalid': !competenceForm.expert }"
+            id="competenceAgeFilter"
+            v-model="competenceForm.ageCategory"
+            :options="ageGroups"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Все возрасты"
+            class="filter-dropdown"
+            :class="{ 'p-invalid': !competenceForm.ageCategory }"
+          />
+          <small v-if="errors.ageCategory" class="p-error">{{
+            errors.ageCategory
+          }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="competenceExpertList" class="field-label"
+            >Главный эксперт *</label
+          >
+          <Dropdown
+            id="competenceExpertList"
+            v-model="competenceForm.expert"
+            :options="experts"
+            placeholder="Не выбран"
+            class="filter-dropdown"
+            :class="{ 'p-invalid': !competenceForm.expert }"
           >
             <template #option="slotProps">
-              {{ slotProps.option.firstName }} {{ slotProps.option.lastName }} {{ slotProps.option.patronymic }}
+              {{ slotProps.option.firstName }} {{ slotProps.option.lastName }}
+              {{ slotProps.option.patronymic }}
             </template>
             <template #value="{ value }">
-              {{ value ? `${value.firstName} ${value.lastName} ${value.patronymic}` : 'Не выбран' }}
+              {{
+                value
+                  ? `${value.firstName} ${value.lastName} ${value.patronymic}`
+                  : "Не выбран"
+              }}
             </template>
           </Dropdown>
-          <small v-if="errors.ageCategory" class="p-error">{{ errors.ageCategory }}</small>
+          <small v-if="errors.ageCategory" class="p-error">{{
+            errors.ageCategory
+          }}</small>
         </div>
       </div>
 
       <template #footer>
         <Button
-            label="Отмена"
-            icon="pi pi-times"
-            class="p-button-text"
-            @click="cancelEdit"
+          label="Отмена"
+          icon="pi pi-times"
+          class="p-button-text"
+          @click="cancelEdit"
         />
         <Button
-            :label="isEditing ? 'Сохранить' : 'Добавить'"
-            icon="pi pi-check"
-            class="p-button-primary"
-            @click="saveCompetence"
+          :label="isEditing ? 'Сохранить' : 'Добавить'"
+          icon="pi pi-check"
+          class="p-button-primary"
+          @click="saveCompetence"
         />
       </template>
     </Dialog>
 
     <!-- Диалог подробной информации -->
-    <Dialog 
-      v-model:visible="showDetailsDialog" 
+    <Dialog
+      v-model:visible="showDetailsDialog"
       :header="selectedCompetence?.name || 'Компетенция'"
       :modal="true"
       :style="{ width: '800px' }"
@@ -203,22 +227,35 @@
 
         <div class="detail-section">
           <h4>Главный эксперт</h4>
-          <p>{{ competenceExpert(selectedCompetence).lastName + " " +
-                competenceExpert(selectedCompetence).firstName + " " +
-                competenceExpert(selectedCompetence).patronymic
-            }}</p>
+          <p>
+            {{
+              competenceExpert(selectedCompetence).lastName +
+              " " +
+              competenceExpert(selectedCompetence).firstName +
+              " " +
+              competenceExpert(selectedCompetence).patronymic
+            }}
+          </p>
         </div>
-        
+
         <div class="detail-section">
           <h4>Статистика</h4>
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetence.participantsCount }}</div>
+              <div class="stat-number">
+                {{ selectedCompetence.participantsCount }}
+              </div>
               <div class="stat-label">Участников</div>
             </div>
             <div class="stat-item">
               <div class="stat-number">
-                {{ ageGroups.find(group => group.value === selectedCompetence.ageCategory).label.split(' ')[0] }}
+                {{
+                  ageGroups
+                    .find(
+                      (group) => group.value === selectedCompetence.ageCategory,
+                    )
+                    .label.split(" ")[0]
+                }}
               </div>
               <div class="stat-label">лет</div>
             </div>
@@ -227,55 +264,59 @@
               <div class="stat-label">Событий</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedCompetence.documents.length }}</div>
+              <div class="stat-number">
+                {{ selectedCompetence.documents.length }}
+              </div>
               <div class="stat-label">Документов</div>
             </div>
           </div>
         </div>
       </div>
       <template #footer>
-        <Button 
-          label="Закрыть" 
-          icon="pi pi-times" 
+        <Button
+          label="Закрыть"
+          icon="pi pi-times"
           class="p-button-text"
           @click="closeDetails"
         />
-<!--        <Button -->
-<!--          label="Участники" -->
-<!--          icon="pi pi-users" -->
-<!--          class="p-button-primary"-->
-<!--          @click="goToParticipants(selectedCompetence?.id)"-->
-<!--        />-->
+        <!--        <Button -->
+        <!--          label="Участники" -->
+        <!--          icon="pi pi-users" -->
+        <!--          class="p-button-primary"-->
+        <!--          @click="goToParticipants(selectedCompetence?.id)"-->
+        <!--        />-->
       </template>
     </Dialog>
-
   </div>
 </template>
 
 <script lang="ts">
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import Dropdown from 'primevue/dropdown'
-import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
-import {fillUserState, UserState} from "../../../state/UserState";
-import {UserResolver} from "@/api/resolvers/user/user.resolver";
-import {Roles} from "../../../state/UserState.types";
-import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import Dropdown from "primevue/dropdown";
+import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import { UserState } from "../../../state/UserState";
+import { UserResolver } from "@/api/resolvers/user/user.resolver";
+import { Roles } from "../../../state/UserState.types";
+import { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto";
 import ToastPopup from "@/components/ToastPopup.vue";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
-import {CompetenceInputDto} from "@/api/resolvers/competence/dto/input/competence-input.dto";
-import {AgeCategories, CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
+import { CompetenceInputDto } from "@/api/resolvers/competence/dto/input/competence-input.dto";
+import {
+  AgeCategories,
+  CompetenceResolver,
+} from "@/api/resolvers/competence/competence.resolver";
 
 export default {
-  name: 'ExpertCompetencies',
+  name: "ExpertCompetencies",
   components: {
     ToastPopup,
     Button,
     Dialog,
     InputText,
     Textarea,
-    Dropdown
+    Dropdown,
   },
   data() {
     return {
@@ -290,17 +331,17 @@ export default {
       editingCompetenceId: null,
       errors: {
         toastPopup: {
-          title: '',
-          message: '',
+          title: "",
+          message: "",
         },
-        name: '',
-        description: '',
-        ageCategory: '',
-        expert: '',
+        name: "",
+        description: "",
+        ageCategory: "",
+        expert: "",
       },
       competenceForm: {
-        name: '',
-        description: '',
+        name: "",
+        description: "",
         ageCategory: null as AgeCategories | null,
         expert: null as UserOutputDto | null,
       },
@@ -311,89 +352,99 @@ export default {
         { value: AgeCategories.SCHOOL, label: "9-11 лет" },
         { value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет" },
       ],
-      competencies: [] as CompetenceOutputDto[]
-    }
+      competencies: [] as CompetenceOutputDto[],
+    };
   },
   computed: {
     filteredCompetencies() {
-      let filtered = this.competencies
+      let filtered = this.competencies;
 
       if (this.selectedAge) {
-        filtered = filtered.filter((competence: CompetenceOutputDto) => competence.ageCategory == this.selectedAge)
+        filtered = filtered.filter(
+          (competence: CompetenceOutputDto) =>
+            competence.ageCategory == this.selectedAge,
+        );
       }
-      
-      return filtered
+
+      return filtered;
     },
   },
   methods: {
     competenceExpert(selectedCompetence: CompetenceOutputDto): UserOutputDto {
-      return this.experts.find((expert: UserOutputDto) => expert.id === selectedCompetence.expertId)
+      return this.experts.find(
+        (expert: UserOutputDto) => expert.id === selectedCompetence.expertId,
+      );
     },
     goToParticipants(competenceId) {
-      this.$router.push(`/expert/participants/${competenceId}`)
+      this.$router.push(`/expert/participants/${competenceId}`);
     },
     goToDocuments(competence) {
-      localStorage.setItem("selectedCompetence", JSON.stringify(competence))
-      this.$router.push(`/tutor/documents`)
-    },
-    goToEvents(competenceId) {
-      this.$router.push('/expert/events')
+      localStorage.setItem("selectedCompetence", JSON.stringify(competence));
+      this.$router.push(`/tutor/documents`);
     },
     viewDetails(competenceId) {
-      this.selectedCompetence = this.competencies.find(c => c.id === competenceId)
-      this.showDetailsDialog = true
+      this.selectedCompetence = this.competencies.find(
+        (c) => c.id === competenceId,
+      );
+      this.showDetailsDialog = true;
     },
     closeDetails() {
-      this.showDetailsDialog = false
-      this.selectedCompetence = null
+      this.showDetailsDialog = false;
+      this.selectedCompetence = null;
     },
     resetFilters() {
-      this.selectedAge = null
+      this.selectedAge = null;
     },
     addCompetence() {
       this.competenceForm = {
         name: "",
         description: "",
         ageCategory: null,
-        expert: '',
-      }
-      this.showAddCompetenceDialog = true
+        expert: "",
+      };
+      this.showAddCompetenceDialog = true;
     },
     editCompetence(competence: CompetenceOutputDto) {
-      this.isEditing = true
-      console.log(competence, this.experts)
-      this.editingCompetenceId = competence.id
+      this.isEditing = true;
+      console.log(competence, this.experts);
+      this.editingCompetenceId = competence.id;
       this.competenceForm = {
-        expert: this.experts.find((expert: UserOutputDto) => expert.id === competence.expertId),
+        expert: this.experts.find(
+          (expert: UserOutputDto) => expert.id === competence.expertId,
+        ),
         ageCategory: competence.ageCategory,
         name: competence.name,
         description: competence.description,
-      }
-      this.showAddCompetenceDialog = true
+      };
+      this.showAddCompetenceDialog = true;
     },
     async deleteCompetence(competence: CompetenceOutputDto) {
-      if (confirm(`Вы уверены, что хотите удалить компетенцию ${competence.name}?`)) {
-        const response = await this.competenceResolver.delete(competence.id)
+      if (
+        confirm(
+          `Вы уверены, что хотите удалить компетенцию ${competence.name}?`,
+        )
+      ) {
+        const response = await this.competenceResolver.delete(competence.id);
         if (response.status === 200) {
-          await this.loadCompetencies()
+          await this.loadCompetencies();
         } else {
           this.errors.toastPopup = {
             title: response.status,
-            message: response.message
-          }
+            message: response.message,
+          };
         }
       }
     },
     cancelEdit() {
-      this.isEditing = false
-      this.editingCompetenceId = null
+      this.isEditing = false;
+      this.editingCompetenceId = null;
       this.competenceForm = {
         name: "",
         description: "",
         ageCategory: null,
-        expert: '',
-      }
-      this.showAddCompetenceDialog = false
+        expert: "",
+      };
+      this.showAddCompetenceDialog = false;
     },
     async saveCompetence() {
       const data: CompetenceInputDto = {
@@ -402,46 +453,48 @@ export default {
         name: this.competenceForm.name,
         description: this.competenceForm.description,
         ageCategory: this.competenceForm.ageCategory,
-      }
+      };
       const response = this.isEditing
-          ? await this.competenceResolver.update(data)
-          : await this.competenceResolver.create(data)
+        ? await this.competenceResolver.update(data)
+        : await this.competenceResolver.create(data);
 
       if (typeof response.message === "string") {
         this.errors.toastPopup = {
           title: response.status,
-          message: response.message
-        }
+          message: response.message,
+        };
       }
-      this.cancelEdit()
-      await this.loadCompetencies()
+      this.cancelEdit();
+      await this.loadCompetencies();
     },
     async loadCompetencies() {
-      const competenceResponse = await this.competenceResolver.getAllByUserId(UserState.id)
+      const competenceResponse = await this.competenceResolver.getAllByUserId(
+        UserState.id,
+      );
       if (competenceResponse.status === 200) {
-        this.competencies = competenceResponse.message
+        this.competencies = competenceResponse.message;
       } else {
         this.errors.toastPopup = {
           title: competenceResponse.status,
           message: competenceResponse.message,
-        }
+        };
       }
 
-      const expertResponse = await this.userResolver.getAllByRole(Roles.EXPERT)
+      const expertResponse = await this.userResolver.getAllByRole(Roles.EXPERT);
       if (expertResponse.status == 200) {
-        this.experts = expertResponse.message
+        this.experts = expertResponse.message;
       } else {
         this.errors.toastPopup = {
           title: expertResponse.status,
           message: expertResponse.message,
-        }
+        };
       }
-    }
+    },
   },
   async mounted() {
-    await this.loadCompetencies()
-  }
-}
+    await this.loadCompetencies();
+  },
+};
 </script>
 
 <style scoped>
@@ -486,7 +539,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -536,7 +589,10 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .competence-card:hover {
@@ -731,41 +787,41 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .competencies-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-group {
     min-width: auto;
   }
-  
+
   .competence-header {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .competence-stats {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
     padding: 1rem;
   }
-  
+
   .competence-actions {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -778,32 +834,32 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .competence-header {
     padding: 1rem;
   }
-  
+
   .competence-name {
     font-size: 1.1rem;
   }
-  
+
   .competence-stats {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
-  
+
   .competence-actions {
     padding: 0.75rem 1rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }

@@ -1,4 +1,4 @@
 export interface TelegramLinkInputDto {
-    tgLink: string;
-    userId: number;
+  tgLink: string;
+  userId: number;
 }

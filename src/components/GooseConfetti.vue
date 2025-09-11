@@ -1,14 +1,14 @@
 <template>
   <div v-if="showConfetti" class="confetti-container">
-    <div 
-      v-for="(goose, index) in geese" 
+    <div
+      v-for="(goose, index) in geese"
       :key="index"
       class="goose-confetti"
       :style="goose.style"
     >
-      <img 
-        src="@/assets/easter-egg/goose.png" 
-        alt="Goose" 
+      <img
+        src="@/assets/easter-egg/goose.png"
+        alt="Goose"
         class="goose-image"
       />
     </div>
@@ -17,44 +17,44 @@
 
 <script>
 export default {
-  name: 'GooseConfetti',
+  name: "GooseConfetti",
   data() {
     return {
       showConfetti: false,
-      geese: []
-    }
+      geese: [],
+    };
   },
   methods: {
     triggerConfetti() {
       // console.log('Goose confetti triggered!')
-      this.showConfetti = true
-      this.createGeese()
-      
+      this.showConfetti = true;
+      this.createGeese();
+
       // Скрыть конфетти через 4 секунды
       setTimeout(() => {
-        this.showConfetti = false
-        this.geese = []
-      }, 4000)
+        this.showConfetti = false;
+        this.geese = [];
+      }, 4000);
     },
     createGeese() {
-      const gooseCount = 30
-      this.geese = []
-      
+      const gooseCount = 30;
+      this.geese = [];
+
       for (let i = 0; i < gooseCount; i++) {
         const goose = {
           style: {
-            left: Math.random() * 100 + '%',
-            animationDelay: Math.random() * 2 + 's',
-            animationDuration: (Math.random() * 2 + 2) + 's',
+            left: Math.random() * 100 + "%",
+            animationDelay: Math.random() * 2 + "s",
+            animationDuration: Math.random() * 2 + 2 + "s",
             transform: `rotate(${Math.random() * 360}deg)`,
-            zIndex: Math.floor(Math.random() * 10) + 1
-          }
-        }
-        this.geese.push(goose)
+            zIndex: Math.floor(Math.random() * 10) + 1,
+          },
+        };
+        this.geese.push(goose);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>

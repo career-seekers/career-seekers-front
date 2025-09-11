@@ -67,9 +67,9 @@
           </h3>
         </div>
         <div class="upload-content">
-          <FileUpload 
-            mode="basic" 
-            name="documents[]" 
+          <FileUpload
+            mode="basic"
+            name="documents[]"
             :url="uploadUrl"
             accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.png"
             :maxFileSize="10000000"
@@ -80,7 +80,10 @@
             class="file-upload"
           />
           <div class="upload-info">
-            <p class="upload-text">Поддерживаемые форматы: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, JPG, PNG</p>
+            <p class="upload-text">
+              Поддерживаемые форматы: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT,
+              JPG, PNG
+            </p>
             <p class="upload-text">Максимальный размер файла: 10 МБ</p>
           </div>
         </div>
@@ -90,16 +93,16 @@
     <!-- Фильтры и поиск -->
     <div class="filters-section">
       <div class="search-group">
-        <InputText 
-          v-model="searchQuery" 
+        <InputText
+          v-model="searchQuery"
           placeholder="Поиск по названию документа..."
           class="search-input"
         />
         <i class="pi pi-search search-icon"></i>
       </div>
       <div class="filter-group">
-        <Dropdown 
-          v-model="selectedType" 
+        <Dropdown
+          v-model="selectedType"
           :options="typeOptions"
           optionLabel="label"
           optionValue="value"
@@ -108,8 +111,8 @@
         />
       </div>
       <div class="filter-group">
-        <Dropdown 
-          v-model="selectedStatus" 
+        <Dropdown
+          v-model="selectedStatus"
           :options="statusOptions"
           optionLabel="label"
           optionValue="value"
@@ -118,8 +121,8 @@
         />
       </div>
       <div class="filter-group">
-        <Button 
-          label="Сбросить фильтры" 
+        <Button
+          label="Сбросить фильтры"
           icon="pi pi-refresh"
           class="p-button-text p-button-sm"
           @click="resetFilters"
@@ -129,7 +132,11 @@
 
     <!-- Список документов -->
     <div class="documents-grid">
-      <div v-for="document in filteredDocuments" :key="document.id" class="document-card">
+      <div
+        v-for="document in filteredDocuments"
+        :key="document.id"
+        class="document-card"
+      >
         <div class="document-header">
           <div class="document-icon">
             <i :class="getFileIcon(document.type)"></i>
@@ -143,32 +150,32 @@
             </div>
           </div>
           <div class="document-actions">
-            <Button 
-              icon="pi pi-download" 
+            <Button
+              icon="pi pi-download"
               class="p-button-text p-button-sm"
               @click="downloadDocument(document)"
               v-tooltip="'Скачать'"
             />
-            <Button 
-              icon="pi pi-eye" 
+            <Button
+              icon="pi pi-eye"
               class="p-button-text p-button-sm"
               @click="previewDocument(document)"
               v-tooltip="'Предварительный просмотр'"
             />
-            <Button 
-              icon="pi pi-trash" 
+            <Button
+              icon="pi pi-trash"
               class="p-button-text p-button-sm p-button-danger"
               @click="deleteDocument(document)"
               v-tooltip="'Удалить'"
             />
           </div>
         </div>
-        
+
         <div class="document-content">
           <div class="document-description">
             <p>{{ document.description }}</p>
           </div>
-          
+
           <div class="document-stats">
             <div class="stat-item">
               <i class="pi pi-download"></i>
@@ -183,13 +190,9 @@
               <span>{{ document.lastAccess }}</span>
             </div>
           </div>
-          
+
           <div class="document-tags">
-            <span 
-              v-for="tag in document.tags" 
-              :key="tag"
-              class="document-tag"
-            >
+            <span v-for="tag in document.tags" :key="tag" class="document-tag">
               {{ tag }}
             </span>
           </div>
@@ -198,8 +201,8 @@
     </div>
 
     <!-- Диалог предварительного просмотра -->
-    <Dialog 
-      v-model:visible="showPreviewDialog" 
+    <Dialog
+      v-model:visible="showPreviewDialog"
       :header="selectedDocument?.name || 'Предварительный просмотр'"
       :modal="true"
       :style="{ width: '800px' }"
@@ -229,28 +232,34 @@
             <p>{{ selectedDocument.description }}</p>
           </div>
         </div>
-        
+
         <div class="preview-content">
           <div v-if="isImageFile(selectedDocument.type)" class="image-preview">
-            <img :src="selectedDocument.previewUrl" :alt="selectedDocument.name" />
+            <img
+              :src="selectedDocument.previewUrl"
+              :alt="selectedDocument.name"
+            />
           </div>
           <div v-else class="file-preview">
-            <i :class="getFileIcon(selectedDocument.type)" class="preview-icon"></i>
+            <i
+              :class="getFileIcon(selectedDocument.type)"
+              class="preview-icon"
+            ></i>
             <p>Предварительный просмотр недоступен для данного типа файла</p>
           </div>
         </div>
       </div>
-      
+
       <template #footer>
-        <Button 
-          label="Закрыть" 
-          icon="pi pi-times" 
+        <Button
+          label="Закрыть"
+          icon="pi pi-times"
           class="p-button-text"
           @click="closePreview"
         />
-        <Button 
-          label="Скачать" 
-          icon="pi pi-download" 
+        <Button
+          label="Скачать"
+          icon="pi pi-download"
           class="p-button-primary"
           @click="downloadDocument(selectedDocument)"
         />
@@ -260,181 +269,182 @@
 </template>
 
 <script>
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import FileUpload from 'primevue/fileupload'
-import InputText from 'primevue/inputtext'
-import Dropdown from 'primevue/dropdown'
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import FileUpload from "primevue/fileupload";
+import InputText from "primevue/inputtext";
+import Dropdown from "primevue/dropdown";
 
 export default {
-  name: 'ExpertDocuments',
+  name: "ExpertDocuments",
   components: {
     Button,
     Dialog,
     FileUpload,
     InputText,
-    Dropdown
+    Dropdown,
   },
   data() {
     return {
-      searchQuery: '',
+      searchQuery: "",
       selectedType: null,
       selectedStatus: null,
       showPreviewDialog: false,
       selectedDocument: null,
-      uploadUrl: '/api/upload', // Замените на реальный URL
-      competenceName: 'Анализ данных',
-      competenceDescription: 'Изучение основ анализа данных и визуализации',
+      uploadUrl: "/api/upload", // Замените на реальный URL
+      competenceName: "Анализ данных",
+      competenceDescription: "Изучение основ анализа данных и визуализации",
       typeOptions: [
-        { label: 'Презентация', value: 'presentation' },
-        { label: 'Документ', value: 'document' },
-        { label: 'Таблица', value: 'spreadsheet' },
-        { label: 'Изображение', value: 'image' },
-        { label: 'PDF', value: 'pdf' }
+        { label: "Презентация", value: "presentation" },
+        { label: "Документ", value: "document" },
+        { label: "Таблица", value: "spreadsheet" },
+        { label: "Изображение", value: "image" },
+        { label: "PDF", value: "pdf" },
       ],
       statusOptions: [
-        { label: 'Опубликован', value: 'published' },
-        { label: 'Черновик', value: 'draft' },
-        { label: 'На модерации', value: 'moderation' }
+        { label: "Опубликован", value: "published" },
+        { label: "Черновик", value: "draft" },
+        { label: "На модерации", value: "moderation" },
       ],
       documentsStats: {
         total: 24,
         uploaded: 18,
         downloads: 156,
-        recent: 8
+        recent: 8,
       },
       documents: [
         {
           id: 1,
-          name: 'Введение в анализ данных.pdf',
-          type: 'pdf',
-          typeLabel: 'PDF документ',
-          size: '2.3 МБ',
-          uploadDate: '10.12.2024',
-          description: 'Основные понятия и методы анализа данных для начинающих',
+          name: "Введение в анализ данных.pdf",
+          type: "pdf",
+          typeLabel: "PDF документ",
+          size: "2.3 МБ",
+          uploadDate: "10.12.2024",
+          description:
+            "Основные понятия и методы анализа данных для начинающих",
           downloads: 45,
           views: 78,
-          lastAccess: '2 дня назад',
-          tags: ['учебный материал', 'основы'],
-          status: 'published',
-          previewUrl: '/preview/1'
+          lastAccess: "2 дня назад",
+          tags: ["учебный материал", "основы"],
+          status: "published",
+          previewUrl: "/preview/1",
         },
         {
           id: 2,
-          name: 'Практические задания.xlsx',
-          type: 'spreadsheet',
-          typeLabel: 'Таблица Excel',
-          size: '1.8 МБ',
-          uploadDate: '08.12.2024',
-          description: 'Набор практических заданий для закрепления материала',
+          name: "Практические задания.xlsx",
+          type: "spreadsheet",
+          typeLabel: "Таблица Excel",
+          size: "1.8 МБ",
+          uploadDate: "08.12.2024",
+          description: "Набор практических заданий для закрепления материала",
           downloads: 32,
           views: 56,
-          lastAccess: '1 день назад',
-          tags: ['задания', 'практика'],
-          status: 'published',
-          previewUrl: '/preview/2'
+          lastAccess: "1 день назад",
+          tags: ["задания", "практика"],
+          status: "published",
+          previewUrl: "/preview/2",
         },
         {
           id: 3,
-          name: 'Визуализация данных.pptx',
-          type: 'presentation',
-          typeLabel: 'Презентация PowerPoint',
-          size: '5.2 МБ',
-          uploadDate: '05.12.2024',
-          description: 'Слайды по созданию графиков и дашбордов',
+          name: "Визуализация данных.pptx",
+          type: "presentation",
+          typeLabel: "Презентация PowerPoint",
+          size: "5.2 МБ",
+          uploadDate: "05.12.2024",
+          description: "Слайды по созданию графиков и дашбордов",
           downloads: 28,
           views: 42,
-          lastAccess: '3 дня назад',
-          tags: ['презентация', 'визуализация'],
-          status: 'published',
-          previewUrl: '/preview/3'
+          lastAccess: "3 дня назад",
+          tags: ["презентация", "визуализация"],
+          status: "published",
+          previewUrl: "/preview/3",
         },
         {
           id: 4,
-          name: 'Примеры кода Python.txt',
-          type: 'document',
-          typeLabel: 'Текстовый документ',
-          size: '0.5 МБ',
-          uploadDate: '03.12.2024',
-          description: 'Готовые примеры кода для анализа данных',
+          name: "Примеры кода Python.txt",
+          type: "document",
+          typeLabel: "Текстовый документ",
+          size: "0.5 МБ",
+          uploadDate: "03.12.2024",
+          description: "Готовые примеры кода для анализа данных",
           downloads: 51,
           views: 89,
-          lastAccess: '1 день назад',
-          tags: ['код', 'python', 'примеры'],
-          status: 'published',
-          previewUrl: '/preview/4'
-        }
-      ]
-    }
+          lastAccess: "1 день назад",
+          tags: ["код", "python", "примеры"],
+          status: "published",
+          previewUrl: "/preview/4",
+        },
+      ],
+    };
   },
   computed: {
     filteredDocuments() {
-      let filtered = this.documents
-      
+      let filtered = this.documents;
+
       // Поиск по названию
       if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase()
-        filtered = filtered.filter(d => d.name.toLowerCase().includes(query))
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter((d) => d.name.toLowerCase().includes(query));
       }
-      
+
       // Фильтр по типу
       if (this.selectedType) {
-        filtered = filtered.filter(d => d.type === this.selectedType)
+        filtered = filtered.filter((d) => d.type === this.selectedType);
       }
-      
+
       // Фильтр по статусу
       if (this.selectedStatus) {
-        filtered = filtered.filter(d => d.status === this.selectedStatus)
+        filtered = filtered.filter((d) => d.status === this.selectedStatus);
       }
-      
-      return filtered
-    }
+
+      return filtered;
+    },
   },
   methods: {
     getFileIcon(type) {
       const icons = {
-        'pdf': 'pi pi-file-pdf',
-        'document': 'pi pi-file-word',
-        'presentation': 'pi pi-file-powerpoint',
-        'spreadsheet': 'pi pi-file-excel',
-        'image': 'pi pi-image',
-        'text': 'pi pi-file'
-      }
-      return icons[type] || 'pi pi-file'
+        pdf: "pi pi-file-pdf",
+        document: "pi pi-file-word",
+        presentation: "pi pi-file-powerpoint",
+        spreadsheet: "pi pi-file-excel",
+        image: "pi pi-image",
+        text: "pi pi-file",
+      };
+      return icons[type] || "pi pi-file";
     },
     isImageFile(type) {
-      return type === 'image'
+      return type === "image";
     },
     onFileSelect(event) {
-      console.log('Выбраны файлы:', event.files)
+      console.log("Выбраны файлы:", event.files);
     },
     onUpload(event) {
-      console.log('Загрузка завершена:', event)
+      console.log("Загрузка завершена:", event);
       // Обновить список документов
     },
     downloadDocument(document) {
-      console.log('Скачивание документа:', document.name)
+      console.log("Скачивание документа:", document.name);
       // Логика скачивания
     },
     previewDocument(document) {
-      this.selectedDocument = document
-      this.showPreviewDialog = true
+      this.selectedDocument = document;
+      this.showPreviewDialog = true;
     },
     closePreview() {
-      this.showPreviewDialog = false
-      this.selectedDocument = null
+      this.showPreviewDialog = false;
+      this.selectedDocument = null;
     },
     deleteDocument(document) {
-      console.log('Удаление документа:', document.name)
+      console.log("Удаление документа:", document.name);
       // Логика удаления
     },
     resetFilters() {
-      this.searchQuery = ''
-      this.selectedType = null
-      this.selectedStatus = null
-    }
-  }
-}
+      this.searchQuery = "";
+      this.selectedType = null;
+      this.selectedStatus = null;
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -504,7 +514,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -674,7 +684,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .document-card:hover {
@@ -856,47 +868,47 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .documents-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .search-group {
     min-width: auto;
   }
-  
+
   .filter-group {
     min-width: auto;
   }
-  
+
   .document-header {
     flex-direction: column;
     text-align: center;
     gap: 1rem;
   }
-  
+
   .document-actions {
     justify-content: center;
   }
-  
+
   .document-stats {
     justify-content: center;
   }
-  
+
   .preview-meta {
     grid-template-columns: 1fr;
   }
@@ -909,27 +921,27 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stat-card {
     padding: 1rem;
   }
-  
+
   .document-content {
     padding: 1rem;
   }
-  
+
   .document-stats {
     flex-direction: column;
     align-items: center;

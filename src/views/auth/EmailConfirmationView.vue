@@ -8,11 +8,13 @@
         <h1 class="confirmation-title">Подтверждение email</h1>
         <div class="divider"></div>
       </div>
-      
+
       <div class="confirmation-content">
         <form @submit.prevent="handleConfirmation" class="confirmation-form">
           <div class="field">
-            <label for="confirmationCode" class="field-label">Код подтверждения *</label>
+            <label for="confirmationCode" class="field-label"
+              >Код подтверждения *</label
+            >
             <InputText
               id="confirmationCode"
               v-model="confirmationForm.code"
@@ -26,11 +28,14 @@
 
           <div class="field">
             <p class="confirmation-info">
-              Мы отправили код подтверждения на email: <strong>{{ userEmail }}</strong>
+              Мы отправили код подтверждения на email:
+              <strong>{{ userEmail }}</strong>
             </p>
             <p class="confirmation-note">
-              Если письмо не пришло, проверьте папку "Спам" или 
-              <a href="#" class="link" @click.prevent="resendCode">отправьте код повторно</a>
+              Если письмо не пришло, проверьте папку "Спам" или
+              <a href="#" class="link" @click.prevent="resendCode"
+                >отправьте код повторно</a
+              >
             </p>
           </div>
 
@@ -43,118 +48,130 @@
 
           <div class="back-link">
             <p>
-              <a href="#" class="link" @click.prevent="goBack">← Вернуться к регистрации</a>
+              <a href="#" class="link" @click.prevent="goBack"
+                >← Вернуться к регистрации</a
+              >
             </p>
           </div>
         </form>
       </div>
     </div>
-    <ToastPopup :content="errors.toastPopup"/>
+    <ToastPopup :content="errors.toastPopup" />
   </div>
 </template>
 
 <script lang="ts">
-import InputText from 'primevue/inputtext'
-import Button from 'primevue/button'
-import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
-import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
-import {v4 as generateUuidV4} from 'uuid'
+import InputText from "primevue/inputtext";
+import Button from "primevue/button";
+import { AuthResolver } from "@/api/resolvers/auth/auth.resolver.js";
+import {
+  UserRegistrationDto,
+  UserWithChildRegistrationDto,
+} from "@/api/resolvers/auth/dto/input/register-input.dto";
+import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
 import {
   MentorStateInterface,
   ParentStateInterface,
   RegistrationData,
-  TutorStateInterface
+  TutorStateInterface,
 } from "../../../state/UserState.types";
-import {fillUserState, redirectByUserState} from "../../../state/UserState";
+import { fillUserState, redirectByUserState } from "../../../state/UserState";
 
 export default {
-  name: 'EmailConfirmationView',
+  name: "EmailConfirmationView",
   components: {
     ToastPopup,
     InputText,
-    Button
+    Button,
   },
   data() {
     return {
       isLoading: false,
-      userEmail: '',
+      userEmail: "",
       confirmationForm: {
-        code: ''
+        code: "",
       },
       errors: {
         toastPopup: {
-          title: '',
-          message: ''
+          title: "",
+          message: "",
         },
-        code: ''
+        code: "",
       },
       authResolver: new AuthResolver(),
-      registrationData: (JSON.parse(localStorage.getItem("dataToVerify")) as
-          RegistrationData<
-              UserWithChildRegistrationDto | UserRegistrationDto,
-              TutorStateInterface | MentorStateInterface | ParentStateInterface
-          >).dto as UserRegistrationDto | UserWithChildRegistrationDto
-    }
+      registrationData: (
+        JSON.parse(localStorage.getItem("dataToVerify")) as RegistrationData<
+          UserWithChildRegistrationDto | UserRegistrationDto,
+          TutorStateInterface | MentorStateInterface | ParentStateInterface
+        >
+      ).dto as UserRegistrationDto | UserWithChildRegistrationDto,
+    };
   },
   mounted() {
     // Получаем email из query параметров или localStorage
-    this.userEmail = this.$route.query.email || localStorage.getItem('userEmail') || 'user@example.com'
+    this.userEmail =
+      this.$route.query.email ||
+      localStorage.getItem("userEmail") ||
+      "user@example.com";
   },
   methods: {
     validateForm() {
-      this.errors.code = ''
+      this.errors.code = "";
 
       if (!this.confirmationForm.code) {
-        this.errors.code = 'Код подтверждения обязателен'
-        return false
+        this.errors.code = "Код подтверждения обязателен";
+        return false;
       }
 
       if (this.confirmationForm.code.length !== 6) {
-        this.errors.code = 'Код должен содержать 6 цифр'
-        return false
+        this.errors.code = "Код должен содержать 6 цифр";
+        return false;
       }
 
       if (!/^\d{6}$/.test(this.confirmationForm.code)) {
-        this.errors.code = 'Код должен содержать только цифры'
-        return false
+        this.errors.code = "Код должен содержать только цифры";
+        return false;
       }
 
-      return true
+      return true;
     },
 
     async handleConfirmation() {
-      if (!this.validateForm()) return
+      if (!this.validateForm()) return;
 
-      this.isLoading = true
+      this.isLoading = true;
       this.errors.toastPopup = {
-        title: '',
-        message: '',
-      }
+        title: "",
+        message: "",
+      };
 
       try {
         if (this.registrationData.childPatronymic)
-          this.registrationData.type = "UserWithChildRegistrationDto"
-        else this.registrationData.type = "UserRegistrationDto"
-        this.registrationData.uuid = generateUuidV4()
-        this.registrationData.verificationCode = this.confirmationForm.code
-        const response = await this.authResolver.register(this.registrationData)
+          this.registrationData.type = "UserWithChildRegistrationDto";
+        else this.registrationData.type = "UserRegistrationDto";
+        this.registrationData.uuid = generateUuidV4();
+        this.registrationData.verificationCode = this.confirmationForm.code;
+        const response = await this.authResolver.register(
+          this.registrationData,
+        );
         if (typeof response.message === "string") {
           this.errors.toastPopup = {
             title: `Ошибка #${response.status}`,
-            message: response.message
-          }
+            message: response.message,
+          };
         } else {
-          localStorage.setItem("access_token", response.message.accessToken)
-          localStorage.setItem("refresh_token", response.message.refreshToken)
-          localStorage.setItem("uuid", this.registrationData.uuid)
-          await fillUserState()
-          await redirectByUserState()
+          localStorage.setItem("access_token", response.message.accessToken);
+          localStorage.setItem("refresh_token", response.message.refreshToken);
+          localStorage.setItem("uuid", this.registrationData.uuid);
+          await fillUserState();
+          await redirectByUserState();
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        this.errors.code = 'Неверный код подтверждения'
+        this.errors.code = "Неверный код подтверждения";
       } finally {
-        this.isLoading = false
+        this.isLoading = false;
       }
     },
 
@@ -162,30 +179,30 @@ export default {
       try {
         const response = await this.authResolver.preRegister({
           email: this.userEmail,
-          mobileNumber: this.registrationData.mobileNumber
-        })
+          mobileNumber: this.registrationData.mobileNumber,
+        });
 
         if (response.status !== 200) {
           this.errors.toastPopup = {
             title: `Ошибка #${response.status}`,
-            message: response.message
-          }
+            message: response.message,
+          };
         } else {
           this.errors.toastPopup = {
             title: "Код отправлен",
-            message: "Проверьте почтовый ящик"
-          }
+            message: "Проверьте почтовый ящик",
+          };
         }
       } catch (error) {
-        console.error('Ошибка повторной отправки:', error)
+        console.error("Ошибка повторной отправки:", error);
       }
     },
 
     goBack() {
-      this.$router.push('/register')
-    }
-  }
-}
+      this.$router.push("/register");
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -240,7 +257,13 @@ export default {
 
 .divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, #e0e0e0 20%, #e0e0e0 80%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #e0e0e0 20%,
+    #e0e0e0 80%,
+    transparent 100%
+  );
   margin: 1.5rem 0 0 0;
 }
 
@@ -259,7 +282,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 1.75rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .confirmation-form {
@@ -276,10 +299,18 @@ export default {
   animation: fadeInUp 0.6s ease-out both;
 }
 
-.field:nth-child(1) { animation-delay: 0.4s; }
-.field:nth-child(2) { animation-delay: 0.5s; }
-.field:nth-child(3) { animation-delay: 0.6s; }
-.field:nth-child(4) { animation-delay: 0.7s; }
+.field:nth-child(1) {
+  animation-delay: 0.4s;
+}
+.field:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.field:nth-child(3) {
+  animation-delay: 0.6s;
+}
+.field:nth-child(4) {
+  animation-delay: 0.7s;
+}
 
 @keyframes fadeInUp {
   from {
@@ -381,33 +412,33 @@ export default {
   .confirmation-container {
     padding: 1rem;
   }
-  
+
   .confirmation-card {
     margin: 0;
     border-radius: 12px;
   }
-  
+
   .confirmation-header {
     padding: 1.5rem 1.5rem 1rem 1.5rem;
   }
-  
+
   .confirmation-content {
     padding: 1rem 1.5rem 1.5rem 1.5rem;
   }
-  
+
   .confirmation-title {
     font-size: 1.5rem;
   }
-  
+
   .field {
     margin-bottom: 1.25rem;
   }
-  
+
   .field-label {
     font-size: 0.85rem;
     margin-bottom: 0.5rem;
   }
-  
+
   /* Кнопки на всю ширину */
   .p-button {
     width: 100%;
@@ -415,19 +446,19 @@ export default {
     padding: 0.875rem 1rem;
     font-size: 1rem;
   }
-  
+
   /* Поля ввода */
   .p-inputtext {
     padding: 0.875rem;
     font-size: 1rem;
   }
-  
+
   /* Кнопки действий */
   .action-buttons {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .action-buttons .p-button {
     width: 100%;
     flex: none;

@@ -8,211 +8,268 @@
         <h1 class="register-title">Регистрация наставника</h1>
         <div class="divider"></div>
       </div>
-      
+
       <div class="register-content">
         <form @submit.prevent="handleRegister" class="register-form">
-        <div class="field">
-          <label for="fullName" class="field-label">ФИО *</label>
-          <InputText
-            id="fullName"
-            v-model="registerForm.fullName"
-            placeholder="Введите ваше полное имя"
-            class="w-full"
-            :class="{ 'p-invalid': errors.fullName }"
-          />
-          <small v-if="errors.fullName" class="p-error">{{ errors.fullName }}</small>
-        </div>
-
-        <div class="field">
-          <label for="parentBirthDate" class="field-label">Дата рождения *</label>
-            <InputMask
-                id="parentBirthDate"
-                v-model="registerForm.birthDate"
-                mask="99.99.9999"
-                placeholder="дд.мм.гггг"
-                class="w-full"
-                :class="{ 'p-invalid': errors.birthDate }"
+          <div class="field">
+            <label for="fullName" class="field-label">ФИО *</label>
+            <InputText
+              id="fullName"
+              v-model="registerForm.fullName"
+              placeholder="Введите ваше полное имя"
+              class="w-full"
+              :class="{ 'p-invalid': errors.fullName }"
             />
-          <small v-if="errors.birthDate" class="p-error">{{ errors.birthDate }}</small>
-        </div>
+            <small v-if="errors.fullName" class="p-error">{{
+              errors.fullName
+            }}</small>
+          </div>
 
-        <div class="field">
-          <label for="position" class="field-label">Должность *</label>
-          <InputText
+          <div class="field">
+            <label for="parentBirthDate" class="field-label"
+              >Дата рождения *</label
+            >
+            <InputMask
+              id="parentBirthDate"
+              v-model="registerForm.birthDate"
+              mask="99.99.9999"
+              placeholder="дд.мм.гггг"
+              class="w-full"
+              :class="{ 'p-invalid': errors.birthDate }"
+            />
+            <small v-if="errors.birthDate" class="p-error">{{
+              errors.birthDate
+            }}</small>
+          </div>
+
+          <div class="field">
+            <label for="position" class="field-label">Должность *</label>
+            <InputText
               id="position"
               v-model="registerForm.position"
               placeholder="Введите вашу должность"
               class="w-full"
               :class="{ 'p-invalid': errors.position }"
-          />
-          <small v-if="errors.position" class="p-error">{{ errors.position }}</small>
-        </div>
+            />
+            <small v-if="errors.position" class="p-error">{{
+              errors.position
+            }}</small>
+          </div>
 
-        <div class="field">
-          <label for="educationalInstitution" class="field-label">Образовательное учреждение *</label>
-          <InputText
-            id="educationalInstitution"
-            v-model="registerForm.educationalInstitution"
-            placeholder="Введите название учебного заведения"
-            class="w-full"
-            :class="{ 'p-invalid': errors.educationalInstitution }"
-          />
-          <small v-if="errors.educationalInstitution" class="p-error">{{ errors.educationalInstitution }}</small>
-        </div>
+          <div class="field">
+            <label for="educationalInstitution" class="field-label"
+              >Образовательное учреждение *</label
+            >
+            <InputText
+              id="educationalInstitution"
+              v-model="registerForm.educationalInstitution"
+              placeholder="Введите название учебного заведения"
+              class="w-full"
+              :class="{ 'p-invalid': errors.educationalInstitution }"
+            />
+            <small v-if="errors.educationalInstitution" class="p-error">{{
+              errors.educationalInstitution
+            }}</small>
+          </div>
 
-        <div class="field">
-          <label for="telegramLink" class="field-label">Ссылка на Telegram *</label>
-          <InputText
+          <div class="field">
+            <label for="telegramLink" class="field-label"
+              >Ссылка на Telegram *</label
+            >
+            <InputText
               id="relationship"
               v-model="registerForm.telegramLink"
               placeholder="Например, @telegram_username"
               class="w-full"
               @blur="validateTelegramLink"
               :class="{ 'p-invalid': errors.telegramLink }"
-          />
-          <small v-if="errors.telegramLink" class="p-error">{{ errors.telegramLink }}</small>
-        </div>
-
-        <div class="field">
-          <label for="phone" class="field-label">Контактный телефон *</label>
-          <InputMask
-            id="phone"
-            v-model="registerForm.phone"
-            mask="+7 (999) 999-99-99"
-            placeholder="+7 (___) ___-__-__"
-            class="w-full"
-            :class="{ 'p-invalid': errors.phone }"
-          />
-          <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
-        </div>
-
-        <div class="field">
-          <label for="email" class="field-label">Адрес электронной почты *</label>
-          <InputText
-            id="email"
-            v-model="registerForm.email"
-            type="email"
-            placeholder="example@email.com"
-            class="w-full"
-            :class="{ 'p-invalid': errors.email }"
-            @blur="validateEmail"
-          />
-          <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
-        </div>
-
-        <div class="field">
-          <label for="password" class="field-label">Пароль *</label>
-          <Password
-            id="password"
-            v-model="registerForm.password"
-            placeholder="Введите пароль"
-            class="w-full"
-            :class="{ 'p-invalid': errors.password }"
-            :feedback="true"
-            toggleMask
-            weakLabel="Слабый"
-            mediumLabel="Средний"
-            strongLabel="Надежный"
-            promptLabel="Введите пароль"
-          />
-          <small v-if="errors.password" class="p-error">{{ errors.password }}</small>
-        </div>
-
-        <div class="field">
-          <label for="confirmPassword" class="field-label">Подтверждение пароля *</label>
-          <Password
-            id="confirmPassword"
-            v-model="registerForm.confirmPassword"
-            placeholder="Подтвердите пароль"
-            class="w-full"
-            :class="{ 'p-invalid': errors.confirmPassword }"
-            :feedback="false"
-            toggleMask
-          />
-          <small v-if="errors.confirmPassword" class="p-error">{{ errors.confirmPassword }}</small>
-        </div>
-
-        <div class="field">
-          <label for="consentFile" class="field-label">Согласие на обработку персональных данных *</label>
-          <FileUpload
-            id="consentFile"
-            mode="basic"
-            accept=".pdf,.doc,.docx"
-            :maxFileSize="5000000"
-            chooseLabel="Выберите файл"
-            class="w-full"
-            :class="{ 'p-invalid': errors.consentFile }"
-            @select="onFileSelect"
-            @remove="onFileRemove"
-          />
-          <small v-if="errors.consentFile" class="p-error">{{ errors.consentFile }}</small>
-          <small class="p-text-secondary">Поддерживаемые форматы: PDF, DOC, DOCX (максимум 5 МБ)</small>
-        </div>
-
-        <div class="field">
-          <div class="flex align-items-center">
-            <Checkbox
-              id="agreement"
-              v-model="registerForm.agreement"
-              :binary="true"
-              :class="{ 'p-invalid': errors.agreement }"
             />
-            <label for="agreement" class="ml-2 agreement-label">
-              Я согласен с 
-              <a href="#" class="link" @click.prevent="showTerms">условиями использования</a>
-              и 
-              <a href="#" class="link" @click.prevent="showPrivacy">политикой конфиденциальности</a>
-            </label>
+            <small v-if="errors.telegramLink" class="p-error">{{
+              errors.telegramLink
+            }}</small>
           </div>
-          <small v-if="errors.agreement" class="p-error">{{ errors.agreement }}</small>
-        </div>
 
-        <Button
-          type="submit"
-          label="Зарегистрироваться"
-          class="w-full register-button"
-          :loading="isLoading"
-        />
+          <div class="field">
+            <label for="phone" class="field-label">Контактный телефон *</label>
+            <InputMask
+              id="phone"
+              v-model="registerForm.phone"
+              mask="+7 (999) 999-99-99"
+              placeholder="+7 (___) ___-__-__"
+              class="w-full"
+              :class="{ 'p-invalid': errors.phone }"
+            />
+            <small v-if="errors.phone" class="p-error">{{
+              errors.phone
+            }}</small>
+          </div>
 
-        <div class="login-link">
-          <p>Уже есть аккаунт? 
-            <router-link to="/login" class="link">Войти</router-link>
-          </p>
-        </div>
+          <div class="field">
+            <label for="email" class="field-label"
+              >Адрес электронной почты *</label
+            >
+            <InputText
+              id="email"
+              v-model="registerForm.email"
+              type="email"
+              placeholder="example@email.com"
+              class="w-full"
+              :class="{ 'p-invalid': errors.email }"
+              @blur="validateEmail"
+            />
+            <small v-if="errors.email" class="p-error">{{
+              errors.email
+            }}</small>
+          </div>
+
+          <div class="field">
+            <label for="password" class="field-label">Пароль *</label>
+            <Password
+              id="password"
+              v-model="registerForm.password"
+              placeholder="Введите пароль"
+              class="w-full"
+              :class="{ 'p-invalid': errors.password }"
+              :feedback="true"
+              toggleMask
+              weakLabel="Слабый"
+              mediumLabel="Средний"
+              strongLabel="Надежный"
+              promptLabel="Введите пароль"
+            />
+            <small v-if="errors.password" class="p-error">{{
+              errors.password
+            }}</small>
+          </div>
+
+          <div class="field">
+            <label for="confirmPassword" class="field-label"
+              >Подтверждение пароля *</label
+            >
+            <Password
+              id="confirmPassword"
+              v-model="registerForm.confirmPassword"
+              placeholder="Подтвердите пароль"
+              class="w-full"
+              :class="{ 'p-invalid': errors.confirmPassword }"
+              :feedback="false"
+              toggleMask
+            />
+            <small v-if="errors.confirmPassword" class="p-error">{{
+              errors.confirmPassword
+            }}</small>
+          </div>
+
+          <div class="field">
+            <label for="consentFile" class="field-label"
+              >Согласие на обработку персональных данных *</label
+            >
+            <FileUpload
+              id="consentFile"
+              mode="basic"
+              accept=".pdf,.doc,.docx"
+              :maxFileSize="5000000"
+              chooseLabel="Выберите файл"
+              class="w-full"
+              :class="{ 'p-invalid': errors.consentFile }"
+              @select="onFileSelect"
+              @remove="onFileRemove"
+            />
+            <small v-if="errors.consentFile" class="p-error">{{
+              errors.consentFile
+            }}</small>
+            <small class="p-text-secondary"
+              >Поддерживаемые форматы: PDF, DOC, DOCX (максимум 5 МБ)</small
+            >
+          </div>
+
+          <div class="field">
+            <div class="flex align-items-center">
+              <Checkbox
+                id="agreement"
+                v-model="registerForm.agreement"
+                :binary="true"
+                :class="{ 'p-invalid': errors.agreement }"
+              />
+              <label for="agreement" class="ml-2 agreement-label">
+                Я согласен с
+                <a href="#" class="link" @click.prevent="showTerms"
+                  >условиями использования</a
+                >
+                и
+                <a href="#" class="link" @click.prevent="showPrivacy"
+                  >политикой конфиденциальности</a
+                >
+              </label>
+            </div>
+            <small v-if="errors.agreement" class="p-error">{{
+              errors.agreement
+            }}</small>
+          </div>
+
+          <Button
+            type="submit"
+            label="Зарегистрироваться"
+            class="w-full register-button"
+            :loading="isLoading"
+          />
+
+          <div class="login-link">
+            <p>
+              Уже есть аккаунт?
+              <router-link to="/login" class="link">Войти</router-link>
+            </p>
+          </div>
         </form>
       </div>
     </div>
 
     <!-- Диалог условий использования -->
-    <Dialog v-model:visible="showTermsDialog" modal header="Условия использования" :style="{ width: '90vw', maxWidth: '500px' }" class="terms-dialog">
+    <Dialog
+      v-model:visible="showTermsDialog"
+      modal
+      header="Условия использования"
+      :style="{ width: '90vw', maxWidth: '500px' }"
+      class="terms-dialog"
+    >
       <p>Здесь будут условия использования сервиса...</p>
     </Dialog>
 
     <!-- Диалог политики конфиденциальности -->
-    <Dialog v-model:visible="showPrivacyDialog" modal header="Политика конфиденциальности" :style="{ width: '90vw', maxWidth: '500px' }" class="privacy-dialog">
+    <Dialog
+      v-model:visible="showPrivacyDialog"
+      modal
+      header="Политика конфиденциальности"
+      :style="{ width: '90vw', maxWidth: '500px' }"
+      class="privacy-dialog"
+    >
       <p>Здесь будет политика конфиденциальности...</p>
     </Dialog>
 
-    <ToastPopup :content="errors.toastPopup"/>
+    <ToastPopup :content="errors.toastPopup" />
   </div>
 </template>
 
 <script lang="ts">
-import InputText from 'primevue/inputtext'
-import InputMask from 'primevue/inputmask'
-import Password from 'primevue/password'
-import Button from 'primevue/button'
-import FileUpload from 'primevue/fileupload'
-import Checkbox from 'primevue/checkbox'
-import Dialog from 'primevue/dialog'
+import InputText from "primevue/inputtext";
+import InputMask from "primevue/inputmask";
+import Password from "primevue/password";
+import Button from "primevue/button";
+import FileUpload from "primevue/fileupload";
+import Checkbox from "primevue/checkbox";
+import Dialog from "primevue/dialog";
 import ToastPopup from "@/components/ToastPopup.vue";
-import {AuthResolver} from "@/api/resolvers/auth/auth.resolver.js";
-import {UserRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
-import {MentorStateInterface, RegistrationData, Roles} from "../../../state/UserState.types";
-import {FileManager} from "@/utils/FileManager";
+import { AuthResolver } from "@/api/resolvers/auth/auth.resolver.js";
+import { UserRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto";
+import {
+  MentorStateInterface,
+  RegistrationData,
+  Roles,
+} from "../../../state/UserState.types";
+import { FileManager } from "@/utils/FileManager";
 
 export default {
-  name: 'MentorRegisterView',
+  name: "MentorRegisterView",
   components: {
     ToastPopup,
     InputText,
@@ -221,7 +278,7 @@ export default {
     Button,
     FileUpload,
     Checkbox,
-    Dialog
+    Dialog,
   },
   data() {
     return {
@@ -229,253 +286,282 @@ export default {
       showTermsDialog: false,
       showPrivacyDialog: false,
       registerForm: {
-        fullName: '',
-        birthDate: '',
-        position: '',
-        educationalInstitution: '',
-        telegramLink: '',
-        phone: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
+        fullName: "",
+        birthDate: "",
+        position: "",
+        educationalInstitution: "",
+        telegramLink: "",
+        phone: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
         consentFile: null,
-        agreement: false
+        agreement: false,
       },
       errors: {
-        fullName: '',
-        birthDate: '',
-        position: '',
-        educationalInstitution: '',
-        telegramLink: '',
-        phone: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        consentFile: '',
-        agreement: '',
+        fullName: "",
+        birthDate: "",
+        position: "",
+        educationalInstitution: "",
+        telegramLink: "",
+        phone: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        consentFile: "",
+        agreement: "",
         toastPopup: {
-          title: '',
-          message: ''
-        }
-      }
-    }
+          title: "",
+          message: "",
+        },
+      },
+    };
   },
   computed: {
     mobileNumberFormatted() {
-      return this.registerForm.phone.replaceAll(/\s|-|\(|\)|/g, '')
+      return this.registerForm.phone.replaceAll(/\s|-|\(|\)|/g, "");
     },
     dateOfBirthFormatted() {
-      const [day, month, year] = this.registerForm.birthDate.split('.');
-      const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
-      return date.toISOString()
+      const [day, month, year] = this.registerForm.birthDate.split(".");
+      const date = new Date(
+        Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)),
+      );
+      return date.toISOString();
     },
     telegramLinkFormatted() {
-      return this.registerForm.telegramLink.replace("@", "https://t.me/")
-    }
+      return this.registerForm.telegramLink.replace("@", "https://t.me/");
+    },
   },
   methods: {
     validateEmail() {
-      if (this.registerForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.registerForm.email)) {
-        this.errors.email = 'Введите корректный email'
-      } else this.errors.email = ''
+      if (
+        this.registerForm.email &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.registerForm.email)
+      ) {
+        this.errors.email = "Введите корректный email";
+      } else this.errors.email = "";
     },
 
     validateTelegramLink() {
-      if (this.registerForm.telegramLink && !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.registerForm.telegramLink)) {
-        this.errors.telegramLink = 'Введите корректную ссылку'
-      } else this.errors.telegramLink = ''
+      if (
+        this.registerForm.telegramLink &&
+        !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.registerForm.telegramLink)
+      ) {
+        this.errors.telegramLink = "Введите корректную ссылку";
+      } else this.errors.telegramLink = "";
     },
 
     validateForm() {
       // Очищаем предыдущие ошибки
-      Object.keys(this.errors).forEach(key => {
-        this.errors[key] = ''
-      })
+      Object.keys(this.errors).forEach((key) => {
+        this.errors[key] = "";
+      });
 
-      let isValid = true
+      let isValid = true;
 
       // Проверка ФИО
       if (!this.registerForm.fullName.trim()) {
-        this.errors.fullName = 'ФИО обязательно'
-        isValid = false
-      } else if (this.registerForm.fullName.trim().split(' ').length < 2) {
-        this.errors.fullName = 'Введите полное имя (имя и фамилию)'
-        isValid = false
+        this.errors.fullName = "ФИО обязательно";
+        isValid = false;
+      } else if (this.registerForm.fullName.trim().split(" ").length < 2) {
+        this.errors.fullName = "Введите полное имя (имя и фамилию)";
+        isValid = false;
       }
 
       //Проверка даты рождения
       if (!this.registerForm.birthDate.trim()) {
-        this.errors.birthDate = 'Дата рождения обязательна'
-        isValid = false
+        this.errors.birthDate = "Дата рождения обязательна";
+        isValid = false;
       }
 
       // Проверка образовательного учреждения
       if (!this.registerForm.educationalInstitution.trim()) {
-        this.errors.educationalInstitution = 'Образовательное учреждение обязательно'
-        isValid = false
+        this.errors.educationalInstitution =
+          "Образовательное учреждение обязательно";
+        isValid = false;
       }
 
       // Проверка должности
       if (!this.registerForm.position.trim()) {
-        this.errors.position = 'Должность обязательна'
-        isValid = false
+        this.errors.position = "Должность обязательна";
+        isValid = false;
       }
 
       //Проверка телеграм ссылки
       if (!this.registerForm.telegramLink.trim()) {
-        this.errors.telegramLink = 'Ссылка обязательна для связи'
-        isValid = false
-      } else if (!/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.registerForm.telegramLink)) {
-        this.errors.telegramLink = 'Введите корректную ссылку'
-        isValid = false
+        this.errors.telegramLink = "Ссылка обязательна для связи";
+        isValid = false;
+      } else if (
+        !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.registerForm.telegramLink)
+      ) {
+        this.errors.telegramLink = "Введите корректную ссылку";
+        isValid = false;
       }
 
       // Проверка телефона
       if (!this.registerForm.phone) {
-        this.errors.phone = 'Телефон обязателен'
-        isValid = false
-      } else if (this.registerForm.phone.replace(/\D/g, '').length !== 11) {
-        this.errors.phone = 'Введите корректный номер телефона'
-        isValid = false
+        this.errors.phone = "Телефон обязателен";
+        isValid = false;
+      } else if (this.registerForm.phone.replace(/\D/g, "").length !== 11) {
+        this.errors.phone = "Введите корректный номер телефона";
+        isValid = false;
       }
 
       // Проверка email
       if (!this.registerForm.email) {
-        this.errors.email = 'Email обязателен'
-        isValid = false
+        this.errors.email = "Email обязателен";
+        isValid = false;
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.registerForm.email)) {
-        this.errors.email = 'Введите корректный email'
-        isValid = false
+        this.errors.email = "Введите корректный email";
+        isValid = false;
       }
 
       // Проверка пароля
       if (!this.registerForm.password) {
-        this.errors.password = 'Пароль обязателен'
-        isValid = false
+        this.errors.password = "Пароль обязателен";
+        isValid = false;
       } else if (this.registerForm.password.length < 8) {
-        this.errors.password = 'Пароль должен содержать минимум 8 символов'
-        isValid = false
-      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.registerForm.password)) {
-        this.errors.password = 'Пароль должен содержать заглавные и строчные буквы, а также цифры'
-        isValid = false
+        this.errors.password = "Пароль должен содержать минимум 8 символов";
+        isValid = false;
+      } else if (
+        !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.registerForm.password)
+      ) {
+        this.errors.password =
+          "Пароль должен содержать заглавные и строчные буквы, а также цифры";
+        isValid = false;
       }
 
       // Проверка подтверждения пароля
       if (!this.registerForm.confirmPassword) {
-        this.errors.confirmPassword = 'Подтверждение пароля обязательно'
-        isValid = false
-      } else if (this.registerForm.password !== this.registerForm.confirmPassword) {
-        this.errors.confirmPassword = 'Пароли не совпадают'
-        isValid = false
+        this.errors.confirmPassword = "Подтверждение пароля обязательно";
+        isValid = false;
+      } else if (
+        this.registerForm.password !== this.registerForm.confirmPassword
+      ) {
+        this.errors.confirmPassword = "Пароли не совпадают";
+        isValid = false;
       }
 
       // Проверка файла согласия
       if (!this.registerForm.consentFile) {
-        this.errors.consentFile = 'Необходимо загрузить согласие на обработку персональных данных'
-        isValid = false
+        this.errors.consentFile =
+          "Необходимо загрузить согласие на обработку персональных данных";
+        isValid = false;
       }
 
       // Проверка согласия с условиями
       if (!this.registerForm.agreement) {
-        this.errors.agreement = 'Необходимо согласиться с условиями использования'
-        isValid = false
+        this.errors.agreement =
+          "Необходимо согласиться с условиями использования";
+        isValid = false;
       }
 
-      return isValid
+      return isValid;
     },
 
     onFileSelect(event) {
-      const file = event.files[0]
+      const file = event.files[0];
       if (file) {
         // Проверяем размер файла (5 МБ)
         if (file.size > 5000000) {
-          this.errors.consentFile = 'Размер файла не должен превышать 5 МБ'
-          return
+          this.errors.consentFile = "Размер файла не должен превышать 5 МБ";
+          return;
         }
 
         // Проверяем тип файла
-        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+        const allowedTypes = [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ];
         if (!allowedTypes.includes(file.type)) {
-          this.errors.consentFile = 'Поддерживаются только файлы PDF, DOC и DOCX'
-          return
+          this.errors.consentFile =
+            "Поддерживаются только файлы PDF, DOC и DOCX";
+          return;
         }
 
-        this.registerForm.consentFile = file
-        this.errors.consentFile = ''
+        this.registerForm.consentFile = file;
+        this.errors.consentFile = "";
       }
     },
 
     onFileRemove() {
-      this.registerForm.consentFile = null
-      this.errors.consentFile = ''
+      this.registerForm.consentFile = null;
+      this.errors.consentFile = "";
     },
 
     async handleRegister() {
-      if (!this.validateForm()) return
+      if (!this.validateForm()) return;
       this.errors.toastPopup = {
-        title: '',
-        message: ''
-      }
-      this.isLoading = true
-      
+        title: "",
+        message: "",
+      };
+      this.isLoading = true;
+
       try {
-        const authResolver = new AuthResolver()
+        const authResolver = new AuthResolver();
         const response = await authResolver.preRegister({
           email: this.registerForm.email,
-          mobileNumber: this.mobileNumberFormatted
-        })
+          mobileNumber: this.mobileNumberFormatted,
+        });
         if (response.status !== 200) {
           this.errors.toastPopup = {
             title: `Ошибка #${response.status}`,
-            message: response.message
-          }
+            message: response.message,
+          };
         } else {
-          const fileManager = new FileManager()
+          const fileManager = new FileManager();
           const registrationDto: RegistrationData<
-              UserRegistrationDto, MentorStateInterface
+            UserRegistrationDto,
+            MentorStateInterface
           > = {
             dto: {
               type: "UserRegistrationDto",
               verificationCode: "",
-              lastName: this.registerForm.fullName.split(' ')[0],
-              firstName: this.registerForm.fullName.split(' ')[1],
-              patronymic: this.registerForm.fullName.split(' ')[2],
+              lastName: this.registerForm.fullName.split(" ")[0],
+              firstName: this.registerForm.fullName.split(" ")[1],
+              patronymic: this.registerForm.fullName.split(" ")[2],
               dateOfBirth: this.dateOfBirthFormatted,
               email: this.registerForm.email,
               mobileNumber: this.mobileNumberFormatted,
               password: this.registerForm.password,
               role: Roles.MENTOR,
-              uuid: ""
+              uuid: "",
             },
             extra: {
               post: this.registerForm.position,
               institution: this.registerForm.educationalInstitution,
-              consentFileName: await fileManager.saveFileToCache(this.registerForm.consentFile),
-            }
-          }
-          localStorage.setItem("dataToVerify", JSON.stringify(registrationDto))
-          localStorage.setItem("telegramLink", JSON.stringify(this.telegramLinkFormatted))
+              consentFileName: await fileManager.saveFileToCache(
+                this.registerForm.consentFile,
+              ),
+            },
+          };
+          localStorage.setItem("dataToVerify", JSON.stringify(registrationDto));
+          localStorage.setItem(
+            "telegramLink",
+            JSON.stringify(this.telegramLinkFormatted),
+          );
           this.$router.push({
-            path: '/email-confirmation',
-            query: {email: this.registerForm.email}
-          })
+            path: "/email-confirmation",
+            query: { email: this.registerForm.email },
+          });
         }
       } catch (error) {
-        console.error('Ошибка регистрации:', error)
+        console.error("Ошибка регистрации:", error);
       } finally {
-        this.isLoading = false
+        this.isLoading = false;
       }
     },
 
     showTerms() {
-      this.showTermsDialog = true
+      this.showTermsDialog = true;
     },
 
     showPrivacy() {
-      this.showPrivacyDialog = true
-    }
-  }
-}
+      this.showPrivacyDialog = true;
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -522,7 +608,13 @@ export default {
 
 .divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, #e0e0e0 20%, #e0e0e0 80%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #e0e0e0 20%,
+    #e0e0e0 80%,
+    transparent 100%
+  );
   margin: 1.5rem 0 0 0;
 }
 
@@ -549,7 +641,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 1.75rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .register-subtitle {
@@ -572,14 +664,30 @@ export default {
   animation: fadeInUp 0.6s ease-out both;
 }
 
-.field:nth-child(1) { animation-delay: 0.4s; }
-.field:nth-child(2) { animation-delay: 0.5s; }
-.field:nth-child(3) { animation-delay: 0.6s; }
-.field:nth-child(4) { animation-delay: 0.7s; }
-.field:nth-child(5) { animation-delay: 0.8s; }
-.field:nth-child(6) { animation-delay: 0.9s; }
-.field:nth-child(7) { animation-delay: 1.0s; }
-.field:nth-child(8) { animation-delay: 1.1s; }
+.field:nth-child(1) {
+  animation-delay: 0.4s;
+}
+.field:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.field:nth-child(3) {
+  animation-delay: 0.6s;
+}
+.field:nth-child(4) {
+  animation-delay: 0.7s;
+}
+.field:nth-child(5) {
+  animation-delay: 0.8s;
+}
+.field:nth-child(6) {
+  animation-delay: 0.9s;
+}
+.field:nth-child(7) {
+  animation-delay: 1s;
+}
+.field:nth-child(8) {
+  animation-delay: 1.1s;
+}
 
 @keyframes fadeInUp {
   from {
@@ -707,33 +815,33 @@ export default {
   .register-container {
     padding: 1rem;
   }
-  
+
   .register-card {
     margin: 0;
     border-radius: 12px;
   }
-  
+
   .register-header {
     padding: 1.5rem 1.5rem 1rem 1.5rem;
   }
-  
+
   .register-content {
     padding: 1rem 1.5rem 1.5rem 1.5rem;
   }
-  
+
   .register-title {
     font-size: 1.5rem;
   }
-  
+
   .field {
     margin-bottom: 1.25rem;
   }
-  
+
   .field-label {
     font-size: 0.85rem;
     margin-bottom: 0.5rem;
   }
-  
+
   /* Кнопки на всю ширину */
   .p-button {
     width: 100%;
@@ -741,14 +849,14 @@ export default {
     padding: 0.875rem 1rem;
     font-size: 1rem;
   }
-  
+
   /* Поля ввода */
   .p-inputtext,
   .p-password-input {
     padding: 0.875rem;
     font-size: 1rem;
   }
-  
+
   /* FileUpload на мобильных */
   :deep(.p-fileupload .p-button) {
     width: 100%;
@@ -758,7 +866,7 @@ export default {
     white-space: nowrap;
     padding: 0.75rem 1rem;
   }
-  
+
   :deep(.p-fileupload .p-button-label) {
     max-width: 100%;
     overflow: hidden;
@@ -766,12 +874,11 @@ export default {
     white-space: nowrap;
     display: block;
   }
-  
+
   /* Диалоги на мобильных */
   :deep(.p-dialog) {
     width: 95vw !important;
     margin: 1rem;
   }
 }
-
 </style>

@@ -20,8 +20,12 @@
             <div class="data-item">
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{
-                  UserState.lastName + " " + UserState.firstName + " " + UserState.patronymic
-                }}</span>
+                UserState.lastName +
+                " " +
+                UserState.firstName +
+                " " +
+                UserState.patronymic
+              }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
@@ -31,10 +35,10 @@
               <span class="data-label">Телефон:</span>
               <span class="data-value">{{ UserState.mobileNumber }}</span>
             </div>
-<!--            <div class="data-item">-->
-<!--              <span class="data-label">Должность:</span>-->
-<!--              <span class="data-value">{{ UserState.position }}</span>-->
-<!--            </div>-->
+            <!--            <div class="data-item">-->
+            <!--              <span class="data-label">Должность:</span>-->
+            <!--              <span class="data-value">{{ UserState.position }}</span>-->
+            <!--            </div>-->
           </div>
         </div>
       </div>
@@ -62,17 +66,21 @@
             </div>
             <div class="data-item">
               <span class="data-label">Веб-сайт:</span>
-              <span class="data-value">{{ venueData.website ? venueData.website : 'Не указан' }}</span>
+              <span class="data-value">{{
+                venueData.website ? venueData.website : "Не указан"
+              }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Статус модерации:</span>
-              <span class="data-value">{{ venueData.verified ? 'Подтверждено' : 'На модерации' }}</span>
+              <span class="data-value">{{
+                venueData.verified ? "Подтверждено" : "На модерации"
+              }}</span>
             </div>
           </div>
-          
+
           <div class="card-actions">
-            <Button 
-              label="Редактировать информацию" 
+            <Button
+              label="Редактировать информацию"
               icon="pi pi-pencil"
               class="p-button-outlined"
               @click="editVenueInfo"
@@ -100,10 +108,10 @@
               <div class="stat-label">Компетенций</div>
             </div>
           </div>
-          
+
           <div class="card-actions">
-            <Button 
-              label="Управление экспертами" 
+            <Button
+              label="Управление экспертами"
               icon="pi pi-cog"
               class="p-button-outlined"
               @click="goToExperts"
@@ -122,14 +130,14 @@
         </div>
         <div class="card-content">
           <div class="quick-actions">
-            <Button 
-              label="Добавить главного эксперта" 
+            <Button
+              label="Добавить главного эксперта"
               icon="pi pi-user-plus"
               class="p-button-primary"
               @click="addExpert"
             />
-            <Button 
-              label="Просмотреть документы" 
+            <Button
+              label="Просмотреть документы"
               icon="pi pi-file-text"
               class="p-button-outlined"
               @click="viewDocuments"
@@ -140,130 +148,139 @@
 
       <!-- Диалог добавления/редактирования эксперта -->
       <Dialog
-          v-model:visible="showAddExpertDialog"
-          header="Добавить главного эксперта"
-          :modal="true"
-          :style="{ width: '600px' }"
+        v-model:visible="showAddExpertDialog"
+        header="Добавить главного эксперта"
+        :modal="true"
+        :style="{ width: '600px' }"
       >
         <div class="expert-form">
           <div class="form-field">
             <label for="fullName">ФИО *</label>
             <InputText
-                id="fullName"
-                v-model="expertForm.fullName"
-                placeholder="Введите ФИО эксперта"
-                :class="{ 'p-invalid': !expertForm.fullName }"
+              id="fullName"
+              v-model="expertForm.fullName"
+              placeholder="Введите ФИО эксперта"
+              :class="{ 'p-invalid': !expertForm.fullName }"
             />
-            <small v-if="errors.fullName" class="p-error">{{ errors.fullName }}</small>
+            <small v-if="errors.fullName" class="p-error">{{
+              errors.fullName
+            }}</small>
           </div>
 
           <div class="form-field">
             <label for="birthDate">Дата рождения *</label>
             <InputMask
-                id="birthDate"
-                v-model="expertForm.birthDate"
-                mask="99.99.9999"
-                class="w-full"
-                placeholder="дд.мм.гггг"
-                :class="{ 'p-invalid': !expertForm.birthDate }"
+              id="birthDate"
+              v-model="expertForm.birthDate"
+              mask="99.99.9999"
+              class="w-full"
+              placeholder="дд.мм.гггг"
+              :class="{ 'p-invalid': !expertForm.birthDate }"
             />
-            <small v-if="errors.birthDate" class="p-error">{{ errors.birthDate }}</small>
+            <small v-if="errors.birthDate" class="p-error">{{
+              errors.birthDate
+            }}</small>
           </div>
 
           <div class="form-field">
             <label for="email">Email *</label>
             <InputText
-                id="email"
-                type="email"
-                v-model="expertForm.email"
-                placeholder="Введите email"
-                :class="{ 'p-invalid': !expertForm.email }"
+              id="email"
+              type="email"
+              v-model="expertForm.email"
+              placeholder="Введите email"
+              :class="{ 'p-invalid': !expertForm.email }"
             />
-            <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
+            <small v-if="errors.email" class="p-error">{{
+              errors.email
+            }}</small>
           </div>
 
           <div class="form-field">
-            <label for="parentPhone" class="field-label">Контактный телефон *</label>
+            <label for="parentPhone" class="field-label"
+              >Контактный телефон *</label
+            >
             <InputMask
-                id="parentPhone"
-                v-model="expertForm.phone"
-                mask="+7 (999) 999-99-99"
-                placeholder="+7 (___) ___-__-__"
-                class="w-full"
-                :class="{ 'p-invalid': !expertForm.phone }"
+              id="parentPhone"
+              v-model="expertForm.phone"
+              mask="+7 (999) 999-99-99"
+              placeholder="+7 (___) ___-__-__"
+              class="w-full"
+              :class="{ 'p-invalid': !expertForm.phone }"
             />
-            <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
+            <small v-if="errors.phone" class="p-error">{{
+              errors.phone
+            }}</small>
           </div>
         </div>
 
         <template #footer>
           <Button
-              label="Отмена"
-              icon="pi pi-times"
-              class="p-button-text"
-              @click="cancelEdit"
+            label="Отмена"
+            icon="pi pi-times"
+            class="p-button-text"
+            @click="cancelEdit"
           />
           <Button
-              label="Сохранить"
-              icon="pi pi-check"
-              class="p-button-primary"
-              @click="saveExpert"
+            label="Сохранить"
+            icon="pi pi-check"
+            class="p-button-primary"
+            @click="saveExpert"
           />
         </template>
       </Dialog>
 
-<!--      &lt;!&ndash; Последние обновления &ndash;&gt;-->
-<!--      <div class="info-card">-->
-<!--        <div class="card-header">-->
-<!--          <h3 class="card-title">-->
-<!--            <i class="pi pi-clock"></i>-->
-<!--            Последние обновления-->
-<!--          </h3>-->
-<!--        </div>-->
-<!--        <div class="card-content">-->
-<!--          <div class="updates-list">-->
-<!--            <div v-for="update in recentUpdates" :key="update.id" class="update-item">-->
-<!--              <div class="update-icon">-->
-<!--                <i :class="update.icon"></i>-->
-<!--              </div>-->
-<!--              <div class="update-content">-->
-<!--                <div class="update-text">{{ update.text }}</div>-->
-<!--                <div class="update-time">{{ update.time }}</div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
+      <!--      &lt;!&ndash; Последние обновления &ndash;&gt;-->
+      <!--      <div class="info-card">-->
+      <!--        <div class="card-header">-->
+      <!--          <h3 class="card-title">-->
+      <!--            <i class="pi pi-clock"></i>-->
+      <!--            Последние обновления-->
+      <!--          </h3>-->
+      <!--        </div>-->
+      <!--        <div class="card-content">-->
+      <!--          <div class="updates-list">-->
+      <!--            <div v-for="update in recentUpdates" :key="update.id" class="update-item">-->
+      <!--              <div class="update-icon">-->
+      <!--                <i :class="update.icon"></i>-->
+      <!--              </div>-->
+      <!--              <div class="update-content">-->
+      <!--                <div class="update-text">{{ update.text }}</div>-->
+      <!--                <div class="update-time">{{ update.time }}</div>-->
+      <!--              </div>-->
+      <!--            </div>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
     </div>
-    <ToastPopup :content="errors.toastPopup"/>
+    <ToastPopup :content="errors.toastPopup" />
   </div>
 </template>
 
 <script lang="ts">
-import Button from 'primevue/button'
-import {UserState} from "../../../state/UserState";
-import {PlatformResolver} from "@/api/resolvers/platform/platform.resolver.js";
-import {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-output.dto.js";
+import Button from "primevue/button";
+import { UserState } from "../../../state/UserState";
+import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver.ts";
+import { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto.js";
 import ToastPopup from "@/components/ToastPopup.vue";
-import {UserResolver} from "@/api/resolvers/user/user.resolver";
-import {CompetenceResolver} from "@/api/resolvers/competence/competence.resolver";
-import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
-import {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto";
-import {Roles} from "../../../state/UserState.types";
-import {UpdateUserInputDto} from "@/api/resolvers/user/dto/input/update-user-input.dto";
-import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input.dto";
+import { UserResolver } from "@/api/resolvers/user/user.resolver";
+import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
+import { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto";
+import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import { Roles } from "../../../state/UserState.types";
+import { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto";
 import InputText from "primevue/inputtext";
 import Dialog from "primevue/dialog";
 import InputMask from "primevue/inputmask";
 
 export default {
-  name: 'TutorDashboardHome',
+  name: "TutorDashboardHome",
   components: {
     InputText,
     Dialog,
     InputMask,
     ToastPopup,
-    Button
+    Button,
   },
   data() {
     return {
@@ -274,188 +291,192 @@ export default {
       competencies: [] as CompetenceOutputDto[],
       showAddExpertDialog: false,
       expertForm: {
-        fullName: '',
-        birthDate: '',
-        email: '',
-        phone: '',
+        fullName: "",
+        birthDate: "",
+        email: "",
+        phone: "",
       },
       venueData: {
         id: null,
-        fullName: '',
-        shortName: '',
-        address: '',
-        email: '',
-        website: '',
+        fullName: "",
+        shortName: "",
+        address: "",
+        email: "",
+        website: "",
         verified: false,
-        userId: UserState.id
+        userId: UserState.id,
       } as PlatformOutputDto,
       errors: {
         toastPopup: {
-          title: '',
-          message: ''
+          title: "",
+          message: "",
         },
-        fullName: '',
-        shortName: '',
-        address: '',
-        email: '',
-        phone: '',
-        birthDate: '',
+        fullName: "",
+        shortName: "",
+        address: "",
+        email: "",
+        phone: "",
+        birthDate: "",
       },
       recentUpdates: [
         {
           id: 1,
-          icon: 'pi pi-user-plus',
-          text: 'Добавлен новый главный эксперт: Сидоров А.В.',
-          time: '1 час назад'
+          icon: "pi pi-user-plus",
+          text: "Добавлен новый главный эксперт: Сидоров А.В.",
+          time: "1 час назад",
         },
         {
           id: 2,
-          icon: 'pi pi-file-upload',
-          text: 'Загружен документ: Лицензия на образовательную деятельность',
-          time: '3 часа назад'
+          icon: "pi pi-file-upload",
+          text: "Загружен документ: Лицензия на образовательную деятельность",
+          time: "3 часа назад",
         },
         {
           id: 3,
-          icon: 'pi pi-check-circle',
-          text: 'Информация о площадке отправлена на модерацию',
-          time: '1 день назад'
+          icon: "pi pi-check-circle",
+          text: "Информация о площадке отправлена на модерацию",
+          time: "1 день назад",
         },
         {
           id: 4,
-          icon: 'pi pi-user-edit',
-          text: 'Обновлены данные эксперта: Козлов П.С.',
-          time: '2 дня назад'
-        }
-      ]
-    }
+          icon: "pi pi-user-edit",
+          text: "Обновлены данные эксперта: Козлов П.С.",
+          time: "2 дня назад",
+        },
+      ],
+    };
   },
   computed: {
     UserState() {
-      return UserState
+      return UserState;
     },
     venueStatusClass() {
-      if (!this.venueData.verified) return 'status-pending'
-      return 'status-approved'
+      if (!this.venueData.verified) return "status-pending";
+      return "status-approved";
     },
     venueStatusText() {
-      if (!this.venueData.verified) return 'На модерации'
-      return 'Одобрен'
+      if (!this.venueData.verified) return "На модерации";
+      return "Одобрен";
     },
     dateOfBirthFormatted() {
-      const [day, month, year] = this.expertForm.birthDate.split('.');
-      const date = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)))
-      return date.toISOString()
+      const [day, month, year] = this.expertForm.birthDate.split(".");
+      const date = new Date(
+        Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)),
+      );
+      return date.toISOString();
     },
     mobileNumberFormatted() {
-      return this.expertForm.phone.replaceAll(/\s|-|\(|\)|/g, '')
+      return this.expertForm.phone.replaceAll(/\s|-|\(|\)|/g, "");
     },
   },
   methods: {
     goToExperts() {
-      this.$router.push('/tutor/experts')
+      this.$router.push("/tutor/experts");
     },
     addExpert() {
       this.expertForm = {
         fullName: "",
         email: "",
         phone: "",
-        birthDate: ""
-      }
-      this.showAddExpertDialog = true
+        birthDate: "",
+      };
+      this.showAddExpertDialog = true;
     },
     cancelEdit() {
       this.expertForm = {
-        fullName: '',
-        email: '',
-        phone: '',
-        birthDate: ''
-      }
-      this.showAddExpertDialog = false
+        fullName: "",
+        email: "",
+        phone: "",
+        birthDate: "",
+      };
+      this.showAddExpertDialog = false;
     },
     async saveExpert() {
       if (!this.validateForm()) {
-        return
+        return;
       }
       const newExpert: UserInputDto = {
-        lastName: this.expertForm.fullName.split(' ')[0],
-        firstName: this.expertForm.fullName.split(' ')[1],
-        patronymic: this.expertForm.fullName.split(' ')[2],
+        lastName: this.expertForm.fullName.split(" ")[0],
+        firstName: this.expertForm.fullName.split(" ")[1],
+        patronymic: this.expertForm.fullName.split(" ")[2],
         email: this.expertForm.email,
         mobileNumber: this.mobileNumberFormatted,
         password: "Expert$pa33word",
         role: Roles.EXPERT,
         dateOfBirth: this.dateOfBirthFormatted,
-        avatarId: null
-      }
+        avatarId: null,
+      };
 
-      const response = await this.userResolver.create(newExpert)
+      const response = await this.userResolver.create(newExpert);
       if (response.status === 200) {
-        this.cancelEdit()
+        this.cancelEdit();
       } else {
         this.errors.toastPopup = {
           title: response.status,
-          message: response.message
-        }
+          message: response.message,
+        };
       }
     },
     validateForm() {
-      let isValid = true
+      let isValid = true;
 
       if (!this.expertForm.fullName.trim()) {
-        this.errors.fullName = 'ФИО обязательно'
-        isValid = false
+        this.errors.fullName = "ФИО обязательно";
+        isValid = false;
       }
 
       if (!this.expertForm.email.trim()) {
-        this.errors.email = 'email обязателен'
-        isValid = false
+        this.errors.email = "email обязателен";
+        isValid = false;
       }
 
       if (!this.expertForm.phone.trim()) {
-        this.errors.phone = 'Номер телефона обязателен'
-        isValid = false
+        this.errors.phone = "Номер телефона обязателен";
+        isValid = false;
       }
 
       if (!this.expertForm.birthDate.trim()) {
-        this.errors.birthDate = 'Дата рождения обязательна'
-        isValid = false
+        this.errors.birthDate = "Дата рождения обязательна";
+        isValid = false;
       }
 
-      return isValid
+      return isValid;
     },
     editVenueInfo() {
-      this.$router.push('/tutor/venue-info')
+      this.$router.push("/tutor/venue-info");
     },
     viewDocuments() {
-      this.$router.push('/tutor/documents')
+      this.$router.push("/tutor/documents");
     },
     async loadPlatform() {
-      const response = await this.platformResolver.getByUserId(UserState.id)
+      const response = await this.platformResolver.getByUserId(UserState.id);
       if (response.status === 200) {
-        this.venueData = response.message
+        this.venueData = response.message;
       }
     },
     async loadExperts() {
-      const response = await this.userResolver.getAllByRole(Roles.EXPERT)
+      const response = await this.userResolver.getAllByRole(Roles.EXPERT);
       if (response.status === 200) {
-        this.experts = response.message
+        this.experts = response.message;
       }
     },
     async loadCompetencies() {
-      const response = await this.competenceResolver.getAllByUserId(UserState.id)
+      const response = await this.competenceResolver.getAllByUserId(
+        UserState.id,
+      );
       if (response.status === 200) {
-        this.competencies = response.message
+        this.competencies = response.message;
       }
-    }
+    },
   },
   async mounted() {
-    this.isLoading = true
-    await this.loadExperts()
-    await this.loadPlatform()
-    await this.loadCompetencies()
-    this.isLoading = false
-  }
-}
+    this.isLoading = true;
+    await this.loadExperts();
+    await this.loadPlatform();
+    await this.loadCompetencies();
+    this.isLoading = false;
+  },
+};
 </script>
 
 <style scoped>
@@ -487,7 +508,7 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .page-subtitle {
@@ -511,7 +532,9 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -729,7 +752,7 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -738,55 +761,55 @@ export default {
     padding: 0;
     margin: 0;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .info-card {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0;
   }
-  
+
   .card-header {
     padding: 1rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .card-content {
     padding: 1rem;
   }
-  
+
   .data-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  
+
   .data-value {
     text-align: left;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
   }
-  
+
   .stat-number {
     font-size: 1.5rem;
   }
-  
+
   .quick-actions {
     gap: 0.5rem;
   }
-  
+
   .update-item {
     padding: 0.5rem 0;
   }
-  
+
   .update-icon {
     width: 28px;
     height: 28px;
@@ -801,7 +824,7 @@ export default {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .dashboard-grid {
     gap: 0.75rem;
     width: 100%;
@@ -809,80 +832,80 @@ export default {
     padding: 0;
     margin: 0;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .page-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .info-card {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box;
     margin: 0;
   }
-  
+
   .card-header {
     padding: 0.75rem;
   }
-  
+
   .card-title {
     font-size: 1rem;
   }
-  
+
   .card-content {
     padding: 0.75rem;
   }
-  
+
   .data-item {
     padding: 0.5rem 0;
   }
-  
+
   .data-label {
     font-size: 0.85rem;
   }
-  
+
   .data-value {
     font-size: 0.9rem;
   }
-  
+
   .stats-grid {
     gap: 0.5rem;
   }
-  
+
   .stat-item {
     padding: 0.75rem;
   }
-  
+
   .stat-number {
     font-size: 1.25rem;
   }
-  
+
   .stat-label {
     font-size: 0.8rem;
   }
-  
+
   .quick-actions {
     gap: 0.4rem;
   }
-  
+
   .update-item {
     padding: 0.4rem 0;
   }
-  
+
   .update-icon {
     width: 24px;
     height: 24px;
     font-size: 0.7rem;
   }
-  
+
   .update-text {
     font-size: 0.8rem;
   }
-  
+
   .update-time {
     font-size: 0.7rem;
   }

@@ -14,46 +14,71 @@
           <i class="pi pi-times"></i>
         </button>
       </div>
-      
+
       <nav class="sidebar-nav">
         <ul class="nav-list">
           <li class="nav-item">
-            <router-link to="/tutor/dashboard" class="nav-link" :class="{ active: $route.path === '/tutor/dashboard' }" @click="closeSidebarOnMobile">
+            <router-link
+              to="/tutor/dashboard"
+              class="nav-link"
+              :class="{ active: $route.path === '/tutor/dashboard' }"
+              @click="closeSidebarOnMobile"
+            >
               <i class="pi pi-home"></i>
               <span>Главная</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/tutor/experts" class="nav-link" :class="{ active: $route.path === '/tutor/experts' }" @click="closeSidebarOnMobile">
+            <router-link
+              to="/tutor/experts"
+              class="nav-link"
+              :class="{ active: $route.path === '/tutor/experts' }"
+              @click="closeSidebarOnMobile"
+            >
               <i class="pi pi-users"></i>
               <span>Главные эксперты</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/tutor/competencies" class="nav-link" :class="{ active: $route.path === '/tutor/competencies' }" @click="closeSidebarOnMobile">
+            <router-link
+              to="/tutor/competencies"
+              class="nav-link"
+              :class="{ active: $route.path === '/tutor/competencies' }"
+              @click="closeSidebarOnMobile"
+            >
               <i class="pi pi-briefcase"></i>
               <span>Компетенции</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/tutor/documents" class="nav-link" :class="{ active: $route.path === '/tutor/documents' }" @click="closeSidebarOnMobile">
+            <router-link
+              to="/tutor/documents"
+              class="nav-link"
+              :class="{ active: $route.path === '/tutor/documents' }"
+              @click="closeSidebarOnMobile"
+            >
               <i class="pi pi-file"></i>
               <span>Документы</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/tutor/venue-info" class="nav-link" :class="{ active: $route.path === '/tutor/venue-info' }" @click="closeSidebarOnMobile">
+            <router-link
+              to="/tutor/venue-info"
+              class="nav-link"
+              :class="{ active: $route.path === '/tutor/venue-info' }"
+              @click="closeSidebarOnMobile"
+            >
               <i class="pi pi-building"></i>
               <span>Информация о площадке</span>
             </router-link>
           </li>
         </ul>
       </nav>
-      
+
       <div class="sidebar-footer">
-        <Button 
-          label="Выйти" 
-          icon="pi pi-sign-out" 
+        <Button
+          label="Выйти"
+          icon="pi pi-sign-out"
           class="p-button-text p-button-danger"
           @click="logout"
         />
@@ -67,57 +92,59 @@
           <component :is="Component" :key="route.name" />
         </transition>
       </router-view>
-      
+
       <!-- Футер -->
       <footer class="dashboard-footer">
-        <p class="footer-text">Академия Технического Творчества и Цифровых Технологий</p>
+        <p class="footer-text">
+          Академия Технического Творчества и Цифровых Технологий
+        </p>
       </footer>
     </div>
   </div>
 </template>
 
 <script>
-import Button from 'primevue/button'
-import {clearUserState} from "../../../state/UserState";
+import Button from "primevue/button";
+import { clearUserState } from "../../../state/UserState";
 
 export default {
-  name: 'TutorDashboard',
+  name: "TutorDashboard",
   components: {
-    Button
+    Button,
   },
   data() {
     return {
       sidebarOpen: false,
-      isMobile: false
-    }
+      isMobile: false,
+    };
   },
   mounted() {
-    this.checkMobile()
-    window.addEventListener('resize', this.checkMobile)
+    this.checkMobile();
+    window.addEventListener("resize", this.checkMobile);
   },
   beforeUnmount() {
-    window.removeEventListener('resize', this.checkMobile)
+    window.removeEventListener("resize", this.checkMobile);
   },
   methods: {
     async logout() {
-      await clearUserState()
+      await clearUserState();
     },
     toggleSidebar() {
-      this.sidebarOpen = !this.sidebarOpen
+      this.sidebarOpen = !this.sidebarOpen;
     },
     checkMobile() {
-      this.isMobile = window.innerWidth <= 768
+      this.isMobile = window.innerWidth <= 768;
       if (!this.isMobile) {
-        this.sidebarOpen = false
+        this.sidebarOpen = false;
       }
     },
     closeSidebarOnMobile() {
       if (this.isMobile) {
-        this.sidebarOpen = false
+        this.sidebarOpen = false;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -155,7 +182,7 @@ export default {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  font-family: 'BIPS', sans-serif;
+  font-family: "BIPS", sans-serif;
 }
 
 .sidebar-nav {
@@ -212,7 +239,7 @@ export default {
   padding-bottom: 80px;
   min-height: 100vh;
   background-color: white;
-  background-image: url('@/assets/bg2.png');
+  background-image: url("@/assets/bg2.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -290,7 +317,7 @@ export default {
   .dashboard-container {
     flex-direction: column;
   }
-  
+
   .sidebar {
     position: fixed;
     top: 0;
@@ -302,11 +329,11 @@ export default {
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     background: white !important;
   }
-  
+
   .sidebar.sidebar-open {
     left: 0;
   }
-  
+
   .main-content {
     margin-left: 0;
     padding: 1rem;
@@ -317,34 +344,34 @@ export default {
     max-width: 100vw;
     overflow-x: hidden;
   }
-  
+
   .dashboard-footer {
     left: 0;
     padding: 1rem;
   }
-  
+
   .sidebar-header {
     padding: 1rem;
     position: relative;
   }
-  
+
   .sidebar-logo {
     max-width: 60px;
   }
-  
+
   .sidebar-title {
     font-size: 1.1rem;
   }
-  
+
   .nav-link {
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
   }
-  
+
   .nav-link i {
     font-size: 1rem;
   }
-  
+
   .sidebar-footer {
     padding: 1rem;
   }
@@ -359,13 +386,13 @@ export default {
     height: 44px;
     font-size: 1.1rem;
   }
-  
+
   .sidebar {
     width: 100%;
     left: -100%;
     background: white !important;
   }
-  
+
   .main-content {
     padding: 0.75rem;
     padding-top: 3.5rem;
@@ -373,33 +400,33 @@ export default {
     max-width: 100vw;
     overflow-x: hidden;
   }
-  
+
   .dashboard-footer {
     padding: 0.75rem;
   }
-  
+
   .sidebar-header {
     padding: 0.75rem;
   }
-  
+
   .sidebar-logo {
     max-width: 50px;
   }
-  
+
   .sidebar-title {
     font-size: 1rem;
   }
-  
+
   .nav-link {
     padding: 0.65rem 0.75rem;
     font-size: 0.85rem;
   }
-  
+
   .nav-link i {
     font-size: 0.9rem;
     margin-right: 0.5rem;
   }
-  
+
   .sidebar-footer {
     padding: 0.75rem;
   }
