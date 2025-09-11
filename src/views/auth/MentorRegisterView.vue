@@ -136,6 +136,7 @@
               mediumLabel="Средний"
               strongLabel="Надежный"
               promptLabel="Введите пароль"
+              @blur="validatePassword"
             />
             <small v-if="errors.password" class="p-error">{{
               errors.password
@@ -417,6 +418,24 @@ export default {
       ) {
         this.errors.telegramLink = "Введите корректную ссылку";
       } else this.errors.telegramLink = "";
+    },
+
+    validatePassword() {
+      if (!this.registerForm.password) {
+        this.errors.password = "Пароль обязателен";
+        return;
+      } else if (this.registerForm.password.length < 8) {
+        this.errors.password = "Пароль должен содержать минимум 8 символов";
+        return;
+      } else if (
+        !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.registerForm.password)
+      ) {
+        this.errors.password =
+          "Пароль должен содержать заглавные и строчные буквы, а также цифры";
+        return;
+      }
+      this.errors.password = "";
+      return;
     },
 
     validateForm() {
