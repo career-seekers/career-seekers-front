@@ -202,6 +202,7 @@ import { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto";
 import { UpdateUserInputDto } from "@/api/resolvers/user/dto/input/update-user-input.dto";
 import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
 import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
+import {UserState} from "../../../state/UserState";
 
 export default {
   name: "TutorExperts",
@@ -412,7 +413,7 @@ export default {
       return isValid;
     },
     async loadExperts() {
-      const response = await this.userResolver.getAllByRole(Roles.EXPERT);
+      const response = await this.userResolver.getAllByTutorId(UserState.id);
       if (response.status === 200) {
         this.experts = response.message;
         for (const expert of this.experts) {
