@@ -1,9 +1,9 @@
 import ApiResolver from "@/utils/ApiResolver";
-import { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto";
-import { CommonOutputDto } from "@/api/dto/common-output.dto";
-import { Roles } from "../../../../state/UserState.types";
-import { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto";
-import { UpdateUserInputDto } from "@/api/resolvers/user/dto/input/update-user-input.dto";
+import {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto";
+import {CommonOutputDto} from "@/api/dto/common-output.dto";
+import {Roles} from "../../../../state/UserState.types";
+import {UserInputDto} from "@/api/resolvers/user/dto/input/user-input.dto";
+import {UpdateUserInputDto} from "@/api/resolvers/user/dto/input/update-user-input.dto";
 
 export class UserResolver {
   private apiResolver = new ApiResolver("users-service/v1/users");
@@ -21,6 +21,17 @@ export class UserResolver {
       null,
       CommonOutputDto<UserOutputDto[]>
     >(`getByRole/${role}`, "GET", null, this.token ? this.token : undefined);
+  }
+
+  public async getAllByTutorId(id: number) {
+    return await this.apiResolver.request <
+      null,
+      CommonOutputDto<UserOutputDto[]>
+    >(`getByTutorId/${id}`,
+      "GET",
+      null,
+      this.token ? this.token : undefined
+    );
   }
 
   public async create(data: UserInputDto) {

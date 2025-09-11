@@ -401,7 +401,8 @@ export default {
         patronymic: this.expertForm.fullName.split(" ")[2],
         email: this.expertForm.email,
         mobileNumber: this.mobileNumberFormatted,
-        password: "Expert$pa33word",
+        password: null,
+        tutorId: UserState.id,
         role: Roles.EXPERT,
         dateOfBirth: this.dateOfBirthFormatted,
         avatarId: null,
@@ -455,7 +456,7 @@ export default {
       }
     },
     async loadExperts() {
-      const response = await this.userResolver.getAllByRole(Roles.EXPERT);
+      const response = await this.userResolver.getAllByTutorId(UserState.id);
       if (response.status === 200) {
         this.experts = response.message;
       }
