@@ -550,7 +550,35 @@
       }"
       class="privacy-dialog"
     >
-      <p>Здесь будет политика конфиденциальности...</p>
+      <div
+        style="
+          position: absolute;
+          padding: 3rem 0;
+          left: 0;
+          height: 90vh;
+          width: 100%;
+          background-color: white;
+          border-radius: 6px;
+        "
+      >
+        <div style="height: 100%; overflow: scroll">
+          <VuePdfEmbed source="/docs/politics.pdf" />
+        </div>
+        <Button
+          style="
+            position: fixed;
+            top: 0.5rem;
+            padding: 1rem;
+            right: 0.5rem;
+            width: auto;
+            height: 5%;
+          "
+          icon="pi pi-times"
+          class="p-button-text p-button-plain"
+          aria-label="Close"
+          @click="showPoliticsDialog = false"
+        />
+      </div>
     </Dialog>
 
     <ToastPopup :content="errors.toastPopup" />
