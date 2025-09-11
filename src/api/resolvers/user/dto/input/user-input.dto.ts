@@ -9,5 +9,6 @@ export interface UserInputDto {
   mobileNumber: string;
   password: string;
   role: Roles;
+  tutorId: number | null;
   avatarId: number | null;
 }

@@ -359,6 +359,7 @@ export default {
           email: this.expertForm.email,
           mobileNumber: this.mobileNumberFormatted,
           password: null,
+          tutorId: UserState.id,
           role: Roles.EXPERT,
           dateOfBirth: this.dateOfBirthFormatted,
           avatarId: null,
