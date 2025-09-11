@@ -116,7 +116,7 @@
                 icon="pi pi-send"
                 class="p-button-primary"
                 @click="sendForModeration"
-                :disabled="isChanged"
+                :disabled="!isChanged"
               />
             </div>
           </form>
@@ -233,7 +233,7 @@ export default {
       handler() {
         if (this.cachedData === null) this.cachedData = { ...this.venueData };
         this.isChanged =
-          JSON.stringify(this.venueData) === JSON.stringify(this.cachedData);
+          JSON.stringify(this.venueData) !== JSON.stringify(this.cachedData);
       },
       deep: true,
     },
@@ -290,7 +290,6 @@ export default {
         this.oldMail = response.message.email;
         this.venueData = response.message;
         this.cachedData = null;
-        this.isChanged = false;
       }
     },
     validateForm() {
