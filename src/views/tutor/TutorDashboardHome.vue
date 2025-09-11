@@ -260,7 +260,7 @@
 <script lang="ts">
 import Button from "primevue/button";
 import { UserState } from "../../../state/UserState";
-import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver.ts";
+import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver";
 import { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto.js";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { UserResolver } from "@/api/resolvers/user/user.resolver";
