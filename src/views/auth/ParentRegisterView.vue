@@ -141,26 +141,23 @@
             </div>
 
             <div class="field">
-              <label for="childConsentFile" class="field-label"
-                >Согласие на ОПД ребенка *</label
-              >
-              <FileUpload
-                id="childConsentFile"
-                mode="basic"
-                accept=".pdf"
-                :maxFileSize="5000000"
-                chooseLabel="Выберите файл"
-                class="w-full"
-                :class="{ 'p-invalid': errors.childConsentFile }"
-                @select="onChildConsentSelect"
-                @remove="onChildConsentRemove"
-              />
-              <small v-if="errors.childConsentFile" class="p-error">{{
-                errors.childConsentFile
+              <div class="flex align-items-center">
+                <Checkbox
+                  input-id="consent"
+                  v-model="parentForm.consent"
+                  :binary="true"
+                  :class="{ 'p-invalid': errors.consent }"
+                />
+                <label for="consent" class="ml-2 agreement-label">
+                  Я согласен(-а) на
+                  <a href="#" class="link" @click.prevent="showAgreement">
+                    обработку персональных данных
+                  </a>
+                </label>
+              </div>
+              <small v-if="errors.consent" class="p-error">{{
+                errors.consent
               }}</small>
-              <small class="p-text-secondary"
-                >Поддерживаемые форматы: PDF (максимум 5 МБ)</small
-              >
             </div>
           </div>
 
@@ -437,19 +434,15 @@
             <div class="field">
               <div class="flex align-items-center">
                 <Checkbox
-                  id="agreement"
-                  v-model="mentorForm.agreement"
+                  input-id="agreement"
+                  v-model="parentForm.agreement"
                   :binary="true"
                   :class="{ 'p-invalid': errors.agreement }"
                 />
                 <label for="agreement" class="ml-2 agreement-label">
                   Я согласен с
-                  <a href="#" class="link" @click.prevent="showTerms"
-                    >условиями использования</a
-                  >
-                  и
-                  <a href="#" class="link" @click.prevent="showPrivacy"
-                    >политикой конфиденциальности</a
+                  <a href="#" class="link" @click.prevent="showPolitics"
+                  >политикой использования сервиса</a
                   >
                 </label>
               </div>
@@ -496,20 +489,65 @@
 
     <!-- Диалоги -->
     <Dialog
-      v-model:visible="showTermsDialog"
+      v-model:visible="showAgreementDialog"
       modal
-      header="Условия использования"
-      :style="{ width: '90vw', maxWidth: '500px' }"
-      class="terms-dialog"
+      :show-header="false"
+      :style="{
+        width: '90vw',
+        maxWidth: '650px',
+        height: '90vh',
+        position: 'relative',
+        borderRadius: '6px',
+      }"
+      class="privacy-dialog"
     >
-      <p>Здесь будут условия использования сервиса...</p>
+      <div
+        style="
+          display: flex;
+
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 90vh;
+          width: 100%;
+          overflow: hidden;
+          background-color: white;
+          border-radius: 6px;
+        "
+      >
+        <VuePdfEmbed
+          style="width: 100%; position: absolute"
+          source="/public/docs/agreement.pdf"
+        />
+        <Button
+          style="
+            position: absolute;
+            top: 0.5rem;
+            padding: 1rem;
+            right: 0.5rem;
+            width: auto;
+            height: 5%;
+          "
+          icon="pi pi-times"
+          class="p-button-text p-button-plain"
+          aria-label="Close"
+          @click="showAgreementDialog = false"
+        />
+      </div>
     </Dialog>
 
+    <!-- Диалог политики конфиденциальности -->
     <Dialog
-      v-model:visible="showPrivacyDialog"
+      v-model:visible="showPoliticsDialog"
       modal
-      header="Политика конфиденциальности"
-      :style="{ width: '90vw', maxWidth: '500px' }"
+      :show-header="false"
+      :style="{
+        width: '90vw',
+        maxWidth: '650px',
+        height: '90vh',
+        position: 'relative',
+        borderRadius: '6px',
+      }"
       class="privacy-dialog"
     >
       <p>Здесь будет политика конфиденциальности...</p>
@@ -537,10 +575,12 @@ import {
   Roles,
 } from "../../../state/UserState.types";
 import { FileManager } from "@/utils/FileManager";
+import VuePdfEmbed from "vue-pdf-embed";
 
 export default {
   name: "ParentRegisterView",
   components: {
+    VuePdfEmbed,
     ToastPopup,
     InputText,
     InputMask,
@@ -553,10 +593,10 @@ export default {
   },
   data() {
     return {
-      currentStep: 1,
+      currentStep: 1 as number,
       isLoading: false,
-      showTermsDialog: false,
-      showPrivacyDialog: false,
+      showAgreementDialog: false,
+      showPoliticsDialog: false,
 
       parentForm: {
         fullName: "",
@@ -565,7 +605,10 @@ export default {
         telegramLink: "",
         phone: "",
         email: "",
-        childConsentFile: null,
+        consent: false,
+        childConsentFile: new File(["Содержимое файла"], "myfile.txt", {
+          type: "text/plain",
+        }),
       },
 
       childForm: {
@@ -601,7 +644,7 @@ export default {
         telegramLink: "",
         phone: "",
         email: "",
-        childConsentFile: "",
+        consent: "",
         snilsScan: "",
         schoolName: "",
         password: "",
@@ -685,7 +728,7 @@ export default {
         telegramLink: "",
         phone: "",
         email: "",
-        childConsentFile: "",
+        consent: "",
         snilsScan: "",
         schoolName: "",
         password: "",
@@ -719,7 +762,7 @@ export default {
           this.errors.telegramLink = "Ссылка обязательна для связи";
           isValid = false;
         } else if (
-          !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.registerForm.telegramLink)
+          !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.parentForm.telegramLink)
         ) {
           this.errors.telegramLink = "Введите корректную ссылку";
           isValid = false;
@@ -746,9 +789,10 @@ export default {
           isValid = false;
         }
 
-        if (!this.parentForm.childConsentFile) {
-          this.errors.childConsentFile =
-            "Необходимо загрузить согласие на ОПД ребенка";
+        // Проверка согласия на обработку данных
+        if (!this.parentForm.consent) {
+          this.errors.consent =
+            "Необходимо согласиться с обработкой персональных данных";
           isValid = false;
         }
       }
@@ -837,9 +881,10 @@ export default {
           isValid = false;
         }
 
-        if (!this.mentorForm.agreement) {
+        // Проверка согласия с условиями использования
+        if (!this.parentForm.agreement) {
           this.errors.agreement =
-            "Необходимо согласиться с условиями использования";
+            "Необходимо согласиться с политикой использования сервиса";
           isValid = false;
         }
       }
@@ -905,8 +950,8 @@ export default {
 
     validateTelegramLink() {
       if (
-        this.registerForm.telegramLink &&
-        !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.registerForm.telegramLink)
+        this.parentForm.telegramLink &&
+        !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.parentForm.telegramLink)
       ) {
         this.errors.telegramLink = "Введите корректную ссылку";
       } else this.errors.telegramLink = "";
@@ -1033,12 +1078,12 @@ export default {
       }
     },
 
-    showTerms() {
-      this.showTermsDialog = true;
+    showAgreement() {
+      this.showAgreementDialog = true;
     },
 
-    showPrivacy() {
-      this.showPrivacyDialog = true;
+    showPolitics() {
+      this.showPoliticsDialog = true;
     },
 
     onParentMentorChange() {
