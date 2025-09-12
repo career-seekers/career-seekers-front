@@ -79,6 +79,11 @@
             chooseLabel="Выбрать файлы"
             class="file-upload"
           />
+          <Button
+            type="submit"
+            label="Загрузить"
+            class=" p-button-outlined"
+          />
           <div class="upload-info">
             <p class="upload-text">
               Поддерживаемые форматы: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT,
@@ -604,14 +609,26 @@ export default {
 }
 
 .upload-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 3rem;
+  row-gap: 0.5rem;
+  width: auto;
   padding: 1.5rem;
 }
 
 .file-upload {
   margin-bottom: 1rem;
+  width: 100%
+}
+
+:deep(.p-button.p-fileupload-choose) {
+  width: 100%;
 }
 
 .upload-info {
+  grid-row: 2 /3;
+  grid-column: 1 / 4;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
