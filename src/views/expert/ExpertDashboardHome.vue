@@ -77,12 +77,12 @@
                   </div>
                 </div>
                 <div class="competence-actions">
-                  <Button
-                    label="Участники"
-                    icon="pi pi-users"
-                    class="p-button-sm p-button-outlined"
-                    @click.stop="goToParticipants(competence.id)"
-                  />
+<!--                  <Button-->
+<!--                    label="Участники"-->
+<!--                    icon="pi pi-users"-->
+<!--                    class="p-button-sm p-button-outlined"-->
+<!--                    @click.stop="goToParticipants(competence.id)"-->
+<!--                  />-->
                   <Button
                     label="Документы"
                     icon="pi pi-file-text"

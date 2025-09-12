@@ -480,7 +480,7 @@ export default {
         };
       }
 
-      const expertResponse = await this.userResolver.getAllByRole(Roles.EXPERT);
+      const expertResponse = await this.userResolver.getAllByTutorId(UserState.id);
       if (expertResponse.status == 200) {
         this.experts = expertResponse.message;
       } else {
