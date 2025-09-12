@@ -736,21 +736,20 @@ export default {
       }
     },
     validatePassword() {
-      if (!this.registerForm.password) {
+      if (!this.mentorForm.password) {
         this.errors.password = "Пароль обязателен";
         return;
-      } else if (this.registerForm.password.length < 8) {
+      } else if (this.mentorForm.password.length < 8) {
         this.errors.password = "Пароль должен содержать минимум 8 символов";
         return;
       } else if (
-        !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.registerForm.password)
+        !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.mentorForm.password)
       ) {
         this.errors.password =
           "Пароль должен содержать заглавные и строчные буквы, а также цифры";
         return;
       }
       this.errors.password = "";
-      return;
     },
 
     formatBirthDate(birthDate) {

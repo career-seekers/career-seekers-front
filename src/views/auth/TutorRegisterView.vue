@@ -435,7 +435,6 @@ export default {
         return;
       }
       this.errors.password = "";
-      return;
     },
 
     validateForm() {
