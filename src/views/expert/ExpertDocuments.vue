@@ -16,46 +16,46 @@
     </div>
 
     <!-- Статистика -->
-    <div class="stats-section">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="pi pi-file-text"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-number">{{ documentsStats.total }}</div>
-            <div class="stat-label">Всего документов</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="pi pi-upload"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-number">{{ documentsStats.uploaded }}</div>
-            <div class="stat-label">Загружено</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="pi pi-download"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-number">{{ documentsStats.downloads }}</div>
-            <div class="stat-label">Скачиваний</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="pi pi-clock"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-number">{{ documentsStats.recent }}</div>
-            <div class="stat-label">За последнюю неделю</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!--    <div class="stats-section">-->
+    <!--      <div class="stats-grid">-->
+    <!--        <div class="stat-card">-->
+    <!--          <div class="stat-icon">-->
+    <!--            <i class="pi pi-file-text"></i>-->
+    <!--          </div>-->
+    <!--          <div class="stat-content">-->
+    <!--            <div class="stat-number">{{ documentsStats.total }}</div>-->
+    <!--            <div class="stat-label">Всего документов</div>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--        <div class="stat-card">-->
+    <!--          <div class="stat-icon">-->
+    <!--            <i class="pi pi-upload"></i>-->
+    <!--          </div>-->
+    <!--          <div class="stat-content">-->
+    <!--            <div class="stat-number">{{ documentsStats.uploaded }}</div>-->
+    <!--            <div class="stat-label">Загружено</div>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--        <div class="stat-card">-->
+    <!--          <div class="stat-icon">-->
+    <!--            <i class="pi pi-download"></i>-->
+    <!--          </div>-->
+    <!--          <div class="stat-content">-->
+    <!--            <div class="stat-number">{{ documentsStats.downloads }}</div>-->
+    <!--            <div class="stat-label">Скачиваний</div>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--        <div class="stat-card">-->
+    <!--          <div class="stat-icon">-->
+    <!--            <i class="pi pi-clock"></i>-->
+    <!--          </div>-->
+    <!--          <div class="stat-content">-->
+    <!--            <div class="stat-number">{{ documentsStats.recent }}</div>-->
+    <!--            <div class="stat-label">За последнюю неделю</div>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
 
     <!-- Загрузка документов -->
     <div class="upload-section">
