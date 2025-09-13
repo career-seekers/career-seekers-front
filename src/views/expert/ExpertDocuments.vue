@@ -108,20 +108,10 @@
       <div class="filter-group">
         <Dropdown
           v-model="selectedType"
-          :options="typeOptions"
+          :options="docTypes"
           optionLabel="label"
           optionValue="value"
           placeholder="Все типы"
-          class="filter-dropdown"
-        />
-      </div>
-      <div class="filter-group">
-        <Dropdown
-          v-model="selectedStatus"
-          :options="statusOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Все статусы"
           class="filter-dropdown"
         />
       </div>
@@ -279,6 +269,7 @@ import Dialog from "primevue/dialog";
 import FileUpload from "primevue/fileupload";
 import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
+import { FileType } from "@/api/resolvers/files/file.resolver.js";
 
 export default {
   name: "ExpertDocuments",
@@ -299,12 +290,14 @@ export default {
       uploadUrl: "/api/upload", // Замените на реальный URL
       competenceName: "Анализ данных",
       competenceDescription: "Изучение основ анализа данных и визуализации",
-      typeOptions: [
-        { label: "Презентация", value: "presentation" },
-        { label: "Документ", value: "document" },
-        { label: "Таблица", value: "spreadsheet" },
-        { label: "Изображение", value: "image" },
-        { label: "PDF", value: "pdf" },
+      docTypes: [
+        { label: "Конкурсное задание", value: FileType.TASK },
+        { label: "Критерии оценок", value: FileType.CRITERIA },
+        { label: "Итоговая ведомость", value: FileType.STATEMENT },
+        { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
+        { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
+        { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
+        { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
       ],
       statusOptions: [
         { label: "Опубликован", value: "published" },
