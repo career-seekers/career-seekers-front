@@ -12,5 +12,8 @@ export default defineConfig({
     allowedHosts: [
       'career-seekers.ru',
     ]
+  },
+  define: {
+    global: 'window'
   }
 })
