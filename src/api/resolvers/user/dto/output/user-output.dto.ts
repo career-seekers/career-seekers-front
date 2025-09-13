@@ -1,4 +1,4 @@
-import { Roles } from "../../../../../../state/UserState.types";
+import { Roles } from "@/state/UserState.types";
 import { UserOutputTutorDocsDto } from "@/api/resolvers/user/dto/output/user-output-tutor-docs.dto";
 import { UserOutputExpertDocsDto } from "@/api/resolvers/user/dto/output/user-output-expert-docs.dto";
 

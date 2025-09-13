@@ -3,16 +3,28 @@
     <div class="register-card">
       <div class="register-header">
         <div class="logo-container">
-          <img src="@/assets/logo.png" alt="Career Seekers Logo" class="logo" />
+          <img
+            src="@/assets/logo.png"
+            alt="Career Seekers Logo"
+            class="logo"
+          >
         </div>
-        <h1 class="register-title">Регистрация куратора</h1>
-        <div class="divider"></div>
+        <h1 class="register-title">
+          Регистрация куратора
+        </h1>
+        <div class="divider" />
       </div>
 
       <div class="register-content">
-        <form @submit.prevent="handleRegister" class="register-form">
+        <form
+          class="register-form"
+          @submit.prevent="handleRegister"
+        >
           <div class="field">
-            <label for="fullName" class="field-label">ФИО *</label>
+            <label
+              for="fullName"
+              class="field-label"
+            >ФИО *</label>
             <InputText
               id="fullName"
               v-model="registerForm.fullName"
@@ -20,15 +32,19 @@
               class="w-full"
               :class="{ 'p-invalid': errors.fullName }"
             />
-            <small v-if="errors.fullName" class="p-error">{{
+            <small
+              v-if="errors.fullName"
+              class="p-error"
+            >{{
               errors.fullName
             }}</small>
           </div>
 
           <div class="field">
-            <label for="parentBirthDate" class="field-label"
-              >Дата рождения *</label
-            >
+            <label
+              for="parentBirthDate"
+              class="field-label"
+            >Дата рождения *</label>
             <InputMask
               id="parentBirthDate"
               v-model="registerForm.birthDate"
@@ -37,15 +53,19 @@
               class="w-full"
               :class="{ 'p-invalid': errors.birthDate }"
             />
-            <small v-if="errors.birthDate" class="p-error">{{
+            <small
+              v-if="errors.birthDate"
+              class="p-error"
+            >{{
               errors.birthDate
             }}</small>
           </div>
 
           <div class="field">
-            <label for="educationalInstitution" class="field-label"
-              >Образовательное учреждение *</label
-            >
+            <label
+              for="educationalInstitution"
+              class="field-label"
+            >Образовательное учреждение *</label>
             <InputText
               id="educationalInstitution"
               v-model="registerForm.educationalInstitution"
@@ -53,13 +73,19 @@
               class="w-full"
               :class="{ 'p-invalid': errors.educationalInstitution }"
             />
-            <small v-if="errors.educationalInstitution" class="p-error">{{
+            <small
+              v-if="errors.educationalInstitution"
+              class="p-error"
+            >{{
               errors.educationalInstitution
             }}</small>
           </div>
 
           <div class="field">
-            <label for="position" class="field-label">Должность *</label>
+            <label
+              for="position"
+              class="field-label"
+            >Должность *</label>
             <InputText
               id="position"
               v-model="registerForm.position"
@@ -67,30 +93,40 @@
               class="w-full"
               :class="{ 'p-invalid': errors.position }"
             />
-            <small v-if="errors.position" class="p-error">{{
+            <small
+              v-if="errors.position"
+              class="p-error"
+            >{{
               errors.position
             }}</small>
           </div>
 
           <div class="field">
-            <label for="telegramLink" class="field-label"
-              >Ссылка на Telegram *</label
-            >
+            <label
+              for="telegramLink"
+              class="field-label"
+            >Ссылка на Telegram *</label>
             <InputText
               id="relationship"
               v-model="registerForm.telegramLink"
               placeholder="Например, @telegram_username"
               class="w-full"
-              @blur="validateTelegramLink"
               :class="{ 'p-invalid': errors.telegramLink }"
+              @blur="validateTelegramLink"
             />
-            <small v-if="errors.telegramLink" class="p-error">{{
+            <small
+              v-if="errors.telegramLink"
+              class="p-error"
+            >{{
               errors.telegramLink
             }}</small>
           </div>
 
           <div class="field">
-            <label for="phone" class="field-label">Контактный телефон *</label>
+            <label
+              for="phone"
+              class="field-label"
+            >Контактный телефон *</label>
             <InputMask
               id="phone"
               v-model="registerForm.phone"
@@ -99,15 +135,19 @@
               class="w-full"
               :class="{ 'p-invalid': errors.phone }"
             />
-            <small v-if="errors.phone" class="p-error">{{
+            <small
+              v-if="errors.phone"
+              class="p-error"
+            >{{
               errors.phone
             }}</small>
           </div>
 
           <div class="field">
-            <label for="email" class="field-label"
-              >Адрес электронной почты *</label
-            >
+            <label
+              for="email"
+              class="field-label"
+            >Адрес электронной почты *</label>
             <InputText
               id="email"
               v-model="registerForm.email"
@@ -117,13 +157,19 @@
               :class="{ 'p-invalid': errors.email }"
               @blur="validateEmail"
             />
-            <small v-if="errors.email" class="p-error">{{
+            <small
+              v-if="errors.email"
+              class="p-error"
+            >{{
               errors.email
             }}</small>
           </div>
 
           <div class="field">
-            <label for="password" class="field-label">Пароль *</label>
+            <label
+              for="password"
+              class="field-label"
+            >Пароль *</label>
             <Password
               id="password"
               v-model="registerForm.password"
@@ -131,22 +177,26 @@
               class="w-full"
               :class="{ 'p-invalid': errors.password }"
               :feedback="true"
-              toggleMask
-              weakLabel="Слабый"
-              mediumLabel="Средний"
-              strongLabel="Надежный"
-              promptLabel="Введите пароль"
+              toggle-mask
+              weak-label="Слабый"
+              medium-label="Средний"
+              strong-label="Надежный"
+              prompt-label="Введите пароль"
               @blur="validatePassword"
             />
-            <small v-if="errors.password" class="p-error">{{
+            <small
+              v-if="errors.password"
+              class="p-error"
+            >{{
               errors.password
             }}</small>
           </div>
 
           <div class="field">
-            <label for="confirmPassword" class="field-label"
-              >Подтверждение пароля *</label
-            >
+            <label
+              for="confirmPassword"
+              class="field-label"
+            >Подтверждение пароля *</label>
             <Password
               id="confirmPassword"
               v-model="registerForm.confirmPassword"
@@ -154,9 +204,12 @@
               class="w-full"
               :class="{ 'p-invalid': errors.confirmPassword }"
               :feedback="false"
-              toggleMask
+              toggle-mask
             />
-            <small v-if="errors.confirmPassword" class="p-error">{{
+            <small
+              v-if="errors.confirmPassword"
+              class="p-error"
+            >{{
               errors.confirmPassword
             }}</small>
           </div>
@@ -164,19 +217,29 @@
           <div class="field">
             <div class="flex align-items-center">
               <Checkbox
-                input-id="consent"
                 v-model="registerForm.consent"
+                input-id="consent"
                 :binary="true"
                 :class="{ 'p-invalid': errors.consent }"
               />
-              <label for="consent" class="ml-2 agreement-label">
+              <label
+                for="consent"
+                class="ml-2 agreement-label"
+              >
                 Я согласен(-а) на
-                <a href="#" class="link" @click.prevent="showAgreement">
+                <a
+                  href="#"
+                  class="link"
+                  @click.prevent="showAgreement"
+                >
                   обработку персональных данных
                 </a>
               </label>
             </div>
-            <small v-if="errors.consent" class="p-error">{{
+            <small
+              v-if="errors.consent"
+              class="p-error"
+            >{{
               errors.consent
             }}</small>
           </div>
@@ -184,19 +247,27 @@
           <div class="field">
             <div class="flex align-items-center">
               <Checkbox
-                input-id="agreement"
                 v-model="registerForm.agreement"
+                input-id="agreement"
                 :binary="true"
                 :class="{ 'p-invalid': errors.agreement }"
               />
-              <label for="agreement" class="ml-2 agreement-label">
+              <label
+                for="agreement"
+                class="ml-2 agreement-label"
+              >
                 Я согласен с
-                <a href="#" class="link" @click.prevent="showPolitics"
-                  >политикой использования сервиса</a
-                >
+                <a
+                  href="#"
+                  class="link"
+                  @click.prevent="showPolitics"
+                >политикой использования сервиса</a>
               </label>
             </div>
-            <small v-if="errors.agreement" class="p-error">{{
+            <small
+              v-if="errors.agreement"
+              class="p-error"
+            >{{
               errors.agreement
             }}</small>
           </div>
@@ -211,7 +282,12 @@
           <div class="login-link">
             <p>
               Уже есть аккаунт?
-              <router-link to="/login" class="link">Войти</router-link>
+              <router-link
+                to="/login"
+                class="link"
+              >
+                Войти
+              </router-link>
             </p>
           </div>
         </form>
@@ -329,7 +405,7 @@ import {
   RegistrationData,
   Roles,
   TutorStateInterface,
-} from "../../../state/UserState.types.js";
+} from "@/state/UserState.types.js";
 import { FileManager } from "@/utils/FileManager";
 import VuePdfEmbed from "vue-pdf-embed";
 

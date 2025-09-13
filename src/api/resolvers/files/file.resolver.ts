@@ -1,7 +1,8 @@
-import ApiResolver from "@/utils/ApiResolver";
-import { DocsInputFormDataDto } from "@/api/resolvers/files/dto/input/docs-input-form-data.dto";
-import { DocsOutputFileUploadDto } from "@/api/resolvers/files/dto/output/docs-output-file-upload.dto";
-import { CommonOutputDto } from "@/api/dto/common-output.dto";
+import ApiResolver from '@/utils/ApiResolver.ts';
+import type { DocsInputFormDataDto } from '@/api/resolvers/files/dto/input/docs-input-form-data.dto.ts';
+import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
+import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
+
 
 export enum FileType {
   TASK = "TASK",
@@ -27,7 +28,7 @@ export class FileResolver {
     >(
       endpoint,
       "POST",
-      this.apiResolver.DTOToFormData(data),
+      this.apiResolver.DTOToFormData(data as never),
       this.token ? this.token : undefined,
     );
   }

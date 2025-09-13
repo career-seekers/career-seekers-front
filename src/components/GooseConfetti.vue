@@ -1,5 +1,8 @@
 <template>
-  <div v-if="showConfetti" class="confetti-container">
+  <div
+    v-if="showConfetti"
+    class="confetti-container"
+  >
     <div
       v-for="(goose, index) in geese"
       :key="index"
@@ -10,7 +13,7 @@
         src="@/assets/easter-egg/goose.png"
         alt="Goose"
         class="goose-image"
-      />
+      >
     </div>
   </div>
 </template>

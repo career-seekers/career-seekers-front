@@ -1,7 +1,9 @@
 <template>
   <div class="mentors-page">
     <div class="page-header">
-      <h1 class="page-title">Главные эксперты</h1>
+      <h1 class="page-title">
+        Главные эксперты
+      </h1>
       <p class="page-subtitle">
         Управление главными экспертами и их компетенциями
       </p>
@@ -19,37 +21,43 @@
 
     <!-- Список экспертов -->
     <div class="experts-grid">
-      <div v-for="expert in experts" :key="expert.id" class="expert-card">
+      <div
+        v-for="expert in experts"
+        :key="expert.id"
+        class="expert-card"
+      >
         <div class="expert-header">
           <div class="expert-avatar">
-            <i class="pi pi-user"></i>
+            <i class="pi pi-user" />
           </div>
           <div class="expert-info">
             <h3 class="expert-name">
               {{
                 expert.lastName +
-                " " +
-                expert.firstName +
-                " " +
-                expert.patronymic
+                  " " +
+                  expert.firstName +
+                  " " +
+                  expert.patronymic
               }}
             </h3>
-            <p class="expert-position">{{ expert.expertDocuments }}</p>
+            <p class="expert-position">
+              {{ expert.expertDocuments }}
+            </p>
           </div>
           <div class="expert-actions">
             <Button
+              v-tooltip="'Редактировать'"
               icon="pi pi-pencil"
               class="p-button-text p-button-sm"
               style="background: white"
               @click="editExpert(expert)"
-              v-tooltip="'Редактировать'"
             />
             <Button
+              v-tooltip="'Удалить'"
               icon="pi pi-trash"
               class="p-button-text p-button-sm p-button-danger"
               style="background: white"
               @click="deleteExpert(expert)"
-              v-tooltip="'Удалить'"
             />
           </div>
         </div>
@@ -85,7 +93,9 @@
           </div>
 
           <div class="competencies-section">
-            <h4 class="competencies-title">Компетенции:</h4>
+            <h4 class="competencies-title">
+              Компетенции:
+            </h4>
             <div class="competencies-list">
               <span
                 v-for="competence in expertCompetencies.find(
@@ -120,7 +130,10 @@
             placeholder="Введите ФИО эксперта"
             :class="{ 'p-invalid': !expertForm.fullName }"
           />
-          <small v-if="errors.fullName" class="p-error">{{
+          <small
+            v-if="errors.fullName"
+            class="p-error"
+          >{{
             errors.fullName
           }}</small>
         </div>
@@ -135,7 +148,10 @@
             placeholder="дд.мм.гггг"
             :class="{ 'p-invalid': !expertForm.birthDate }"
           />
-          <small v-if="errors.birthDate" class="p-error">{{
+          <small
+            v-if="errors.birthDate"
+            class="p-error"
+          >{{
             errors.birthDate
           }}</small>
         </div>
@@ -144,18 +160,22 @@
           <label for="email">Email *</label>
           <InputText
             id="email"
-            type="email"
             v-model="expertForm.email"
+            type="email"
             placeholder="Введите email"
             :class="{ 'p-invalid': !expertForm.email }"
           />
-          <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
+          <small
+            v-if="errors.email"
+            class="p-error"
+          >{{ errors.email }}</small>
         </div>
 
         <div class="form-field">
-          <label for="parentPhone" class="field-label"
-            >Контактный телефон *</label
-          >
+          <label
+            for="parentPhone"
+            class="field-label"
+          >Контактный телефон *</label>
           <InputMask
             id="parentPhone"
             v-model="expertForm.phone"
@@ -164,7 +184,10 @@
             class="w-full"
             :class="{ 'p-invalid': !expertForm.phone }"
           />
-          <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
+          <small
+            v-if="errors.phone"
+            class="p-error"
+          >{{ errors.phone }}</small>
         </div>
       </div>
 
@@ -197,12 +220,12 @@ import Textarea from "primevue/textarea";
 import { UserResolver } from "@/api/resolvers/user/user.resolver.js";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto";
-import { Roles } from "../../../state/UserState.types";
+import { Roles } from "@/state/UserState.types";
 import { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto";
 import { UpdateUserInputDto } from "@/api/resolvers/user/dto/input/update-user-input.dto";
 import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
 import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
-import { UserState } from "../../../state/UserState";
+import { UserState } from "@/state/UserState";
 
 export default {
   name: "TutorExperts",
@@ -267,6 +290,19 @@ export default {
     mobileNumberFormatted() {
       return this.expertForm.phone.replaceAll(/\s|-|\(|\)/g, "");
     },
+  },
+  watch: {
+    showAddExpertDialog() {
+      this.errors = {
+        toastPopup: {
+          title: "",
+          message: "",
+        },
+      };
+    },
+  },
+  async mounted() {
+    await this.loadExperts();
   },
   methods: {
     addExpert() {
@@ -434,19 +470,6 @@ export default {
           message: response.message,
         };
       }
-    },
-  },
-  async mounted() {
-    await this.loadExperts();
-  },
-  watch: {
-    showAddExpertDialog() {
-      this.errors = {
-        toastPopup: {
-          title: "",
-          message: "",
-        },
-      };
     },
   },
 };

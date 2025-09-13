@@ -1,8 +1,12 @@
 <template>
   <div class="competencies-page">
     <div class="page-header">
-      <h1 class="page-title">Мои компетенции</h1>
-      <p class="page-subtitle">Управление компетенциями и участниками</p>
+      <h1 class="page-title">
+        Мои компетенции
+      </h1>
+      <p class="page-subtitle">
+        Управление компетенциями и участниками
+      </p>
     </div>
 
     <!-- Фильтры -->
@@ -13,8 +17,8 @@
           id="ageFilter"
           v-model="selectedAge"
           :options="ageGroups"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Все возрасты"
           class="filter-dropdown"
         />
@@ -38,7 +42,9 @@
       >
         <div class="competence-header">
           <div class="competence-info">
-            <h3 class="competence-name">{{ competence.name }}</h3>
+            <h3 class="competence-name">
+              {{ competence.name }}
+            </h3>
             <div class="competence-age">
               {{
                 ageGroups.find(
@@ -58,12 +64,20 @@
 
         <div class="competence-stats">
           <div class="stat-item">
-            <div class="stat-number">{{ competence.participantsCount }}</div>
-            <div class="stat-label">Участников</div>
+            <div class="stat-number">
+              {{ competence.participantsCount }}
+            </div>
+            <div class="stat-label">
+              Участников
+            </div>
           </div>
           <div class="stat-item">
-            <div class="stat-number">-</div>
-            <div class="stat-label">Событий</div>
+            <div class="stat-number">
+              -
+            </div>
+            <div class="stat-label">
+              Событий
+            </div>
           </div>
         </div>
 
@@ -103,7 +117,10 @@
       :modal="true"
       :style="{ width: '800px' }"
     >
-      <div v-if="selectedCompetence" class="competence-details">
+      <div
+        v-if="selectedCompetence"
+        class="competence-details"
+      >
         <div class="detail-section">
           <h4>Описание компетенции</h4>
           <p>{{ selectedCompetence.description }}</p>
@@ -116,7 +133,9 @@
               <div class="stat-number">
                 {{ selectedCompetence.participantsCount }}
               </div>
-              <div class="stat-label">Участников</div>
+              <div class="stat-label">
+                Участников
+              </div>
             </div>
             <div class="stat-item">
               <div class="stat-number">
@@ -128,17 +147,25 @@
                     .label.split(" ")[0]
                 }}
               </div>
-              <div class="stat-label">лет</div>
+              <div class="stat-label">
+                лет
+              </div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ 0 }}</div>
-              <div class="stat-label">Событий</div>
+              <div class="stat-number">
+                {{ 0 }}
+              </div>
+              <div class="stat-label">
+                Событий
+              </div>
             </div>
             <div class="stat-item">
               <div class="stat-number">
                 {{ selectedCompetence.documents.length }}
               </div>
-              <div class="stat-label">Документов</div>
+              <div class="stat-label">
+                Документов
+              </div>
             </div>
           </div>
         </div>
@@ -170,7 +197,7 @@ import {
   AgeCategories,
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
-import { UserState } from "../../../state/UserState";
+import { UserState } from "@/state/UserState";
 
 export default {
   name: "ExpertCompetencies",
@@ -207,6 +234,9 @@ export default {
       return filtered;
     },
   },
+  async mounted() {
+    await this.loadCompetencies();
+  },
   methods: {
     goToParticipants(competenceId) {
       this.$router.push(`/expert/participants/${competenceId}`);
@@ -235,9 +265,6 @@ export default {
       const response = await competenceResolver.getAllByExpertId(UserState.id);
       if (response.status === 200) this.competencies = response.message;
     },
-  },
-  async mounted() {
-    await this.loadCompetencies();
   },
 };
 </script>

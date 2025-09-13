@@ -1,8 +1,12 @@
 <template>
   <div class="participants-page">
     <div class="page-header">
-      <h1 class="page-title">Участники</h1>
-      <p class="page-subtitle">Управление участниками и их родителями</p>
+      <h1 class="page-title">
+        Участники
+      </h1>
+      <p class="page-subtitle">
+        Управление участниками и их родителями
+      </p>
     </div>
 
     <!-- Фильтры и поиск -->
@@ -13,7 +17,7 @@
           placeholder="Поиск по имени или компетенции..."
           class="search-input"
         />
-        <i class="pi pi-search search-icon"></i>
+        <i class="pi pi-search search-icon" />
       </div>
 
       <div class="filter-buttons">
@@ -44,10 +48,12 @@
       >
         <div class="card-header">
           <div class="participant-avatar">
-            <i class="pi pi-user"></i>
+            <i class="pi pi-user" />
           </div>
           <div class="participant-info">
-            <h3 class="participant-name">{{ participant.name }}</h3>
+            <h3 class="participant-name">
+              {{ participant.name }}
+            </h3>
             <div class="participant-status">
               <Tag
                 :value="participant.status.text"
@@ -57,16 +63,16 @@
           </div>
           <div class="card-actions">
             <Button
+              v-tooltip="'Редактировать'"
               icon="pi pi-pencil"
               class="p-button-text p-button-sm"
               @click="editParticipant(participant)"
-              v-tooltip="'Редактировать'"
             />
             <Button
+              v-tooltip="'Удалить'"
               icon="pi pi-times"
               class="p-button-text p-button-sm p-button-danger"
               @click="removeParticipant(participant)"
-              v-tooltip="'Удалить'"
             />
           </div>
         </div>
@@ -75,7 +81,7 @@
           <!-- Информация о ребенке -->
           <div class="info-section">
             <h4 class="section-title">
-              <i class="pi pi-user"></i>
+              <i class="pi pi-user" />
               Информация о ребенке
             </h4>
             <div class="info-grid">
@@ -97,7 +103,7 @@
           <!-- Информация о родителе -->
           <div class="info-section">
             <h4 class="section-title">
-              <i class="pi pi-users"></i>
+              <i class="pi pi-users" />
               Информация о родителе
             </h4>
             <div class="info-grid">
@@ -119,22 +125,24 @@
           <!-- Контакты главного эксперта -->
           <div class="info-section">
             <h4 class="section-title">
-              <i class="pi pi-star"></i>
+              <i class="pi pi-star" />
               Контакты главного эксперта
             </h4>
             <div class="mentor-info">
               <div class="Mentor-avatar">
-                <i class="pi pi-user"></i>
+                <i class="pi pi-user" />
               </div>
               <div class="Mentor-details">
-                <div class="Mentor-name">{{ participant.Mentor.name }}</div>
+                <div class="Mentor-name">
+                  {{ participant.Mentor.name }}
+                </div>
                 <div class="Mentor-contacts">
                   <div class="contact-item">
-                    <i class="pi pi-envelope"></i>
+                    <i class="pi pi-envelope" />
                     <span>{{ participant.Mentor.email }}</span>
                   </div>
                   <div class="contact-item">
-                    <i class="pi pi-phone"></i>
+                    <i class="pi pi-phone" />
                     <span>{{ participant.Mentor.phone }}</span>
                   </div>
                 </div>

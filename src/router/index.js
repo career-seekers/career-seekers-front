@@ -36,7 +36,7 @@ import TutorDashboardHome from "@/views/tutor/TutorDashboardHome.vue";
 import TutorExperts from "@/views/tutor/TutorExperts.vue";
 import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
-import { fillUserState, redirectByUserState } from "../../state/UserState";
+import { fillUserState, redirectByUserState } from "../state/UserState";
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
 
 const routes = [

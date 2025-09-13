@@ -3,18 +3,28 @@
     <div class="confirmation-card">
       <div class="confirmation-header">
         <div class="logo-container">
-          <img src="@/assets/logo.png" alt="Career Seekers Logo" class="logo" />
+          <img
+            src="@/assets/logo.png"
+            alt="Career Seekers Logo"
+            class="logo"
+          >
         </div>
-        <h1 class="confirmation-title">Подтверждение email</h1>
-        <div class="divider"></div>
+        <h1 class="confirmation-title">
+          Подтверждение email
+        </h1>
+        <div class="divider" />
       </div>
 
       <div class="confirmation-content">
-        <form @submit.prevent="handleConfirmation" class="confirmation-form">
+        <form
+          class="confirmation-form"
+          @submit.prevent="handleConfirmation"
+        >
           <div class="field">
-            <label for="confirmationCode" class="field-label"
-              >Код подтверждения *</label
-            >
+            <label
+              for="confirmationCode"
+              class="field-label"
+            >Код подтверждения *</label>
             <InputText
               id="confirmationCode"
               v-model="confirmationForm.code"
@@ -23,7 +33,10 @@
               :class="{ 'p-invalid': errors.code }"
               maxlength="6"
             />
-            <small v-if="errors.code" class="p-error">{{ errors.code }}</small>
+            <small
+              v-if="errors.code"
+              class="p-error"
+            >{{ errors.code }}</small>
           </div>
 
           <div class="field">
@@ -33,9 +46,11 @@
             </p>
             <p class="confirmation-note">
               Если письмо не пришло, проверьте папку "Спам" или
-              <a href="#" class="link" @click.prevent="resendCode"
-                >отправьте код повторно</a
-              >
+              <a
+                href="#"
+                class="link"
+                @click.prevent="resendCode"
+              >отправьте код повторно</a>
             </p>
           </div>
 
@@ -48,9 +63,11 @@
 
           <div class="back-link">
             <p>
-              <a href="#" class="link" @click.prevent="goBack"
-                >← Вернуться к регистрации</a
-              >
+              <a
+                href="#"
+                class="link"
+                @click.prevent="goBack"
+              >← Вернуться к регистрации</a>
             </p>
           </div>
         </form>
@@ -75,8 +92,8 @@ import {
   ParentStateInterface,
   RegistrationData,
   TutorStateInterface,
-} from "../../../state/UserState.types";
-import { fillUserState, redirectByUserState } from "../../../state/UserState";
+} from "@/state/UserState.types";
+import { fillUserState, redirectByUserState } from "@/state/UserState";
 
 export default {
   name: "EmailConfirmationView",

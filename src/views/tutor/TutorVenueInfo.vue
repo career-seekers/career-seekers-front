@@ -1,7 +1,9 @@
 <template>
   <div class="venue-info-page">
     <div class="page-header">
-      <h1 class="page-title">Информация о площадке</h1>
+      <h1 class="page-title">
+        Информация о площадке
+      </h1>
       <p class="page-subtitle">
         Управление информацией о вашей образовательной площадке
       </p>
@@ -11,7 +13,7 @@
       <div class="form-card">
         <div class="form-header">
           <h3 class="form-title">
-            <i class="pi pi-building"></i>
+            <i class="pi pi-building" />
             Основная информация
           </h3>
           <!--          <div class="status-badge">-->
@@ -22,7 +24,9 @@
         <div class="form-content">
           <form @submit.prevent="">
             <div class="form-section">
-              <h4 class="section-title">Общие данные</h4>
+              <h4 class="section-title">
+                Общие данные
+              </h4>
 
               <div class="form-row">
                 <div class="form-field full-width">
@@ -34,7 +38,10 @@
                     :class="{ 'p-invalid': !venueData.fullName }"
                     :disabled="venueData.verified"
                   />
-                  <small v-if="errors.fullName" class="p-error">{{
+                  <small
+                    v-if="errors.fullName"
+                    class="p-error"
+                  >{{
                     errors.fullName
                   }}</small>
                 </div>
@@ -50,7 +57,10 @@
                     :class="{ 'p-invalid': !venueData.shortName }"
                     :disabled="venueData.verified"
                   />
-                  <small v-if="errors.shortName" class="p-error">{{
+                  <small
+                    v-if="errors.shortName"
+                    class="p-error"
+                  >{{
                     errors.shortName
                   }}</small>
                 </div>
@@ -66,7 +76,10 @@
                     :class="{ 'p-invalid': !venueData.address }"
                     :disabled="venueData.verified"
                   />
-                  <small v-if="errors.address" class="p-error">{{
+                  <small
+                    v-if="errors.address"
+                    class="p-error"
+                  >{{
                     errors.address
                   }}</small>
                 </div>
@@ -74,7 +87,9 @@
             </div>
 
             <div class="form-section">
-              <h4 class="section-title">Контактная информация</h4>
+              <h4 class="section-title">
+                Контактная информация
+              </h4>
 
               <div class="form-field">
                 <label for="contactEmail">Email *</label>
@@ -85,12 +100,15 @@
                   :class="{ 'p-invalid': !venueData.email }"
                   :disabled="venueData.verified"
                 />
-                <small v-if="errors.email" class="p-error">{{
+                <small
+                  v-if="errors.email"
+                  class="p-error"
+                >{{
                   errors.email
                 }}</small>
               </div>
 
-              <div class="form-row"></div>
+              <div class="form-row" />
 
               <div class="form-field">
                 <label for="website">Веб-сайт</label>
@@ -108,15 +126,15 @@
                 label="Редактировать"
                 icon="pi pi-pencil"
                 class="p-button-outlined"
-                @click="editPlatform"
                 :disabled="!venueData.verified"
+                @click="editPlatform"
               />
               <Button
                 label="Отправить на модерацию"
                 icon="pi pi-send"
                 class="p-button-primary"
-                @click="sendForModeration"
                 :disabled="!isChanged"
+                @click="sendForModeration"
               />
             </div>
           </form>
@@ -160,7 +178,7 @@ import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import InputNumber from "primevue/inputnumber";
 import { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto";
-import { UserState } from "../../../state/UserState";
+import { UserState } from "@/state/UserState";
 import { PlatformInputDto } from "@/api/resolvers/platform/dto/input/platform-input.dto";
 import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
@@ -237,6 +255,9 @@ export default {
       },
       deep: true,
     },
+  },
+  async mounted() {
+    await this.loadPlatform();
   },
   methods: {
     async sendForModeration() {
@@ -321,9 +342,6 @@ export default {
       };
       this.changeHistory.unshift(newEntry);
     },
-  },
-  async mounted() {
-    await this.loadPlatform();
   },
 };
 </script>

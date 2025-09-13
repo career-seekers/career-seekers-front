@@ -1,7 +1,9 @@
 <template>
   <div class="documents-page">
     <div class="page-header">
-      <h1 class="page-title">Документы</h1>
+      <h1 class="page-title">
+        Документы
+      </h1>
       <p class="page-subtitle">
         Управление документами, подтверждающими экспертность
       </p>
@@ -15,8 +17,8 @@
           id="typeFilter"
           v-model="selectedType"
           :options="docTypes"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Все типы"
           class="filter-dropdown"
         />
@@ -58,10 +60,12 @@
       >
         <div class="document-header">
           <div class="document-icon">
-            <i class="pi pi-file"></i>
+            <i class="pi pi-file" />
           </div>
           <div class="document-info">
-            <h3 class="document-name">Документ №{{ document.id }}</h3>
+            <h3 class="document-name">
+              Документ №{{ document.id }}
+            </h3>
           </div>
           <div class="document-actions">
             <!--            <Button-->
@@ -72,18 +76,18 @@
             <!--              v-tooltip="'Просмотреть'"-->
             <!--            />-->
             <Button
+              v-tooltip="'Скачать'"
               icon="pi pi-download"
               style="background: white"
               class="p-button-text p-button-sm"
               @click="downloadDocument(document)"
-              v-tooltip="'Скачать'"
             />
             <Button
+              v-tooltip="'Удалить'"
               icon="pi pi-trash"
               style="background: white"
               class="p-button-text p-button-sm p-button-danger"
               @click="deleteDocument(document)"
-              v-tooltip="'Удалить'"
             />
           </div>
         </div>
@@ -103,7 +107,10 @@
                 document.createdAt.substring(0, 10)
               }}</span>
             </div>
-            <div v-if="document" class="detail-item">
+            <div
+              v-if="document"
+              class="detail-item"
+            >
               <span class="detail-label">Компетенция:</span>
               <span class="detail-value">{{
                 documentCompetence(document).name
@@ -111,15 +118,20 @@
             </div>
           </div>
 
-          <div v-if="documentExpert(document)" class="mentor-info">
-            <h4 class="mentor-title">Связанный эксперт:</h4>
+          <div
+            v-if="documentExpert(document)"
+            class="mentor-info"
+          >
+            <h4 class="mentor-title">
+              Связанный эксперт:
+            </h4>
             <p class="mentor-name">
               {{
                 documentExpert(document).lastName +
-                " " +
-                documentExpert(document).firstName +
-                " " +
-                documentExpert(document).patronymic
+                  " " +
+                  documentExpert(document).firstName +
+                  " " +
+                  documentExpert(document).patronymic
               }}
             </p>
           </div>
@@ -163,7 +175,7 @@ import Textarea from "primevue/textarea";
 import FileUpload from "primevue/fileupload";
 import { FileResolver, FileType } from "@/api/resolvers/files/file.resolver";
 import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
-import { UserState } from "../../../state/UserState";
+import { UserState } from "@/state/UserState";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { UserResolver } from "@/api/resolvers/user/user.resolver";
 import { CompetenceDocumentsOutputDto } from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto";
@@ -235,6 +247,10 @@ export default {
       return filtered;
     },
   },
+  async mounted() {
+    await this.loadCompetencies();
+    localStorage.removeItem("selectedCompetence");
+  },
   methods: {
     documentCompetence(document: CompetenceDocumentsOutputDto) {
       return this.competencies.find((competence: CompetenceOutputDto) =>
@@ -290,10 +306,6 @@ export default {
         });
       }
     },
-  },
-  async mounted() {
-    await this.loadCompetencies();
-    localStorage.removeItem("selectedCompetence");
   },
 };
 </script>

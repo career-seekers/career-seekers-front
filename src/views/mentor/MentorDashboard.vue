@@ -1,17 +1,34 @@
 <template>
   <div class="dashboard-container">
     <!-- Мобильная кнопка меню -->
-    <div class="mobile-menu-toggle" @click="toggleSidebar" v-if="isMobile">
-      <i class="pi pi-bars"></i>
+    <div
+      v-if="isMobile"
+      class="mobile-menu-toggle"
+      @click="toggleSidebar"
+    >
+      <i class="pi pi-bars" />
     </div>
 
     <!-- Сайдбар -->
-    <div class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
+    <div
+      class="sidebar"
+      :class="{ 'sidebar-open': sidebarOpen }"
+    >
       <div class="sidebar-header">
-        <img src="@/assets/logo.png" alt="Logo" class="sidebar-logo" />
-        <h2 class="sidebar-title">Личный кабинет наставника</h2>
-        <button class="sidebar-close" @click="toggleSidebar" v-if="isMobile">
-          <i class="pi pi-times"></i>
+        <img
+          src="@/assets/logo.png"
+          alt="Logo"
+          class="sidebar-logo"
+        >
+        <h2 class="sidebar-title">
+          Личный кабинет наставника
+        </h2>
+        <button
+          v-if="isMobile"
+          class="sidebar-close"
+          @click="toggleSidebar"
+        >
+          <i class="pi pi-times" />
         </button>
       </div>
 
@@ -24,7 +41,7 @@
               :class="{ active: $route.path === '/mentor/dashboard' }"
               @click="closeSidebarOnMobile"
             >
-              <i class="pi pi-home"></i>
+              <i class="pi pi-home" />
               <span>Главная</span>
             </router-link>
           </li>
@@ -35,7 +52,7 @@
               :class="{ active: $route.path === '/mentor/participants' }"
               @click="closeSidebarOnMobile"
             >
-              <i class="pi pi-users"></i>
+              <i class="pi pi-users" />
               <span>Участники</span>
             </router-link>
           </li>
@@ -46,7 +63,7 @@
               :class="{ active: $route.path === '/mentor/my-certificates' }"
               @click="closeSidebarOnMobile"
             >
-              <i class="pi pi-certificate"></i>
+              <i class="pi pi-certificate" />
               <span>Мои сертификаты</span>
             </router-link>
           </li>
@@ -59,7 +76,7 @@
               }"
               @click="closeSidebarOnMobile"
             >
-              <i class="pi pi-trophy"></i>
+              <i class="pi pi-trophy" />
               <span>Сертификаты участников</span>
             </router-link>
           </li>
@@ -68,15 +85,25 @@
 
       <div class="sidebar-footer">
         <!-- Ссылка-приглашение -->
-        <div v-if="showInviteLink" class="invite-section">
+        <div
+          v-if="showInviteLink"
+          class="invite-section"
+        >
           <div class="invite-header">
-            <h4 class="invite-title">Пригласить участника</h4>
-            <button class="invite-toggle" @click="toggleInviteLink">
-              <i class="pi pi-times"></i>
+            <h4 class="invite-title">
+              Пригласить участника
+            </h4>
+            <button
+              class="invite-toggle"
+              @click="toggleInviteLink"
+            >
+              <i class="pi pi-times" />
             </button>
           </div>
           <div class="invite-content">
-            <p class="invite-text">Поделитесь ссылкой для регистрации:</p>
+            <p class="invite-text">
+              Поделитесь ссылкой для регистрации:
+            </p>
             <div class="invite-link-container">
               <input
                 ref="inviteLinkInput"
@@ -84,19 +111,22 @@
                 :value="inviteLink"
                 readonly
                 class="invite-link-input"
-              />
+              >
               <Button
+                v-tooltip="'Скопировать ссылку'"
                 icon="pi pi-copy"
                 class="p-button-sm p-button-outlined"
                 @click="copyInviteLink"
-                v-tooltip="'Скопировать ссылку'"
               />
             </div>
           </div>
         </div>
 
         <!-- Кнопка показа ссылки-приглашения -->
-        <div v-else class="invite-toggle-section">
+        <div
+          v-else
+          class="invite-toggle-section"
+        >
           <Button
             label="Показать ссылку-приглашение"
             icon="pi pi-share-alt"
@@ -117,8 +147,15 @@
     <!-- Основной контент -->
     <div class="main-content">
       <router-view v-slot="{ Component, route }">
-        <transition name="dashboard-page" mode="out-in" appear>
-          <component :is="Component" :key="route.name" />
+        <transition
+          name="dashboard-page"
+          mode="out-in"
+          appear
+        >
+          <component
+            :is="Component"
+            :key="route.name"
+          />
         </transition>
       </router-view>
 
@@ -132,17 +169,27 @@
     </div>
 
     <!-- Тестовый тост -->
-    <div v-if="showTestToast" class="test-toast">
+    <div
+      v-if="showTestToast"
+      class="test-toast"
+    >
       <div class="toast-content">
         <div class="toast-icon">
-          <i class="pi pi-info-circle"></i>
+          <i class="pi pi-info-circle" />
         </div>
         <div class="toast-text">
-          <h4 class="toast-title">Ян был здесь.</h4>
-          <p class="toast-message">Это тестовый тост для демо.</p>
+          <h4 class="toast-title">
+            Ян был здесь.
+          </h4>
+          <p class="toast-message">
+            Это тестовый тост для демо.
+          </p>
         </div>
-        <button class="toast-close" @click="closeTestToast">
-          <i class="pi pi-times"></i>
+        <button
+          class="toast-close"
+          @click="closeTestToast"
+        >
+          <i class="pi pi-times" />
         </button>
       </div>
     </div>
@@ -151,10 +198,10 @@
 
 <script>
 import Button from "primevue/button";
-import { clearUserState } from "../../../state/UserState";
+import { clearUserState } from "@/state/UserState";
 
 export default {
-  name: "mentorDashboard",
+  name: "MentorDashboard",
   components: {
     Button,
   },
@@ -199,7 +246,6 @@ export default {
       try {
         await navigator.clipboard.writeText(this.inviteLink);
         console.log("Ссылка скопирована в буфер обмена");
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         this.$refs.inviteLinkInput.select();
         document.execCommand("copy");

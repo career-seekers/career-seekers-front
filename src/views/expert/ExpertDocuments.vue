@@ -3,15 +3,22 @@
     <div class="page-header">
       <div class="header-content">
         <div class="breadcrumb">
-          <router-link to="/expert/competencies" class="breadcrumb-link">
-            <i class="pi pi-briefcase"></i>
+          <router-link
+            to="/expert/competencies"
+            class="breadcrumb-link"
+          >
+            <i class="pi pi-briefcase" />
             Компетенции
           </router-link>
-          <i class="pi pi-chevron-right breadcrumb-separator"></i>
+          <i class="pi pi-chevron-right breadcrumb-separator" />
           <span class="breadcrumb-current">{{ competenceName }}</span>
         </div>
-        <h1 class="page-title">Документы компетенции</h1>
-        <p class="page-subtitle">{{ competenceDescription }}</p>
+        <h1 class="page-title">
+          Документы компетенции
+        </h1>
+        <p class="page-subtitle">
+          {{ competenceDescription }}
+        </p>
       </div>
     </div>
 
@@ -62,7 +69,7 @@
       <div class="upload-card">
         <div class="upload-header">
           <h3 class="upload-title">
-            <i class="pi pi-upload"></i>
+            <i class="pi pi-upload" />
             Загрузить документы
           </h3>
         </div>
@@ -72,24 +79,27 @@
             name="documents[]"
             :url="uploadUrl"
             accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.png"
-            :maxFileSize="10000000"
+            :max-file-size="10000000"
             :multiple="true"
-            @upload="onUpload"
-            @select="onFileSelect"
-            chooseLabel="Выбрать файлы"
+            choose-label="Выбрать файлы"
             class="file-upload"
+            @upload="onUpload"
+            @select="onDocumentSelect"
           />
           <Button
             type="submit"
             label="Загрузить"
-            class=" p-button-outlined"
+            class="p-button-outlined"
+            @submit="uploadDocument"
           />
           <div class="upload-info">
             <p class="upload-text">
               Поддерживаемые форматы: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT,
               JPG, PNG
             </p>
-            <p class="upload-text">Максимальный размер файла: 10 МБ</p>
+            <p class="upload-text">
+              Максимальный размер файла: 10 МБ
+            </p>
           </div>
         </div>
       </div>
@@ -103,14 +113,14 @@
           placeholder="Поиск по названию документа..."
           class="search-input"
         />
-        <i class="pi pi-search search-icon"></i>
+        <i class="pi pi-search search-icon" />
       </div>
       <div class="filter-group">
         <Dropdown
           v-model="selectedType"
           :options="docTypes"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Все типы"
           class="filter-dropdown"
         />
@@ -134,11 +144,15 @@
       >
         <div class="document-header">
           <div class="document-icon">
-            <i :class="getFileIcon(document.type)"></i>
+            <i :class="getFileIcon(document.type)" />
           </div>
           <div class="document-info">
-            <h3 class="document-name">{{ document.name }}</h3>
-            <p class="document-type">{{ document.typeLabel }}</p>
+            <h3 class="document-name">
+              {{ document.name }}
+            </h3>
+            <p class="document-type">
+              {{ document.typeLabel }}
+            </p>
             <div class="document-meta">
               <span class="document-size">{{ document.size }}</span>
               <span class="document-date">{{ document.uploadDate }}</span>
@@ -146,22 +160,25 @@
           </div>
           <div class="document-actions">
             <Button
+              v-tooltip="'Скачать'"
               icon="pi pi-download"
+              style="background: white"
               class="p-button-text p-button-sm"
               @click="downloadDocument(document)"
-              v-tooltip="'Скачать'"
             />
             <Button
+              v-tooltip="'Предварительный просмотр'"
               icon="pi pi-eye"
+              style="background: white"
               class="p-button-text p-button-sm"
               @click="previewDocument(document)"
-              v-tooltip="'Предварительный просмотр'"
             />
             <Button
+              v-tooltip="'Удалить'"
               icon="pi pi-trash"
+              style="background: white"
               class="p-button-text p-button-sm p-button-danger"
               @click="deleteDocument(document)"
-              v-tooltip="'Удалить'"
             />
           </div>
         </div>
@@ -173,21 +190,25 @@
 
           <div class="document-stats">
             <div class="stat-item">
-              <i class="pi pi-download"></i>
+              <i class="pi pi-download" />
               <span>{{ document.downloads }} скачиваний</span>
             </div>
             <div class="stat-item">
-              <i class="pi pi-eye"></i>
+              <i class="pi pi-eye" />
               <span>{{ document.views }} просмотров</span>
             </div>
             <div class="stat-item">
-              <i class="pi pi-clock"></i>
+              <i class="pi pi-clock" />
               <span>{{ document.lastAccess }}</span>
             </div>
           </div>
 
           <div class="document-tags">
-            <span v-for="tag in document.tags" :key="tag" class="document-tag">
+            <span
+              v-for="tag in document.tags"
+              :key="tag"
+              class="document-tag"
+            >
               {{ tag }}
             </span>
           </div>
@@ -202,7 +223,10 @@
       :modal="true"
       :style="{ width: '800px' }"
     >
-      <div v-if="selectedDocument" class="document-preview">
+      <div
+        v-if="selectedDocument"
+        class="document-preview"
+      >
         <div class="preview-info">
           <div class="preview-meta">
             <div class="meta-item">
@@ -229,17 +253,23 @@
         </div>
 
         <div class="preview-content">
-          <div v-if="isImageFile(selectedDocument.type)" class="image-preview">
+          <div
+            v-if="isImageFile(selectedDocument.type)"
+            class="image-preview"
+          >
             <img
               :src="selectedDocument.previewUrl"
               :alt="selectedDocument.name"
-            />
+            >
           </div>
-          <div v-else class="file-preview">
+          <div
+            v-else
+            class="file-preview"
+          >
             <i
               :class="getFileIcon(selectedDocument.type)"
               class="preview-icon"
-            ></i>
+            />
             <p>Предварительный просмотр недоступен для данного типа файла</p>
           </div>
         </div>
@@ -269,7 +299,7 @@ import Dialog from "primevue/dialog";
 import FileUpload from "primevue/fileupload";
 import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
-import { FileType } from "@/api/resolvers/files/file.resolver.js";
+import { FileResolver, FileType } from "@/api/resolvers/files/file.resolver.ts";
 
 export default {
   name: "ExpertDocuments",
@@ -284,10 +314,9 @@ export default {
     return {
       searchQuery: "",
       selectedType: null,
-      selectedStatus: null,
       showPreviewDialog: false,
       selectedDocument: null,
-      uploadUrl: "/api/upload", // Замените на реальный URL
+      fileResolver: new FileResolver(),
       competenceName: "Анализ данных",
       competenceDescription: "Изучение основ анализа данных и визуализации",
       docTypes: [
@@ -413,7 +442,13 @@ export default {
     isImageFile(type) {
       return type === "image";
     },
-    onFileSelect(event) {
+    uploadDocument() {
+      const response = this.fileResolver.uploadCompetenceDocument({
+
+      })
+    },
+    onDocumentSelect(event) {
+      this.selectedDocument = event.target.files[0];
       console.log("Выбраны файлы:", event.files);
     },
     onUpload(event) {

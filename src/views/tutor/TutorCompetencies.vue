@@ -2,8 +2,12 @@
   <ToastPopup :content="errors.toastPopup" />
   <div class="competencies-page">
     <div class="page-header">
-      <h1 class="page-title">Мои компетенции</h1>
-      <p class="page-subtitle">Управление компетенциями и участниками</p>
+      <h1 class="page-title">
+        Мои компетенции
+      </h1>
+      <p class="page-subtitle">
+        Управление компетенциями и участниками
+      </p>
     </div>
 
     <!-- Фильтры -->
@@ -14,8 +18,8 @@
           id="ageFilter"
           v-model="selectedAge"
           :options="ageGroups"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Все возрасты"
           class="filter-dropdown"
         />
@@ -28,7 +32,10 @@
           @click="resetFilters"
         />
       </div>
-      <div class="filter-group" style="margin-left: auto">
+      <div
+        class="filter-group"
+        style="margin-left: auto"
+      >
         <Button
           label="Добавить компетенцию"
           icon="pi pi-plus"
@@ -47,7 +54,9 @@
       >
         <div class="competence-header">
           <div class="competence-info">
-            <h3 class="competence-name">{{ competence.name }}</h3>
+            <h3 class="competence-name">
+              {{ competence.name }}
+            </h3>
             <div class="competence-age">
               {{
                 ageGroups.find(
@@ -63,12 +72,20 @@
 
         <div class="competence-stats">
           <div class="stat-item">
-            <div class="stat-number">{{ competence.participantsCount }}</div>
-            <div class="stat-label">Участников</div>
+            <div class="stat-number">
+              {{ competence.participantsCount }}
+            </div>
+            <div class="stat-label">
+              Участников
+            </div>
           </div>
           <div class="stat-item">
-            <div class="stat-number">-</div>
-            <div class="stat-label">Событий</div>
+            <div class="stat-number">
+              -
+            </div>
+            <div class="stat-label">
+              Событий
+            </div>
           </div>
         </div>
 
@@ -99,16 +116,16 @@
           />
           <div>
             <Button
+              v-tooltip="'Редактировать'"
               icon="pi pi-pencil"
               class="p-button-text p-button-sm"
               @click="editCompetence(competence)"
-              v-tooltip="'Редактировать'"
             />
             <Button
+              v-tooltip="'Удалить'"
               icon="pi pi-trash"
               class="p-button-text p-button-sm p-button-danger"
               @click="deleteCompetence(competence)"
-              v-tooltip="'Удалить'"
             />
           </div>
         </div>
@@ -131,7 +148,10 @@
             placeholder="Введите название компетенции"
             :class="{ 'p-invalid': !competenceForm.name }"
           />
-          <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
+          <small
+            v-if="errors.name"
+            class="p-error"
+          >{{ errors.name }}</small>
         </div>
 
         <div class="form-field">
@@ -142,34 +162,42 @@
             placeholder="Введите описание компетенции"
             :class="{ 'p-invalid': !competenceForm.description }"
           />
-          <small v-if="errors.description" class="p-error">{{
+          <small
+            v-if="errors.description"
+            class="p-error"
+          >{{
             errors.description
           }}</small>
         </div>
 
         <div class="form-field">
-          <label for="competenceAgeFilter" class="field-label"
-            >Возрастная категория *</label
-          >
+          <label
+            for="competenceAgeFilter"
+            class="field-label"
+          >Возрастная категория *</label>
           <Dropdown
             id="competenceAgeFilter"
             v-model="competenceForm.ageCategory"
             :options="ageGroups"
-            optionLabel="label"
-            optionValue="value"
+            option-label="label"
+            option-value="value"
             placeholder="Все возрасты"
             class="filter-dropdown"
             :class="{ 'p-invalid': !competenceForm.ageCategory }"
           />
-          <small v-if="errors.ageCategory" class="p-error">{{
+          <small
+            v-if="errors.ageCategory"
+            class="p-error"
+          >{{
             errors.ageCategory
           }}</small>
         </div>
 
         <div class="form-field">
-          <label for="competenceExpertList" class="field-label"
-            >Главный эксперт *</label
-          >
+          <label
+            for="competenceExpertList"
+            class="field-label"
+          >Главный эксперт *</label>
           <Dropdown
             id="competenceExpertList"
             v-model="competenceForm.expert"
@@ -190,7 +218,10 @@
               }}
             </template>
           </Dropdown>
-          <small v-if="errors.ageCategory" class="p-error">{{
+          <small
+            v-if="errors.ageCategory"
+            class="p-error"
+          >{{
             errors.ageCategory
           }}</small>
         </div>
@@ -219,7 +250,10 @@
       :modal="true"
       :style="{ width: '800px' }"
     >
-      <div v-if="selectedCompetence" class="competence-details">
+      <div
+        v-if="selectedCompetence"
+        class="competence-details"
+      >
         <div class="detail-section">
           <h4>Описание компетенции</h4>
           <p>{{ selectedCompetence.description }}</p>
@@ -230,10 +264,10 @@
           <p>
             {{
               competenceExpert(selectedCompetence).lastName +
-              " " +
-              competenceExpert(selectedCompetence).firstName +
-              " " +
-              competenceExpert(selectedCompetence).patronymic
+                " " +
+                competenceExpert(selectedCompetence).firstName +
+                " " +
+                competenceExpert(selectedCompetence).patronymic
             }}
           </p>
         </div>
@@ -245,7 +279,9 @@
               <div class="stat-number">
                 {{ selectedCompetence.participantsCount }}
               </div>
-              <div class="stat-label">Участников</div>
+              <div class="stat-label">
+                Участников
+              </div>
             </div>
             <div class="stat-item">
               <div class="stat-number">
@@ -257,17 +293,25 @@
                     .label.split(" ")[0]
                 }}
               </div>
-              <div class="stat-label">лет</div>
+              <div class="stat-label">
+                лет
+              </div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ 0 }}</div>
-              <div class="stat-label">Событий</div>
+              <div class="stat-number">
+                {{ 0 }}
+              </div>
+              <div class="stat-label">
+                Событий
+              </div>
             </div>
             <div class="stat-item">
               <div class="stat-number">
                 {{ selectedCompetence.documents.length }}
               </div>
-              <div class="stat-label">Документов</div>
+              <div class="stat-label">
+                Документов
+              </div>
             </div>
           </div>
         </div>
@@ -295,9 +339,9 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
 import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
-import { UserState } from "../../../state/UserState";
+import { UserState } from "@/state/UserState";
 import { UserResolver } from "@/api/resolvers/user/user.resolver";
-import { Roles } from "../../../state/UserState.types";
+import { Roles } from "@/state/UserState.types";
 import { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto";
 import ToastPopup from "@/components/ToastPopup.vue";
 import InputText from "primevue/inputtext";
@@ -368,6 +412,9 @@ export default {
 
       return filtered;
     },
+  },
+  async mounted() {
+    await this.loadCompetencies();
   },
   methods: {
     competenceExpert(selectedCompetence: CompetenceOutputDto): UserOutputDto {
@@ -490,9 +537,6 @@ export default {
         };
       }
     },
-  },
-  async mounted() {
-    await this.loadCompetencies();
   },
 };
 </script>

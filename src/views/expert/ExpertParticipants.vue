@@ -3,15 +3,22 @@
     <div class="page-header">
       <div class="header-content">
         <div class="breadcrumb">
-          <router-link to="/expert/competencies" class="breadcrumb-link">
-            <i class="pi pi-briefcase"></i>
+          <router-link
+            to="/expert/competencies"
+            class="breadcrumb-link"
+          >
+            <i class="pi pi-briefcase" />
             Компетенции
           </router-link>
-          <i class="pi pi-chevron-right breadcrumb-separator"></i>
+          <i class="pi pi-chevron-right breadcrumb-separator" />
           <span class="breadcrumb-current">{{ competenceName }}</span>
         </div>
-        <h1 class="page-title">Участники компетенции</h1>
-        <p class="page-subtitle">{{ competenceDescription }}</p>
+        <h1 class="page-title">
+          Участники компетенции
+        </h1>
+        <p class="page-subtitle">
+          {{ competenceDescription }}
+        </p>
       </div>
     </div>
 
@@ -20,38 +27,54 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="pi pi-users"></i>
+            <i class="pi pi-users" />
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ participantsStats.total }}</div>
-            <div class="stat-label">Всего участников</div>
+            <div class="stat-number">
+              {{ participantsStats.total }}
+            </div>
+            <div class="stat-label">
+              Всего участников
+            </div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="pi pi-check-circle"></i>
+            <i class="pi pi-check-circle" />
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ participantsStats.active }}</div>
-            <div class="stat-label">Активных</div>
+            <div class="stat-number">
+              {{ participantsStats.active }}
+            </div>
+            <div class="stat-label">
+              Активных
+            </div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="pi pi-trophy"></i>
+            <i class="pi pi-trophy" />
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ participantsStats.completed }}</div>
-            <div class="stat-label">Завершили</div>
+            <div class="stat-number">
+              {{ participantsStats.completed }}
+            </div>
+            <div class="stat-label">
+              Завершили
+            </div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="pi pi-calendar"></i>
+            <i class="pi pi-calendar" />
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ participantsStats.events }}</div>
-            <div class="stat-label">Событий</div>
+            <div class="stat-number">
+              {{ participantsStats.events }}
+            </div>
+            <div class="stat-label">
+              Событий
+            </div>
           </div>
         </div>
       </div>
@@ -65,14 +88,14 @@
           placeholder="Поиск по имени или email..."
           class="search-input"
         />
-        <i class="pi pi-search search-icon"></i>
+        <i class="pi pi-search search-icon" />
       </div>
       <div class="filter-group">
         <Dropdown
           v-model="selectedStatus"
           :options="statusOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Все статусы"
           class="filter-dropdown"
         />
@@ -81,8 +104,8 @@
         <Dropdown
           v-model="selectedAge"
           :options="ageOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Все возрасты"
           class="filter-dropdown"
         />
@@ -98,27 +121,34 @@
       >
         <div class="participant-header">
           <div class="participant-avatar">
-            <i class="pi pi-user"></i>
+            <i class="pi pi-user" />
           </div>
           <div class="participant-info">
-            <h3 class="participant-name">{{ participant.fullName }}</h3>
-            <p class="participant-age">{{ participant.age }} лет</p>
-            <div class="participant-status" :class="participant.statusClass">
+            <h3 class="participant-name">
+              {{ participant.fullName }}
+            </h3>
+            <p class="participant-age">
+              {{ participant.age }} лет
+            </p>
+            <div
+              class="participant-status"
+              :class="participant.statusClass"
+            >
               {{ participant.status }}
             </div>
           </div>
           <div class="participant-actions">
             <Button
+              v-tooltip="'Просмотреть профиль'"
               icon="pi pi-eye"
               class="p-button-text p-button-sm"
               @click="viewProfile(participant)"
-              v-tooltip="'Просмотреть профиль'"
             />
             <Button
+              v-tooltip="'Отправить сообщение'"
               icon="pi pi-envelope"
               class="p-button-text p-button-sm"
               @click="sendMessage(participant)"
-              v-tooltip="'Отправить сообщение'"
             />
           </div>
         </div>
@@ -146,12 +176,14 @@
           </div>
 
           <div class="participant-progress">
-            <h4 class="progress-title">Прогресс обучения</h4>
+            <h4 class="progress-title">
+              Прогресс обучения
+            </h4>
             <div class="progress-bar">
               <div
                 class="progress-fill"
                 :style="{ width: participant.progress + '%' }"
-              ></div>
+              />
             </div>
             <div class="progress-text">
               {{ participant.progress }}% завершено
@@ -159,7 +191,9 @@
           </div>
 
           <div class="participant-achievements">
-            <h4 class="achievements-title">Достижения</h4>
+            <h4 class="achievements-title">
+              Достижения
+            </h4>
             <div class="achievements-list">
               <span
                 v-for="achievement in participant.achievements"
@@ -181,20 +215,23 @@
       :modal="true"
       :style="{ width: '600px' }"
     >
-      <div v-if="selectedParticipant" class="profile-details">
+      <div
+        v-if="selectedParticipant"
+        class="profile-details"
+      >
         <div class="profile-section">
           <h4>Контактная информация</h4>
           <div class="contact-info">
             <div class="contact-item">
-              <i class="pi pi-envelope"></i>
+              <i class="pi pi-envelope" />
               <span>{{ selectedParticipant.email }}</span>
             </div>
             <div class="contact-item">
-              <i class="pi pi-phone"></i>
+              <i class="pi pi-phone" />
               <span>{{ selectedParticipant.phone }}</span>
             </div>
             <div class="contact-item">
-              <i class="pi pi-user"></i>
+              <i class="pi pi-user" />
               <span>{{ selectedParticipant.parentName }}</span>
             </div>
           </div>
@@ -207,17 +244,25 @@
               <div class="stat-number">
                 {{ selectedParticipant.eventsAttended }}
               </div>
-              <div class="stat-label">Событий посетил</div>
+              <div class="stat-label">
+                Событий посетил
+              </div>
             </div>
             <div class="stat-item">
               <div class="stat-number">
                 {{ selectedParticipant.tasksCompleted }}
               </div>
-              <div class="stat-label">Заданий выполнил</div>
+              <div class="stat-label">
+                Заданий выполнил
+              </div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ selectedParticipant.progress }}%</div>
-              <div class="stat-label">Прогресс</div>
+              <div class="stat-number">
+                {{ selectedParticipant.progress }}%
+              </div>
+              <div class="stat-label">
+                Прогресс
+              </div>
             </div>
           </div>
         </div>

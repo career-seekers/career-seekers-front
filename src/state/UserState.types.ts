@@ -1,5 +1,3 @@
-import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
-
 export interface UserStateInterface {
     id: number | undefined;
     firstName: string | undefined;

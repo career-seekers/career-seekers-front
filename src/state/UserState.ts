@@ -1,23 +1,25 @@
 import {reactive} from "vue";
-import {
+import type {
     MentorStateInterface,
     ParentStateInterface,
     RegistrationData,
-    Roles,
     TutorStateInterface,
     UserStateInterface
-} from "./UserState.types";
+} from "./UserState.types.ts";
 import {jwtDecode} from "jwt-decode";
-import {UserResolver} from "@/api/resolvers/user/user.resolver";
-import {FileManager} from "@/utils/FileManager";
-import {TutorDocumentsResolver} from "@/api/resolvers/tutorDocuments/tutor-documents.resolver";
-import {CommonOutputDto} from "@/api/dto/common-output.dto";
-import {UserDocumentsResolver} from "@/api/resolvers/userDocuments/user-documents.resolver";
-import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
-import {MentorDocumentsResolver} from "@/api/resolvers/mentorDocuments/mentor-documents.resolver";
-import router from "@/router";
-import {TelegramLinkResolver} from "@/api/resolvers/telegramLink/telegram-link.resolver";
-import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
+import { Roles } from './UserState.types.ts';
+import { AuthResolver } from '@/api/resolvers/auth/auth.resolver.ts';
+import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
+import { FileManager } from '@/utils/FileManager.ts';
+import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
+import { TutorDocumentsResolver } from '@/api/resolvers/tutorDocuments/tutor-documents.resolver.ts';
+import type {
+    UserRegistrationDto,
+    UserWithChildRegistrationDto,
+} from '@/api/resolvers/auth/dto/input/register-input.dto.ts';
+import { MentorDocumentsResolver } from '@/api/resolvers/mentorDocuments/mentor-documents.resolver.ts';
+import { UserDocumentsResolver } from '@/api/resolvers/userDocuments/user-documents.resolver.ts';
+import type { TutorDocsOutputDto } from '@/api/resolvers/tutorDocuments/dto/output/tutor-docs-output.dto.ts';
 
 export const UserState = reactive<
     UserStateInterface
@@ -73,7 +75,7 @@ export const fillUserState = async () => {
             }
         } else {
             const fileManager = new FileManager();
-            let response: CommonOutputDto<any>
+            let response: CommonOutputDto<TutorDocsOutputDto | string>
 
             UserState.id = userData.message.id
             UserState.firstName = userData.message.firstName;
@@ -219,7 +221,7 @@ export const fillUserState = async () => {
 export const redirectByUserState = async () => {
     switch (UserState.role) {
         case Roles.USER: {
-            if (!!history.state.current.includes("parent")) {
+            if (history.state.current.includes("parent")) {
                 await router.push("/parent");
             }
             break
@@ -254,7 +256,7 @@ export const redirectByUserState = async () => {
 
 export const clearUserState = async () => {
     for (const key in UserState) {
-        if (UserState.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(UserState, key)) {
             UserState[key] = undefined;
         }
     }

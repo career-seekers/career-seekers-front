@@ -1,7 +1,9 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ parentName }}!</h1>
+      <h1 class="page-title">
+        Добро пожаловать, {{ parentName }}!
+      </h1>
       <p class="page-subtitle">
         Управляйте участием вашего ребенка в чемпионате
       </p>
@@ -12,13 +14,15 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-user"></i>
+            <i class="pi pi-user" />
             Персональные данные
           </h3>
         </div>
         <div class="card-content">
           <div class="data-section">
-            <h4 class="section-title">Родитель</h4>
+            <h4 class="section-title">
+              Родитель
+            </h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{ parentData.fullName }}</span>
@@ -34,7 +38,9 @@
           </div>
 
           <div class="data-section">
-            <h4 class="section-title">Ребенок</h4>
+            <h4 class="section-title">
+              Ребенок
+            </h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{ childData.fullName }}</span>
@@ -55,14 +61,19 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-list"></i>
+            <i class="pi pi-list" />
             Компетенции
           </h3>
         </div>
         <div class="card-content">
-          <div v-if="!hasSelectedCompetencies" class="empty-state">
-            <i class="pi pi-exclamation-triangle empty-icon"></i>
-            <p class="empty-text">Вы еще не выбрали компетенции</p>
+          <div
+            v-if="!hasSelectedCompetencies"
+            class="empty-state"
+          >
+            <i class="pi pi-exclamation-triangle empty-icon" />
+            <p class="empty-text">
+              Вы еще не выбрали компетенции
+            </p>
             <Button
               label="Выбрать компетенции"
               icon="pi pi-plus"
@@ -70,7 +81,10 @@
               @click="goToCompetencies"
             />
           </div>
-          <div v-else class="competencies-preview">
+          <div
+            v-else
+            class="competencies-preview"
+          >
             <p class="preview-text">
               Выбрано компетенций: {{ selectedCompetenciesCount }}/3
             </p>
@@ -82,11 +96,15 @@
                 class="competence-item"
               >
                 <div class="competence-icon">
-                  <i :class="competence.icon"></i>
+                  <i :class="competence.icon" />
                 </div>
                 <div class="competence-info">
-                  <h4 class="competence-name">{{ competence.name }}</h4>
-                  <p class="competence-status">{{ competence.status }}</p>
+                  <h4 class="competence-name">
+                    {{ competence.name }}
+                  </h4>
+                  <p class="competence-status">
+                    {{ competence.status }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -113,36 +131,49 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-users"></i>
+            <i class="pi pi-users" />
             Наставник
           </h3>
         </div>
         <div class="card-content">
-          <div v-if="mentorData" class="mentor-info">
+          <div
+            v-if="mentorData"
+            class="mentor-info"
+          >
             <div class="mentor-avatar">
-              <i class="pi pi-user"></i>
+              <i class="pi pi-user" />
             </div>
             <div class="mentor-details">
-              <h4 class="mentor-name">{{ mentorData.name }}</h4>
+              <h4 class="mentor-name">
+                {{ mentorData.name }}
+              </h4>
               <div class="mentor-contact">
                 <div class="contact-item">
-                  <i class="pi pi-envelope"></i>
+                  <i class="pi pi-envelope" />
                   <span>{{ mentorData.email }}</span>
                 </div>
                 <div class="contact-item">
-                  <i class="pi pi-phone"></i>
+                  <i class="pi pi-phone" />
                   <span>{{ mentorData.phone }}</span>
                 </div>
-                <div v-if="mentorData.telegram" class="contact-item">
-                  <i class="pi pi-send"></i>
+                <div
+                  v-if="mentorData.telegram"
+                  class="contact-item"
+                >
+                  <i class="pi pi-send" />
                   <span>{{ mentorData.telegram }}</span>
                 </div>
               </div>
             </div>
           </div>
-          <div v-else class="empty-state">
-            <i class="pi pi-user-plus empty-icon"></i>
-            <p class="empty-text">Наставник не назначен</p>
+          <div
+            v-else
+            class="empty-state"
+          >
+            <i class="pi pi-user-plus empty-icon" />
+            <p class="empty-text">
+              Наставник не назначен
+            </p>
           </div>
         </div>
       </div>
@@ -151,17 +182,17 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-trophy"></i>
+            <i class="pi pi-trophy" />
             Достижения
           </h3>
         </div>
         <div class="card-content">
           <div class="empty-state">
-            <i class="pi pi-clock empty-icon"></i>
-            <p class="empty-text">Раздел в разработке</p>
-            <small class="empty-subtitle"
-              >Скоро здесь будут отображаться достижения вашего ребенка</small
-            >
+            <i class="pi pi-clock empty-icon" />
+            <p class="empty-text">
+              Раздел в разработке
+            </p>
+            <small class="empty-subtitle">Скоро здесь будут отображаться достижения вашего ребенка</small>
           </div>
         </div>
       </div>
