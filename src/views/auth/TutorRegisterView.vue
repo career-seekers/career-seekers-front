@@ -395,17 +395,16 @@ import InputText from "primevue/inputtext";
 import InputMask from "primevue/inputmask";
 import Password from "primevue/password";
 import Button from "primevue/button";
-import FileUpload from "primevue/fileupload";
 import Checkbox from "primevue/checkbox";
 import Dialog from "primevue/dialog";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver.js";
-import { UserRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto.js";
-import {
+import type { UserRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto.js";
+import type {
   RegistrationData,
-  Roles,
   TutorStateInterface,
-} from "@/state/UserState.types.js";
+} from "@/state/UserState.types.ts";
+import { Roles } from "@/state/UserState.types.ts"
 import { FileManager } from "@/utils/FileManager";
 import VuePdfEmbed from "vue-pdf-embed";
 
@@ -417,7 +416,6 @@ export default {
     InputMask,
     Password,
     Button,
-    FileUpload,
     Checkbox,
     Dialog,
     VuePdfEmbed,
@@ -515,7 +513,15 @@ export default {
 
     validateForm() {
       Object.keys(this.errors).forEach((key) => {
-        this.errors[key] = "";
+        const typedKey = key as keyof typeof this.errors;
+        if (typeof this.errors[typedKey] === "string") {
+          (this.errors[typedKey] as string) = "";
+        } else {
+          (this.errors[typedKey] as { title: string; message: string; }) = {
+            title: '',
+            message: ''
+          };
+        }
       });
 
       let isValid = true;

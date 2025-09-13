@@ -325,7 +325,6 @@
 <script lang="ts">
 import Button from "primevue/button";
 import { UserState } from "@/state/UserState";
-import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
 import {
   AgeCategories,
   CompetenceResolver,
@@ -335,6 +334,7 @@ import FileUpload from "primevue/fileupload";
 import Dropdown from "primevue/dropdown";
 import { FileType } from "@/api/resolvers/files/file.resolver";
 import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
+import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 
 export default {
   name: "ExpertDashboardHome",

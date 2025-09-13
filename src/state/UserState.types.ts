@@ -28,7 +28,7 @@ export interface MentorStateInterface {
 }
 
 export interface ParentStateInterface {
-    snilsNumber: number;
+    snilsNumber: string;
     snilsFileName: string;
     studyingPlace: string;
     studyingCertificateFileName: string;

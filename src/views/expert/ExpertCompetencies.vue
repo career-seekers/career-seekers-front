@@ -49,7 +49,7 @@
               {{
                 ageGroups.find(
                   (group) => group.value === competence.ageCategory,
-                ).label
+                )?.label
               }}
             </div>
             <div class="competence-description">
@@ -142,9 +142,8 @@
                 {{
                   ageGroups
                     .find(
-                      (group) => group.value === selectedCompetence.ageCategory,
-                    )
-                    .label.split(" ")[0]
+                      (group) => group.value === selectedCompetence?.ageCategory,
+                    )?.label.split(" ")[0]
                 }}
               </div>
               <div class="stat-label">
@@ -192,7 +191,7 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
-import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
 import {
   AgeCategories,
   CompetenceResolver,
@@ -210,7 +209,7 @@ export default {
     return {
       selectedAge: null as AgeCategories | null,
       showDetailsDialog: false,
-      selectedCompetence: null as CompetenceOutputDto | null,
+      selectedCompetence: undefined as CompetenceOutputDto | undefined,
       ageGroups: [
         { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет" },
         { value: AgeCategories.PRESCHOOL, label: "6-7 лет" },
@@ -238,16 +237,16 @@ export default {
     await this.loadCompetencies();
   },
   methods: {
-    goToParticipants(competenceId) {
+    goToParticipants(competenceId: number) {
       this.$router.push(`/expert/participants/${competenceId}`);
     },
-    goToDocuments(competenceId) {
+    goToDocuments(competenceId: number) {
       this.$router.push(`/expert/documents/${competenceId}`);
     },
-    goToEvents(competenceId) {
+    goToEvents(competenceId: number) {
       this.$router.push(`/expert/events${competenceId}`);
     },
-    viewDetails(competenceId) {
+    viewDetails(competenceId: number) {
       this.selectedCompetence = this.competencies.find(
         (c) => c.id === competenceId,
       );
@@ -255,15 +254,16 @@ export default {
     },
     closeDetails() {
       this.showDetailsDialog = false;
-      this.selectedCompetence = null;
+      this.selectedCompetence = undefined;
     },
     resetFilters() {
       this.selectedAge = null;
     },
     async loadCompetencies() {
       const competenceResolver = new CompetenceResolver();
-      const response = await competenceResolver.getAllByExpertId(UserState.id);
-      if (response.status === 200) this.competencies = response.message;
+      const response = await competenceResolver.getAllByExpertId(UserState.id!!);
+      if (response.status === 200 && typeof response.message !== "string")
+        this.competencies = response.message;
     },
   },
 };

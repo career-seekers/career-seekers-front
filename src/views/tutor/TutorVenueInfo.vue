@@ -175,11 +175,9 @@
 <script lang="ts">
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
-import Textarea from "primevue/textarea";
-import InputNumber from "primevue/inputnumber";
-import { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto";
+import type { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto.ts";
 import { UserState } from "@/state/UserState";
-import { PlatformInputDto } from "@/api/resolvers/platform/dto/input/platform-input.dto";
+import type { PlatformInputDto } from "@/api/resolvers/platform/dto/input/platform-input.dto.ts";
 import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
 
@@ -189,17 +187,15 @@ export default {
     ToastPopup,
     Button,
     InputText,
-    Textarea,
-    InputNumber,
   },
   data() {
     return {
       platformResolver: new PlatformResolver(),
       oldMail: "",
-      cachedData: null,
+      cachedData: null as null | PlatformOutputDto,
       isChanged: false,
       venueData: {
-        id: null,
+        id: -1,
         fullName: "",
         shortName: "",
         address: "",
@@ -262,14 +258,13 @@ export default {
   methods: {
     async sendForModeration() {
       if (this.validateForm()) {
-        this.venueData.moderationStatus = "На модерации";
         this.addHistoryEntry(
           "pi pi-send",
           "Информация отправлена на модерацию",
         );
 
         const data: PlatformInputDto = {
-          userId: UserState.id,
+          userId: UserState.id!!,
           fullName: this.venueData.fullName,
           shortName: this.venueData.shortName,
           address: this.venueData.address,
@@ -285,7 +280,7 @@ export default {
                 ...data,
                 email:
                   this.oldMail === this.venueData.email
-                    ? undefined
+                    ? ""
                     : this.venueData.email,
               })
             : await this.platformResolver.create(data);
@@ -294,19 +289,19 @@ export default {
           await this.loadPlatform();
         } else {
           this.errors.toastPopup = {
-            title: response.status,
-            message: response.message,
+            title: response.status.toString(),
+            message: response.message.toString(),
           };
         }
       }
     },
     editPlatform() {
-      if (this.venueData.verified && this.venueData.id !== null) {
+      if (this.venueData.verified && this.venueData.id !== -1) {
         this.venueData.verified = false;
       }
     },
     async loadPlatform() {
-      const response = await this.platformResolver.getByUserId(UserState.id);
+      const response = await this.platformResolver.getByUserId(UserState.id!!);
       if (response.status === 200) {
         this.oldMail = response.message.email;
         this.venueData = response.message;
@@ -333,7 +328,7 @@ export default {
       }
       return isValid;
     },
-    addHistoryEntry(icon, text) {
+    addHistoryEntry(icon: string, text: string) {
       const newEntry = {
         id: Date.now(),
         icon,

@@ -291,17 +291,17 @@
 import Button from "primevue/button";
 import { UserState } from "@/state/UserState";
 import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver";
-import { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto.js";
+import type { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto.js";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { UserResolver } from "@/api/resolvers/user/user.resolver";
 import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
-import { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto";
-import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import type { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import { Roles } from "@/state/UserState.types";
-import { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto";
+import type { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto.ts";
 import InputText from "primevue/inputtext";
 import Dialog from "primevue/dialog";
 import InputMask from "primevue/inputmask";
+import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 
 export default {
   name: "TutorDashboardHome",
@@ -327,7 +327,7 @@ export default {
         phone: "",
       },
       venueData: {
-        id: null,
+        id: -1,
         fullName: "",
         shortName: "",
         address: "",
@@ -400,11 +400,9 @@ export default {
     },
   },
   async mounted() {
-    this.isLoading = true;
     await this.loadExperts();
     await this.loadPlatform();
     await this.loadCompetencies();
-    this.isLoading = false;
   },
   methods: {
     goToExperts() {
@@ -438,8 +436,8 @@ export default {
         patronymic: this.expertForm.fullName.split(" ")[2],
         email: this.expertForm.email,
         mobileNumber: this.mobileNumberFormatted,
-        password: null,
-        tutorId: UserState.id,
+        password: "",
+        tutorId: UserState.id!!,
         role: Roles.EXPERT,
         dateOfBirth: this.dateOfBirthFormatted,
         avatarId: null,
@@ -450,8 +448,8 @@ export default {
         this.cancelEdit();
       } else {
         this.errors.toastPopup = {
-          title: response.status,
-          message: response.message,
+          title: response.status.toString(),
+          message: response.message.toString(),
         };
       }
     },
@@ -487,22 +485,22 @@ export default {
       this.$router.push("/tutor/documents");
     },
     async loadPlatform() {
-      const response = await this.platformResolver.getByUserId(UserState.id);
+      const response = await this.platformResolver.getByUserId(UserState.id!!);
       if (response.status === 200) {
         this.venueData = response.message;
       }
     },
     async loadExperts() {
-      const response = await this.userResolver.getAllByTutorId(UserState.id);
+      const response = await this.userResolver.getAllByTutorId(UserState.id!!);
       if (response.status === 200) {
         this.experts = response.message;
       }
     },
     async loadCompetencies() {
       const response = await this.competenceResolver.getAllByUserId(
-        UserState.id,
+        UserState.id!!,
       );
-      if (response.status === 200) {
+      if (response.status === 200 && typeof response.message !== "string") {
         this.competencies = response.message;
       }
     },

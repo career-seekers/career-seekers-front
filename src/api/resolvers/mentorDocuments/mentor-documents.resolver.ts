@@ -1,7 +1,7 @@
 import ApiResolver from "@/utils/ApiResolver";
-import { CommonOutputDto } from "@/api/dto/common-output.dto";
-import { MentorDocsInputDto } from "@/api/resolvers/mentorDocuments/dto/input/mentor-docs-input.dto";
-import { MentorDocsOutputDto } from "@/api/resolvers/mentorDocuments/dto/output/mentor-docs-output.dto";
+import type { CommonOutputDto } from "@/api/dto/common-output.dto.ts";
+import type { MentorDocsInputDto } from "@/api/resolvers/mentorDocuments/dto/input/mentor-docs-input.dto.ts";
+import type { MentorDocsOutputDto } from "@/api/resolvers/mentorDocuments/dto/output/mentor-docs-output.dto.ts";
 
 export class MentorDocumentsResolver {
   private apiResolver = new ApiResolver("users-service/v1/mentor-docs");
@@ -14,7 +14,7 @@ export class MentorDocumentsResolver {
     >(
       "",
       "POST",
-      this.apiResolver.DTOToFormData(data),
+      this.apiResolver.DTOToFormData(data as never),
       this.token ? this.token : undefined,
     );
   }

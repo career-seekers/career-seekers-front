@@ -12,7 +12,7 @@ export const titleManager = {
   },
 
   // Получает title для конкретной страницы
-  getPageTitle(routeName) {
+  getPageTitle(routeName: string) {
     const titles = {
       login: "Вход в систему",
       "mentor-register": "Регистрация наставника",
@@ -38,6 +38,6 @@ export const titleManager = {
       "tutor-venue-info": "Информация о площадке",
     };
 
-    return titles[routeName] || "";
+    return titles[routeName as keyof typeof titles] || "";
   },
 };

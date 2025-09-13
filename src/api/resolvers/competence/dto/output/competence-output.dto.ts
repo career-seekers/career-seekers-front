@@ -1,5 +1,5 @@
 import { AgeCategories } from "@/api/resolvers/competence/competence.resolver";
-import { DocumentsOutputDto } from "@/api/resolvers/competence/dto/output/documents-output.dto";
+import type { DocumentsOutputDto } from "@/api/resolvers/competence/dto/output/documents-output.dto.ts";
 
 export interface CompetenceOutputDto {
   id: number;

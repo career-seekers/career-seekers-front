@@ -81,13 +81,13 @@
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver.js";
-import {
+import type {
   UserRegistrationDto,
   UserWithChildRegistrationDto,
-} from "@/api/resolvers/auth/dto/input/register-input.dto";
+} from "@/api/resolvers/auth/dto/input/register-input.dto.ts";
 import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
-import {
+import type {
   MentorStateInterface,
   ParentStateInterface,
   RegistrationData,
@@ -118,7 +118,7 @@ export default {
       },
       authResolver: new AuthResolver(),
       registrationData: (
-        JSON.parse(localStorage.getItem("dataToVerify")) as RegistrationData<
+        JSON.parse(localStorage.getItem("dataToVerify") as string) as RegistrationData<
           UserWithChildRegistrationDto | UserRegistrationDto,
           TutorStateInterface | MentorStateInterface | ParentStateInterface
         >
@@ -128,8 +128,8 @@ export default {
   mounted() {
     // Получаем email из query параметров или localStorage
     this.userEmail =
-      this.$route.query.email ||
-      localStorage.getItem("userEmail") ||
+      this.$route.query.email as string ||
+      localStorage.getItem("userEmail") as string ||
       "user@example.com";
   },
   methods: {
@@ -164,7 +164,7 @@ export default {
       };
 
       try {
-        if (this.registrationData.childPatronymic)
+        if ((this.registrationData as UserWithChildRegistrationDto).childPatronymic)
           this.registrationData.type = "UserWithChildRegistrationDto";
         else this.registrationData.type = "UserRegistrationDto";
         this.registrationData.uuid = generateUuidV4();
@@ -184,7 +184,6 @@ export default {
           await fillUserState();
           await redirectByUserState();
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         this.errors.code = "Неверный код подтверждения";
       } finally {

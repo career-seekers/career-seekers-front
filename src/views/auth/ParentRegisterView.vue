@@ -733,18 +733,17 @@ import InputText from "primevue/inputtext";
 import InputMask from "primevue/inputmask";
 import Password from "primevue/password";
 import Button from "primevue/button";
-import FileUpload from "primevue/fileupload";
+import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
 import Checkbox from "primevue/checkbox";
 import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
-import { UserWithChildRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto";
+import type { UserWithChildRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto.ts";
 import {
-  ParentStateInterface,
-  RegistrationData,
-  Roles,
-} from "@/state/UserState.types";
+  type ParentStateInterface,
+  type RegistrationData, Roles,
+} from '@/state/UserState.types';
 import { FileManager } from "@/utils/FileManager";
 import VuePdfEmbed from "vue-pdf-embed";
 
@@ -777,6 +776,7 @@ export default {
         phone: "",
         email: "",
         consent: false,
+        agreement: "",
         childConsentFile: new File(["Содержимое файла"], "myfile.txt", {
           type: "text/plain",
         }),
@@ -785,14 +785,14 @@ export default {
       childForm: {
         fullName: "",
         birthDate: "",
-        birthCertificate: null,
+        birthCertificate: null as null | File,
         snilsNumber: "",
-        snilsScan: null,
+        snilsScan: null as null | File,
         schoolName: "",
-        grade: null,
-        platform: null,
-        schoolCertificate: null,
-        platformCertificate: null,
+        grade: null as number | null,
+        platform: null as string | null,
+        schoolCertificate: null as null | File,
+        platformCertificate: null as null | File,
       },
 
       mentorForm: {
@@ -829,17 +829,21 @@ export default {
           title: "",
           message: "",
         },
+        birthDate: '',
+        parentEmail: "",
+        parentPhone: "",
+
       },
 
       gradeOptions: [
-        { label: "1 класс", value: "1" },
-        { label: "2 класс", value: "2" },
-        { label: "3 класс", value: "3" },
-        { label: "4 класс", value: "4" },
-        { label: "5 класс", value: "5" },
-        { label: "6 класс", value: "6" },
-        { label: "7 класс", value: "7" },
-        { label: "8 класс", value: "8" },
+        { label: "1 класс", value: 1 },
+        { label: "2 класс", value: 2 },
+        { label: "3 класс", value: 3 },
+        { label: "4 класс", value: 4 },
+        { label: "5 класс", value: 5 },
+        { label: "6 класс", value: 6 },
+        { label: "7 класс", value: 7 },
+        { label: "8 класс", value: 8 },
       ],
 
       platformOptions: [
@@ -894,7 +898,7 @@ export default {
       this.errors.password = "";
     },
 
-    formatBirthDate(birthDate) {
+    formatBirthDate(birthDate: string) {
       const [day, month, year] = birthDate.split(".");
       const date = new Date(
         Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)),
@@ -902,8 +906,11 @@ export default {
       return date.toISOString();
     },
 
-    validateStep(step) {
+    validateStep(step: number) {
       this.errors = {
+        parentPhone: "",
+        parentEmail: "",
+        birthDate: '',
         mentor: "",
         childFullName: "",
         parentFullName: "",
@@ -928,7 +935,7 @@ export default {
         toastPopup: {
           title: "",
           message: "",
-        },
+        }
       };
 
       let isValid = true;
@@ -1089,17 +1096,7 @@ export default {
       this.currentStep--;
     },
 
-    // Обработчики файлов
-    onChildConsentSelect(event) {
-      this.handleFileSelect(event, "childConsentFile");
-    },
-
-    onChildConsentRemove() {
-      this.parentForm.childConsentFile = null;
-      this.errors.childConsentFile = "";
-    },
-
-    onBirthCertificateSelect(event) {
+    onBirthCertificateSelect(event: FileUploadSelectEvent) {
       this.handleFileSelect(event, "birthCertificate");
     },
 
@@ -1108,7 +1105,7 @@ export default {
       this.errors.birthCertificate = "";
     },
 
-    onSnilsScanSelect(event) {
+    onSnilsScanSelect(event: FileUploadSelectEvent) {
       this.handleFileSelect(event, "snilsScan");
     },
 
@@ -1117,7 +1114,7 @@ export default {
       this.errors.snilsScan = "";
     },
 
-    onSchoolCertificateSelect(event) {
+    onSchoolCertificateSelect(event: FileUploadSelectEvent) {
       this.handleFileSelect(event, "schoolCertificate");
     },
 
@@ -1126,7 +1123,7 @@ export default {
       this.errors.schoolCertificate = "";
     },
 
-    onPlatformCertificateSelect(event) {
+    onPlatformCertificateSelect(event: FileUploadSelectEvent) {
       this.handleFileSelect(event, "platformCertificate");
     },
 
@@ -1144,11 +1141,12 @@ export default {
       } else this.errors.telegramLink = "";
     },
 
-    handleFileSelect(event, fieldName) {
+    handleFileSelect(event: FileUploadSelectEvent, fieldName: string) {
       const file = event.files[0];
+      const typedFieldName = fieldName as keyof typeof this.errors;
       if (file) {
         if (file.size > 10000000) {
-          this.errors[fieldName] = "Размер файла не должен превышать 10 МБ";
+          (this.errors[typedFieldName] as string) = "Размер файла не должен превышать 10 МБ";
           return;
         }
 
@@ -1161,7 +1159,7 @@ export default {
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ];
         if (!allowedTypes.includes(file.type)) {
-          this.errors[fieldName] =
+          (this.errors[typedFieldName] as string) =
             "Поддерживаются только файлы PDF, JPG, PNG, DOC, DOCX";
           return;
         }
@@ -1169,9 +1167,10 @@ export default {
         if (fieldName === "childConsentFile") {
           this.parentForm.childConsentFile = file;
         } else {
-          this.childForm[fieldName] = file;
+          const childTypedKey = fieldName as keyof typeof this.childForm;
+          (this.childForm[childTypedKey] as File) = file;
         }
-        this.errors[fieldName] = "";
+        (this.errors[typedFieldName] as string) = "";
       }
     },
 
@@ -1224,24 +1223,24 @@ export default {
             extra: {
               snilsNumber: this.snilsFormatted,
               snilsFileName: await fileManager.saveFileToCache(
-                this.childForm.snilsScan,
+                this.childForm.snilsScan as File,
               ),
               studyingPlace: this.childForm.schoolName,
               studyingCertificateFileName: await fileManager.saveFileToCache(
-                this.childForm.schoolCertificate,
+                this.childForm.schoolCertificate as File,
               ),
-              learningClass: this.childForm.grade,
-              trainingGround: this.childForm.platform,
+              learningClass: this.childForm.grade as number,
+              trainingGround: this.childForm.platform as string,
               additionalStudyingCertificateFileName:
                 await fileManager.saveFileToCache(
-                  this.childForm.platformCertificate,
+                  this.childForm.platformCertificate as File,
                 ),
               parentRole: this.parentForm.relationship,
               consentToChildPdpFileName: await fileManager.saveFileToCache(
                 this.parentForm.childConsentFile,
               ),
               birthCertificateFileName: await fileManager.saveFileToCache(
-                this.childForm.birthCertificate,
+                this.childForm.birthCertificate as File,
               ),
             },
           };

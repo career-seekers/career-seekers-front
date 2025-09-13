@@ -168,7 +168,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from "primevue/button";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { clearUserState } from "@/state/UserState";

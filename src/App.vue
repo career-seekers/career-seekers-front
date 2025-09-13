@@ -17,7 +17,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import GooseConfetti from "@/components/GooseConfetti.vue";
 import easterEggMixin from "@/mixins/easterEgg.js";
 

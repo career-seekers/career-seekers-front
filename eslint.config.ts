@@ -7,6 +7,7 @@ export default defineConfig([
   {
     files: ["**/*.{ts,tsx}"],
     plugins: { "@typescript-eslint": tseslint.plugin },
+    ignores: ["./src/router/index.ts"],
     extends: [tseslint.configs.recommendedTypeChecked],
     languageOptions: {
       parser: tseslint.parser,
@@ -23,11 +24,12 @@ export default defineConfig([
   {
     files: ["**/*.vue"],
     plugins: { "vue": pluginVue },
+    ignores: ["./src/router/index.ts"],
     extends: [...pluginVue.configs["flat/recommended"]],
     languageOptions: {
       parser: vueParser,
       parserOptions: {
-        parser: tseslint.parser, // use TS parser inside <script> blocks of Vue files
+        parser: tseslint.parser, // use TS parser inside <script lang="ts"> blocks of Vue files
         extraFileExtensions: [".vue"],
         project: "./tsconfig.json",
         projectService: true,

@@ -155,7 +155,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 

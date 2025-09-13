@@ -1,8 +1,10 @@
+
+
 import { createRouter, createWebHistory } from "vue-router";
-import { titleManager } from "@/utils/titleManager.js";
+import { titleManager } from "@/utils/titleManager.ts";
 
 // Auth views
-import LoginView from "@/views/auth/LoginView.vue";
+import LoginView from '@/views/auth/LoginView.vue';
 import MentorRegisterView from "@/views/auth/MentorRegisterView.vue";
 import ParentRegisterView from "@/views/auth/ParentRegisterView.vue";
 import TutorRegisterView from "@/views/auth/TutorRegisterView.vue";
@@ -216,7 +218,11 @@ router.beforeEach(async () => {
 });
 // Обновляем title при переходах между страницами
 router.afterEach(async (to) => {
-  const pageTitle = titleManager.getPageTitle(to.name);
+  const pageTitle = titleManager.getPageTitle(
+    to.name
+      ? to.name.toString()
+      : "No title"
+  );
   titleManager.setTitle(pageTitle);
   await redirectByUserState();
 });

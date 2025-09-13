@@ -3,7 +3,7 @@ import { FileType } from "@/api/resolvers/files/file.resolver";
 export interface DocumentsOutputDto {
   id: number;
   documentType: FileType;
-  documentId: string;
+  documentId: number;
   createdAt: string;
   userId: number;
 }

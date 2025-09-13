@@ -25,9 +25,9 @@ src/
 ├── mixins/               # Vue миксины
 │   └── easterEgg.js      # Логика пасхалки
 ├── router/               # Маршрутизация
-│   └── index.js          # Конфигурация роутера
+│   └── index.ts          # Конфигурация роутера
 ├── utils/                # Утилиты
-│   └── titleManager.js   # Управление title страниц
+│   └── titleManager.ts   # Управление title страниц
 ├── views/                # Страницы приложения
 │   ├── auth/             # Аутентификация
 │   │   ├── LoginView.vue
@@ -209,8 +209,8 @@ app.directive('tooltip', Tooltip)
 
 ### Управление title страниц
 ```javascript
-// src/utils/titleManager.js
-import { titleManager } from '@/utils/titleManager.js'
+// src/utils/titleManager.ts
+import { titleManager } from '@/utils/titleManager.ts'
 
 // Установить title
 titleManager.setTitle('Название страницы')

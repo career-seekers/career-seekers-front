@@ -61,7 +61,7 @@
               {{
                 ageGroups.find(
                   (group) => group.value === competence.ageCategory,
-                ).label
+                )?.label
               }}
             </div>
             <div class="competence-description">
@@ -263,11 +263,11 @@
           <h4>Главный эксперт</h4>
           <p>
             {{
-              competenceExpert(selectedCompetence).lastName +
+              competenceExpert(selectedCompetence)?.lastName +
                 " " +
-                competenceExpert(selectedCompetence).firstName +
+                competenceExpert(selectedCompetence)?.firstName +
                 " " +
-                competenceExpert(selectedCompetence).patronymic
+                competenceExpert(selectedCompetence)?.patronymic
             }}
           </p>
         </div>
@@ -288,9 +288,8 @@
                 {{
                   ageGroups
                     .find(
-                      (group) => group.value === selectedCompetence.ageCategory,
-                    )
-                    .label.split(" ")[0]
+                      (group) => group.value === selectedCompetence?.ageCategory,
+                    )?.label.split(" ")[0]
                 }}
               </div>
               <div class="stat-label">
@@ -338,15 +337,15 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
-import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
 import { UserState } from "@/state/UserState";
 import { UserResolver } from "@/api/resolvers/user/user.resolver";
 import { Roles } from "@/state/UserState.types";
-import { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto";
+import type { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import ToastPopup from "@/components/ToastPopup.vue";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
-import { CompetenceInputDto } from "@/api/resolvers/competence/dto/input/competence-input.dto";
+import type { CompetenceInputDto } from "@/api/resolvers/competence/dto/input/competence-input.dto.ts";
 import {
   AgeCategories,
   CompetenceResolver,
@@ -369,10 +368,10 @@ export default {
       experts: [] as UserOutputDto[],
       selectedAge: null as AgeCategories | null,
       showDetailsDialog: false,
-      selectedCompetence: null as null | CompetenceOutputDto,
+      selectedCompetence: undefined as undefined | CompetenceOutputDto,
       showAddCompetenceDialog: false,
       isEditing: false,
-      editingCompetenceId: null,
+      editingCompetenceId: null as null | number,
       errors: {
         toastPopup: {
           title: "",
@@ -387,7 +386,7 @@ export default {
         name: "",
         description: "",
         ageCategory: null as AgeCategories | null,
-        expert: null as UserOutputDto | null,
+        expert: undefined as UserOutputDto | undefined,
       },
       ageGroups: [
         { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет" },
@@ -417,19 +416,19 @@ export default {
     await this.loadCompetencies();
   },
   methods: {
-    competenceExpert(selectedCompetence: CompetenceOutputDto): UserOutputDto {
+    competenceExpert(selectedCompetence: CompetenceOutputDto) {
       return this.experts.find(
         (expert: UserOutputDto) => expert.id === selectedCompetence.expertId,
       );
     },
-    goToParticipants(competenceId) {
+    goToParticipants(competenceId: number) {
       this.$router.push(`/expert/participants/${competenceId}`);
     },
-    goToDocuments(competence) {
+    goToDocuments(competence: CompetenceOutputDto) {
       localStorage.setItem("selectedCompetence", JSON.stringify(competence));
       this.$router.push(`/tutor/documents`);
     },
-    viewDetails(competenceId) {
+    viewDetails(competenceId: number) {
       this.selectedCompetence = this.competencies.find(
         (c) => c.id === competenceId,
       );
@@ -437,7 +436,7 @@ export default {
     },
     closeDetails() {
       this.showDetailsDialog = false;
-      this.selectedCompetence = null;
+      this.selectedCompetence = undefined;
     },
     resetFilters() {
       this.selectedAge = null;
@@ -447,7 +446,7 @@ export default {
         name: "",
         description: "",
         ageCategory: null,
-        expert: "",
+        expert: undefined,
       };
       this.showAddCompetenceDialog = true;
     },
@@ -476,7 +475,7 @@ export default {
           await this.loadCompetencies();
         } else {
           this.errors.toastPopup = {
-            title: response.status,
+            title: response.status.toString(),
             message: response.message,
           };
         }
@@ -489,17 +488,17 @@ export default {
         name: "",
         description: "",
         ageCategory: null,
-        expert: "",
+        expert: undefined,
       };
       this.showAddCompetenceDialog = false;
     },
     async saveCompetence() {
       const data: CompetenceInputDto = {
-        userId: UserState.id,
-        expertId: this.competenceForm.expert.id,
+        userId: UserState.id!!,
+        expertId: this.competenceForm.expert!!.id,
         name: this.competenceForm.name,
         description: this.competenceForm.description,
-        ageCategory: this.competenceForm.ageCategory,
+        ageCategory: this.competenceForm.ageCategory!!,
       };
       const response = this.isEditing
         ? await this.competenceResolver.update(data)
@@ -507,7 +506,7 @@ export default {
 
       if (typeof response.message === "string") {
         this.errors.toastPopup = {
-          title: response.status,
+          title: response.status.toString(),
           message: response.message,
         };
       }
@@ -516,14 +515,14 @@ export default {
     },
     async loadCompetencies() {
       const competenceResponse = await this.competenceResolver.getAllByUserId(
-        UserState.id,
+        UserState.id!!,
       );
-      if (competenceResponse.status === 200) {
+      if (competenceResponse.status === 200 && typeof competenceResponse.message !== "string") {
         this.competencies = competenceResponse.message;
       } else {
         this.errors.toastPopup = {
-          title: competenceResponse.status,
-          message: competenceResponse.message,
+          title: competenceResponse.status.toString(),
+          message: competenceResponse.message.toString(),
         };
       }
 
@@ -532,8 +531,8 @@ export default {
         this.experts = expertResponse.message;
       } else {
         this.errors.toastPopup = {
-          title: expertResponse.status,
-          message: expertResponse.message,
+          title: expertResponse.status.toString(),
+          message: expertResponse.message.toString(),
         };
       }
     },

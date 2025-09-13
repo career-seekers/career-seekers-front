@@ -215,15 +215,13 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import InputMask from "primevue/inputmask";
-import MultiSelect from "primevue/multiselect";
-import Textarea from "primevue/textarea";
 import { UserResolver } from "@/api/resolvers/user/user.resolver.js";
 import ToastPopup from "@/components/ToastPopup.vue";
-import { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto";
+import type { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import { Roles } from "@/state/UserState.types";
-import { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto";
-import { UpdateUserInputDto } from "@/api/resolvers/user/dto/input/update-user-input.dto";
-import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import type { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto.ts";
+import type { UpdateUserInputDto } from "@/api/resolvers/user/dto/input/update-user-input.dto.ts";
+import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
 import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
 import { UserState } from "@/state/UserState";
 
@@ -234,8 +232,6 @@ export default {
     Button,
     Dialog,
     InputText,
-    MultiSelect,
-    Textarea,
     InputMask,
   },
   data() {
@@ -243,7 +239,7 @@ export default {
       oldMail: "",
       showAddExpertDialog: false,
       isEditing: false,
-      editingExpertId: null,
+      editingExpertId: null as null | number,
       expertForm: {
         fullName: "",
         birthDate: "",
@@ -294,10 +290,14 @@ export default {
   watch: {
     showAddExpertDialog() {
       this.errors = {
+        birthDate: '',
+        email: '',
+        fullName: '',
+        phone: '',
         toastPopup: {
           title: "",
           message: "",
-        },
+        }
       };
     },
   },
@@ -326,11 +326,11 @@ export default {
       this.oldMail = expert.email;
       this.showAddExpertDialog = true;
     },
-    reformatDateOfBirth(date) {
+    reformatDateOfBirth(date: string) {
       const [year, month, day] = date.substring(0, 10).split("-");
       return `${day}.${month}.${year}`;
     },
-    reformatPhone(phone) {
+    reformatPhone(phone: string) {
       return `${phone.substring(0, 2)} (${phone.substring(2, 5)}) ${phone.substring(5, 8)}-${phone.substring(8, 10)}-${phone.substring(10, 12)}`;
     },
     async deleteExpert(expert: UserOutputDto) {
@@ -342,7 +342,7 @@ export default {
           await this.loadExperts();
         } else {
           this.errors.toastPopup = {
-            title: response.status,
+            title: response.status.toString(),
             message: response.message,
           };
         }
@@ -368,21 +368,22 @@ export default {
             password: expert.password,
             patronymic: this.expertForm.fullName.split(" ")[2],
             role: Roles.EXPERT,
-            id: this.editingExpertId,
+            id: this.editingExpertId!!,
+            tutorId: UserState.id!!,
           };
 
           const response = await this.userResolver.update({
             ...editedExpert,
             email:
               editedExpert.email === this.oldMail
-                ? undefined
+                ? ""
                 : editedExpert.email,
           });
           if (response.status === 200) {
             this.cancelEdit();
           } else {
             this.errors.toastPopup = {
-              title: response.status,
+              title: response.status.toString(),
               message: response.message,
             };
           }
@@ -394,8 +395,8 @@ export default {
           patronymic: this.expertForm.fullName.split(" ")[2],
           email: this.expertForm.email,
           mobileNumber: this.mobileNumberFormatted,
-          password: null,
-          tutorId: UserState.id,
+          password: "",
+          tutorId: UserState.id!!,
           role: Roles.EXPERT,
           dateOfBirth: this.dateOfBirthFormatted,
           avatarId: null,
@@ -406,8 +407,8 @@ export default {
           this.cancelEdit();
         } else {
           this.errors.toastPopup = {
-            title: response.status,
-            message: response.message,
+            title: response.status.toString(),
+            message: response.message.toString(),
           };
         }
       }
@@ -450,14 +451,14 @@ export default {
       return isValid;
     },
     async loadExperts() {
-      const response = await this.userResolver.getAllByTutorId(UserState.id);
+      const response = await this.userResolver.getAllByTutorId(UserState.id!!);
       if (response.status === 200) {
         this.experts = response.message;
         for (const expert of this.experts) {
           const response = await this.competenceResolver.getAllByExpertId(
             expert.id,
           );
-          if (response.status === 200) {
+          if (response.status === 200 && typeof response.message !== "string") {
             this.expertCompetencies.push({
               expertId: expert.id,
               competencies: response.message,
@@ -466,8 +467,8 @@ export default {
         }
       } else {
         this.errors.toastPopup = {
-          title: response.status,
-          message: response.message,
+          title: response.status.toString(),
+          message: response.message.toString(),
         };
       }
     },
