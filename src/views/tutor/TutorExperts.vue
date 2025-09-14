@@ -243,16 +243,6 @@ export default {
         email: "",
         phone: "",
       },
-      availableCompetencies: [
-        { id: 1, name: "Веб-разработка" },
-        { id: 2, name: "Мобильная разработка" },
-        { id: 3, name: "Дизайн интерфейсов" },
-        { id: 4, name: "Анализ данных" },
-        { id: 5, name: "Кибербезопасность" },
-        { id: 6, name: "Искусственный интеллект" },
-        { id: 7, name: "Робототехника" },
-        { id: 8, name: "3D-моделирование" },
-      ],
       errors: {
         toastPopup: {
           title: "",
@@ -449,7 +439,7 @@ export default {
     },
     async loadExperts() {
       const response = await this.userResolver.getAllByTutorId(UserState.id!);
-      if (response.status === 200) {
+      if (response.status === 200 && typeof response.message !== "string") {
         this.experts = response.message;
         for (const expert of this.experts) {
           const response = await this.competenceResolver.getAllByExpertId(

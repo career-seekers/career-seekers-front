@@ -26,8 +26,15 @@ export class UserResolver {
   public async getAllByTutorId(id: number) {
     return await this.apiResolver.request<
       null,
-      CommonOutputDto<UserOutputDto[]>
+      CommonOutputDto<UserOutputDto[] | string>
     >(`getByTutorId/${id}`, "GET", null, this.token ? this.token : undefined);
+  }
+
+  public async getAll() {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<UserOutputDto[] | string>
+    >("", "GET", null, this.token ? this.token : undefined);
   }
 
   public async create(data: UserInputDto) {
