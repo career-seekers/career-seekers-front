@@ -68,13 +68,13 @@
             </h3>
           </div>
           <div class="document-actions">
-            <!--            <Button-->
-            <!--              icon="pi pi-eye"-->
-            <!--              style="background: white;"-->
-            <!--              class="p-button-text p-button-sm"-->
-            <!--              @click="viewDocument(document)"-->
-            <!--              v-tooltip="'Просмотреть'"-->
-            <!--            />-->
+            <Button
+              v-tooltip="'Просмотреть'"
+              icon="pi pi-eye"
+              style="background: white;"
+              class="p-button-text p-button-sm"
+              @click="viewDocument(document)"
+            />
             <Button
               v-tooltip="'Скачать'"
               icon="pi pi-download"
@@ -179,6 +179,7 @@ import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/
 import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
 import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
 import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
+import apiConf from '@/api/api.conf.ts';
 
 export default {
   name: "TutorDocuments",
@@ -187,6 +188,13 @@ export default {
     Button,
     Dialog,
     Dropdown,
+  },
+  props: {
+    competenceId: {
+      type: String,
+      required: false,
+      default: undefined
+    }
   },
   data: function () {
     return {
@@ -244,7 +252,6 @@ export default {
   },
   async mounted() {
     await this.loadCompetencies();
-    localStorage.removeItem("selectedCompetence");
   },
   methods: {
     documentCompetence(document: DocumentsOutputDto): CompetenceOutputDto | undefined {
@@ -257,13 +264,21 @@ export default {
     documentExpert(document: CompetenceDocumentsOutputDto) {
       return this.experts.find((expert) => expert.id === document.userId);
     },
-    async viewDocument(document: CompetenceDocumentsOutputDto) {
-      await this.fileResolver.viewById(document.documentId);
-      this.selectedDocument = document;
-      this.showPreviewDialog = true;
+    viewDocument(doc: CompetenceDocumentsOutputDto) {
+      this.selectedDocument = doc;
+      const a = document.createElement("a");
+      a.href = `${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click()
+      document.body.removeChild(a);
     },
-    async downloadDocument(document: CompetenceDocumentsOutputDto) {
-      await this.fileResolver.downloadById(document.documentId);
+    downloadDocument(doc: CompetenceDocumentsOutputDto) {
+      const a = document.createElement("a");
+      a.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.documentId}`
+      document.body.appendChild(a);
+      a.click()
+      document.body.removeChild(a);
     },
     async deleteDocument(document: CompetenceDocumentsOutputDto) {
       if (
@@ -290,6 +305,8 @@ export default {
       );
       if (response.status === 200 && typeof response.message !== "string") {
         response.message.forEach((competence) => {
+          if (this.$props.competenceId && competence.id === parseInt(this.$props.competenceId))
+            this.selectedCompetence = competence;
           if (competence.documents.length > 0) {
             this.competencies.push(competence);
             competence.documents.forEach(async (document) => {
@@ -309,7 +326,7 @@ export default {
                 documentId: document.documentId
               });
               const response = await this.userResolver.getById(document.userId);
-              if (response.status === 200) {
+              if (response.status === 200 && typeof response.message !== "string") {
                 this.experts.push(response.message);
               }
             });

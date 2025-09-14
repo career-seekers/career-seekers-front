@@ -85,7 +85,6 @@
             :multiple="false"
             choose-label="Выбрать файл"
             class="file-upload"
-            @upload="onUpload"
             @select="onDocumentSelect"
           />
           <Dropdown
@@ -192,7 +191,7 @@
 
 <script lang="ts">
 import Button from "primevue/button";
-import FileUpload, { type FileUploadSelectEvent, type FileUploadUploadEvent } from 'primevue/fileupload';
+import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
 import Dropdown from "primevue/dropdown";
 import { FileResolver, FileType } from '@/api/resolvers/files/file.resolver.ts';
 import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
@@ -286,10 +285,6 @@ export default {
     onDocumentSelect(event: FileUploadSelectEvent) {
       this.uploadingDocument = event.files[0];
       console.log("Выбраны файлы:", event.files);
-    },
-    onUpload(event: FileUploadUploadEvent) {
-      console.log("Загрузка завершена:", event);
-      // Обновить список документов
     },
     downloadDocument(doc: DocumentsOutputDto) {
       const a = document.createElement("a");

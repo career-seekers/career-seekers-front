@@ -138,7 +138,6 @@ import { AuthResolver } from "@/api/resolvers/auth/auth.resolver";
 import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { fillUserState, redirectByUserState } from "@/state/UserState";
-import router from '@/router/index.ts';
 
 export default {
   name: "LoginView",
@@ -221,7 +220,7 @@ export default {
         localStorage.setItem("refresh_token", response.message.refreshToken);
         localStorage.setItem("uuid", uuid);
         await fillUserState();
-        await redirectByUserState(router);
+        await redirectByUserState();
       }
       this.isLoading = false;
     },

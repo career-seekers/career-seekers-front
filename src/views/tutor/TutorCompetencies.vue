@@ -425,8 +425,7 @@ export default {
       this.$router.push(`/expert/participants/${competenceId}`);
     },
     goToDocuments(competence: CompetenceOutputDto) {
-      localStorage.setItem("selectedCompetence", JSON.stringify(competence));
-      this.$router.push(`/tutor/documents`);
+      this.$router.push(`/tutor/documents/${competence.id}`);
     },
     viewDetails(competenceId: number) {
       this.selectedCompetence = this.competencies.find(

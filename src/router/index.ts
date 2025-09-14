@@ -196,9 +196,10 @@ const routes = [
         component: TutorCompetencies,
       },
       {
-        path: "documents",
+        path: "documents/:competenceId?",
         name: "tutor-documents",
         component: TutorDocuments,
+        props: true
       },
       {
         path: "venue-info",

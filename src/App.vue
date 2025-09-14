@@ -42,7 +42,7 @@ export default {
     );
   },
   methods: {
-    shouldAnimate(path) {
+    shouldAnimate(path: string) {
       // Анимируем только страницы входа/регистрации, не дашборд
       return (
         !path.startsWith("/parent") &&
