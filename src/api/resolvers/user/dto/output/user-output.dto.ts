@@ -1,6 +1,6 @@
-import { Roles } from "../../../../../../state/UserState.types";
-import { UserOutputTutorDocsDto } from "@/api/resolvers/user/dto/output/user-output-tutor-docs.dto";
-import { UserOutputExpertDocsDto } from "@/api/resolvers/user/dto/output/user-output-expert-docs.dto";
+import { Roles } from "@/state/UserState.types";
+import type { UserOutputTutorDocsDto } from "@/api/resolvers/user/dto/output/user-output-tutor-docs.dto.ts";
+import type { UserOutputExpertDocsDto } from "@/api/resolvers/user/dto/output/user-output-expert-docs.dto.ts";
 
 export interface UserOutputDto {
   id: number;

@@ -3,9 +3,15 @@
     <div class="register-card">
       <div class="register-header">
         <div class="logo-container">
-          <img src="@/assets/logo.png" alt="Career Seekers Logo" class="logo" />
+          <img
+            src="@/assets/logo.png"
+            alt="Career Seekers Logo"
+            class="logo"
+          >
         </div>
-        <h1 class="register-title">Регистрация родителя</h1>
+        <h1 class="register-title">
+          Регистрация родителя
+        </h1>
 
         <!-- Индикатор шагов -->
         <div class="steps-indicator">
@@ -13,36 +19,59 @@
             class="step"
             :class="{ active: currentStep >= 1, completed: currentStep > 1 }"
           >
-            <div class="step-number">1</div>
-            <div class="step-label">Данные родителя</div>
+            <div class="step-number">
+              1
+            </div>
+            <div class="step-label">
+              Данные родителя
+            </div>
           </div>
           <div
             class="step"
             :class="{ active: currentStep >= 2, completed: currentStep > 2 }"
           >
-            <div class="step-number">2</div>
-            <div class="step-label">Данные ребенка</div>
+            <div class="step-number">
+              2
+            </div>
+            <div class="step-label">
+              Данные ребенка
+            </div>
           </div>
           <div
             class="step"
             :class="{ active: currentStep >= 3, completed: currentStep > 3 }"
           >
-            <div class="step-number">3</div>
-            <div class="step-label">Выбор наставника</div>
+            <div class="step-number">
+              3
+            </div>
+            <div class="step-label">
+              Выбор наставника
+            </div>
           </div>
         </div>
 
-        <div class="divider"></div>
+        <div class="divider" />
       </div>
 
       <div class="register-content">
-        <form @submit.prevent="handleSubmit" class="register-form">
+        <form
+          class="register-form"
+          @submit.prevent="handleSubmit"
+        >
           <!-- Шаг 1: Данные родителя -->
-          <div v-if="currentStep === 1" class="step-content">
-            <h3 class="step-title">Данные родителя</h3>
+          <div
+            v-if="currentStep === 1"
+            class="step-content"
+          >
+            <h3 class="step-title">
+              Данные родителя
+            </h3>
 
             <div class="field">
-              <label for="parentFullName" class="field-label">ФИО *</label>
+              <label
+                for="parentFullName"
+                class="field-label"
+              >ФИО *</label>
               <InputText
                 id="parentFullName"
                 v-model="parentForm.fullName"
@@ -50,15 +79,19 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.parentFullName }"
               />
-              <small v-if="errors.parentFullName" class="p-error">{{
+              <small
+                v-if="errors.parentFullName"
+                class="p-error"
+              >{{
                 errors.parentFullName
               }}</small>
             </div>
 
             <div class="field">
-              <label for="parentBirthDate" class="field-label"
-                >Дата рождения *</label
-              >
+              <label
+                for="parentBirthDate"
+                class="field-label"
+              >Дата рождения *</label>
               <InputMask
                 id="parentBirthDate"
                 v-model="parentForm.birthDate"
@@ -67,15 +100,19 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.parentBirthDate }"
               />
-              <small v-if="errors.parentBirthDate" class="p-error">{{
+              <small
+                v-if="errors.parentBirthDate"
+                class="p-error"
+              >{{
                 errors.parentBirthDate
               }}</small>
             </div>
 
             <div class="field">
-              <label for="relationship" class="field-label"
-                >Кем приходится? *</label
-              >
+              <label
+                for="relationship"
+                class="field-label"
+              >Кем приходится? *</label>
               <InputText
                 id="relationship"
                 v-model="parentForm.relationship"
@@ -83,15 +120,19 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.relationship }"
               />
-              <small v-if="errors.relationship" class="p-error">{{
+              <small
+                v-if="errors.relationship"
+                class="p-error"
+              >{{
                 errors.relationship
               }}</small>
             </div>
 
             <div class="field">
-              <label for="telegramLink" class="field-label"
-                >Ссылка на Telegram *</label
-              >
+              <label
+                for="telegramLink"
+                class="field-label"
+              >Ссылка на Telegram *</label>
               <InputText
                 id="relationship"
                 v-model="parentForm.telegramLink"
@@ -100,15 +141,19 @@
                 :class="{ 'p-invalid': errors.telegramLink }"
                 @blur="validateTelegramLink"
               />
-              <small v-if="errors.telegramLink" class="p-error">{{
+              <small
+                v-if="errors.telegramLink"
+                class="p-error"
+              >{{
                 errors.telegramLink
               }}</small>
             </div>
 
             <div class="field">
-              <label for="parentPhone" class="field-label"
-                >Контактный телефон *</label
-              >
+              <label
+                for="parentPhone"
+                class="field-label"
+              >Контактный телефон *</label>
               <InputMask
                 id="parentPhone"
                 v-model="parentForm.phone"
@@ -117,15 +162,19 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.phone }"
               />
-              <small v-if="errors.phone" class="p-error">{{
+              <small
+                v-if="errors.phone"
+                class="p-error"
+              >{{
                 errors.phone
               }}</small>
             </div>
 
             <div class="field">
-              <label for="parentEmail" class="field-label"
-                >Адрес электронной почты *</label
-              >
+              <label
+                for="parentEmail"
+                class="field-label"
+              >Адрес электронной почты *</label>
               <InputText
                 id="parentEmail"
                 v-model="parentForm.email"
@@ -135,7 +184,10 @@
                 :class="{ 'p-invalid': errors.email }"
                 @blur="validateEmail"
               />
-              <small v-if="errors.email" class="p-error">{{
+              <small
+                v-if="errors.email"
+                class="p-error"
+              >{{
                 errors.email
               }}</small>
             </div>
@@ -143,32 +195,48 @@
             <div class="field">
               <div class="flex align-items-center">
                 <Checkbox
-                  input-id="consent"
                   v-model="parentForm.consent"
+                  input-id="consent"
                   :binary="true"
                   :class="{ 'p-invalid': errors.consent }"
                 />
-                <label for="consent" class="ml-2 agreement-label">
+                <label
+                  for="consent"
+                  class="ml-2 agreement-label"
+                >
                   Я согласен(-а) на
-                  <a href="#" class="link" @click.prevent="showAgreement">
+                  <a
+                    href="#"
+                    class="link"
+                    @click.prevent="showAgreement"
+                  >
                     обработку персональных данных
                   </a>
                 </label>
               </div>
-              <small v-if="errors.consent" class="p-error">{{
+              <small
+                v-if="errors.consent"
+                class="p-error"
+              >{{
                 errors.consent
               }}</small>
             </div>
           </div>
 
           <!-- Шаг 2: Данные ребенка -->
-          <div v-if="currentStep === 2" class="step-content">
-            <h3 class="step-title">Данные ребенка</h3>
+          <div
+            v-if="currentStep === 2"
+            class="step-content"
+          >
+            <h3 class="step-title">
+              Данные ребенка
+            </h3>
 
             <div class="field">
-              <label for="childFullName" class="field-label"
-                >ФИО ребенка *</label
-              >
+              <label
+                for="childFullName"
+                class="field-label"
+              >ФИО ребенка *</label>
               <InputText
                 id="childFullName"
                 v-model="childForm.fullName"
@@ -176,15 +244,19 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.childFullName }"
               />
-              <small v-if="errors.childFullName" class="p-error">{{
+              <small
+                v-if="errors.childFullName"
+                class="p-error"
+              >{{
                 errors.childFullName
               }}</small>
             </div>
 
             <div class="field">
-              <label for="childBirthDate" class="field-label"
-                >Дата рождения *</label
-              >
+              <label
+                for="childBirthDate"
+                class="field-label"
+              >Дата рождения *</label>
               <InputMask
                 id="childBirthDate"
                 v-model="childForm.birthDate"
@@ -193,36 +265,44 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.childBirthDate }"
               />
-              <small v-if="errors.childBirthDate" class="p-error">{{
+              <small
+                v-if="errors.childBirthDate"
+                class="p-error"
+              >{{
                 errors.childBirthDate
               }}</small>
             </div>
 
             <div class="field">
-              <label for="birthCertificate" class="field-label"
-                >Скан свидетельства о рождении *</label
-              >
+              <label
+                for="birthCertificate"
+                class="field-label"
+              >Скан свидетельства о рождении *</label>
               <FileUpload
                 id="birthCertificate"
                 mode="basic"
                 accept=".pdf,.jpg,.jpeg,.png"
-                :maxFileSize="10000000"
-                chooseLabel="Выберите файл"
+                :max-file-size="10000000"
+                choose-label="Выберите файл"
                 class="w-full"
                 :class="{ 'p-invalid': errors.birthCertificate }"
                 @select="onBirthCertificateSelect"
                 @remove="onBirthCertificateRemove"
               />
-              <small v-if="errors.birthCertificate" class="p-error">{{
+              <small
+                v-if="errors.birthCertificate"
+                class="p-error"
+              >{{
                 errors.birthCertificate
               }}</small>
-              <small class="p-text-secondary"
-                >Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small
-              >
+              <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
             </div>
 
             <div class="field">
-              <label for="snilsNumber" class="field-label">Номер СНИЛС *</label>
+              <label
+                for="snilsNumber"
+                class="field-label"
+              >Номер СНИЛС *</label>
               <InputMask
                 id="snilsNumber"
                 v-model="childForm.snilsNumber"
@@ -231,34 +311,44 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.snilsNumber }"
               />
-              <small v-if="errors.snilsNumber" class="p-error">{{
+              <small
+                v-if="errors.snilsNumber"
+                class="p-error"
+              >{{
                 errors.snilsNumber
               }}</small>
             </div>
 
             <div class="field">
-              <label for="snilsScan" class="field-label">Скан СНИЛС *</label>
+              <label
+                for="snilsScan"
+                class="field-label"
+              >Скан СНИЛС *</label>
               <FileUpload
                 id="snilsScan"
                 mode="basic"
                 accept=".pdf,.jpg,.jpeg,.png"
-                :maxFileSize="10000000"
-                chooseLabel="Выберите файл"
+                :max-file-size="10000000"
+                choose-label="Выберите файл"
                 class="w-full"
                 :class="{ 'p-invalid': errors.snilsScan }"
                 @select="onSnilsScanSelect"
                 @remove="onSnilsScanRemove"
               />
-              <small v-if="errors.snilsScan" class="p-error">{{
+              <small
+                v-if="errors.snilsScan"
+                class="p-error"
+              >{{
                 errors.snilsScan
               }}</small>
-              <small class="p-text-secondary"
-                >Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small
-              >
+              <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
             </div>
 
             <div class="field">
-              <label for="schoolName" class="field-label">Название ОУ *</label>
+              <label
+                for="schoolName"
+                class="field-label"
+              >Название ОУ *</label>
               <InputText
                 id="schoolName"
                 v-model="childForm.schoolName"
@@ -266,13 +356,19 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.schoolName }"
               />
-              <small v-if="errors.schoolName" class="p-error">{{
+              <small
+                v-if="errors.schoolName"
+                class="p-error"
+              >{{
                 errors.schoolName
               }}</small>
             </div>
 
             <div class="field">
-              <label for="grade" class="field-label">Класс обучения *</label>
+              <label
+                for="grade"
+                class="field-label"
+              >Класс обучения *</label>
               <Dropdown
                 id="grade"
                 v-model="childForm.grade"
@@ -280,41 +376,47 @@
                 placeholder="Выберите класс"
                 class="w-full"
                 :class="{ 'p-invalid': errors.grade }"
-                optionLabel="label"
-                optionValue="value"
+                option-label="label"
+                option-value="value"
               />
-              <small v-if="errors.grade" class="p-error">{{
+              <small
+                v-if="errors.grade"
+                class="p-error"
+              >{{
                 errors.grade
               }}</small>
             </div>
 
             <div class="field">
-              <label for="schoolCertificate" class="field-label"
-                >Скан справки из ОУ *</label
-              >
+              <label
+                for="schoolCertificate"
+                class="field-label"
+              >Скан справки из ОУ *</label>
               <FileUpload
                 id="schoolCertificate"
                 mode="basic"
                 accept=".pdf,.jpg,.jpeg,.png"
-                :maxFileSize="10000000"
-                chooseLabel="Выберите файл"
+                :max-file-size="10000000"
+                choose-label="Выберите файл"
                 class="w-full"
                 :class="{ 'p-invalid': errors.schoolCertificate }"
                 @select="onSchoolCertificateSelect"
                 @remove="onSchoolCertificateRemove"
               />
-              <small v-if="errors.schoolCertificate" class="p-error">{{
+              <small
+                v-if="errors.schoolCertificate"
+                class="p-error"
+              >{{
                 errors.schoolCertificate
               }}</small>
-              <small class="p-text-secondary"
-                >Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small
-              >
+              <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
             </div>
 
             <div class="field">
-              <label for="platform" class="field-label"
-                >Площадка подготовки *</label
-              >
+              <label
+                for="platform"
+                class="field-label"
+              >Площадка подготовки *</label>
               <Dropdown
                 id="platform"
                 v-model="childForm.platform"
@@ -322,46 +424,57 @@
                 placeholder="Выберите площадку"
                 class="w-full"
                 :class="{ 'p-invalid': errors.platform }"
-                optionLabel="label"
-                optionValue="value"
+                option-label="label"
+                option-value="value"
               />
-              <small v-if="errors.platform" class="p-error">{{
+              <small
+                v-if="errors.platform"
+                class="p-error"
+              >{{
                 errors.platform
               }}</small>
             </div>
 
             <div class="field">
-              <label for="platformCertificate" class="field-label"
-                >Скан справки из площадки подготовки *</label
-              >
+              <label
+                for="platformCertificate"
+                class="field-label"
+              >Скан справки из площадки подготовки *</label>
               <FileUpload
                 id="platformCertificate"
                 mode="basic"
                 accept=".pdf,.jpg,.jpeg,.png"
-                :maxFileSize="10000000"
-                chooseLabel="Выберите файл"
+                :max-file-size="10000000"
+                choose-label="Выберите файл"
                 class="w-full"
                 :class="{ 'p-invalid': errors.platformCertificate }"
                 @select="onPlatformCertificateSelect"
                 @remove="onPlatformCertificateRemove"
               />
-              <small v-if="errors.platformCertificate" class="p-error">{{
+              <small
+                v-if="errors.platformCertificate"
+                class="p-error"
+              >{{
                 errors.platformCertificate
               }}</small>
-              <small class="p-text-secondary"
-                >Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small
-              >
+              <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
             </div>
           </div>
 
           <!-- Шаг 3: Выбор наставника -->
-          <div v-if="currentStep === 3" class="step-content">
-            <h3 class="step-title">Выбор наставника</h3>
+          <div
+            v-if="currentStep === 3"
+            class="step-content"
+          >
+            <h3 class="step-title">
+              Выбор наставника
+            </h3>
 
             <div class="field">
-              <label for="mentor" class="field-label"
-                >Выберите наставника *</label
-              >
+              <label
+                for="mentor"
+                class="field-label"
+              >Выберите наставника *</label>
               <Dropdown
                 id="mentor"
                 v-model="mentorForm.mentor"
@@ -369,11 +482,14 @@
                 placeholder="Выберите наставника"
                 class="w-full"
                 :class="{ 'p-invalid': errors.mentor }"
-                optionLabel="name"
-                optionValue="id"
+                option-label="name"
+                option-value="id"
                 :disabled="mentorForm.isParentMentor"
               />
-              <small v-if="errors.mentor" class="p-error">{{
+              <small
+                v-if="errors.mentor"
+                class="p-error"
+              >{{
                 errors.mentor
               }}</small>
             </div>
@@ -387,14 +503,20 @@
                   class="mr-2"
                   @change="onParentMentorChange"
                 />
-                <label for="isParentMentor" class="agreement-label">
+                <label
+                  for="isParentMentor"
+                  class="agreement-label"
+                >
                   Я (родитель) являюсь наставником
                 </label>
               </div>
             </div>
 
             <div class="field">
-              <label for="password" class="field-label">Пароль *</label>
+              <label
+                for="password"
+                class="field-label"
+              >Пароль *</label>
               <Password
                 id="password"
                 v-model="mentorForm.password"
@@ -402,22 +524,26 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.password }"
                 :feedback="true"
-                toggleMask
-                weakLabel="Слабый"
-                mediumLabel="Средний"
-                strongLabel="Надежный"
-                promptLabel="Введите пароль"
+                toggle-mask
+                weak-label="Слабый"
+                medium-label="Средний"
+                strong-label="Надежный"
+                prompt-label="Введите пароль"
                 @blur="validatePassword"
               />
-              <small v-if="errors.password" class="p-error">{{
+              <small
+                v-if="errors.password"
+                class="p-error"
+              >{{
                 errors.password
               }}</small>
             </div>
 
             <div class="field">
-              <label for="confirmPassword" class="field-label"
-                >Подтверждение пароля *</label
-              >
+              <label
+                for="confirmPassword"
+                class="field-label"
+              >Подтверждение пароля *</label>
               <Password
                 id="confirmPassword"
                 v-model="mentorForm.confirmPassword"
@@ -425,9 +551,12 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.confirmPassword }"
                 :feedback="false"
-                toggleMask
+                toggle-mask
               />
-              <small v-if="errors.confirmPassword" class="p-error">{{
+              <small
+                v-if="errors.confirmPassword"
+                class="p-error"
+              >{{
                 errors.confirmPassword
               }}</small>
             </div>
@@ -435,19 +564,27 @@
             <div class="field">
               <div class="flex align-items-center">
                 <Checkbox
-                  input-id="agreement"
                   v-model="parentForm.agreement"
+                  input-id="agreement"
                   :binary="true"
                   :class="{ 'p-invalid': errors.agreement }"
                 />
-                <label for="agreement" class="ml-2 agreement-label">
+                <label
+                  for="agreement"
+                  class="ml-2 agreement-label"
+                >
                   Я согласен с
-                  <a href="#" class="link" @click.prevent="showPolitics"
-                    >политикой использования сервиса</a
-                  >
+                  <a
+                    href="#"
+                    class="link"
+                    @click.prevent="showPolitics"
+                  >политикой использования сервиса</a>
                 </label>
               </div>
-              <small v-if="errors.agreement" class="p-error">{{
+              <small
+                v-if="errors.agreement"
+                class="p-error"
+              >{{
                 errors.agreement
               }}</small>
             </div>
@@ -481,7 +618,12 @@
           <div class="login-link">
             <p>
               Уже есть аккаунт?
-              <router-link to="/login" class="link">Войти</router-link>
+              <router-link
+                to="/login"
+                class="link"
+              >
+                Войти
+              </router-link>
             </p>
           </div>
         </form>
@@ -591,18 +733,17 @@ import InputText from "primevue/inputtext";
 import InputMask from "primevue/inputmask";
 import Password from "primevue/password";
 import Button from "primevue/button";
-import FileUpload from "primevue/fileupload";
+import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
 import Checkbox from "primevue/checkbox";
 import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
-import { UserWithChildRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto";
+import type { UserWithChildRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto.ts";
 import {
-  ParentStateInterface,
-  RegistrationData,
-  Roles,
-} from "../../../state/UserState.types";
+  type ParentStateInterface,
+  type RegistrationData, Roles,
+} from '@/state/UserState.types';
 import { FileManager } from "@/utils/FileManager";
 import VuePdfEmbed from "vue-pdf-embed";
 
@@ -635,6 +776,7 @@ export default {
         phone: "",
         email: "",
         consent: false,
+        agreement: "",
         childConsentFile: new File(["Содержимое файла"], "myfile.txt", {
           type: "text/plain",
         }),
@@ -643,14 +785,14 @@ export default {
       childForm: {
         fullName: "",
         birthDate: "",
-        birthCertificate: null,
+        birthCertificate: null as null | File,
         snilsNumber: "",
-        snilsScan: null,
+        snilsScan: null as null | File,
         schoolName: "",
-        grade: null,
-        platform: null,
-        schoolCertificate: null,
-        platformCertificate: null,
+        grade: null as number | null,
+        platform: null as string | null,
+        schoolCertificate: null as null | File,
+        platformCertificate: null as null | File,
       },
 
       mentorForm: {
@@ -687,17 +829,21 @@ export default {
           title: "",
           message: "",
         },
+        birthDate: '',
+        parentEmail: "",
+        parentPhone: "",
+
       },
 
       gradeOptions: [
-        { label: "1 класс", value: "1" },
-        { label: "2 класс", value: "2" },
-        { label: "3 класс", value: "3" },
-        { label: "4 класс", value: "4" },
-        { label: "5 класс", value: "5" },
-        { label: "6 класс", value: "6" },
-        { label: "7 класс", value: "7" },
-        { label: "8 класс", value: "8" },
+        { label: "1 класс", value: 1 },
+        { label: "2 класс", value: 2 },
+        { label: "3 класс", value: 3 },
+        { label: "4 класс", value: 4 },
+        { label: "5 класс", value: 5 },
+        { label: "6 класс", value: 6 },
+        { label: "7 класс", value: 7 },
+        { label: "8 класс", value: 8 },
       ],
 
       platformOptions: [
@@ -752,7 +898,7 @@ export default {
       this.errors.password = "";
     },
 
-    formatBirthDate(birthDate) {
+    formatBirthDate(birthDate: string) {
       const [day, month, year] = birthDate.split(".");
       const date = new Date(
         Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)),
@@ -760,8 +906,11 @@ export default {
       return date.toISOString();
     },
 
-    validateStep(step) {
+    validateStep(step: number) {
       this.errors = {
+        parentPhone: "",
+        parentEmail: "",
+        birthDate: '',
         mentor: "",
         childFullName: "",
         parentFullName: "",
@@ -786,7 +935,7 @@ export default {
         toastPopup: {
           title: "",
           message: "",
-        },
+        }
       };
 
       let isValid = true;
@@ -947,17 +1096,7 @@ export default {
       this.currentStep--;
     },
 
-    // Обработчики файлов
-    onChildConsentSelect(event) {
-      this.handleFileSelect(event, "childConsentFile");
-    },
-
-    onChildConsentRemove() {
-      this.parentForm.childConsentFile = null;
-      this.errors.childConsentFile = "";
-    },
-
-    onBirthCertificateSelect(event) {
+    onBirthCertificateSelect(event: FileUploadSelectEvent) {
       this.handleFileSelect(event, "birthCertificate");
     },
 
@@ -966,7 +1105,7 @@ export default {
       this.errors.birthCertificate = "";
     },
 
-    onSnilsScanSelect(event) {
+    onSnilsScanSelect(event: FileUploadSelectEvent) {
       this.handleFileSelect(event, "snilsScan");
     },
 
@@ -975,7 +1114,7 @@ export default {
       this.errors.snilsScan = "";
     },
 
-    onSchoolCertificateSelect(event) {
+    onSchoolCertificateSelect(event: FileUploadSelectEvent) {
       this.handleFileSelect(event, "schoolCertificate");
     },
 
@@ -984,7 +1123,7 @@ export default {
       this.errors.schoolCertificate = "";
     },
 
-    onPlatformCertificateSelect(event) {
+    onPlatformCertificateSelect(event: FileUploadSelectEvent) {
       this.handleFileSelect(event, "platformCertificate");
     },
 
@@ -1002,11 +1141,12 @@ export default {
       } else this.errors.telegramLink = "";
     },
 
-    handleFileSelect(event, fieldName) {
+    handleFileSelect(event: FileUploadSelectEvent, fieldName: string) {
       const file = event.files[0];
+      const typedFieldName = fieldName as keyof typeof this.errors;
       if (file) {
         if (file.size > 10000000) {
-          this.errors[fieldName] = "Размер файла не должен превышать 10 МБ";
+          (this.errors[typedFieldName] as string) = "Размер файла не должен превышать 10 МБ";
           return;
         }
 
@@ -1019,7 +1159,7 @@ export default {
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ];
         if (!allowedTypes.includes(file.type)) {
-          this.errors[fieldName] =
+          (this.errors[typedFieldName] as string) =
             "Поддерживаются только файлы PDF, JPG, PNG, DOC, DOCX";
           return;
         }
@@ -1027,9 +1167,10 @@ export default {
         if (fieldName === "childConsentFile") {
           this.parentForm.childConsentFile = file;
         } else {
-          this.childForm[fieldName] = file;
+          const childTypedKey = fieldName as keyof typeof this.childForm;
+          (this.childForm[childTypedKey] as File) = file;
         }
-        this.errors[fieldName] = "";
+        (this.errors[typedFieldName] as string) = "";
       }
     },
 
@@ -1082,24 +1223,24 @@ export default {
             extra: {
               snilsNumber: this.snilsFormatted,
               snilsFileName: await fileManager.saveFileToCache(
-                this.childForm.snilsScan,
+                this.childForm.snilsScan as File,
               ),
               studyingPlace: this.childForm.schoolName,
               studyingCertificateFileName: await fileManager.saveFileToCache(
-                this.childForm.schoolCertificate,
+                this.childForm.schoolCertificate as File,
               ),
-              learningClass: this.childForm.grade,
-              trainingGround: this.childForm.platform,
+              learningClass: this.childForm.grade as number,
+              trainingGround: this.childForm.platform as string,
               additionalStudyingCertificateFileName:
                 await fileManager.saveFileToCache(
-                  this.childForm.platformCertificate,
+                  this.childForm.platformCertificate as File,
                 ),
               parentRole: this.parentForm.relationship,
               consentToChildPdpFileName: await fileManager.saveFileToCache(
                 this.parentForm.childConsentFile,
               ),
               birthCertificateFileName: await fileManager.saveFileToCache(
-                this.childForm.birthCertificate,
+                this.childForm.birthCertificate as File,
               ),
             },
           };

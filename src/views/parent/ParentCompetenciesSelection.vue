@@ -1,7 +1,9 @@
 <template>
   <div class="competencies-selection">
     <div class="page-header">
-      <h1 class="page-title">Выбор компетенций</h1>
+      <h1 class="page-title">
+        Выбор компетенций
+      </h1>
       <p class="page-subtitle">
         Выберите до 3 компетенций, подходящих по возрасту вашего ребенка
       </p>
@@ -9,8 +11,11 @@
         <span class="selection-counter">
           Выбрано: {{ selectedCompetencies.length }}/3
         </span>
-        <div v-if="selectedCompetencies.length >= 3" class="selection-limit">
-          <i class="pi pi-info-circle"></i>
+        <div
+          v-if="selectedCompetencies.length >= 3"
+          class="selection-limit"
+        >
+          <i class="pi pi-info-circle" />
           <span>Достигнут лимит выбора компетенций</span>
         </div>
       </div>
@@ -30,25 +35,30 @@
       >
         <div class="card-header">
           <div class="competence-icon">
-            <i :class="competence.icon"></i>
+            <i :class="competence.icon" />
           </div>
-          <div class="selection-indicator" v-if="isSelected(competence.id)">
-            <i class="pi pi-check"></i>
+          <div
+            v-if="isSelected(competence.id)"
+            class="selection-indicator"
+          >
+            <i class="pi pi-check" />
           </div>
         </div>
 
         <div class="card-content">
-          <h3 class="competence-title">{{ competence.name }}</h3>
+          <h3 class="competence-title">
+            {{ competence.name }}
+          </h3>
           <p class="competence-description">
             {{ competence.shortDescription }}
           </p>
           <div class="competence-meta">
             <span class="age-range">
-              <i class="pi pi-calendar"></i>
+              <i class="pi pi-calendar" />
               {{ competence.ageRange }}
             </span>
             <span class="duration">
-              <i class="pi pi-clock"></i>
+              <i class="pi pi-clock" />
               {{ competence.duration }}
             </span>
           </div>
@@ -83,25 +93,28 @@
       :style="{ width: '90vw', maxWidth: '500px' }"
       class="competence-dialog"
     >
-      <div v-if="selectedCompetence" class="competence-details">
+      <div
+        v-if="selectedCompetence"
+        class="competence-details"
+      >
         <div class="details-header">
           <div class="competence-image">
             <img
               :src="selectedCompetence.image"
               :alt="selectedCompetence.name"
-            />
+            >
           </div>
           <div class="details-meta">
             <div class="meta-item">
-              <i class="pi pi-calendar"></i>
+              <i class="pi pi-calendar" />
               <span>Возраст: {{ selectedCompetence.ageRange }}</span>
             </div>
             <div class="meta-item">
-              <i class="pi pi-clock"></i>
+              <i class="pi pi-clock" />
               <span>Длительность: {{ selectedCompetence.duration }}</span>
             </div>
             <div class="meta-item">
-              <i class="pi pi-users"></i>
+              <i class="pi pi-users" />
               <span>Формат: {{ selectedCompetence.format }}</span>
             </div>
           </div>
@@ -113,7 +126,10 @@
 
           <h4>Навыки и компетенции</h4>
           <ul class="skills-list">
-            <li v-for="skill in selectedCompetence.skills" :key="skill">
+            <li
+              v-for="skill in selectedCompetence.skills"
+              :key="skill"
+            >
               {{ skill }}
             </li>
           </ul>
@@ -121,15 +137,15 @@
           <h4>Контакты главного эксперта</h4>
           <div class="mentor-contacts">
             <div class="contact-item">
-              <i class="pi pi-user"></i>
+              <i class="pi pi-user" />
               <span>{{ selectedCompetence.mentor.name }}</span>
             </div>
             <div class="contact-item">
-              <i class="pi pi-envelope"></i>
+              <i class="pi pi-envelope" />
               <span>{{ selectedCompetence.mentor.email }}</span>
             </div>
             <div class="contact-item">
-              <i class="pi pi-phone"></i>
+              <i class="pi pi-phone" />
               <span>{{ selectedCompetence.mentor.phone }}</span>
             </div>
           </div>
@@ -139,7 +155,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 

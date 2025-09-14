@@ -1,17 +1,34 @@
 <template>
   <div class="dashboard-container">
     <!-- Мобильная кнопка меню -->
-    <div class="mobile-menu-toggle" @click="toggleSidebar" v-if="isMobile">
-      <i class="pi pi-bars"></i>
+    <div
+      v-if="isMobile"
+      class="mobile-menu-toggle"
+      @click="toggleSidebar"
+    >
+      <i class="pi pi-bars" />
     </div>
 
     <!-- Сайдбар -->
-    <div class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
+    <div
+      class="sidebar"
+      :class="{ 'sidebar-open': sidebarOpen }"
+    >
       <div class="sidebar-header">
-        <img src="@/assets/logo.png" alt="Logo" class="sidebar-logo" />
-        <h2 class="sidebar-title">Личный кабинет куратора</h2>
-        <button class="sidebar-close" @click="toggleSidebar" v-if="isMobile">
-          <i class="pi pi-times"></i>
+        <img
+          src="@/assets/logo.png"
+          alt="Logo"
+          class="sidebar-logo"
+        >
+        <h2 class="sidebar-title">
+          Личный кабинет куратора
+        </h2>
+        <button
+          v-if="isMobile"
+          class="sidebar-close"
+          @click="toggleSidebar"
+        >
+          <i class="pi pi-times" />
         </button>
       </div>
 
@@ -24,7 +41,7 @@
               :class="{ active: $route.path === '/tutor/dashboard' }"
               @click="closeSidebarOnMobile"
             >
-              <i class="pi pi-home"></i>
+              <i class="pi pi-home" />
               <span>Главная</span>
             </router-link>
           </li>
@@ -35,7 +52,7 @@
               :class="{ active: $route.path === '/tutor/experts' }"
               @click="closeSidebarOnMobile"
             >
-              <i class="pi pi-users"></i>
+              <i class="pi pi-users" />
               <span>Главные эксперты</span>
             </router-link>
           </li>
@@ -46,7 +63,7 @@
               :class="{ active: $route.path === '/tutor/competencies' }"
               @click="closeSidebarOnMobile"
             >
-              <i class="pi pi-briefcase"></i>
+              <i class="pi pi-briefcase" />
               <span>Компетенции</span>
             </router-link>
           </li>
@@ -57,7 +74,7 @@
               :class="{ active: $route.path === '/tutor/documents' }"
               @click="closeSidebarOnMobile"
             >
-              <i class="pi pi-file"></i>
+              <i class="pi pi-file" />
               <span>Документы</span>
             </router-link>
           </li>
@@ -68,7 +85,7 @@
               :class="{ active: $route.path === '/tutor/venue-info' }"
               @click="closeSidebarOnMobile"
             >
-              <i class="pi pi-building"></i>
+              <i class="pi pi-building" />
               <span>Информация о площадке</span>
             </router-link>
           </li>
@@ -88,8 +105,15 @@
     <!-- Основной контент -->
     <div class="main-content">
       <router-view v-slot="{ Component, route }">
-        <transition name="dashboard-page" mode="out-in" appear>
-          <component :is="Component" :key="route.name" />
+        <transition
+          name="dashboard-page"
+          mode="out-in"
+          appear
+        >
+          <component
+            :is="Component"
+            :key="route.name"
+          />
         </transition>
       </router-view>
 
@@ -104,9 +128,9 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from "primevue/button";
-import { clearUserState } from "../../../state/UserState";
+import { clearUserState } from "@/state/UserState";
 
 export default {
   name: "TutorDashboard",

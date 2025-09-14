@@ -25,9 +25,9 @@ src/
 ├── mixins/               # Vue миксины
 │   └── easterEgg.js      # Логика пасхалки
 ├── router/               # Маршрутизация
-│   └── index.js          # Конфигурация роутера
+│   └── index.ts          # Конфигурация роутера
 ├── utils/                # Утилиты
-│   └── titleManager.js   # Управление title страниц
+│   └── titleManager.ts   # Управление title страниц
 ├── views/                # Страницы приложения
 │   ├── auth/             # Аутентификация
 │   │   ├── LoginView.vue
@@ -61,7 +61,7 @@ src/
 │       ├── TutorDocuments.vue
 │       └── TutorVenueInfo.vue
 ├── App.vue               # Главный компонент
-└── main.js              # Точка входа
+└── main.ts              # Точка входа
 ```
 
 ## 🛠 Установка и запуск
@@ -146,7 +146,7 @@ import Tooltip from 'primevue/tooltip'
 
 ### Настройка PrimeVue
 ```javascript
-// main.js
+// main.ts
 import PrimeVue from 'primevue/config'
 import Tooltip from 'primevue/tooltip'
 
@@ -209,8 +209,8 @@ app.directive('tooltip', Tooltip)
 
 ### Управление title страниц
 ```javascript
-// src/utils/titleManager.js
-import { titleManager } from '@/utils/titleManager.js'
+// src/utils/titleManager.ts
+import { titleManager } from '@/utils/titleManager.ts'
 
 // Установить title
 titleManager.setTitle('Название страницы')

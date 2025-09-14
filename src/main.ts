@@ -1,6 +1,6 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import router from "./router";
+import router from "./router/index.js";
 import PrimeVue from "primevue/config";
 import Tooltip from "primevue/tooltip";
 import "primevue/resources/themes/lara-light-amber/theme.css";

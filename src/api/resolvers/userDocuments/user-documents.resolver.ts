@@ -1,7 +1,7 @@
 import ApiResolver from "@/utils/ApiResolver";
-import { CommonOutputDto } from "@/api/dto/common-output.dto";
-import { UserDocsOutputDto } from "@/api/resolvers/userDocuments/dto/output/user-docs-output.dto";
-import { UserDocsInputDto } from "@/api/resolvers/userDocuments/dto/input/user-docs-input.dto";
+import type { CommonOutputDto } from "@/api/dto/common-output.dto.ts";
+import type { UserDocsOutputDto } from "@/api/resolvers/userDocuments/dto/output/user-docs-output.dto.ts";
+import type { UserDocsInputDto } from "@/api/resolvers/userDocuments/dto/input/user-docs-input.dto.ts";
 
 export class UserDocumentsResolver {
   private apiResolver = new ApiResolver("users-service/v1/user-docs");
@@ -14,7 +14,7 @@ export class UserDocumentsResolver {
     >(
       "",
       "POST",
-      this.apiResolver.DTOToFormData(data),
+      this.apiResolver.DTOToFormData(data as never),
       this.token ? this.token : undefined,
     );
   }

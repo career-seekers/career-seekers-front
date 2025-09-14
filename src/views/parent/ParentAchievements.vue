@@ -1,33 +1,39 @@
 <template>
   <div class="achievements">
     <div class="page-header">
-      <h1 class="page-title">Мои достижения</h1>
-      <p class="page-subtitle">Достижения вашего ребенка в чемпионате</p>
+      <h1 class="page-title">
+        Мои достижения
+      </h1>
+      <p class="page-subtitle">
+        Достижения вашего ребенка в чемпионате
+      </p>
     </div>
 
     <div class="coming-soon">
       <div class="coming-soon-content">
-        <i class="pi pi-trophy coming-soon-icon"></i>
-        <h2 class="coming-soon-title">Раздел в разработке</h2>
+        <i class="pi pi-trophy coming-soon-icon" />
+        <h2 class="coming-soon-title">
+          Раздел в разработке
+        </h2>
         <p class="coming-soon-text">
           Здесь будут отображаться все достижения вашего ребенка: сертификаты,
           дипломы, награды и результаты участия в чемпионате.
         </p>
         <div class="coming-soon-features">
           <div class="feature-item">
-            <i class="pi pi-certificate"></i>
+            <i class="pi pi-certificate" />
             <span>Сертификаты участника</span>
           </div>
           <div class="feature-item">
-            <i class="pi pi-award"></i>
+            <i class="pi pi-award" />
             <span>Дипломы и награды</span>
           </div>
           <div class="feature-item">
-            <i class="pi pi-chart-line"></i>
+            <i class="pi pi-chart-line" />
             <span>Статистика участия</span>
           </div>
           <div class="feature-item">
-            <i class="pi pi-download"></i>
+            <i class="pi pi-download" />
             <span>Скачивание документов</span>
           </div>
         </div>
@@ -42,7 +48,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from "primevue/button";
 
 export default {

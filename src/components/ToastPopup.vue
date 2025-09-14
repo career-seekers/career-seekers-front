@@ -23,24 +23,31 @@ watch(
   <div
     v-if="
       showToast &&
-      content &&
-      content.title &&
-      content.message &&
-      content.title !== '' &&
-      content.message !== ''
+        content &&
+        content.title &&
+        content.message &&
+        content.title !== '' &&
+        content.message !== ''
     "
     class="toast"
   >
     <div class="toast-content">
       <div class="toast-icon">
-        <i class="pi pi-info-circle"></i>
+        <i class="pi pi-info-circle" />
       </div>
       <div class="toast-text">
-        <h4 class="toast-title">{{ content.title }}</h4>
-        <p class="toast-message">{{ content.message }}</p>
+        <h4 class="toast-title">
+          {{ content.title }}
+        </h4>
+        <p class="toast-message">
+          {{ content.message }}
+        </p>
       </div>
-      <Button class="toast-close" @click="closeToast">
-        <i class="pi pi-times"></i>
+      <Button
+        class="toast-close"
+        @click="closeToast"
+      >
+        <i class="pi pi-times" />
       </Button>
     </div>
   </div>

@@ -1,8 +1,12 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ UserState.firstName }}!</h1>
-      <p class="page-subtitle">Управляйте площадкой и главными экспертами</p>
+      <h1 class="page-title">
+        Добро пожаловать, {{ UserState.firstName }}!
+      </h1>
+      <p class="page-subtitle">
+        Управляйте площадкой и главными экспертами
+      </p>
     </div>
 
     <div class="dashboard-grid">
@@ -10,21 +14,23 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-user"></i>
+            <i class="pi pi-user" />
             Информация о кураторе
           </h3>
         </div>
         <div class="card-content">
           <div class="data-section">
-            <h4 class="section-title">Персональные данные</h4>
+            <h4 class="section-title">
+              Персональные данные
+            </h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{
                 UserState.lastName +
-                " " +
-                UserState.firstName +
-                " " +
-                UserState.patronymic
+                  " " +
+                  UserState.firstName +
+                  " " +
+                  UserState.patronymic
               }}</span>
             </div>
             <div class="data-item">
@@ -47,10 +53,13 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-building"></i>
+            <i class="pi pi-building" />
             Информация о площадке
           </h3>
-          <div class="status-badge" :class="venueStatusClass">
+          <div
+            class="status-badge"
+            :class="venueStatusClass"
+          >
             {{ venueStatusText }}
           </div>
         </div>
@@ -93,19 +102,27 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-users"></i>
+            <i class="pi pi-users" />
             Эксперты и Компетенции
           </h3>
         </div>
         <div class="card-content">
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-number">{{ experts.length }}</div>
-              <div class="stat-label">Всего экспертов</div>
+              <div class="stat-number">
+                {{ experts.length }}
+              </div>
+              <div class="stat-label">
+                Всего экспертов
+              </div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ competencies.length }}</div>
-              <div class="stat-label">Компетенций</div>
+              <div class="stat-number">
+                {{ competencies.length }}
+              </div>
+              <div class="stat-label">
+                Компетенций
+              </div>
             </div>
           </div>
 
@@ -124,7 +141,7 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-bolt"></i>
+            <i class="pi pi-bolt" />
             Быстрые действия
           </h3>
         </div>
@@ -162,7 +179,10 @@
               placeholder="Введите ФИО эксперта"
               :class="{ 'p-invalid': !expertForm.fullName }"
             />
-            <small v-if="errors.fullName" class="p-error">{{
+            <small
+              v-if="errors.fullName"
+              class="p-error"
+            >{{
               errors.fullName
             }}</small>
           </div>
@@ -177,7 +197,10 @@
               placeholder="дд.мм.гггг"
               :class="{ 'p-invalid': !expertForm.birthDate }"
             />
-            <small v-if="errors.birthDate" class="p-error">{{
+            <small
+              v-if="errors.birthDate"
+              class="p-error"
+            >{{
               errors.birthDate
             }}</small>
           </div>
@@ -186,20 +209,24 @@
             <label for="email">Email *</label>
             <InputText
               id="email"
-              type="email"
               v-model="expertForm.email"
+              type="email"
               placeholder="Введите email"
               :class="{ 'p-invalid': !expertForm.email }"
             />
-            <small v-if="errors.email" class="p-error">{{
+            <small
+              v-if="errors.email"
+              class="p-error"
+            >{{
               errors.email
             }}</small>
           </div>
 
           <div class="form-field">
-            <label for="parentPhone" class="field-label"
-              >Контактный телефон *</label
-            >
+            <label
+              for="parentPhone"
+              class="field-label"
+            >Контактный телефон *</label>
             <InputMask
               id="parentPhone"
               v-model="expertForm.phone"
@@ -208,7 +235,10 @@
               class="w-full"
               :class="{ 'p-invalid': !expertForm.phone }"
             />
-            <small v-if="errors.phone" class="p-error">{{
+            <small
+              v-if="errors.phone"
+              class="p-error"
+            >{{
               errors.phone
             }}</small>
           </div>
@@ -259,19 +289,19 @@
 
 <script lang="ts">
 import Button from "primevue/button";
-import { UserState } from "../../../state/UserState";
+import { UserState } from "@/state/UserState";
 import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver";
-import { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto.js";
+import type { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto.js";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { UserResolver } from "@/api/resolvers/user/user.resolver";
 import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
-import { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto";
-import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
-import { Roles } from "../../../state/UserState.types";
-import { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto";
+import type { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto.ts";
+import { Roles } from "@/state/UserState.types";
+import type { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto.ts";
 import InputText from "primevue/inputtext";
 import Dialog from "primevue/dialog";
 import InputMask from "primevue/inputmask";
+import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 
 export default {
   name: "TutorDashboardHome",
@@ -297,7 +327,7 @@ export default {
         phone: "",
       },
       venueData: {
-        id: null,
+        id: -1,
         fullName: "",
         shortName: "",
         address: "",
@@ -369,6 +399,11 @@ export default {
       return this.expertForm.phone.replaceAll(/\s|-|\(|\)|/g, "");
     },
   },
+  async mounted() {
+    await this.loadExperts();
+    await this.loadPlatform();
+    await this.loadCompetencies();
+  },
   methods: {
     goToExperts() {
       this.$router.push("/tutor/experts");
@@ -401,8 +436,8 @@ export default {
         patronymic: this.expertForm.fullName.split(" ")[2],
         email: this.expertForm.email,
         mobileNumber: this.mobileNumberFormatted,
-        password: null,
-        tutorId: UserState.id,
+        password: "",
+        tutorId: UserState.id!,
         role: Roles.EXPERT,
         dateOfBirth: this.dateOfBirthFormatted,
         avatarId: null,
@@ -413,8 +448,8 @@ export default {
         this.cancelEdit();
       } else {
         this.errors.toastPopup = {
-          title: response.status,
-          message: response.message,
+          title: response.status.toString(),
+          message: response.message.toString(),
         };
       }
     },
@@ -450,32 +485,25 @@ export default {
       this.$router.push("/tutor/documents");
     },
     async loadPlatform() {
-      const response = await this.platformResolver.getByUserId(UserState.id);
+      const response = await this.platformResolver.getByUserId(UserState.id!);
       if (response.status === 200) {
         this.venueData = response.message;
       }
     },
     async loadExperts() {
-      const response = await this.userResolver.getAllByTutorId(UserState.id);
+      const response = await this.userResolver.getAllByTutorId(UserState.id!);
       if (response.status === 200) {
         this.experts = response.message;
       }
     },
     async loadCompetencies() {
       const response = await this.competenceResolver.getAllByUserId(
-        UserState.id,
+        UserState.id!,
       );
-      if (response.status === 200) {
+      if (response.status === 200 && typeof response.message !== "string") {
         this.competencies = response.message;
       }
     },
-  },
-  async mounted() {
-    this.isLoading = true;
-    await this.loadExperts();
-    await this.loadPlatform();
-    await this.loadCompetencies();
-    this.isLoading = false;
   },
 };
 </script>

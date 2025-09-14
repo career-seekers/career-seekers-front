@@ -1,6 +1,6 @@
 export interface UserDocsInputDto {
   userId: number;
-  snilsNumber: number;
+  snilsNumber: string;
   snilsFile: File;
   studyingPlace: string;
   studyingCertificateFile: File;

@@ -1,7 +1,9 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ MentorName }}!</h1>
+      <h1 class="page-title">
+        Добро пожаловать, {{ MentorName }}!
+      </h1>
       <p class="page-subtitle">
         Управляйте участниками и отслеживайте их прогресс
       </p>
@@ -12,13 +14,15 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-user"></i>
+            <i class="pi pi-user" />
             Информация о наставнике
           </h3>
         </div>
         <div class="card-content">
           <div class="data-section">
-            <h4 class="section-title">Персональные данные</h4>
+            <h4 class="section-title">
+              Персональные данные
+            </h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{ MentorData.fullName }}</span>
@@ -38,7 +42,9 @@
           </div>
 
           <div class="data-section">
-            <h4 class="section-title">Профессиональная информация</h4>
+            <h4 class="section-title">
+              Профессиональная информация
+            </h4>
             <div class="data-item">
               <span class="data-label">Специализация:</span>
               <span class="data-value">{{ MentorData.specialization }}</span>
@@ -59,29 +65,43 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-users"></i>
+            <i class="pi pi-users" />
             Статистика участников
           </h3>
         </div>
         <div class="card-content">
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-number">{{ participantsStats.total }}</div>
-              <div class="stat-label">Всего участников</div>
+              <div class="stat-number">
+                {{ participantsStats.total }}
+              </div>
+              <div class="stat-label">
+                Всего участников
+              </div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ participantsStats.active }}</div>
-              <div class="stat-label">Активных</div>
+              <div class="stat-number">
+                {{ participantsStats.active }}
+              </div>
+              <div class="stat-label">
+                Активных
+              </div>
             </div>
             <div class="stat-item">
               <div class="stat-number">
                 {{ participantsStats.competencies }}
               </div>
-              <div class="stat-label">Компетенций</div>
+              <div class="stat-label">
+                Компетенций
+              </div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ participantsStats.stage2 }}</div>
-              <div class="stat-label">Прошли во 2 этап</div>
+              <div class="stat-number">
+                {{ participantsStats.stage2 }}
+              </div>
+              <div class="stat-label">
+                Прошли во 2 этап
+              </div>
             </div>
           </div>
 
@@ -100,7 +120,7 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-bolt"></i>
+            <i class="pi pi-bolt" />
             Быстрые действия
           </h3>
         </div>
@@ -138,7 +158,7 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-clock"></i>
+            <i class="pi pi-clock" />
             Последние обновления
           </h3>
         </div>
@@ -150,11 +170,15 @@
               class="update-item"
             >
               <div class="update-icon">
-                <i :class="update.icon"></i>
+                <i :class="update.icon" />
               </div>
               <div class="update-content">
-                <div class="update-text">{{ update.text }}</div>
-                <div class="update-time">{{ update.time }}</div>
+                <div class="update-text">
+                  {{ update.text }}
+                </div>
+                <div class="update-time">
+                  {{ update.time }}
+                </div>
               </div>
             </div>
           </div>
@@ -164,7 +188,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from "primevue/button";
 
 export default {

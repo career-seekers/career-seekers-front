@@ -1,7 +1,8 @@
-import ApiResolver from "@/utils/ApiResolver";
-import { DocsInputFormDataDto } from "@/api/resolvers/files/dto/input/docs-input-form-data.dto";
-import { DocsOutputFileUploadDto } from "@/api/resolvers/files/dto/output/docs-output-file-upload.dto";
-import { CommonOutputDto } from "@/api/dto/common-output.dto";
+import ApiResolver from '@/utils/ApiResolver.ts';
+import type { DocsInputFormDataDto } from '@/api/resolvers/files/dto/input/docs-input-form-data.dto.ts';
+import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
+import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
+
 
 export enum FileType {
   TASK = "TASK",
@@ -27,7 +28,7 @@ export class FileResolver {
     >(
       endpoint,
       "POST",
-      this.apiResolver.DTOToFormData(data),
+      this.apiResolver.DTOToFormData(data as never),
       this.token ? this.token : undefined,
     );
   }
@@ -41,26 +42,16 @@ export class FileResolver {
     );
   }
 
-  public async downloadById(documentId: number) {
-    try {
-      const response = await this.apiResolver.request<null, Blob>(
-        `download/${documentId}`,
-        "GET",
-        null,
-        this.token ? this.token : undefined,
-      );
-      const blob = new Blob([response]);
-      const fileURL = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = fileURL;
-      link.setAttribute("download", `document-${documentId}`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(fileURL);
-    } catch (error) {
-      console.error("Download error:", error);
-    }
+  public async getById(id: number) {
+    return await this.apiResolver.request<
+      null,
+      DocsOutputFileUploadDto | CommonOutputDto<string>
+    >(
+      `${id}`,
+      "GET",
+      null,
+      this.token ? this.token : undefined,
+    )
   }
 }
 

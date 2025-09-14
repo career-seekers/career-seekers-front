@@ -1,8 +1,12 @@
 <template>
   <div class="dashboard-home">
     <div class="page-header">
-      <h1 class="page-title">Добро пожаловать, {{ UserState.firstName }}!</h1>
-      <p class="page-subtitle">Управляйте компетенциями и участниками</p>
+      <h1 class="page-title">
+        Добро пожаловать, {{ UserState.firstName }}!
+      </h1>
+      <p class="page-subtitle">
+        Управляйте компетенциями и участниками
+      </p>
     </div>
 
     <div class="dashboard-grid">
@@ -10,13 +14,15 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-user"></i>
+            <i class="pi pi-user" />
             Информация об эксперте
           </h3>
         </div>
         <div class="card-content">
           <div class="data-section">
-            <h4 class="section-title">Персональные данные</h4>
+            <h4 class="section-title">
+              Персональные данные
+            </h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{
@@ -45,7 +51,7 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-briefcase"></i>
+            <i class="pi pi-briefcase" />
             Мои компетенции
           </h3>
         </div>
@@ -58,12 +64,14 @@
               @click="goToCompetence(competence.id)"
             >
               <div class="competence-header">
-                <h4 class="competence-name">{{ competence.name }}</h4>
+                <h4 class="competence-name">
+                  {{ competence.name }}
+                </h4>
                 <div class="competence-age">
                   {{
                     ageGroups.find(
                       (group) => group.value === competence.ageCategory,
-                    ).label
+                    )?.label
                   }}
                 </div>
               </div>
@@ -141,7 +149,7 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-bolt"></i>
+            <i class="pi pi-bolt" />
             Быстрые действия
           </h3>
         </div>
@@ -212,13 +220,19 @@
       :style="{ width: '600px' }"
     >
       <div class="competence-form">
-        <div class="form-field" style="gap: 0.5rem">
-          <label for="competenceList" class="field-label">Компетенция *</label>
+        <div
+          class="form-field"
+          style="gap: 0.5rem"
+        >
+          <label
+            for="competenceList"
+            class="field-label"
+          >Компетенция *</label>
           <Dropdown
             id="competenceList"
             v-model="selectedCompetence"
             :options="competencies"
-            optionLabel="name"
+            option-label="name"
             placeholder="Не выбран"
             class="competence-dropdown w-full"
             :class="{ 'p-invalid': !selectedCompetence }"
@@ -227,50 +241,66 @@
               {{ value ? value.name : "Не выбран" }}
             </template>
           </Dropdown>
-          <small v-if="!selectedCompetence" class="p-error">{{
+          <small
+            v-if="!selectedCompetence"
+            class="p-error"
+          >{{
             errors.selectedCompetence
           }}</small>
         </div>
 
-        <div class="form-field" style="gap: 0.5rem">
-          <label for="competenceList" class="field-label"
-            >Тип документа *</label
-          >
+        <div
+          class="form-field"
+          style="gap: 0.5rem"
+        >
+          <label
+            for="competenceList"
+            class="field-label"
+          >Тип документа *</label>
           <Dropdown
             id="competenceList"
             v-model="selectedDoctype"
             :options="docTypes"
-            optionValue="value"
-            optionLabel="label"
+            option-value="value"
+            option-label="label"
             placeholder="Не выбран"
             class="competence-dropdown w-full"
             :class="{ 'p-invalid': !selectedDoctype }"
-          >
-          </Dropdown>
-          <small v-if="!selectedDoctype" class="p-error">{{
+          />
+          <small
+            v-if="!selectedDoctype"
+            class="p-error"
+          >{{
             errors.selectedDoctype
           }}</small>
         </div>
 
-        <div class="form-field" style="gap: 0.5rem">
-          <label for="competenceDocument" class="field-label">Документ *</label>
+        <div
+          class="form-field"
+          style="gap: 0.5rem"
+        >
+          <label
+            for="competenceDocument"
+            class="field-label"
+          >Документ *</label>
           <FileUpload
             id="competenceDocument"
             mode="basic"
             accept=".pdf, .docx"
-            :maxFileSize="5000000"
-            chooseLabel="Выберите файл"
+            :max-file-size="5000000"
+            choose-label="Выберите файл"
             class="w-full"
             :class="{ 'p-invalid': errors.competenceDocument }"
             @select="onDocumentSelect"
             @remove="onDocumentRemove"
           />
-          <small v-if="errors.competenceDocument" class="p-error">{{
+          <small
+            v-if="errors.competenceDocument"
+            class="p-error"
+          >{{
             errors.competenceDocument
           }}</small>
-          <small class="p-text-secondary"
-            >Поддерживаемые форматы: PDF, DOCX (максимум 5 МБ)</small
-          >
+          <small class="p-text-secondary">Поддерживаемые форматы: PDF, DOCX (максимум 5 МБ)</small>
         </div>
       </div>
 
@@ -294,17 +324,17 @@
 
 <script lang="ts">
 import Button from "primevue/button";
-import { UserState } from "../../../state/UserState";
-import { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto";
+import { UserState } from "@/state/UserState";
 import {
   AgeCategories,
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
 import Dialog from "primevue/dialog";
-import FileUpload from "primevue/fileupload";
+import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
 import Dropdown from "primevue/dropdown";
 import { FileType } from "@/api/resolvers/files/file.resolver";
 import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
+import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 
 export default {
   name: "ExpertDashboardHome",
@@ -332,11 +362,11 @@ export default {
         { value: AgeCategories.SCHOOL, label: "9-11 лет" },
         { value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет" },
       ],
-      selectedDoctype: null,
+      selectedDoctype: null as null | FileType,
       showCompetenceDocModal: false,
       selectedCompetence: null as CompetenceOutputDto | null,
       competencies: [] as CompetenceOutputDto[],
-      selectedDocument: null,
+      selectedDocument: null as null | File,
       errors: {
         toastPopup: {
           title: "",
@@ -346,6 +376,7 @@ export default {
         competenceDocument: "",
         selectedCompetence: "",
         selectedDoctype: "",
+        selectedDocument: "",
       },
       recentEvents: [
         {
@@ -382,18 +413,22 @@ export default {
     UserState() {
       return UserState;
     },
-    expertName() {
-      return this.expertData.fullName.split(" ")[1] || "Эксперт";
-    },
+  },
+  async mounted() {
+    const competenceResolver = new CompetenceResolver();
+    const response = await competenceResolver.getAllByExpertId(UserState.id!);
+    if (response.status === 200 && typeof response.message !== "string") {
+      this.competencies = response.message;
+    }
   },
   methods: {
-    goToCompetence(competenceId) {
+    goToCompetence(competenceId: number) {
       this.$router.push(`/expert/competencies/${competenceId}`);
     },
-    goToParticipants(competenceId) {
+    goToParticipants(competenceId: number) {
       this.$router.push(`/expert/participants/${competenceId}`);
     },
-    goToDocuments(competenceId) {
+    goToDocuments(competenceId: number) {
       this.$router.push(`/expert/documents/${competenceId}`);
     },
     goToAllCompetencies() {
@@ -416,15 +451,15 @@ export default {
       if (isValid) {
         const competenceDocumentsResolver = new CompetenceDocumentsResolver();
         const response = await competenceDocumentsResolver.create({
-          documentType: this.selectedDoctype,
-          document: this.selectedDocument,
-          userId: UserState.id,
-          directionId: this.selectedCompetence.id,
+          documentType: this.selectedDoctype!!,
+          document: this.selectedDocument!!,
+          userId: UserState.id!!,
+          directionId: this.selectedCompetence!!.id,
         });
         if (response.status !== 200) {
           this.errors.toastPopup = {
-            title: response.status,
-            message: response.message,
+            title: response.status.toString(),
+            message: response.message.toString(),
           };
         } else this.cancelLoad();
       }
@@ -438,20 +473,13 @@ export default {
     manageCompetencies() {
       this.$router.push("/expert/competencies");
     },
-    onDocumentSelect(event) {
+    onDocumentSelect(event: FileUploadSelectEvent) {
       this.selectedDocument = event.files[0];
     },
     onDocumentRemove() {
       this.selectedDocument = null;
       this.errors.selectedDocument = "";
     },
-  },
-  async mounted() {
-    const competenceResolver = new CompetenceResolver();
-    const response = await competenceResolver.getAllByExpertId(UserState.id);
-    if (response.status === 200) {
-      this.competencies = response.message;
-    }
   },
 };
 </script>

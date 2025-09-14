@@ -1,17 +1,26 @@
 <template>
   <div class="my-competencies">
     <div class="page-header">
-      <h1 class="page-title">Мои компетенции</h1>
+      <h1 class="page-title">
+        Мои компетенции
+      </h1>
       <p class="page-subtitle">
         Управление выбранными компетенциями и отслеживание прогресса
       </p>
     </div>
 
-    <div v-if="myCompetencies.length === 0" class="empty-state">
+    <div
+      v-if="myCompetencies.length === 0"
+      class="empty-state"
+    >
       <div class="empty-content">
-        <i class="pi pi-list empty-icon"></i>
-        <h3 class="empty-title">Компетенции не выбраны</h3>
-        <p class="empty-text">Выберите компетенции для участия в чемпионате</p>
+        <i class="pi pi-list empty-icon" />
+        <h3 class="empty-title">
+          Компетенции не выбраны
+        </h3>
+        <p class="empty-text">
+          Выберите компетенции для участия в чемпионате
+        </p>
         <Button
           label="Выбрать компетенции"
           icon="pi pi-plus"
@@ -21,7 +30,10 @@
       </div>
     </div>
 
-    <div v-else class="competencies-list">
+    <div
+      v-else
+      class="competencies-list"
+    >
       <div
         v-for="competence in myCompetencies"
         :key="competence.id"
@@ -30,21 +42,23 @@
         <div class="competence-header">
           <div class="competence-info">
             <div class="competence-icon">
-              <i :class="competence.icon"></i>
+              <i :class="competence.icon" />
             </div>
             <div class="competence-details">
-              <h3 class="competence-name">{{ competence.name }}</h3>
+              <h3 class="competence-name">
+                {{ competence.name }}
+              </h3>
               <div class="competence-meta">
                 <span class="age-range">
-                  <i class="pi pi-calendar"></i>
+                  <i class="pi pi-calendar" />
                   {{ competence.ageRange }}
                 </span>
                 <span class="duration">
-                  <i class="pi pi-clock"></i>
+                  <i class="pi pi-clock" />
                   {{ competence.duration }}
                 </span>
                 <span class="format">
-                  <i class="pi pi-users"></i>
+                  <i class="pi pi-users" />
                   {{ competence.format }}
                 </span>
               </div>
@@ -62,22 +76,22 @@
         <div class="competence-content">
           <div class="mentor-info">
             <h4 class="section-title">
-              <i class="pi pi-user"></i>
+              <i class="pi pi-user" />
               Контакты главного эксперта
             </h4>
             <div class="mentor-contacts">
               <div class="contact-item">
-                <i class="pi pi-user"></i>
+                <i class="pi pi-user" />
                 <span class="contact-label">ФИО:</span>
                 <span class="contact-value">{{ competence.mentor.name }}</span>
               </div>
               <div class="contact-item">
-                <i class="pi pi-envelope"></i>
+                <i class="pi pi-envelope" />
                 <span class="contact-label">Email:</span>
                 <span class="contact-value">{{ competence.mentor.email }}</span>
               </div>
               <div class="contact-item">
-                <i class="pi pi-phone"></i>
+                <i class="pi pi-phone" />
                 <span class="contact-label">Телефон:</span>
                 <span class="contact-value">{{ competence.mentor.phone }}</span>
               </div>
@@ -86,7 +100,7 @@
 
           <div class="schedule-info">
             <h4 class="section-title">
-              <i class="pi pi-calendar"></i>
+              <i class="pi pi-calendar" />
               Расписание
             </h4>
             <div class="schedule-timeline">
@@ -101,12 +115,19 @@
                 }"
               >
                 <div class="timeline-marker">
-                  <i :class="getEventIcon(event.status)"></i>
+                  <i :class="getEventIcon(event.status)" />
                 </div>
                 <div class="timeline-content">
-                  <div class="event-title">{{ event.title }}</div>
-                  <div class="event-date">{{ event.date }}</div>
-                  <div v-if="event.description" class="event-description">
+                  <div class="event-title">
+                    {{ event.title }}
+                  </div>
+                  <div class="event-date">
+                    {{ event.date }}
+                  </div>
+                  <div
+                    v-if="event.description"
+                    class="event-description"
+                  >
                     {{ event.description }}
                   </div>
                 </div>
@@ -140,14 +161,20 @@
       :style="{ width: '90vw', maxWidth: '500px' }"
       class="competence-dialog"
     >
-      <div v-if="selectedCompetence" class="competence-details">
+      <div
+        v-if="selectedCompetence"
+        class="competence-details"
+      >
         <div class="details-content">
           <h4>Описание</h4>
           <p>{{ selectedCompetence.description }}</p>
 
           <h4>Навыки и компетенции</h4>
           <ul class="skills-list">
-            <li v-for="skill in selectedCompetence.skills" :key="skill">
+            <li
+              v-for="skill in selectedCompetence.skills"
+              :key="skill"
+            >
               {{ skill }}
             </li>
           </ul>
@@ -168,7 +195,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from "primevue/button";
 import Tag from "primevue/tag";
 import Dialog from "primevue/dialog";

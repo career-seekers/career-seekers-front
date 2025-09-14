@@ -1,8 +1,10 @@
+
+
 import { createRouter, createWebHistory } from "vue-router";
-import { titleManager } from "@/utils/titleManager.js";
+import { titleManager } from "@/utils/titleManager.ts";
 
 // Auth views
-import LoginView from "@/views/auth/LoginView.vue";
+import LoginView from '@/views/auth/LoginView.vue';
 import MentorRegisterView from "@/views/auth/MentorRegisterView.vue";
 import ParentRegisterView from "@/views/auth/ParentRegisterView.vue";
 import TutorRegisterView from "@/views/auth/TutorRegisterView.vue";
@@ -36,7 +38,7 @@ import TutorDashboardHome from "@/views/tutor/TutorDashboardHome.vue";
 import TutorExperts from "@/views/tutor/TutorExperts.vue";
 import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
-import { fillUserState, redirectByUserState } from "../../state/UserState";
+import { fillUserState, redirectByUserState } from "../state/UserState";
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
 
 const routes = [
@@ -161,6 +163,7 @@ const routes = [
         path: "documents/:competenceId",
         name: "expert-documents",
         component: ExpertDocuments,
+        props: true
       },
       {
         path: "events",
@@ -193,9 +196,10 @@ const routes = [
         component: TutorCompetencies,
       },
       {
-        path: "documents",
+        path: "documents/:competenceId?",
         name: "tutor-documents",
         component: TutorDocuments,
+        props: true
       },
       {
         path: "venue-info",
@@ -216,7 +220,11 @@ router.beforeEach(async () => {
 });
 // Обновляем title при переходах между страницами
 router.afterEach(async (to) => {
-  const pageTitle = titleManager.getPageTitle(to.name);
+  const pageTitle = titleManager.getPageTitle(
+    to.name
+      ? to.name.toString()
+      : "No title"
+  );
   titleManager.setTitle(pageTitle);
   await redirectByUserState();
 });

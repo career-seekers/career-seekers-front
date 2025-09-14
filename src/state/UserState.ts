@@ -1,28 +1,33 @@
 import {reactive} from "vue";
-import {
+import type {
     MentorStateInterface,
     ParentStateInterface,
     RegistrationData,
-    Roles,
     TutorStateInterface,
     UserStateInterface
-} from "./UserState.types";
+} from "./UserState.types.ts";
 import {jwtDecode} from "jwt-decode";
-import {UserResolver} from "@/api/resolvers/user/user.resolver";
-import {FileManager} from "@/utils/FileManager";
-import {TutorDocumentsResolver} from "@/api/resolvers/tutorDocuments/tutor-documents.resolver";
-import {CommonOutputDto} from "@/api/dto/common-output.dto";
-import {UserDocumentsResolver} from "@/api/resolvers/userDocuments/user-documents.resolver";
-import {UserRegistrationDto, UserWithChildRegistrationDto} from "@/api/resolvers/auth/dto/input/register-input.dto";
-import {MentorDocumentsResolver} from "@/api/resolvers/mentorDocuments/mentor-documents.resolver";
-import router from "@/router";
-import {TelegramLinkResolver} from "@/api/resolvers/telegramLink/telegram-link.resolver";
-import {AuthResolver} from "@/api/resolvers/auth/auth.resolver";
-
+import { Roles } from './UserState.types.ts';
+import { AuthResolver } from '@/api/resolvers/auth/auth.resolver.ts';
+import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
+import { FileManager } from '@/utils/FileManager.ts';
+import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
+import { TutorDocumentsResolver } from '@/api/resolvers/tutorDocuments/tutor-documents.resolver.ts';
+import type {
+    UserRegistrationDto,
+    UserWithChildRegistrationDto,
+} from '@/api/resolvers/auth/dto/input/register-input.dto.ts';
+import { MentorDocumentsResolver } from '@/api/resolvers/mentorDocuments/mentor-documents.resolver.ts';
+import { UserDocumentsResolver } from '@/api/resolvers/userDocuments/user-documents.resolver.ts';
+import type { TutorDocsOutputDto } from '@/api/resolvers/tutorDocuments/dto/output/tutor-docs-output.dto.ts';
+import type { MentorDocsOutputDto } from '@/api/resolvers/mentorDocuments/dto/output/mentor-docs-output.dto.ts';
+import type { UserDocsOutputDto } from '@/api/resolvers/userDocuments/dto/output/user-docs-output.dto.ts';
+import router from '@/router';
+import { TelegramLinkResolver } from '@/api/resolvers/telegramLink/telegram-link.resolver.ts';
 export const UserState = reactive<
     UserStateInterface
 >({
-    avatarId: undefined,
+    avatarId: null,
     dateOfBirth: undefined,
     email: undefined,
     firstName: undefined,
@@ -71,9 +76,10 @@ export const fillUserState = async () => {
                     localStorage.setItem("refresh_token", response.message.refreshToken)
                 }
             }
+            console.log(typeof userData.message)
         } else {
             const fileManager = new FileManager();
-            let response: CommonOutputDto<any>
+            let response: CommonOutputDto<TutorDocsOutputDto | UserDocsOutputDto | MentorDocsOutputDto | string>
 
             UserState.id = userData.message.id
             UserState.firstName = userData.message.firstName;
@@ -98,18 +104,29 @@ export const fillUserState = async () => {
                             UserRegistrationDto,
                             TutorStateInterface
                         > =
-                            JSON.parse(localStorage.getItem("dataToVerify"))
-                        response = await tutorDocsResolver.create({
-                            userId: userJwt.id,
-                            post: registrationData.extra.post,
-                            institution: registrationData.extra.institution,
-                            consentToTutorPdp: await fileManager.loadFileFromCache(
-                                registrationData.extra.consentFileName
-                            )
-                        })
-                        await fileManager.removeFileFromCache(registrationData.extra.consentFileName);
+                            JSON.parse(localStorage.getItem("dataToVerify") as string) as RegistrationData<
+                              UserRegistrationDto,
+                              TutorStateInterface
+                            >
+                        if (registrationData.extra.consentFileName) {
+                            response = await tutorDocsResolver.create({
+                                userId: userJwt.id,
+                                post: registrationData.extra.post
+                                  ? registrationData.extra.post
+                                  : "",
+                                institution: registrationData.extra.institution
+                                  ? registrationData.extra.institution
+                                  : "",
+                                consentToTutorPdp: await fileManager.loadFileFromCache(
+                                  registrationData.extra.consentFileName
+                                )
+                            })
+                            await fileManager.removeFileFromCache(
+                              registrationData.extra.consentFileName
+                            );
 
-                        if (response.status === 200) localStorage.removeItem("dataToVerify");
+                            if (response.status === 200) localStorage.removeItem("dataToVerify");
+                        }
                     }
                     break
                 }
@@ -121,18 +138,27 @@ export const fillUserState = async () => {
                             UserRegistrationDto,
                             MentorStateInterface
                         > =
-                            JSON.parse(localStorage.getItem("dataToVerify"))
-                        response = await mentorDocsResolver.create({
-                            userId: userJwt.id,
-                            post: registrationData.extra.post,
-                            institution: registrationData.extra.institution,
-                            consentToMentorPdp: await fileManager.loadFileFromCache(
-                                registrationData.extra.consentFileName
-                            )
-                        })
-                        await fileManager.removeFileFromCache(registrationData.extra.consentFileName);
+                            JSON.parse(localStorage.getItem("dataToVerify") as string) as RegistrationData<
+                              UserRegistrationDto,
+                              MentorStateInterface
+                            >
+                        if (registrationData.extra.consentFileName) {
+                            response = await mentorDocsResolver.create({
+                                userId: userJwt.id,
+                                post: registrationData.extra.post
+                                    ? registrationData.extra.post
+                                    : "",
+                                institution: registrationData.extra.institution
+                                    ? registrationData.extra.institution
+                                    : "",
+                                consentToMentorPdp: await fileManager.loadFileFromCache(
+                                  registrationData.extra.consentFileName
+                                )
+                            })
+                            await fileManager.removeFileFromCache(registrationData.extra.consentFileName);
+                            if (response.status === 200) localStorage.removeItem("dataToVerify");
 
-                        if (response.status === 200) localStorage.removeItem("dataToVerify");
+                        }
                     }
                     break
                 }
@@ -144,7 +170,10 @@ export const fillUserState = async () => {
                             UserWithChildRegistrationDto,
                             ParentStateInterface
                         > =
-                            JSON.parse(localStorage.getItem("dataToVerify"))
+                            JSON.parse(localStorage.getItem("dataToVerify") as string) as RegistrationData<
+                              UserWithChildRegistrationDto,
+                              ParentStateInterface
+                            >
                         response = await userDocsResolver.create({
                             userId: userJwt.id,
                             snilsNumber: registrationData.extra.snilsNumber,
@@ -219,33 +248,33 @@ export const fillUserState = async () => {
 export const redirectByUserState = async () => {
     switch (UserState.role) {
         case Roles.USER: {
-            if (!!history.state.current.includes("parent")) {
+            if (!router.currentRoute.value.path.includes("parent")) {
                 await router.push("/parent");
             }
             break
         }
         case Roles.MENTOR: {
-            if (!history.state.current.includes("mentor")) {
+            if (!router.currentRoute.value.path.includes("mentor")) {
                 await router.push("/mentor");
             }
             break
         }
         case Roles.TUTOR: {
-            if (!history.state.current.includes("tutor")) {
+            if (!router.currentRoute.value.path.includes("tutor")) {
                 await router.push("/tutor");
             }
             break
         }
         case Roles.EXPERT: {
-            if (!history.state.current.includes("expert")) {
+            if (!router.currentRoute.value.path.includes("expert")) {
                 await router.push("/expert");
             }
             break
         }
         default:
-            if (!history.state.current.includes("login") &&
-            !history.state.current.includes("register") &&
-            !history.state.current.includes("email-confirmation")) {
+            if (!router.currentRoute.value.path.includes("login") &&
+            !router.currentRoute.value.path.includes("register") &&
+            !router.currentRoute.value.path.includes("email-confirmation")) {
                 await router.push("/login");
             }
             break
@@ -254,8 +283,9 @@ export const redirectByUserState = async () => {
 
 export const clearUserState = async () => {
     for (const key in UserState) {
-        if (UserState.hasOwnProperty(key)) {
-            UserState[key] = undefined;
+        if (Object.prototype.hasOwnProperty.call(UserState, key)) {
+            const typedKey =  key as keyof typeof UserState
+            (UserState[typedKey] as undefined) = undefined;
         }
     }
     localStorage.removeItem('access_token')

@@ -1,8 +1,14 @@
 <template>
   <div id="app">
     <router-view v-slot="{ Component, route }">
-      <transition :name="shouldAnimate(route.path) ? 'page' : ''" mode="out-in">
-        <component :is="Component" :key="route.path" />
+      <transition
+        :name="shouldAnimate(route.path) ? 'page' : ''"
+        mode="out-in"
+      >
+        <component
+          :is="Component"
+          :key="route.path"
+        />
       </transition>
     </router-view>
 
@@ -11,7 +17,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import GooseConfetti from "@/components/GooseConfetti.vue";
 import easterEggMixin from "@/mixins/easterEgg.js";
 
@@ -36,7 +42,7 @@ export default {
     );
   },
   methods: {
-    shouldAnimate(path) {
+    shouldAnimate(path: string) {
       // Анимируем только страницы входа/регистрации, не дашборд
       return (
         !path.startsWith("/parent") &&

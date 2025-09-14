@@ -1,90 +1,115 @@
 <template>
   <div class="documents-page">
     <div class="page-header">
-      <div class="header-content">
+      <div
+        v-if="competence"
+        class="header-content"
+      >
         <div class="breadcrumb">
-          <router-link to="/expert/competencies" class="breadcrumb-link">
-            <i class="pi pi-briefcase"></i>
+          <router-link
+            to="/expert/competencies"
+            class="breadcrumb-link"
+          >
+            <i class="pi pi-briefcase" />
             Компетенции
           </router-link>
-          <i class="pi pi-chevron-right breadcrumb-separator"></i>
-          <span class="breadcrumb-current">{{ competenceName }}</span>
+          <i class="pi pi-chevron-right breadcrumb-separator" />
+          <span class="breadcrumb-current">{{ competence.name }}</span>
         </div>
-        <h1 class="page-title">Документы компетенции</h1>
-        <p class="page-subtitle">{{ competenceDescription }}</p>
+        <h1 class="page-title">
+          Документы компетенции
+        </h1>
+        <p class="page-subtitle">
+          {{ competence.description }}
+        </p>
       </div>
     </div>
 
     <!-- Статистика -->
-    <div class="stats-section">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="pi pi-file-text"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-number">{{ documentsStats.total }}</div>
-            <div class="stat-label">Всего документов</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="pi pi-upload"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-number">{{ documentsStats.uploaded }}</div>
-            <div class="stat-label">Загружено</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="pi pi-download"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-number">{{ documentsStats.downloads }}</div>
-            <div class="stat-label">Скачиваний</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="pi pi-clock"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-number">{{ documentsStats.recent }}</div>
-            <div class="stat-label">За последнюю неделю</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!--    <div class="stats-section">-->
+    <!--      <div class="stats-grid">-->
+    <!--        <div class="stat-card">-->
+    <!--          <div class="stat-icon">-->
+    <!--            <i class="pi pi-file-text"></i>-->
+    <!--          </div>-->
+    <!--          <div class="stat-content">-->
+    <!--            <div class="stat-number">{{ documentsStats.total }}</div>-->
+    <!--            <div class="stat-label">Всего документов</div>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--        <div class="stat-card">-->
+    <!--          <div class="stat-icon">-->
+    <!--            <i class="pi pi-upload"></i>-->
+    <!--          </div>-->
+    <!--          <div class="stat-content">-->
+    <!--            <div class="stat-number">{{ documentsStats.uploaded }}</div>-->
+    <!--            <div class="stat-label">Загружено</div>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--        <div class="stat-card">-->
+    <!--          <div class="stat-icon">-->
+    <!--            <i class="pi pi-download"></i>-->
+    <!--          </div>-->
+    <!--          <div class="stat-content">-->
+    <!--            <div class="stat-number">{{ documentsStats.downloads }}</div>-->
+    <!--            <div class="stat-label">Скачиваний</div>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--        <div class="stat-card">-->
+    <!--          <div class="stat-icon">-->
+    <!--            <i class="pi pi-clock"></i>-->
+    <!--          </div>-->
+    <!--          <div class="stat-content">-->
+    <!--            <div class="stat-number">{{ documentsStats.recent }}</div>-->
+    <!--            <div class="stat-label">За последнюю неделю</div>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
 
     <!-- Загрузка документов -->
     <div class="upload-section">
       <div class="upload-card">
         <div class="upload-header">
           <h3 class="upload-title">
-            <i class="pi pi-upload"></i>
+            <i class="pi pi-upload" />
             Загрузить документы
           </h3>
         </div>
         <div class="upload-content">
           <FileUpload
+            :key="uploadKey"
             mode="basic"
-            name="documents[]"
-            :url="uploadUrl"
             accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.png"
-            :maxFileSize="10000000"
-            :multiple="true"
-            @upload="onUpload"
-            @select="onFileSelect"
-            chooseLabel="Выбрать файлы"
+            :max-file-size="10000000"
+            :multiple="false"
+            choose-label="Выбрать файл"
             class="file-upload"
+            @select="onDocumentSelect"
+          />
+          <Dropdown
+            v-model="uploadingType"
+            :options="docTypes"
+            option-label="label"
+            option-value="value"
+            placeholder="Тип документа"
+            class="filter-dropdown filter-upload"
+          />
+          <Button
+            type="submit"
+            label="Загрузить"
+            class="p-button-outlined submit-upload"
+            :disabled="uploadingType === null || uploadingDocument === null"
+            @click="uploadDocument"
           />
           <div class="upload-info">
             <p class="upload-text">
               Поддерживаемые форматы: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT,
               JPG, PNG
             </p>
-            <p class="upload-text">Максимальный размер файла: 10 МБ</p>
+            <p class="upload-text">
+              Максимальный размер файла: 10 МБ
+            </p>
           </div>
         </div>
       </div>
@@ -92,31 +117,13 @@
 
     <!-- Фильтры и поиск -->
     <div class="filters-section">
-      <div class="search-group">
-        <InputText
-          v-model="searchQuery"
-          placeholder="Поиск по названию документа..."
-          class="search-input"
-        />
-        <i class="pi pi-search search-icon"></i>
-      </div>
       <div class="filter-group">
         <Dropdown
           v-model="selectedType"
-          :options="typeOptions"
-          optionLabel="label"
-          optionValue="value"
+          :options="docTypes"
+          option-label="label"
+          option-value="value"
           placeholder="Все типы"
-          class="filter-dropdown"
-        />
-      </div>
-      <div class="filter-group">
-        <Dropdown
-          v-model="selectedStatus"
-          :options="statusOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Все статусы"
           class="filter-dropdown"
         />
       </div>
@@ -139,309 +146,174 @@
       >
         <div class="document-header">
           <div class="document-icon">
-            <i :class="getFileIcon(document.type)"></i>
+            <i class="pi pi-file" />
           </div>
           <div class="document-info">
-            <h3 class="document-name">{{ document.name }}</h3>
-            <p class="document-type">{{ document.typeLabel }}</p>
+            <h3 class="document-name">
+              {{ docTypes.find(docType => docType.value === document.documentType)?.label }}
+            </h3>
+            <p class="document-type">
+              {{ docTypes.find(docType => docType.value === document.documentType)?.value }}
+            </p>
             <div class="document-meta">
-              <span class="document-size">{{ document.size }}</span>
-              <span class="document-date">{{ document.uploadDate }}</span>
+              <span class="document-size">#{{ document.documentId }}</span>
+              <span class="document-date">{{ document.createdAt.substring(0, 10) }}</span>
             </div>
           </div>
           <div class="document-actions">
             <Button
+              v-tooltip="'Скачать'"
               icon="pi pi-download"
+              style="background: white"
               class="p-button-text p-button-sm"
               @click="downloadDocument(document)"
-              v-tooltip="'Скачать'"
             />
             <Button
+              v-tooltip="'Предварительный просмотр'"
               icon="pi pi-eye"
+              style="background: white"
               class="p-button-text p-button-sm"
               @click="previewDocument(document)"
-              v-tooltip="'Предварительный просмотр'"
             />
             <Button
+              v-tooltip="'Удалить'"
               icon="pi pi-trash"
+              style="background: white"
               class="p-button-text p-button-sm p-button-danger"
               @click="deleteDocument(document)"
-              v-tooltip="'Удалить'"
             />
-          </div>
-        </div>
-
-        <div class="document-content">
-          <div class="document-description">
-            <p>{{ document.description }}</p>
-          </div>
-
-          <div class="document-stats">
-            <div class="stat-item">
-              <i class="pi pi-download"></i>
-              <span>{{ document.downloads }} скачиваний</span>
-            </div>
-            <div class="stat-item">
-              <i class="pi pi-eye"></i>
-              <span>{{ document.views }} просмотров</span>
-            </div>
-            <div class="stat-item">
-              <i class="pi pi-clock"></i>
-              <span>{{ document.lastAccess }}</span>
-            </div>
-          </div>
-
-          <div class="document-tags">
-            <span v-for="tag in document.tags" :key="tag" class="document-tag">
-              {{ tag }}
-            </span>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Диалог предварительного просмотра -->
-    <Dialog
-      v-model:visible="showPreviewDialog"
-      :header="selectedDocument?.name || 'Предварительный просмотр'"
-      :modal="true"
-      :style="{ width: '800px' }"
-    >
-      <div v-if="selectedDocument" class="document-preview">
-        <div class="preview-info">
-          <div class="preview-meta">
-            <div class="meta-item">
-              <span class="meta-label">Тип:</span>
-              <span class="meta-value">{{ selectedDocument.typeLabel }}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Размер:</span>
-              <span class="meta-value">{{ selectedDocument.size }}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Загружен:</span>
-              <span class="meta-value">{{ selectedDocument.uploadDate }}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Скачиваний:</span>
-              <span class="meta-value">{{ selectedDocument.downloads }}</span>
-            </div>
-          </div>
-          <div class="preview-description">
-            <h4>Описание</h4>
-            <p>{{ selectedDocument.description }}</p>
-          </div>
-        </div>
-
-        <div class="preview-content">
-          <div v-if="isImageFile(selectedDocument.type)" class="image-preview">
-            <img
-              :src="selectedDocument.previewUrl"
-              :alt="selectedDocument.name"
-            />
-          </div>
-          <div v-else class="file-preview">
-            <i
-              :class="getFileIcon(selectedDocument.type)"
-              class="preview-icon"
-            ></i>
-            <p>Предварительный просмотр недоступен для данного типа файла</p>
-          </div>
-        </div>
-      </div>
-
-      <template #footer>
-        <Button
-          label="Закрыть"
-          icon="pi pi-times"
-          class="p-button-text"
-          @click="closePreview"
-        />
-        <Button
-          label="Скачать"
-          icon="pi pi-download"
-          class="p-button-primary"
-          @click="downloadDocument(selectedDocument)"
-        />
-      </template>
-    </Dialog>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from "primevue/button";
-import Dialog from "primevue/dialog";
-import FileUpload from "primevue/fileupload";
-import InputText from "primevue/inputtext";
+import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
 import Dropdown from "primevue/dropdown";
+import { FileResolver, FileType } from '@/api/resolvers/files/file.resolver.ts';
+import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
+import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
+import { UserState } from '@/state/UserState.ts';
+import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+import { ref } from 'vue';
+import apiConf from '@/api/api.conf.ts';
 
 export default {
   name: "ExpertDocuments",
   components: {
     Button,
-    Dialog,
     FileUpload,
-    InputText,
     Dropdown,
+  },
+  props: {
+    competenceId: {
+      type: String,
+      required: true,
+    }
   },
   data() {
     return {
-      searchQuery: "",
-      selectedType: null,
-      selectedStatus: null,
-      showPreviewDialog: false,
-      selectedDocument: null,
-      uploadUrl: "/api/upload", // Замените на реальный URL
-      competenceName: "Анализ данных",
-      competenceDescription: "Изучение основ анализа данных и визуализации",
-      typeOptions: [
-        { label: "Презентация", value: "presentation" },
-        { label: "Документ", value: "document" },
-        { label: "Таблица", value: "spreadsheet" },
-        { label: "Изображение", value: "image" },
-        { label: "PDF", value: "pdf" },
+      uploadKey: ref(0),
+      selectedType: null as null | FileType,
+      selectedDocument: null as null | DocumentsOutputDto,
+      uploadingType: null,
+      uploadingDocument: null as null | File,
+      competence: null as null | CompetenceOutputDto,
+      fileResolver: new FileResolver(),
+      competenceResolver: new CompetenceResolver(),
+      competenceDocumentsResolver: new CompetenceDocumentsResolver(),
+      docTypes: [
+        { label: "Конкурсное задание", value: FileType.TASK },
+        { label: "Критерии оценок", value: FileType.CRITERIA },
+        { label: "Итоговая ведомость", value: FileType.STATEMENT },
+        { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
+        { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
+        { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
+        { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
       ],
-      statusOptions: [
-        { label: "Опубликован", value: "published" },
-        { label: "Черновик", value: "draft" },
-        { label: "На модерации", value: "moderation" },
-      ],
-      documentsStats: {
-        total: 24,
-        uploaded: 18,
-        downloads: 156,
-        recent: 8,
-      },
-      documents: [
-        {
-          id: 1,
-          name: "Введение в анализ данных.pdf",
-          type: "pdf",
-          typeLabel: "PDF документ",
-          size: "2.3 МБ",
-          uploadDate: "10.12.2024",
-          description:
-            "Основные понятия и методы анализа данных для начинающих",
-          downloads: 45,
-          views: 78,
-          lastAccess: "2 дня назад",
-          tags: ["учебный материал", "основы"],
-          status: "published",
-          previewUrl: "/preview/1",
-        },
-        {
-          id: 2,
-          name: "Практические задания.xlsx",
-          type: "spreadsheet",
-          typeLabel: "Таблица Excel",
-          size: "1.8 МБ",
-          uploadDate: "08.12.2024",
-          description: "Набор практических заданий для закрепления материала",
-          downloads: 32,
-          views: 56,
-          lastAccess: "1 день назад",
-          tags: ["задания", "практика"],
-          status: "published",
-          previewUrl: "/preview/2",
-        },
-        {
-          id: 3,
-          name: "Визуализация данных.pptx",
-          type: "presentation",
-          typeLabel: "Презентация PowerPoint",
-          size: "5.2 МБ",
-          uploadDate: "05.12.2024",
-          description: "Слайды по созданию графиков и дашбордов",
-          downloads: 28,
-          views: 42,
-          lastAccess: "3 дня назад",
-          tags: ["презентация", "визуализация"],
-          status: "published",
-          previewUrl: "/preview/3",
-        },
-        {
-          id: 4,
-          name: "Примеры кода Python.txt",
-          type: "document",
-          typeLabel: "Текстовый документ",
-          size: "0.5 МБ",
-          uploadDate: "03.12.2024",
-          description: "Готовые примеры кода для анализа данных",
-          downloads: 51,
-          views: 89,
-          lastAccess: "1 день назад",
-          tags: ["код", "python", "примеры"],
-          status: "published",
-          previewUrl: "/preview/4",
-        },
-      ],
+      documents: [] as DocumentsOutputDto[],
     };
   },
   computed: {
+    apiConf() {
+      return apiConf
+    },
     filteredDocuments() {
       let filtered = this.documents;
-
-      // Поиск по названию
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase();
-        filtered = filtered.filter((d) => d.name.toLowerCase().includes(query));
-      }
-
       // Фильтр по типу
       if (this.selectedType) {
-        filtered = filtered.filter((d) => d.type === this.selectedType);
-      }
-
-      // Фильтр по статусу
-      if (this.selectedStatus) {
-        filtered = filtered.filter((d) => d.status === this.selectedStatus);
+        filtered = filtered.filter((d) => d.documentType === this.selectedType);
       }
 
       return filtered;
     },
   },
+  async beforeMount() {
+    const response = await this.competenceResolver.getById(parseInt(this.$props.competenceId));
+    if (typeof response.message !== "string") {
+      this.competence = response.message;
+      await this.loadDocuments()
+    }
+  },
   methods: {
-    getFileIcon(type) {
-      const icons = {
-        pdf: "pi pi-file-pdf",
-        document: "pi pi-file-word",
-        presentation: "pi pi-file-powerpoint",
-        spreadsheet: "pi pi-file-excel",
-        image: "pi pi-image",
-        text: "pi pi-file",
-      };
-      return icons[type] || "pi pi-file";
+    async loadDocuments() {
+      this.documents = []
+      const response = await this.competenceDocumentsResolver
+        .getAllByCompetenceId(parseInt(this.$props.competenceId))
+      if (typeof response.message !== "string") {
+        this.documents = response.message
+      }
     },
-    isImageFile(type) {
-      return type === "image";
+    async uploadDocument() {
+      if (!this.uploadingDocument || !this.uploadingType || !UserState.id) {
+        alert("Пожалуйста, выберите документ, тип документа и убедитесь, что вы авторизованы.");
+        return;
+      }
+      const response = await this.competenceDocumentsResolver.create({
+        document: this.uploadingDocument,
+        documentType: this.uploadingType,
+        userId: UserState.id,
+        directionId: parseInt(this.$props.competenceId),
+      })
+      if (typeof response.message !== "string") {
+        this.uploadingType = null
+        this.uploadingDocument = null
+        this.uploadKey++
+        await this.loadDocuments()
+      }
     },
-    onFileSelect(event) {
+    onDocumentSelect(event: FileUploadSelectEvent) {
+      this.uploadingDocument = event.files[0];
       console.log("Выбраны файлы:", event.files);
     },
-    onUpload(event) {
-      console.log("Загрузка завершена:", event);
-      // Обновить список документов
+    downloadDocument(doc: DocumentsOutputDto) {
+      const a = document.createElement("a");
+      a.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.documentId}`
+      document.body.appendChild(a);
+      a.click()
+      document.body.removeChild(a);
     },
-    downloadDocument(document) {
-      console.log("Скачивание документа:", document.name);
-      // Логика скачивания
+    previewDocument(doc: DocumentsOutputDto) {
+      this.selectedDocument = doc;
+      const a = document.createElement("a");
+      a.href = `${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click()
+      document.body.removeChild(a);
     },
-    previewDocument(document) {
-      this.selectedDocument = document;
-      this.showPreviewDialog = true;
-    },
-    closePreview() {
-      this.showPreviewDialog = false;
-      this.selectedDocument = null;
-    },
-    deleteDocument(document) {
-      console.log("Удаление документа:", document.name);
-      // Логика удаления
+    async deleteDocument(document: DocumentsOutputDto) {
+      const response = await this.competenceDocumentsResolver.delete(document.id)
+      if (response.status === 200) {
+        await this.loadDocuments()
+      }
     },
     resetFilters() {
-      this.searchQuery = "";
       this.selectedType = null;
-      this.selectedStatus = null;
     },
   },
 };
@@ -529,7 +401,7 @@ export default {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 1rem;
 }
 
@@ -604,6 +476,10 @@ export default {
 }
 
 .upload-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 0.5rem;
   padding: 1.5rem;
 }
 
@@ -611,7 +487,12 @@ export default {
   margin-bottom: 1rem;
 }
 
+:deep(.p-button.p-fileupload-choose) {
+  width: 100%;
+}
+
 .upload-info {
+  grid-row: 2 /3;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;

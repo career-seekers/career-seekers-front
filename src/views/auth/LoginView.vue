@@ -3,16 +3,28 @@
     <div class="login-card">
       <div class="login-header">
         <div class="logo-container">
-          <img src="@/assets/logo.png" alt="Career Seekers Logo" class="logo" />
+          <img
+            src="@/assets/logo.png"
+            alt="Career Seekers Logo"
+            class="logo"
+          >
         </div>
-        <h1 class="login-title">Вход в систему</h1>
-        <div class="divider"></div>
+        <h1 class="login-title">
+          Вход в систему
+        </h1>
+        <div class="divider" />
       </div>
 
       <div class="login-content">
-        <form @submit.prevent="handleLogin" class="login-form">
+        <form
+          class="login-form"
+          @submit.prevent="handleLogin"
+        >
           <div class="field">
-            <label for="email" class="field-label">Email</label>
+            <label
+              for="email"
+              class="field-label"
+            >Email</label>
             <InputText
               id="email"
               v-model="loginForm.email"
@@ -21,13 +33,19 @@
               class="w-full"
               :class="{ 'p-invalid': errors.email }"
             />
-            <small v-if="errors.email" class="p-error">{{
+            <small
+              v-if="errors.email"
+              class="p-error"
+            >{{
               errors.email
             }}</small>
           </div>
 
           <div class="field">
-            <label for="password" class="field-label">Пароль</label>
+            <label
+              for="password"
+              class="field-label"
+            >Пароль</label>
             <Password
               id="password"
               v-model="loginForm.password"
@@ -35,9 +53,12 @@
               class="w-full"
               :class="{ 'p-invalid': errors.password }"
               :feedback="false"
-              toggleMask
+              toggle-mask
             />
-            <small v-if="errors.password" class="p-error">{{
+            <small
+              v-if="errors.password"
+              class="p-error"
+            >{{
               errors.password
             }}</small>
           </div>
@@ -50,17 +71,23 @@
           />
 
           <div class="register-section">
-            <div class="register-toggle" @click="toggleRegisterOptions">
+            <div
+              class="register-toggle"
+              @click="toggleRegisterOptions"
+            >
               <span class="register-text">Зарегистрироваться</span>
               <i
                 class="pi"
                 :class="
                   showRegisterOptions ? 'pi-chevron-up' : 'pi-chevron-down'
                 "
-              ></i>
+              />
             </div>
 
-            <div v-if="showRegisterOptions" class="register-options">
+            <div
+              v-if="showRegisterOptions"
+              class="register-options"
+            >
               <!--              <router-link-->
               <!--                to="/register/mentor"-->
               <!--                class="register-option"-->
@@ -84,10 +111,14 @@
                 class="register-option"
                 @click="closeRegisterOptions"
               >
-                <i class="pi pi-book"></i>
+                <i class="pi pi-book" />
                 <div class="option-text">
-                  <div class="option-title">Куратор</div>
-                  <div class="option-desc">Для кураторов</div>
+                  <div class="option-title">
+                    Куратор
+                  </div>
+                  <div class="option-desc">
+                    Для кураторов
+                  </div>
                 </div>
               </router-link>
             </div>
@@ -99,14 +130,14 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import Button from "primevue/button";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver";
 import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
-import { fillUserState, redirectByUserState } from "../../../state/UserState";
+import { fillUserState, redirectByUserState } from "@/state/UserState";
 
 export default {
   name: "LoginView",

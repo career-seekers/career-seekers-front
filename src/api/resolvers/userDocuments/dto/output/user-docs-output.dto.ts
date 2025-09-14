@@ -1,4 +1,4 @@
-import { Roles } from "../../../../../../state/UserState.types";
+import { Roles } from "@/state/UserState.types";
 
 export interface UserDocsOutputDto {
   id: number;

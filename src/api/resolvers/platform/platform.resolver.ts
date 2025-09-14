@@ -1,7 +1,7 @@
 import ApiResolver from "@/utils/ApiResolver";
-import { CommonOutputDto } from "@/api/dto/common-output.dto";
-import { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto";
-import { PlatformInputDto } from "@/api/resolvers/platform/dto/input/platform-input.dto";
+import type { CommonOutputDto } from "@/api/dto/common-output.dto.ts";
+import type { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto.ts";
+import type { PlatformInputDto } from "@/api/resolvers/platform/dto/input/platform-input.dto.ts";
 
 export class PlatformResolver {
   private apiResolver = new ApiResolver("events-service/v1/platforms");

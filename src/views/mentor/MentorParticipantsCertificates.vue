@@ -1,8 +1,12 @@
 <template>
   <div class="participants-certificates-page">
     <div class="page-header">
-      <h1 class="page-title">Сертификаты участников</h1>
-      <p class="page-subtitle">Сертификаты и дипломы курируемых участников</p>
+      <h1 class="page-title">
+        Сертификаты участников
+      </h1>
+      <p class="page-subtitle">
+        Сертификаты и дипломы курируемых участников
+      </p>
     </div>
 
     <!-- Фильтры -->
@@ -13,7 +17,7 @@
           placeholder="Поиск по имени участника..."
           class="search-input"
         />
-        <i class="pi pi-search search-icon"></i>
+        <i class="pi pi-search search-icon" />
       </div>
 
       <div class="filter-buttons">
@@ -44,7 +48,9 @@
       >
         <div class="participant-header">
           <div class="participant-info">
-            <h3 class="participant-name">{{ participant.name }}</h3>
+            <h3 class="participant-name">
+              {{ participant.name }}
+            </h3>
             <p class="participant-details">
               {{ participant.age }} • {{ participant.competence }}
             </p>
@@ -67,10 +73,12 @@
           >
             <div class="certificate-header">
               <div class="certificate-icon">
-                <i :class="certificate.icon"></i>
+                <i :class="certificate.icon" />
               </div>
               <div class="certificate-info">
-                <h4 class="certificate-title">{{ certificate.title }}</h4>
+                <h4 class="certificate-title">
+                  {{ certificate.title }}
+                </h4>
                 <div class="certificate-status">
                   <Tag
                     :value="certificate.status.text"
@@ -115,10 +123,14 @@
           <div class="certificate-card empty-card">
             <div class="empty-content">
               <div class="empty-icon">
-                <i class="pi pi-plus"></i>
+                <i class="pi pi-plus" />
               </div>
-              <h4 class="empty-title">Добавить сертификат</h4>
-              <p class="empty-text">Выдать новый сертификат участнику</p>
+              <h4 class="empty-title">
+                Добавить сертификат
+              </h4>
+              <p class="empty-text">
+                Выдать новый сертификат участнику
+              </p>
               <Button
                 label="Выдать"
                 icon="pi pi-certificate"
@@ -133,7 +145,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import Tag from "primevue/tag";

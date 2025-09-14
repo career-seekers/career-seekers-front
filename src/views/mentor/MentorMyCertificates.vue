@@ -1,8 +1,12 @@
 <template>
   <div class="certificates-page">
     <div class="page-header">
-      <h1 class="page-title">Мои сертификаты</h1>
-      <p class="page-subtitle">Сертификаты и дипломы наставника</p>
+      <h1 class="page-title">
+        Мои сертификаты
+      </h1>
+      <p class="page-subtitle">
+        Сертификаты и дипломы наставника
+      </p>
     </div>
 
     <div class="certificates-grid">
@@ -10,12 +14,17 @@
       <div class="certificate-card">
         <div class="certificate-header">
           <div class="certificate-icon">
-            <i class="pi pi-certificate"></i>
+            <i class="pi pi-certificate" />
           </div>
           <div class="certificate-info">
-            <h3 class="certificate-title">Сертификат наставника</h3>
+            <h3 class="certificate-title">
+              Сертификат наставника
+            </h3>
             <div class="certificate-status">
-              <Tag value="Получен" severity="success" />
+              <Tag
+                value="Получен"
+                severity="success"
+              />
             </div>
           </div>
         </div>
@@ -59,12 +68,17 @@
       <div class="certificate-card">
         <div class="certificate-header">
           <div class="certificate-icon">
-            <i class="pi pi-award"></i>
+            <i class="pi pi-award" />
           </div>
           <div class="certificate-info">
-            <h3 class="certificate-title">Диплом эксперта</h3>
+            <h3 class="certificate-title">
+              Диплом эксперта
+            </h3>
             <div class="certificate-status">
-              <Tag value="Получен" severity="success" />
+              <Tag
+                value="Получен"
+                severity="success"
+              />
             </div>
           </div>
         </div>
@@ -108,12 +122,17 @@
       <div class="certificate-card">
         <div class="certificate-header">
           <div class="certificate-icon">
-            <i class="pi pi-graduation-cap"></i>
+            <i class="pi pi-graduation-cap" />
           </div>
           <div class="certificate-info">
-            <h3 class="certificate-title">Сертификат повышения квалификации</h3>
+            <h3 class="certificate-title">
+              Сертификат повышения квалификации
+            </h3>
             <div class="certificate-status">
-              <Tag value="В процессе" severity="warning" />
+              <Tag
+                value="В процессе"
+                severity="warning"
+              />
             </div>
           </div>
         </div>
@@ -121,9 +140,7 @@
           <div class="certificate-details">
             <div class="detail-item">
               <span class="detail-label">Курс:</span>
-              <span class="detail-value"
-                >Современные технологии веб-разработки</span
-              >
+              <span class="detail-value">Современные технологии веб-разработки</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Прогресс:</span>
@@ -159,10 +176,14 @@
       <div class="certificate-card empty-card">
         <div class="empty-content">
           <div class="empty-icon">
-            <i class="pi pi-plus"></i>
+            <i class="pi pi-plus" />
           </div>
-          <h3 class="empty-title">Добавить сертификат</h3>
-          <p class="empty-text">Загрузите новый сертификат или диплом</p>
+          <h3 class="empty-title">
+            Добавить сертификат
+          </h3>
+          <p class="empty-text">
+            Загрузите новый сертификат или диплом
+          </p>
           <Button
             label="Загрузить"
             icon="pi pi-upload"
@@ -175,7 +196,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from "primevue/button";
 import Tag from "primevue/tag";
 

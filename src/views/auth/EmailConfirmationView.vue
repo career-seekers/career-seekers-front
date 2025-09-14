@@ -3,18 +3,28 @@
     <div class="confirmation-card">
       <div class="confirmation-header">
         <div class="logo-container">
-          <img src="@/assets/logo.png" alt="Career Seekers Logo" class="logo" />
+          <img
+            src="@/assets/logo.png"
+            alt="Career Seekers Logo"
+            class="logo"
+          >
         </div>
-        <h1 class="confirmation-title">Подтверждение email</h1>
-        <div class="divider"></div>
+        <h1 class="confirmation-title">
+          Подтверждение email
+        </h1>
+        <div class="divider" />
       </div>
 
       <div class="confirmation-content">
-        <form @submit.prevent="handleConfirmation" class="confirmation-form">
+        <form
+          class="confirmation-form"
+          @submit.prevent="handleConfirmation"
+        >
           <div class="field">
-            <label for="confirmationCode" class="field-label"
-              >Код подтверждения *</label
-            >
+            <label
+              for="confirmationCode"
+              class="field-label"
+            >Код подтверждения *</label>
             <InputText
               id="confirmationCode"
               v-model="confirmationForm.code"
@@ -23,7 +33,10 @@
               :class="{ 'p-invalid': errors.code }"
               maxlength="6"
             />
-            <small v-if="errors.code" class="p-error">{{ errors.code }}</small>
+            <small
+              v-if="errors.code"
+              class="p-error"
+            >{{ errors.code }}</small>
           </div>
 
           <div class="field">
@@ -33,9 +46,11 @@
             </p>
             <p class="confirmation-note">
               Если письмо не пришло, проверьте папку "Спам" или
-              <a href="#" class="link" @click.prevent="resendCode"
-                >отправьте код повторно</a
-              >
+              <a
+                href="#"
+                class="link"
+                @click.prevent="resendCode"
+              >отправьте код повторно</a>
             </p>
           </div>
 
@@ -48,9 +63,11 @@
 
           <div class="back-link">
             <p>
-              <a href="#" class="link" @click.prevent="goBack"
-                >← Вернуться к регистрации</a
-              >
+              <a
+                href="#"
+                class="link"
+                @click.prevent="goBack"
+              >← Вернуться к регистрации</a>
             </p>
           </div>
         </form>
@@ -64,19 +81,19 @@
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver.js";
-import {
+import type {
   UserRegistrationDto,
   UserWithChildRegistrationDto,
-} from "@/api/resolvers/auth/dto/input/register-input.dto";
+} from "@/api/resolvers/auth/dto/input/register-input.dto.ts";
 import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
-import {
+import type {
   MentorStateInterface,
   ParentStateInterface,
   RegistrationData,
   TutorStateInterface,
-} from "../../../state/UserState.types";
-import { fillUserState, redirectByUserState } from "../../../state/UserState";
+} from "@/state/UserState.types";
+import { fillUserState, redirectByUserState } from "@/state/UserState";
 
 export default {
   name: "EmailConfirmationView",
@@ -101,7 +118,7 @@ export default {
       },
       authResolver: new AuthResolver(),
       registrationData: (
-        JSON.parse(localStorage.getItem("dataToVerify")) as RegistrationData<
+        JSON.parse(localStorage.getItem("dataToVerify") as string) as RegistrationData<
           UserWithChildRegistrationDto | UserRegistrationDto,
           TutorStateInterface | MentorStateInterface | ParentStateInterface
         >
@@ -111,8 +128,8 @@ export default {
   mounted() {
     // Получаем email из query параметров или localStorage
     this.userEmail =
-      this.$route.query.email ||
-      localStorage.getItem("userEmail") ||
+      this.$route.query.email as string ||
+      localStorage.getItem("userEmail") as string ||
       "user@example.com";
   },
   methods: {
@@ -147,7 +164,7 @@ export default {
       };
 
       try {
-        if (this.registrationData.childPatronymic)
+        if ((this.registrationData as UserWithChildRegistrationDto).childPatronymic)
           this.registrationData.type = "UserWithChildRegistrationDto";
         else this.registrationData.type = "UserRegistrationDto";
         this.registrationData.uuid = generateUuidV4();
@@ -167,7 +184,6 @@ export default {
           await fillUserState();
           await redirectByUserState();
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         this.errors.code = "Неверный код подтверждения";
       } finally {

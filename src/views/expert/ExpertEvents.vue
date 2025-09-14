@@ -1,7 +1,9 @@
 <template>
   <div class="events-page">
     <div class="page-header">
-      <h1 class="page-title">События и рассылки</h1>
+      <h1 class="page-title">
+        События и рассылки
+      </h1>
       <p class="page-subtitle">
         Создание и управление событиями по компетенциям
       </p>
@@ -12,38 +14,54 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="pi pi-calendar"></i>
+            <i class="pi pi-calendar" />
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ eventsStats.total }}</div>
-            <div class="stat-label">Всего событий</div>
+            <div class="stat-number">
+              {{ eventsStats.total }}
+            </div>
+            <div class="stat-label">
+              Всего событий
+            </div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="pi pi-check-circle"></i>
+            <i class="pi pi-check-circle" />
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ eventsStats.published }}</div>
-            <div class="stat-label">Опубликовано</div>
+            <div class="stat-number">
+              {{ eventsStats.published }}
+            </div>
+            <div class="stat-label">
+              Опубликовано
+            </div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="pi pi-clock"></i>
+            <i class="pi pi-clock" />
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ eventsStats.pending }}</div>
-            <div class="stat-label">На модерации</div>
+            <div class="stat-number">
+              {{ eventsStats.pending }}
+            </div>
+            <div class="stat-label">
+              На модерации
+            </div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="pi pi-users"></i>
+            <i class="pi pi-users" />
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ eventsStats.participants }}</div>
-            <div class="stat-label">Участников</div>
+            <div class="stat-number">
+              {{ eventsStats.participants }}
+            </div>
+            <div class="stat-label">
+              Участников
+            </div>
           </div>
         </div>
       </div>
@@ -54,7 +72,7 @@
       <div class="create-card">
         <div class="create-header">
           <h3 class="create-title">
-            <i class="pi pi-plus"></i>
+            <i class="pi pi-plus" />
             Создать новое событие
           </h3>
         </div>
@@ -75,8 +93,8 @@
         <Dropdown
           v-model="selectedCompetence"
           :options="competenceOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Все компетенции"
           class="filter-dropdown"
         />
@@ -85,8 +103,8 @@
         <Dropdown
           v-model="selectedStatus"
           :options="statusOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Все статусы"
           class="filter-dropdown"
         />
@@ -95,7 +113,7 @@
         <Calendar
           v-model="selectedDate"
           placeholder="Выберите дату"
-          dateFormat="dd.mm.yy"
+          date-format="dd.mm.yy"
           class="filter-calendar"
         />
       </div>
@@ -111,27 +129,38 @@
 
     <!-- Список событий -->
     <div class="events-grid">
-      <div v-for="event in filteredEvents" :key="event.id" class="event-card">
+      <div
+        v-for="event in filteredEvents"
+        :key="event.id"
+        class="event-card"
+      >
         <div class="event-header">
           <div class="event-info">
-            <h3 class="event-title">{{ event.title }}</h3>
-            <p class="event-competence">{{ event.competence }}</p>
+            <h3 class="event-title">
+              {{ event.title }}
+            </h3>
+            <p class="event-competence">
+              {{ event.competence }}
+            </p>
             <div class="event-meta">
               <span class="event-date">
-                <i class="pi pi-calendar"></i>
+                <i class="pi pi-calendar" />
                 {{ event.date }}
               </span>
               <span class="event-time">
-                <i class="pi pi-clock"></i>
+                <i class="pi pi-clock" />
                 {{ event.time }}
               </span>
               <span class="event-location">
-                <i class="pi pi-map-marker"></i>
+                <i class="pi pi-map-marker" />
                 {{ event.location }}
               </span>
             </div>
           </div>
-          <div class="event-status" :class="event.statusClass">
+          <div
+            class="event-status"
+            :class="event.statusClass"
+          >
             {{ event.status }}
           </div>
         </div>
@@ -143,15 +172,15 @@
 
           <div class="event-stats">
             <div class="stat-item">
-              <i class="pi pi-users"></i>
+              <i class="pi pi-users" />
               <span>{{ event.participantsCount }} участников</span>
             </div>
             <div class="stat-item">
-              <i class="pi pi-envelope"></i>
+              <i class="pi pi-envelope" />
               <span>{{ event.emailsSent }} писем отправлено</span>
             </div>
             <div class="stat-item">
-              <i class="pi pi-eye"></i>
+              <i class="pi pi-eye" />
               <span>{{ event.views }} просмотров</span>
             </div>
           </div>
@@ -207,8 +236,8 @@
               id="eventCompetence"
               v-model="eventForm.competenceId"
               :options="competenceOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Выберите компетенцию"
               class="form-dropdown"
             />
@@ -219,8 +248,8 @@
               id="eventType"
               v-model="eventForm.type"
               :options="eventTypeOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Выберите тип"
               class="form-dropdown"
             />
@@ -233,7 +262,7 @@
             <Calendar
               id="eventDate"
               v-model="eventForm.date"
-              dateFormat="dd.mm.yy"
+              date-format="dd.mm.yy"
               placeholder="Выберите дату"
               class="form-calendar"
             />
@@ -265,8 +294,8 @@
               id="eventOnline"
               v-model="eventForm.isOnline"
               :options="locationTypeOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Выберите тип"
               class="form-dropdown"
             />
@@ -287,7 +316,9 @@
         </div>
 
         <div class="form-section">
-          <h4 class="section-title">Настройки рассылки</h4>
+          <h4 class="section-title">
+            Настройки рассылки
+          </h4>
 
           <div class="form-row">
             <div class="form-group full-width">
@@ -310,7 +341,7 @@
                 placeholder="Текст письма для рассылки"
                 :rows="6"
                 class="form-editor"
-                editorStyle="height: 200px"
+                editor-style="height: 200px"
               />
             </div>
           </div>
@@ -321,7 +352,7 @@
               <Calendar
                 id="sendDate"
                 v-model="eventForm.sendDate"
-                dateFormat="dd.mm.yy"
+                date-format="dd.mm.yy"
                 placeholder="Выберите дату отправки"
                 class="form-calendar"
               />
@@ -357,7 +388,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
@@ -524,6 +555,39 @@ export default {
       ],
     };
   },
+  computed: {
+    filteredEvents() {
+      let filtered = this.events;
+
+      // Фильтр по компетенции
+      if (this.selectedCompetence) {
+        filtered = filtered.filter(
+          (e) => e.competenceId === this.selectedCompetence,
+        );
+      }
+
+      // Фильтр по статусу
+      if (this.selectedStatus) {
+        const statusMap = {
+          published: "Опубликовано",
+          moderation: "На модерации",
+          draft: "Черновик",
+          cancelled: "Отменено",
+        };
+        filtered = filtered.filter(
+          (e) => e.status === statusMap[this.selectedStatus],
+        );
+      }
+
+      // Фильтр по дате
+      if (this.selectedDate) {
+        // Логика фильтрации по дате
+        // filtered = filtered.filter(e => e.date === this.selectedDate)
+      }
+
+      return filtered;
+    },
+  },
   methods: {
     editEvent(event) {
       this.isEditing = true;
@@ -575,39 +639,6 @@ export default {
       this.selectedCompetence = null;
       this.selectedStatus = null;
       this.selectedDate = null;
-    },
-  },
-  computed: {
-    filteredEvents() {
-      let filtered = this.events;
-
-      // Фильтр по компетенции
-      if (this.selectedCompetence) {
-        filtered = filtered.filter(
-          (e) => e.competenceId === this.selectedCompetence,
-        );
-      }
-
-      // Фильтр по статусу
-      if (this.selectedStatus) {
-        const statusMap = {
-          published: "Опубликовано",
-          moderation: "На модерации",
-          draft: "Черновик",
-          cancelled: "Отменено",
-        };
-        filtered = filtered.filter(
-          (e) => e.status === statusMap[this.selectedStatus],
-        );
-      }
-
-      // Фильтр по дате
-      if (this.selectedDate) {
-        // Логика фильтрации по дате
-        // filtered = filtered.filter(e => e.date === this.selectedDate)
-      }
-
-      return filtered;
     },
   },
 };
