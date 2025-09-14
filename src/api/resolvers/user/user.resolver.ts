@@ -19,7 +19,7 @@ export class UserResolver {
   public async getAllByRole(role: Roles) {
     return await this.apiResolver.request<
       null,
-      CommonOutputDto<UserOutputDto[]>
+      CommonOutputDto<UserOutputDto[] | string>
     >(`getByRole/${role}`, "GET", null, this.token ? this.token : undefined);
   }
 

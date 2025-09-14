@@ -36,4 +36,16 @@ export class PlatformResolver {
       this.token ? this.token : undefined,
     );
   }
+
+  public async getAll() {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<string | PlatformOutputDto[]>
+    >(
+      "",
+      "GET",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
 }

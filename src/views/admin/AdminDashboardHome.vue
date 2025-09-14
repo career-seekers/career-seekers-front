@@ -59,7 +59,7 @@
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-number">
-                0
+                {{ tutors.length }}
               </div>
               <div class="stat-label">
                 Всего кураторов
@@ -67,10 +67,10 @@
             </div>
             <div class="stat-item">
               <div class="stat-number">
-                0
+                {{ tutors.filter(tutor => tutor.verified).length }}
               </div>
               <div class="stat-label">
-                Компетенций
+                Верифицированных
               </div>
             </div>
           </div>
@@ -80,6 +80,7 @@
               label="Управление кураторами"
               icon="pi pi-cog"
               class="p-button-outlined"
+              @click="router().push('/admin/tutors')"
             />
           </div>
         </div>
@@ -96,7 +97,7 @@
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-number">
-                0
+                {{ venues.length }}
               </div>
               <div class="stat-label">
                 Всего площадок
@@ -104,7 +105,7 @@
             </div>
             <div class="stat-item">
               <div class="stat-number">
-                0
+                {{ venues.filter(venue => venue.verified).length }}
               </div>
               <div class="stat-label">
                 Верифицированных
@@ -117,6 +118,7 @@
               label="Управление площадками"
               icon="pi pi-cog"
               class="p-button-outlined"
+              @click="router().push('/admin/venues')"
             />
           </div>
         </div>
@@ -133,18 +135,18 @@
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-number">
-                0
+                {{ competencies.length }}
               </div>
               <div class="stat-label">
-                Всего кураторов
+                Всего компетенций
               </div>
             </div>
             <div class="stat-item">
               <div class="stat-number">
-                0
+                {{ competencies.filter(competence => competence.documents.length === 0).length }}
               </div>
               <div class="stat-label">
-                Компетенций
+                Без документов
               </div>
             </div>
           </div>
@@ -154,6 +156,7 @@
               label="Управление компетенциями"
               icon="pi pi-cog"
               class="p-button-outlined"
+              @click="router().push('/admin/competencies')"
             />
           </div>
         </div>
@@ -170,7 +173,7 @@
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-number">
-                0
+                {{ experts.length }}
               </div>
               <div class="stat-label">
                 Всего экспертов
@@ -178,10 +181,10 @@
             </div>
             <div class="stat-item">
               <div class="stat-number">
-                0
+                {{ experts.filter(expert => expert.verified).length }}
               </div>
               <div class="stat-label">
-
+                Верифицированных
               </div>
             </div>
           </div>
@@ -191,6 +194,7 @@
               label="Управление экспертами"
               icon="pi pi-cog"
               class="p-button-outlined"
+              @click="router().push('/admin/experts')"
             />
           </div>
         </div>
@@ -207,18 +211,21 @@
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-number">
-                0
+                {{ documents.length }}
               </div>
               <div class="stat-label">
                 Всего документов
               </div>
             </div>
-            <div class="stat-item">
+            <div
+              v-if="recentDoc"
+              class="stat-item"
+            >
               <div class="stat-number">
-                0
+                {{ recentDoc.createdAt.substring(0, 10) }}
               </div>
               <div class="stat-label">
-
+                Последняя загрузка
               </div>
             </div>
           </div>
@@ -239,20 +246,74 @@
 <script lang="ts">
   import { UserState } from '@/state/UserState.ts';
   import Button from 'primevue/button';
+  import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
+  import { PlatformResolver } from '@/api/resolvers/platform/platform.resolver.ts';
+  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+  import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
+  import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
+  import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+  import type { PlatformOutputDto } from '@/api/resolvers/platform/dto/output/platform-output.dto.ts';
+  import { Roles } from '@/state/UserState.types.ts';
+  import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
+  import router from '@/router';
+  import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
 
   export default {
     name: 'AdminDashboardHome',
     components: {
       Button
     },
-    data() {
+    data: function() {
       return {
+        userResolver: new UserResolver(),
+        platformResolver: new PlatformResolver(),
+        competenceResolver: new CompetenceResolver(),
+        documentsResolver: new FileResolver(),
 
-      }
+        tutors: [] as UserOutputDto[],
+        competencies: [] as CompetenceOutputDto[],
+        experts: [] as UserOutputDto[],
+        documents: [] as DocsOutputFileUploadDto[],
+        venues: [] as PlatformOutputDto[]
+      };
     },
     computed: {
       UserState() {
         return UserState
+      },
+      recentDoc() {
+        if (this.documents.length === 0) return null
+        return this.documents.toSorted((a, b) => {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        })[0]
+      }
+    },
+    async beforeMount() {
+      let response
+      response = await this.userResolver.getAllByRole(Roles.TUTOR)
+      if (typeof response.message !== 'string') {
+        this.tutors = response.message
+      }
+      response = await this.competenceResolver.getAll()
+      if (typeof response.message !== 'string') {
+        this.competencies = response.message
+      }
+      response = await this.userResolver.getAllByRole(Roles.EXPERT)
+      if (typeof response.message !== 'string') {
+        this.experts = response.message
+      }
+      response = await this.platformResolver.getAll()
+      if (typeof response.message !== 'string') {
+        this.venues = response.message
+      }
+      response = await this.documentsResolver.getAll()
+      if (response && typeof (response as CommonOutputDto<string>).message === 'undefined') {
+        this.documents = response as DocsOutputFileUploadDto[]
+      }
+    },
+    methods: {
+      router() {
+        return router
       }
     },
   }
