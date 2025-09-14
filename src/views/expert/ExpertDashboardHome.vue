@@ -317,9 +317,9 @@ export default {
   data() {
     return {
       docTypes: [
-        { label: "Конкурсное задание", value: FileType.TASK },
-        { label: "Критерии оценок", value: FileType.CRITERIA },
-        { label: "Итоговая ведомость", value: FileType.STATEMENT },
+        { label: "Конкурсное задание отборочного этапа", value: FileType.TASK },
+        { label: "Критерии оценок отборочного этапа", value: FileType.CRITERIA },
+        { label: "Итоговая ведомость отборочного этапа", value: FileType.STATEMENT },
         { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
         { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
         { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
