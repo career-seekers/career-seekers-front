@@ -14,7 +14,7 @@
     <div class="filters-section">
       <div class="filter-group">
         <label for="ageFilter">Возрастная группа:</label>
-        <Dropdown
+        <MultiSelect
             id="ageFilter"
             v-model="selectedAge"
             :options="ageGroups"
@@ -369,7 +369,7 @@ export default {
       competenceResolver: new CompetenceResolver(),
       userResolver: new UserResolver(),
       experts: [] as UserOutputDto[],
-      selectedAge: null as AgeCategories | null,
+      selectedAge: [] as AgeCategories[],
       showDetailsDialog: false,
       selectedCompetence: undefined as undefined | CompetenceOutputDto,
       showAddCompetenceDialog: false,
@@ -404,13 +404,13 @@ export default {
   },
   computed: {
     filteredCompetencies() {
-      console.log(this.competencies);
       let filtered = this.competencies;
 
-      if (this.selectedAge) {
-        filtered = filtered.filter(
-            (competence: CompetenceOutputDto) =>
-                competence.ageCategories.some(ageDto => ageDto.ageCategory === this.selectedAge)
+      if (this.selectedAge && this.selectedAge.length > 0) {
+        filtered = filtered.filter((competence: CompetenceOutputDto) =>
+            competence.ageCategories.some(ageDto =>
+                this.selectedAge.includes(ageDto.ageCategory)
+            )
         );
       }
 
@@ -448,7 +448,7 @@ export default {
     },
 
     resetFilters() {
-      this.selectedAge = null;
+      this.selectedAge = [];
     },
 
     addCompetence() {
