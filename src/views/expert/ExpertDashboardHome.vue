@@ -85,12 +85,12 @@
                   </div>
                 </div>
                 <div class="competence-actions">
-                  <Button
-                    label="Участники"
-                    icon="pi pi-users"
-                    class="p-button-sm p-button-outlined"
-                    @click.stop="goToParticipants(competence.id)"
-                  />
+<!--                  <Button-->
+<!--                    label="Участники"-->
+<!--                    icon="pi pi-users"-->
+<!--                    class="p-button-sm p-button-outlined"-->
+<!--                    @click.stop="goToParticipants(competence.id)"-->
+<!--                  />-->
                   <Button
                     label="Документы"
                     icon="pi pi-file-text"
@@ -347,9 +347,9 @@ export default {
   data() {
     return {
       docTypes: [
-        { label: "Конкурсное задание", value: FileType.TASK },
-        { label: "Критерии оценок", value: FileType.CRITERIA },
-        { label: "Итоговая ведомость", value: FileType.STATEMENT },
+        { label: "Конкурсное задание отборочного этапа", value: FileType.TASK },
+        { label: "Критерии оценок отборочного этапа", value: FileType.CRITERIA },
+        { label: "Итоговая ведомость отборочного этапа", value: FileType.STATEMENT },
         { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
         { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
         { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
