@@ -61,7 +61,7 @@ src/
 │       ├── TutorDocuments.vue
 │       └── TutorVenueInfo.vue
 ├── App.vue               # Главный компонент
-└── main.js              # Точка входа
+└── main.ts              # Точка входа
 ```
 
 ## 🛠 Установка и запуск
@@ -146,7 +146,7 @@ import Tooltip from 'primevue/tooltip'
 
 ### Настройка PrimeVue
 ```javascript
-// main.js
+// main.ts
 import PrimeVue from 'primevue/config'
 import Tooltip from 'primevue/tooltip'
 

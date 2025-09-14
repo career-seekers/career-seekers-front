@@ -71,7 +71,7 @@
                   {{
                     ageGroups.find(
                       (group) => group.value === competence.ageCategory,
-                    ).label
+                    )?.label
                   }}
                 </div>
               </div>
@@ -330,7 +330,7 @@ import {
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
 import Dialog from "primevue/dialog";
-import FileUpload from "primevue/fileupload";
+import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
 import Dropdown from "primevue/dropdown";
 import { FileType } from "@/api/resolvers/files/file.resolver";
 import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
@@ -362,11 +362,11 @@ export default {
         { value: AgeCategories.SCHOOL, label: "9-11 лет" },
         { value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет" },
       ],
-      selectedDoctype: null,
+      selectedDoctype: null as null | FileType,
       showCompetenceDocModal: false,
       selectedCompetence: null as CompetenceOutputDto | null,
       competencies: [] as CompetenceOutputDto[],
-      selectedDocument: null,
+      selectedDocument: null as null | File,
       errors: {
         toastPopup: {
           title: "",
@@ -376,6 +376,7 @@ export default {
         competenceDocument: "",
         selectedCompetence: "",
         selectedDoctype: "",
+        selectedDocument: "",
       },
       recentEvents: [
         {
@@ -412,25 +413,22 @@ export default {
     UserState() {
       return UserState;
     },
-    expertName() {
-      return this.expertData.fullName.split(" ")[1] || "Эксперт";
-    },
   },
   async mounted() {
     const competenceResolver = new CompetenceResolver();
-    const response = await competenceResolver.getAllByExpertId(UserState.id);
-    if (response.status === 200) {
+    const response = await competenceResolver.getAllByExpertId(UserState.id!);
+    if (response.status === 200 && typeof response.message !== "string") {
       this.competencies = response.message;
     }
   },
   methods: {
-    goToCompetence(competenceId) {
+    goToCompetence(competenceId: number) {
       this.$router.push(`/expert/competencies/${competenceId}`);
     },
-    goToParticipants(competenceId) {
+    goToParticipants(competenceId: number) {
       this.$router.push(`/expert/participants/${competenceId}`);
     },
-    goToDocuments(competenceId) {
+    goToDocuments(competenceId: number) {
       this.$router.push(`/expert/documents/${competenceId}`);
     },
     goToAllCompetencies() {
@@ -453,15 +451,15 @@ export default {
       if (isValid) {
         const competenceDocumentsResolver = new CompetenceDocumentsResolver();
         const response = await competenceDocumentsResolver.create({
-          documentType: this.selectedDoctype,
-          document: this.selectedDocument,
-          userId: UserState.id,
-          directionId: this.selectedCompetence.id,
+          documentType: this.selectedDoctype!!,
+          document: this.selectedDocument!!,
+          userId: UserState.id!!,
+          directionId: this.selectedCompetence!!.id,
         });
         if (response.status !== 200) {
           this.errors.toastPopup = {
-            title: response.status,
-            message: response.message,
+            title: response.status.toString(),
+            message: response.message.toString(),
           };
         } else this.cancelLoad();
       }
@@ -475,7 +473,7 @@ export default {
     manageCompetencies() {
       this.$router.push("/expert/competencies");
     },
-    onDocumentSelect(event) {
+    onDocumentSelect(event: FileUploadSelectEvent) {
       this.selectedDocument = event.files[0];
     },
     onDocumentRemove() {

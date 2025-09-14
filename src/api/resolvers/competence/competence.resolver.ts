@@ -41,6 +41,13 @@ export class CompetenceResolver {
     );
   }
 
+  public async getById(id: number) {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<CompetenceOutputDto | string>
+    >(`${id}`, "GET", null, this.token ? this.token : undefined);
+  }
+
   public async getAllByUserId(id: number) {
     return await this.apiResolver.request<
       null,

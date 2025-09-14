@@ -368,8 +368,8 @@ export default {
             password: expert.password,
             patronymic: this.expertForm.fullName.split(" ")[2],
             role: Roles.EXPERT,
-            id: this.editingExpertId!!,
-            tutorId: UserState.id!!,
+            id: this.editingExpertId!,
+            tutorId: UserState.id!,
           };
 
           const response = await this.userResolver.update({
@@ -396,7 +396,7 @@ export default {
           email: this.expertForm.email,
           mobileNumber: this.mobileNumberFormatted,
           password: "",
-          tutorId: UserState.id!!,
+          tutorId: UserState.id!,
           role: Roles.EXPERT,
           dateOfBirth: this.dateOfBirthFormatted,
           avatarId: null,
@@ -451,7 +451,7 @@ export default {
       return isValid;
     },
     async loadExperts() {
-      const response = await this.userResolver.getAllByTutorId(UserState.id!!);
+      const response = await this.userResolver.getAllByTutorId(UserState.id!);
       if (response.status === 200) {
         this.experts = response.message;
         for (const expert of this.experts) {

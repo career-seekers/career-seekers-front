@@ -163,6 +163,7 @@ const routes = [
         path: "documents/:competenceId",
         name: "expert-documents",
         component: ExpertDocuments,
+        props: true
       },
       {
         path: "events",

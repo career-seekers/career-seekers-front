@@ -494,11 +494,11 @@ export default {
     },
     async saveCompetence() {
       const data: CompetenceInputDto = {
-        userId: UserState.id!!,
-        expertId: this.competenceForm.expert!!.id,
+        userId: UserState.id!,
+        expertId: this.competenceForm.expert!.id,
         name: this.competenceForm.name,
         description: this.competenceForm.description,
-        ageCategory: this.competenceForm.ageCategory!!,
+        ageCategory: this.competenceForm.ageCategory!,
       };
       const response = this.isEditing
         ? await this.competenceResolver.update(data)
@@ -515,7 +515,7 @@ export default {
     },
     async loadCompetencies() {
       const competenceResponse = await this.competenceResolver.getAllByUserId(
-        UserState.id!!,
+        UserState.id!,
       );
       if (competenceResponse.status === 200 && typeof competenceResponse.message !== "string") {
         this.competencies = competenceResponse.message;

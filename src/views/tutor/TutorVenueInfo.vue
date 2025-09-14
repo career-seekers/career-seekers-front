@@ -264,7 +264,7 @@ export default {
         );
 
         const data: PlatformInputDto = {
-          userId: UserState.id!!,
+          userId: UserState.id!,
           fullName: this.venueData.fullName,
           shortName: this.venueData.shortName,
           address: this.venueData.address,
@@ -301,7 +301,7 @@ export default {
       }
     },
     async loadPlatform() {
-      const response = await this.platformResolver.getByUserId(UserState.id!!);
+      const response = await this.platformResolver.getByUserId(UserState.id!);
       if (response.status === 200) {
         this.oldMail = response.message.email;
         this.venueData = response.message;

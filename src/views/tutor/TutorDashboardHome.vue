@@ -437,7 +437,7 @@ export default {
         email: this.expertForm.email,
         mobileNumber: this.mobileNumberFormatted,
         password: "",
-        tutorId: UserState.id!!,
+        tutorId: UserState.id!,
         role: Roles.EXPERT,
         dateOfBirth: this.dateOfBirthFormatted,
         avatarId: null,
@@ -485,20 +485,20 @@ export default {
       this.$router.push("/tutor/documents");
     },
     async loadPlatform() {
-      const response = await this.platformResolver.getByUserId(UserState.id!!);
+      const response = await this.platformResolver.getByUserId(UserState.id!);
       if (response.status === 200) {
         this.venueData = response.message;
       }
     },
     async loadExperts() {
-      const response = await this.userResolver.getAllByTutorId(UserState.id!!);
+      const response = await this.userResolver.getAllByTutorId(UserState.id!);
       if (response.status === 200) {
         this.experts = response.message;
       }
     },
     async loadCompetencies() {
       const response = await this.competenceResolver.getAllByUserId(
-        UserState.id!!,
+        UserState.id!,
       );
       if (response.status === 200 && typeof response.message !== "string") {
         this.competencies = response.message;

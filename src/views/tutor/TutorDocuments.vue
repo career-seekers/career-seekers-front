@@ -286,7 +286,7 @@ export default {
     },
     async loadCompetencies() {
       const response = await this.competenceResolver.getAllByUserId(
-        UserState.id!!,
+        UserState.id!,
       );
       if (response.status === 200 && typeof response.message !== "string") {
         response.message.forEach((competence) => {

@@ -7,6 +7,18 @@ export class CompetenceDocumentsResolver {
   private apiResolver = new ApiResolver("events-service/v1/direction-docs");
   private token = localStorage.getItem("access_token");
 
+  public async getAllByCompetenceId(id: number) {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<CompetenceDocumentsOutputDto[] | string>
+    >(
+      `getByDirectoryId/${id}`,
+      "GET",
+      null,
+      this.token ? this.token : undefined
+    );
+  }
+
   public async create(data: CompetenceDocumentsInputDto) {
     return this.apiResolver.request<
       FormData,
