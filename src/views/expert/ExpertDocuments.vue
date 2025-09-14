@@ -269,10 +269,14 @@ export default {
       }
     },
     async uploadDocument() {
+      if (!this.uploadingDocument || !this.uploadingType || !UserState.id) {
+        alert("Пожалуйста, выберите документ, тип документа и убедитесь, что вы авторизованы.");
+        return;
+      }
       const response = await this.competenceDocumentsResolver.create({
-        document: this.uploadingDocument!!,
-        documentType: this.uploadingType!!,
-        userId: UserState.id!!,
+        document: this.uploadingDocument,
+        documentType: this.uploadingType,
+        userId: UserState.id,
         directionId: parseInt(this.$props.competenceId),
       })
       if (typeof response.message !== "string") {
