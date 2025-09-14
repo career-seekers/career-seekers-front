@@ -40,9 +40,6 @@
                   expert.patronymic
               }}
             </h3>
-            <p class="expert-position">
-              {{ expert.expertDocuments }}
-            </p>
           </div>
           <div class="expert-actions">
             <Button
