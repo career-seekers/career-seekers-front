@@ -57,10 +57,14 @@
             <h3 class="competence-name">
               {{ competence.name }}
             </h3>
-            <div class="competence-age">
-                <span v-for="item in competence.ageCategories" :key="item.id">
-                  {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
-                </span>
+            <div class="competence-ages-container">
+                 <span
+                     v-for="item in competence.ageCategories"
+                     :key="item.id"
+                     class="competence-age"
+                 >
+                   {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
+                 </span>
             </div>
             <div class="competence-description">
               {{ competence.description }}
@@ -465,7 +469,7 @@ export default {
       this.competenceForm = {
         id: this.editingCompetenceId,
         expert: this.experts.find(
-          (expert: UserOutputDto) => expert.id === competence.expertId,
+            (expert: UserOutputDto) => expert.id === competence.expertId,
         ),
         ageCategory: competence.ageCategories.map(item => item.ageCategory),
         name: competence.name,
@@ -677,6 +681,12 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 1.25rem;
   font-weight: 600;
+}
+
+.competence-ages-container {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
 }
 
 .competence-age {
