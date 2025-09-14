@@ -42,26 +42,16 @@ export class FileResolver {
     );
   }
 
-  public async downloadById(documentId: number) {
-    try {
-      const response = await this.apiResolver.request<null, Blob>(
-        `download/${documentId}`,
-        "GET",
-        null,
-        this.token ? this.token : undefined,
-      );
-      const blob = new Blob([response]);
-      const fileURL = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = fileURL;
-      link.setAttribute("download", `document-${documentId}`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(fileURL);
-    } catch (error) {
-      console.error("Download error:", error);
-    }
+  public async getById(id: number) {
+    return await this.apiResolver.request<
+      null,
+      DocsOutputFileUploadDto | CommonOutputDto<string>
+    >(
+      `${id}`,
+      "GET",
+      null,
+      this.token ? this.token : undefined,
+    )
   }
 }
 

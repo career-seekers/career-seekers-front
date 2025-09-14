@@ -100,6 +100,7 @@
             type="submit"
             label="Загрузить"
             class="p-button-outlined submit-upload"
+            :disabled="uploadingType === null || uploadingDocument === null"
             @click="uploadDocument"
           />
           <div class="upload-info">
@@ -186,66 +187,26 @@
         </div>
       </div>
     </div>
-
-    <!-- Диалог предварительного просмотра -->
-    <Dialog
-      v-model:visible="showPreviewDialog"
-      :header="selectedDocument?.id.toString() || 'Предварительный просмотр'"
-      :modal="true"
-      :style="{ width: '800px' }"
-    >
-      <div
-        v-if="selectedDocument"
-        class="document-preview"
-      >
-        <div class="preview-info">
-          <div class="preview-meta">
-            <div class="meta-item">
-              <span class="meta-label">Загружен:</span>
-              <span class="meta-value">{{ selectedDocument.createdAt.substring(0, 10) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="preview-content" />
-      </div>
-
-      <template #footer>
-        <Button
-          label="Закрыть"
-          icon="pi pi-times"
-          class="p-button-text"
-          @click="closePreview"
-        />
-        <Button
-          label="Скачать"
-          icon="pi pi-download"
-          class="p-button-primary"
-          @click="() => { if (selectedDocument) downloadDocument(selectedDocument) }"
-        />
-      </template>
-    </Dialog>
   </div>
 </template>
 
 <script lang="ts">
 import Button from "primevue/button";
-import Dialog from "primevue/dialog";
 import FileUpload, { type FileUploadSelectEvent, type FileUploadUploadEvent } from 'primevue/fileupload';
 import Dropdown from "primevue/dropdown";
-import { FileType } from "@/api/resolvers/files/file.resolver.ts";
+import { FileResolver, FileType } from '@/api/resolvers/files/file.resolver.ts';
 import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
 import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
 import { UserState } from '@/state/UserState.ts';
 import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 import { ref } from 'vue';
+import apiConf from '@/api/api.conf.ts';
 
 export default {
   name: "ExpertDocuments",
   components: {
     Button,
-    Dialog,
     FileUpload,
     Dropdown,
   },
@@ -262,8 +223,8 @@ export default {
       selectedDocument: null as null | DocumentsOutputDto,
       uploadingType: null,
       uploadingDocument: null as null | File,
-      showPreviewDialog: false,
       competence: null as null | CompetenceOutputDto,
+      fileResolver: new FileResolver(),
       competenceResolver: new CompetenceResolver(),
       competenceDocumentsResolver: new CompetenceDocumentsResolver(),
       docTypes: [
@@ -279,9 +240,11 @@ export default {
     };
   },
   computed: {
+    apiConf() {
+      return apiConf
+    },
     filteredDocuments() {
       let filtered = this.documents;
-
       // Фильтр по типу
       if (this.selectedType) {
         filtered = filtered.filter((d) => d.documentType === this.selectedType);
@@ -299,6 +262,7 @@ export default {
   },
   methods: {
     async loadDocuments() {
+      this.documents = []
       const response = await this.competenceDocumentsResolver
         .getAllByCompetenceId(parseInt(this.$props.competenceId))
       if (typeof response.message !== "string") {
@@ -327,21 +291,27 @@ export default {
       console.log("Загрузка завершена:", event);
       // Обновить список документов
     },
-    downloadDocument(document: DocumentsOutputDto) {
-      console.log("Скачивание документа:", document);
-      // Логика скачивания
+    downloadDocument(doc: DocumentsOutputDto) {
+      const a = document.createElement("a");
+      a.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.documentId}`
+      document.body.appendChild(a);
+      a.click()
+      document.body.removeChild(a);
     },
-    previewDocument(document: DocumentsOutputDto) {
-      this.selectedDocument = document;
-      this.showPreviewDialog = true;
+    previewDocument(doc: DocumentsOutputDto) {
+      this.selectedDocument = doc;
+      const a = document.createElement("a");
+      a.href = `${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click()
+      document.body.removeChild(a);
     },
-    closePreview() {
-      this.showPreviewDialog = false;
-      this.selectedDocument = null;
-    },
-    deleteDocument(document: DocumentsOutputDto) {
-      console.log("Удаление документа:", document.documentId);
-      // Логика удаления
+    async deleteDocument(document: DocumentsOutputDto) {
+      const response = await this.competenceDocumentsResolver.delete(document.id)
+      if (response.status === 200) {
+        await this.loadDocuments()
+      }
     },
     resetFilters() {
       this.selectedType = null;

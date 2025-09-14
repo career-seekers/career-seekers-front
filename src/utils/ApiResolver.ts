@@ -37,13 +37,17 @@ class ApiResolverUtil {
       if (axios.isAxiosError(error)) {
         console.log(error);
         return {
-           
+
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
           status: error.response?.data.status,
-           
+
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
           message: error.response?.data.message.split(":")[1]
-             
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             ? error.response?.data.message.split(":")[1]
              
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             : error.response?.data.message,
         } as S;
       } else {
