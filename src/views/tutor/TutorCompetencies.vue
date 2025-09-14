@@ -442,6 +442,7 @@ export default {
     },
     addCompetence() {
       this.competenceForm = {
+        id: null,
         name: "",
         description: "",
         ageCategory: null,
@@ -451,9 +452,10 @@ export default {
     },
     editCompetence(competence: CompetenceOutputDto) {
       this.isEditing = true;
-      console.log(competence, this.experts);
       this.editingCompetenceId = competence.id;
+
       this.competenceForm = {
+        id: this.editingCompetenceId,
         expert: this.experts.find(
           (expert: UserOutputDto) => expert.id === competence.expertId,
         ),
@@ -461,6 +463,7 @@ export default {
         name: competence.name,
         description: competence.description,
       };
+      console.log(this.competenceForm);
       this.showAddCompetenceDialog = true;
     },
     async deleteCompetence(competence: CompetenceOutputDto) {
@@ -525,7 +528,7 @@ export default {
         };
       }
 
-      const expertResponse = await this.userResolver.getAllByRole(Roles.EXPERT);
+      const expertResponse = await this.userResolver.getAllByTutorId(UserState.id);
       if (expertResponse.status == 200) {
         this.experts = expertResponse.message;
       } else {
