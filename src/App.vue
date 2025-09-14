@@ -11,9 +11,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import GooseConfetti from "@/components/GooseConfetti.vue";
 import easterEggMixin from "@/mixins/easterEgg.js";
+import {ref} from "vue";
+import SocketManager from "@/utils/SocketManager";
+
+const messages = ref<string[]>([])
+const webSocketManager = new SocketManager();
+const webSocketClient = await webSocketManager.connect()
 
 export default {
   name: "App",
@@ -28,12 +34,29 @@ export default {
       this.triggerGooseConfetti,
     );
     // console.log('Easter egg listener mounted')
+
+    webSocketClient.onConnect = (frame) => {
+      console.log('Connected: ' + frame)
+
+      webSocketClient?.subscribe('/topic/greeting', (message) => {
+        if (message.body) {
+          console.log(message.body)
+          messages.value.push(message.body)
+        }
+      })
+
+      webSocketClient?.publish({destination: '/app/greet', body: 'Hello from Vue!'})
+    }
+
+    webSocketClient.activate()
   },
   beforeUnmount() {
     window.removeEventListener(
       "trigger-goose-confetti",
       this.triggerGooseConfetti,
     );
+
+    webSocketManager.disconnect(webSocketClient)
   },
   methods: {
     shouldAnimate(path) {
