@@ -21,7 +21,7 @@
           class="sidebar-logo"
         >
         <h2 class="sidebar-title">
-          Личный кабинет куратора
+          Личный кабинет администратора
         </h2>
         <button
           v-if="isMobile"
@@ -38,7 +38,7 @@
             <router-link
               to="/tutor/dashboard"
               class="nav-link"
-              :class="{ active: $route.path === '/tutor/dashboard' }"
+              :class="{ active: $route.path === '/admin/dashboard' }"
               @click="closeSidebarOnMobile"
             >
               <i class="pi pi-home" />
@@ -49,7 +49,18 @@
             <router-link
               to="/tutor/experts"
               class="nav-link"
-              :class="{ active: $route.path === '/tutor/experts' }"
+              :class="{ active: $route.path === '/admin/tutors' }"
+              @click="closeSidebarOnMobile"
+            >
+              <i class="pi pi-users" />
+              <span>Кураторы</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link
+              to="/tutor/experts"
+              class="nav-link"
+              :class="{ active: $route.path === '/admin/experts' }"
               @click="closeSidebarOnMobile"
             >
               <i class="pi pi-users" />
@@ -60,7 +71,7 @@
             <router-link
               to="/tutor/competencies"
               class="nav-link"
-              :class="{ active: $route.path === '/tutor/competencies' }"
+              :class="{ active: $route.path === '/admin/competencies' }"
               @click="closeSidebarOnMobile"
             >
               <i class="pi pi-briefcase" />
@@ -71,7 +82,7 @@
             <router-link
               to="/tutor/documents"
               class="nav-link"
-              :class="{ active: $route.path === '/tutor/documents' }"
+              :class="{ active: $route.path === '/admin/documents' }"
               @click="closeSidebarOnMobile"
             >
               <i class="pi pi-file" />
@@ -82,11 +93,11 @@
             <router-link
               to="/tutor/venue-info"
               class="nav-link"
-              :class="{ active: $route.path === '/tutor/venue-info' }"
+              :class="{ active: $route.path === '/admin/venues' }"
               @click="closeSidebarOnMobile"
             >
               <i class="pi pi-building" />
-              <span>Информация о площадке</span>
+              <span>Площадки</span>
             </router-link>
           </li>
         </ul>
