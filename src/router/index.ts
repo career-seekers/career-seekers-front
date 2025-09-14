@@ -40,6 +40,8 @@ import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
 import { fillUserState, redirectByUserState } from "../state/UserState";
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
+import AdminDashboard from '@/views/admin/AdminDashboard.vue';
+import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
 
 const routes = [
   {
@@ -208,6 +210,20 @@ const routes = [
       },
     ],
   },
+  {
+    path: "/admin",
+    component: AdminDashboard,
+    children: [
+      {
+        path: "",
+        redirect: "/admin/dashboard",
+      },
+      {
+        path: "dashboard",
+        component: AdminDashboardHome
+      }
+    ]
+  }
 ];
 
 const router = createRouter({
