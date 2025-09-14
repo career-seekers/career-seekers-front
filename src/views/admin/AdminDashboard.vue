@@ -36,7 +36,7 @@
         <ul class="nav-list">
           <li class="nav-item">
             <router-link
-              to="/tutor/dashboard"
+              to="/admin/dashboard"
               class="nav-link"
               :class="{ active: $route.path === '/admin/dashboard' }"
               @click="closeSidebarOnMobile"
@@ -47,7 +47,7 @@
           </li>
           <li class="nav-item">
             <router-link
-              to="/tutor/experts"
+              to="/admin/tutors"
               class="nav-link"
               :class="{ active: $route.path === '/admin/tutors' }"
               @click="closeSidebarOnMobile"
@@ -58,7 +58,7 @@
           </li>
           <li class="nav-item">
             <router-link
-              to="/tutor/experts"
+              to="/admin/experts"
               class="nav-link"
               :class="{ active: $route.path === '/admin/experts' }"
               @click="closeSidebarOnMobile"
@@ -69,7 +69,7 @@
           </li>
           <li class="nav-item">
             <router-link
-              to="/tutor/competencies"
+              to="/admin/competencies"
               class="nav-link"
               :class="{ active: $route.path === '/admin/competencies' }"
               @click="closeSidebarOnMobile"
@@ -80,7 +80,7 @@
           </li>
           <li class="nav-item">
             <router-link
-              to="/tutor/documents"
+              to="/admin/documents"
               class="nav-link"
               :class="{ active: $route.path === '/admin/documents' }"
               @click="closeSidebarOnMobile"
@@ -91,7 +91,7 @@
           </li>
           <li class="nav-item">
             <router-link
-              to="/tutor/venue-info"
+              to="/admin/venues"
               class="nav-link"
               :class="{ active: $route.path === '/admin/venues' }"
               @click="closeSidebarOnMobile"
