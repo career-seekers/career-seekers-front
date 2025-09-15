@@ -129,8 +129,9 @@
       </div>
     </div>
 
-    <!-- Диалог добавления/редактирования эксперта -->
+    <!-- Диалог редактирования компетенции -->
     <Dialog
+      v-if="selectedCompetence"
       v-model:visible="showAddCompetenceDialog"
       :header="isEditing ? 'Редактировать компетенцию' : 'Добавить компетенцию'"
       :modal="true"
@@ -198,7 +199,7 @@
           <Dropdown
             id="competenceExpertList"
             v-model="competenceForm.expert"
-            :options="filteredExperts"
+            :options="filteredExperts(selectedCompetence)"
             placeholder="Не выбран"
             class="filter-dropdown"
             :class="{ 'p-invalid': !competenceForm.expert }"
@@ -242,13 +243,13 @@
 
     <!-- Диалог подробной информации -->
     <Dialog
+      v-if="selectedCompetence"
       v-model:visible="showDetailsDialog"
       :header="selectedCompetence?.name || 'Компетенция'"
       :modal="true"
       :style="{ width: '800px' }"
     >
       <div
-        v-if="selectedCompetence"
         class="competence-details"
       >
         <div class="detail-section">
@@ -450,6 +451,7 @@
       editCompetence(competence: CompetenceOutputDto) {
         this.isEditing = true;
         this.editingCompetenceId = competence.id;
+        this.selectedCompetence = competence;
 
         this.competenceForm = {
           id: this.editingCompetenceId,
@@ -460,7 +462,6 @@
           name: competence.name,
           description: competence.description,
         };
-        console.log(this.competenceForm);
         this.showAddCompetenceDialog = true;
       },
 
@@ -496,7 +497,6 @@
       },
 
       async saveCompetence() {
-        console.log(this.competenceForm);
         const data: CompetenceInputDto = {
           id: this.competenceForm.id,
           userId: UserState.id!,

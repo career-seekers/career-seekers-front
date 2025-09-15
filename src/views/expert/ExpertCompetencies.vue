@@ -232,7 +232,6 @@ export default {
           (competence) => competence.ageCategories.filter(age => this.selectedAge?.includes(age.ageCategory)).length > 0
         );
       }
-      console.log(this.selectedAge)
 
       return filtered;
     },
