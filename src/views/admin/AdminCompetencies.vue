@@ -398,11 +398,6 @@
       };
     },
     computed: {
-      filteredExperts(competence: CompetenceOutputDto) {
-        return this.experts.filter((expert) => {
-          return expert.tutorId === competence.userId
-        })
-      },
       filteredCompetencies() {
         let filtered = this.competencies;
 
@@ -421,6 +416,11 @@
       await this.loadCompetencies();
     },
     methods: {
+      filteredExperts(competence: CompetenceOutputDto) {
+        return this.experts.filter((expert) => {
+          return expert.tutorId === competence.userId
+        })
+      },
       competenceExpert(selectedCompetence: CompetenceOutputDto) {
         return this.experts.find(
           (expert: UserOutputDto) => expert.id === selectedCompetence.expertId,
