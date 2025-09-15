@@ -36,6 +36,13 @@
           </div>
           <div class="expert-actions">
             <Button
+              v-tooltip="'Редактировать'"
+              icon="pi pi-pencil"
+              class="p-button-text p-button-sm"
+              style="background: white"
+              @click="editTutor(tutor)"
+            />
+            <Button
               v-tooltip="'Удалить'"
               icon="pi pi-trash"
               class="p-button-text p-button-sm p-button-danger"
@@ -77,6 +84,132 @@
         </div>
       </div>
     </div>
+
+    <!-- Диалог редактирования куратора -->
+    <Dialog
+      v-model:visible="showEditTutorDialog"
+      :header="
+        isEditing ? 'Редактировать эксперта' : 'Добавить главного эксперта'
+      "
+      :modal="true"
+      :style="{ width: '600px' }"
+    >
+      <div class="expert-form">
+        <div class="form-field">
+          <label for="fullName">ФИО *</label>
+          <InputText
+            id="fullName"
+            v-model="tutorForm.fullName"
+            placeholder="Введите ФИО эксперта"
+            :class="{ 'p-invalid': !tutorForm.fullName }"
+          />
+          <small
+            v-if="errors.fullName"
+            class="p-error"
+          >{{
+            errors.fullName
+          }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="birthDate">Дата рождения *</label>
+          <InputMask
+            id="birthDate"
+            v-model="tutorForm.birthDate"
+            mask="99.99.9999"
+            class="w-full"
+            placeholder="дд.мм.гггг"
+            :class="{ 'p-invalid': !tutorForm.birthDate }"
+          />
+          <small
+            v-if="errors.birthDate"
+            class="p-error"
+          >{{
+            errors.birthDate
+          }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="email">Email *</label>
+          <InputText
+            id="email"
+            v-model="tutorForm.email"
+            type="email"
+            placeholder="Введите email"
+            :class="{ 'p-invalid': !tutorForm.email }"
+          />
+          <small
+            v-if="errors.email"
+            class="p-error"
+          >{{ errors.email }}</small>
+        </div>
+
+        <div class="form-field">
+          <label
+            for="parentPhone"
+            class="field-label"
+          >Контактный телефон *</label>
+          <InputMask
+            id="parentPhone"
+            v-model="tutorForm.phone"
+            mask="+7 (999) 999-99-99"
+            placeholder="+7 (___) ___-__-__"
+            class="w-full"
+            :class="{ 'p-invalid': !tutorForm.phone }"
+          />
+          <small
+            v-if="errors.phone"
+            class="p-error"
+          >{{ errors.phone }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="institution">Место работы *</label>
+          <InputText
+            id="institution"
+            v-model="tutorForm.institution"
+            placeholder="Введите место работы"
+            :class="{ 'p-invalid': !tutorForm.institution }"
+          />
+          <small
+            v-if="errors.institution"
+            class="p-error"
+          >{{
+            errors.institution
+          }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="post">Должность *</label>
+          <InputText
+            id="post"
+            v-model="tutorForm.post"
+            placeholder="Введите должность"
+            :class="{ 'p-invalid': !tutorForm.post}"
+          />
+          <small
+            v-if="errors.post"
+            class="p-error"
+          >{{ errors.post }}</small>
+        </div>
+      </div>
+
+      <template #footer>
+        <Button
+          label="Отмена"
+          icon="pi pi-times"
+          class="p-button-text"
+          @click="cancelEdit"
+        />
+        <Button
+          :label="isEditing ? 'Сохранить' : 'Добавить'"
+          icon="pi pi-check"
+          class="p-button-primary"
+          @click="saveTutor"
+        />
+      </template>
+    </Dialog>
+
     <ToastPopup :content="errors.toastPopup" />
   </div>
 </template>
@@ -87,33 +220,185 @@
   import { Roles } from '@/state/UserState.types.ts';
   import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
   import Button from 'primevue/button';
+  import type { UpdateUserInputDto } from '@/api/resolvers/user/dto/input/update-user-input.dto.ts';
+  import Dialog from 'primevue/dialog';
+  import InputText from 'primevue/inputtext';
+  import InputMask from 'primevue/inputmask';
+  import { TutorDocumentsResolver } from '@/api/resolvers/tutorDocuments/tutor-documents.resolver.ts';
 
   export default {
     name: 'AdminTutors',
     components: {
       ToastPopup,
       Button,
-
+      Dialog,
+      InputText,
+      InputMask,
     },
     data() {
       return {
         userResolver: new UserResolver(),
+        tutorDocumentsResolver: new TutorDocumentsResolver(),
         
         tutors: [] as UserOutputDto[],
         isEditing: false,
+        editingTutorId: null as null | number,
+        oldMail: null as null | string,
+        
+        tutorForm: {
+          fullName: "",
+          birthDate: "",
+          phone: "",
+          email: "",
+          post: null as null | string,
+          institution: null as null | string,
+        },
         
         errors: {
           toastPopup: {
             title: "",
             message: ""
-          }
-        }
+          },
+          fullName: "",
+          birthDate: "",
+          phone: "",
+          email: "",
+          post: "",
+          institution: "",
+        },
+        
+        showEditTutorDialog: false,
       }
+    },
+    computed: {
+      dateOfBirthFormatted() {
+        const [day, month, year] = this.tutorForm.birthDate.split(".");
+        const date = new Date(
+          Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)),
+        );
+        return date.toISOString();
+      },
+      mobileNumberFormatted() {
+        return this.tutorForm.phone.replaceAll(/\s|-|\(|\)/g, "");
+      },
     },
     async beforeMount() { await this.loadTutors(); },
     methods: {
+      editTutor(tutor: UserOutputDto) {
+        this.isEditing = true;
+        this.editingTutorId = tutor.id;
+        this.tutorForm = {
+          fullName: `${tutor.lastName} ${tutor.firstName} ${tutor.patronymic}`,
+          email: tutor.email,
+          phone: this.reformatPhone(tutor.mobileNumber),
+          birthDate: this.reformatDateOfBirth(tutor.dateOfBirth),
+          post: tutor.tutorDocuments?.post ?? "",
+          institution: tutor.tutorDocuments?.institution ?? "",
+        };
+        this.oldMail = tutor.email;
+        this.showEditTutorDialog = true;
+      },
+      reformatDateOfBirth(date: string) {
+        const [year, month, day] = date.substring(0, 10).split("-");
+        return `${day}.${month}.${year}`;
+      },
       reformatPhone(phone: string) {
         return `${phone.substring(0, 2)} (${phone.substring(2, 5)}) ${phone.substring(5, 8)}-${phone.substring(8, 10)}-${phone.substring(10, 12)}`;
+      },
+      async saveTutor() {
+        if (!this.validateForm()) {
+          return;
+        }
+
+        if (this.isEditing) {
+          const tutor = this.tutors.find(
+            (tutor: UserOutputDto) => tutor.id === this.editingTutorId,
+          );
+          if (tutor) {
+            const editedTutor: UpdateUserInputDto = {
+              avatarId: tutor.avatarId,
+              dateOfBirth: this.dateOfBirthFormatted,
+              email: this.tutorForm.email,
+              firstName: this.tutorForm.fullName.split(" ")[1],
+              lastName: this.tutorForm.fullName.split(" ")[0],
+              mobileNumber: this.mobileNumberFormatted,
+              password: tutor.password,
+              patronymic: this.tutorForm.fullName.split(" ")[2],
+              role: Roles.TUTOR,
+              id: this.editingTutorId!,
+              tutorId: null,
+            };
+
+            if (tutor.tutorDocuments != null) {
+              const response = await this.tutorDocumentsResolver.update({
+                id: tutor.id,
+                post: this.tutorForm.post,
+                institution: this.tutorForm.institution,
+              })
+              if (response.status !== 200) {
+                this.errors.toastPopup = {
+                  title: response.status.toString(),
+                  message: response.message.toString()
+                }
+              }
+            }
+
+            const response = await this.userResolver.update({
+              ...editedTutor,
+              email:
+                editedTutor.email === this.oldMail
+                  ? null
+                  : editedTutor.email,
+            });
+            if (response.status === 200) {
+              this.cancelEdit();
+            } else {
+              this.errors.toastPopup = {
+                title: response.status.toString(),
+                message: response.message,
+              };
+            }
+          }
+        }
+        await this.loadTutors();
+      },
+      cancelEdit() {
+        this.isEditing = false;
+        this.editingTutorId = null;
+        this.tutorForm = {
+          fullName: "",
+          email: "",
+          phone: "",
+          birthDate: "",
+          post: "",
+          institution: ""
+        };
+        this.showEditTutorDialog = false;
+      },
+      validateForm() {
+        let isValid = true;
+
+        if (!this.tutorForm.fullName.trim()) {
+          this.errors.fullName = "ФИО обязательно";
+          isValid = false;
+        }
+
+        if (!this.tutorForm.email.trim()) {
+          this.errors.email = "email обязателен";
+          isValid = false;
+        }
+
+        if (!this.tutorForm.phone.trim()) {
+          this.errors.phone = "Номер телефона обязателен";
+          isValid = false;
+        }
+
+        if (!this.tutorForm.birthDate.trim()) {
+          this.errors.birthDate = "Дата рождения обязательна";
+          isValid = false;
+        }
+
+        return isValid;
       },
       async loadTutors() {
         const response = await this.userResolver.getAllByRole(Roles.TUTOR)
