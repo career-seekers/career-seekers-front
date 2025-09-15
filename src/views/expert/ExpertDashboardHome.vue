@@ -40,7 +40,7 @@
             <div class="data-item">
               <span class="data-label">Должность:</span>
               <span class="data-value">{{
-                UserState.position ? UserState.position : "Не указано"
+                currentExpert?.expertDocuments?.post ? currentExpert?.expertDocuments?.post : "Не указано"
               }}</span>
             </div>
           </div>
@@ -67,12 +67,14 @@
                 <h4 class="competence-name">
                   {{ competence.name }}
                 </h4>
-                <div class="competence-age">
-                  {{
-                    ageGroups.find(
-                      (group) => group.value === competence.ageCategory,
-                    )?.label
-                  }}
+                <div class="competence-ages-container">
+                 <span
+                     v-for="item in competence.ageCategories"
+                     :key="item.id"
+                     class="competence-age"
+                 >
+                   {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
+                 </span>
                 </div>
               </div>
               <div class="competence-content">
@@ -335,6 +337,8 @@ import Dropdown from "primevue/dropdown";
 import { FileType } from "@/api/resolvers/files/file.resolver";
 import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
+import {UserResolver} from "@/api/resolvers/user/user.resolver.ts";
 
 export default {
   name: "ExpertDashboardHome",
@@ -378,35 +382,8 @@ export default {
         selectedDoctype: "",
         selectedDocument: "",
       },
-      recentEvents: [
-        {
-          id: 1,
-          title: "Мастер-класс по нейронным сетям",
-          competence: "Искусственный интеллект",
-          date: "15.12.2024, 14:00",
-          status: "Запланировано",
-          statusClass: "status-planned",
-          icon: "pi pi-calendar",
-        },
-        {
-          id: 2,
-          title: "Практическое занятие по анализу данных",
-          competence: "Анализ данных",
-          date: "12.12.2024, 10:00",
-          status: "Проведено",
-          statusClass: "status-completed",
-          icon: "pi pi-check-circle",
-        },
-        {
-          id: 3,
-          title: "Введение в машинное обучение",
-          competence: "Машинное обучение",
-          date: "10.12.2024, 16:00",
-          status: "Проведено",
-          statusClass: "status-completed",
-          icon: "pi pi-check-circle",
-        },
-      ],
+      currentExpert: null as UserOutputDto | null,
+      usersResolver: new UserResolver(),
     };
   },
   computed: {
@@ -415,13 +392,29 @@ export default {
     },
   },
   async mounted() {
+    await this.getCurrentExpert();
+
     const competenceResolver = new CompetenceResolver();
     const response = await competenceResolver.getAllByExpertId(UserState.id!);
     if (response.status === 200 && typeof response.message !== "string") {
       this.competencies = response.message;
     }
   },
+
   methods: {
+    async getCurrentExpert() {
+      const res = await this.usersResolver.getById(UserState.id!)
+
+      if (res.status === 200) {
+        this.currentExpert = res.message as UserOutputDto;
+      } else {
+        this.errors.toastPopup = {
+          title: res.status.toString(),
+          message: res.message.toString(),
+        };
+      }
+    },
+
     goToCompetence(competenceId: number) {
       this.$router.push(`/expert/competencies/${competenceId}`);
     },
@@ -696,6 +689,12 @@ export default {
   margin: 0 0 0.5rem 0;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.competence-ages-container {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
 }
 
 .competence-age {
