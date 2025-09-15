@@ -106,7 +106,7 @@
           :options="ageOptions"
           option-label="label"
           option-value="value"
-          placeholder="Все возрасты"
+          placeholder="Все возраста"
           class="filter-dropdown"
         />
       </div>
