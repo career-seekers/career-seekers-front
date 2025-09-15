@@ -420,7 +420,6 @@
         this.showAddExpertDialog = true;
       },
       editExpert(expert: UserOutputDto) {
-        console.log(expert.tutorId, this.tutors)
         this.isEditing = true;
         this.editingExpertId = expert.id;
         this.expertForm = {
