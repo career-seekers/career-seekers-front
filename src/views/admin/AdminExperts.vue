@@ -396,29 +396,6 @@
               };
             }
           }
-        } else {
-          const newExpert: UserInputDto = {
-            lastName: this.expertForm.fullName.split(" ")[0],
-            firstName: this.expertForm.fullName.split(" ")[1],
-            patronymic: this.expertForm.fullName.split(" ")[2],
-            email: this.expertForm.email,
-            mobileNumber: this.mobileNumberFormatted,
-            password: "",
-            tutorId: UserState.id!,
-            role: Roles.EXPERT,
-            dateOfBirth: this.dateOfBirthFormatted,
-            avatarId: null,
-          };
-
-          const response = await this.userResolver.create(newExpert);
-          if (response.status === 200) {
-            this.cancelEdit();
-          } else {
-            this.errors.toastPopup = {
-              title: response.status.toString(),
-              message: response.message.toString(),
-            };
-          }
         }
         await this.loadExperts();
       },

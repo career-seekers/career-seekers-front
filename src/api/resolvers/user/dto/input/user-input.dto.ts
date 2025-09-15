@@ -7,7 +7,7 @@ export interface UserInputDto {
   dateOfBirth: string;
   email: string | null;
   mobileNumber: string;
-  password: string;
+  password: string | null;
   role: Roles;
   tutorId: number | null;
   avatarId: number | null;

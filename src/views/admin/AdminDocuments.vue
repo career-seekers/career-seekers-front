@@ -254,30 +254,19 @@
     },
     methods: {
       documentCompetence(document: DocumentsOutputDto): CompetenceOutputDto | undefined {
-        const competence = this.competencies.find((competence: CompetenceOutputDto) =>
+        return this.competencies.find((competence: CompetenceOutputDto) =>
           competence.documents.some((doc) => doc.id === document.id),
         );
-        if (competence) return competence;
-        return undefined
       },
       documentExpert(document: CompetenceDocumentsOutputDto) {
         return this.experts.find((expert) => expert.id === document.userId);
       },
       viewDocument(doc: CompetenceDocumentsOutputDto) {
         this.selectedDocument = doc;
-        const a = document.createElement("a");
-        a.href = `${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`
-        a.target = "_blank";
-        document.body.appendChild(a);
-        a.click()
-        document.body.removeChild(a);
+        window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`, "_blank");
       },
       downloadDocument(doc: CompetenceDocumentsOutputDto) {
-        const a = document.createElement("a");
-        a.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.documentId}`
-        document.body.appendChild(a);
-        a.click()
-        document.body.removeChild(a);
+        window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.documentId}`;
       },
       async deleteDocument(document: CompetenceDocumentsOutputDto) {
         if (
