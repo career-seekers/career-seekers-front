@@ -249,7 +249,6 @@
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
   import { PlatformResolver } from '@/api/resolvers/platform/platform.resolver.ts';
   import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
-  import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
   import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import type { PlatformOutputDto } from '@/api/resolvers/platform/dto/output/platform-output.dto.ts';
@@ -257,6 +256,10 @@
   import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
   import router from '@/router';
   import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
+  import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
+  import type {
+    CompetenceDocumentsOutputDto
+  } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
 
   export default {
     name: 'AdminDashboardHome',
@@ -268,7 +271,7 @@
         userResolver: new UserResolver(),
         platformResolver: new PlatformResolver(),
         competenceResolver: new CompetenceResolver(),
-        documentsResolver: new FileResolver(),
+        competenceDocumentsResolver: new CompetenceDocumentsResolver(),
 
         tutors: [] as UserOutputDto[],
         competencies: [] as CompetenceOutputDto[],
@@ -306,9 +309,9 @@
       if (typeof response.message !== 'string') {
         this.venues = response.message
       }
-      response = await this.documentsResolver.getAll()
-      if (response && typeof (response as CommonOutputDto<string>).message === 'undefined') {
-        this.documents = response as DocsOutputFileUploadDto[]
+      response = await this.competenceDocumentsResolver.getByAll()
+      if (typeof response.message !== 'string') {
+        this.documents = response.message as CompetenceDocumentsOutputDto[]
       }
     },
     methods: {

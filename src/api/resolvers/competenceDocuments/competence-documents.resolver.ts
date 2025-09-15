@@ -19,6 +19,18 @@ export class CompetenceDocumentsResolver {
     );
   }
 
+  public async getByAll() {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<CompetenceDocumentsOutputDto[] | string>
+    >(
+      "",
+      "GET",
+      null,
+      this.token ? this.token : undefined
+    )
+  }
+
   public async create(data: CompetenceDocumentsInputDto) {
     return this.apiResolver.request<
       FormData,

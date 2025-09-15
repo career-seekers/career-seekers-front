@@ -240,8 +240,9 @@ const routes = [
         component: AdminCompetencies
       },
       {
-        path: "documents",
-        component: AdminDocuments
+        path: "documents/:competenceId?",
+        component: AdminDocuments,
+        props: true
       },
       {
         path: "venues",

@@ -426,7 +426,7 @@
       },
 
       goToDocuments(competence: CompetenceOutputDto) {
-        this.$router.push(`/tutor/documents/${competence.id}`);
+        this.$router.push(`/admin/documents/${competence.id}`);
       },
 
       viewDetails(competenceId: number) {
