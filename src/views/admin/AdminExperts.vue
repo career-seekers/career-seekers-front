@@ -95,6 +95,16 @@
                   : "Не указано"
               }}</span>
             </div>
+            <div class="detail-item">
+              <span class="detail-label">Куратор:</span>
+              <span class="detail-value">{{
+                expertTutor(expert)
+                  ? expertTutor(expert)?.lastName + " " +
+                    expertTutor(expert)?.firstName + " " +
+                    expertTutor(expert)?.patronymic
+                  : "Не указано"
+              }}</span>
+            </div>
           </div>
 
           <div class="competencies-section">
@@ -194,6 +204,70 @@
             class="p-error"
           >{{ errors.phone }}</small>
         </div>
+
+        <div class="form-field">
+          <label for="institution">Место работы *</label>
+          <InputText
+            id="institution"
+            v-model="expertForm.institution"
+            placeholder="Введите место работы"
+            :class="{ 'p-invalid': !expertForm.institution }"
+          />
+          <small
+            v-if="errors.institution"
+            class="p-error"
+          >
+            {{
+              errors.institution
+            }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="post">Должность *</label>
+          <InputText
+            id="post"
+            v-model="expertForm.post"
+            placeholder="Введите должность"
+            :class="{ 'p-invalid': !expertForm.post}"
+          />
+          <small
+            v-if="errors.post"
+            class="p-error"
+          >{{ errors.post }}</small>
+        </div>
+
+        <div class="form-field">
+          <label
+            for="competenceExpertList"
+            class="field-label"
+          >Куратор *</label>
+          <Dropdown
+            id="competenceExpertList"
+            v-model="expertForm.tutor"
+            :options="tutors"
+            placeholder="Не выбран"
+            class="filter-dropdown"
+            :class="{ 'p-invalid': !expertForm.tutor }"
+          >
+            <template #option="slotProps">
+              {{ slotProps.option.lastName }} {{ slotProps.option.firstName }}
+              {{ slotProps.option.patronymic }}
+            </template>
+            <template #value="{ value }">
+              {{
+                value
+                  ? `${value.lastName} ${value.firstName} ${value.patronymic}`
+                  : "Не выбран"
+              }}
+            </template>
+          </Dropdown>
+          <small
+            v-if="errors.tutor"
+            class="p-error"
+          >{{
+            errors.tutor
+          }}</small>
+        </div>
       </div>
 
       <template #footer>
@@ -227,6 +301,11 @@
   import type { UpdateUserInputDto } from "@/api/resolvers/user/dto/input/update-user-input.dto.ts";
   import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
   import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
+  import { PlatformResolver } from '@/api/resolvers/platform/platform.resolver.ts';
+  import { ExpertDocumentsResolver } from '@/api/resolvers/expertDocuments/expert-documents.resolver.ts';
+  import { UserState } from '@/state/UserState.ts';
+  import type { UserInputDto } from '@/api/resolvers/user/dto/input/user-input.dto.ts';
+  import Dropdown from 'primevue/dropdown';
 
   export default {
     name: "AdminExperts",
@@ -236,6 +315,7 @@
       Dialog,
       InputText,
       InputMask,
+      Dropdown
     },
     data() {
       return {
@@ -249,6 +329,9 @@
           birthDate: "",
           email: "",
           phone: "",
+          post: "",
+          institution: "",
+          tutor: null as UserOutputDto | null
         },
         errors: {
           toastPopup: {
@@ -259,14 +342,20 @@
           fullName: "",
           birthDate: "",
           phone: "",
+          post: "",
+          institution: "",
+          tutor: ""
         },
         expertCompetencies: [] as {
           expertId: number;
           competencies: CompetenceOutputDto[];
         }[],
         experts: [] as UserOutputDto[],
+        tutors: [] as UserOutputDto[],
         userResolver: new UserResolver(),
         competenceResolver: new CompetenceResolver(),
+        platformsResolver: new PlatformResolver(),
+        expertDocsResolver: new ExpertDocumentsResolver(),
       };
     },
     computed: {
@@ -296,10 +385,13 @@
     watch: {
       showAddExpertDialog() {
         this.errors = {
+          tutor: '',
           birthDate: '',
           email: '',
           fullName: '',
           phone: '',
+          post: "",
+          institution: "",
           toastPopup: {
             title: "",
             message: "",
@@ -307,20 +399,28 @@
         };
       },
     },
-    async mounted() {
+    async beforeMount() {
+      await this.loadTutors();
       await this.loadExperts();
     },
     methods: {
+      expertTutor(expert: UserOutputDto) {
+        return this.tutors.find(tutor => tutor.id === expert.tutorId) ?? null
+      },
       addExpert() {
         this.expertForm = {
+          tutor: null,
           fullName: "",
           email: "",
           phone: "",
           birthDate: "",
+          post: "",
+          institution: ""
         };
         this.showAddExpertDialog = true;
       },
       editExpert(expert: UserOutputDto) {
+        console.log(expert.tutorId, this.tutors)
         this.isEditing = true;
         this.editingExpertId = expert.id;
         this.expertForm = {
@@ -328,6 +428,9 @@
           email: expert.email,
           phone: this.reformatPhone(expert.mobileNumber),
           birthDate: this.reformatDateOfBirth(expert.dateOfBirth),
+          institution: expert.expertDocuments?.institution ?? "",
+          post: expert.expertDocuments?.post ?? "",
+          tutor: this.expertTutor(expert)
         };
         this.oldMail = expert.email;
         this.showAddExpertDialog = true;
@@ -354,6 +457,41 @@
           }
         }
       },
+      async createExpertDocuments(userId: number) {
+        const response = await this.expertDocsResolver.create({
+          id: null,
+          userId: userId,
+          institution: this.expertForm.institution,
+          post: this.expertForm.post,
+        });
+
+        if (response.status === 200) {
+          this.cancelEdit();
+        } else {
+          this.errors.toastPopup = {
+            title: response.status.toString(),
+            message: response.message.toString(),
+          };
+        }
+      },
+
+      async updateExpertDocuments(id: number) {
+        const response = await this.expertDocsResolver.update({
+          id: id,
+          userId: null,
+          institution: this.expertForm.institution,
+          post: this.expertForm.post,
+        })
+
+        if (response.status === 200) {
+          this.cancelEdit();
+        } else {
+          this.errors.toastPopup = {
+            title: response.status.toString(),
+            message: response.message.toString(),
+          };
+        }
+      },
       async saveExpert() {
         if (!this.validateForm()) {
           return;
@@ -378,11 +516,17 @@
               tutorId: expert.tutorId,
             };
 
+            if (expert.expertDocuments != null) {
+              await this.updateExpertDocuments(expert.expertDocuments.id);
+            } else {
+              await this.createExpertDocuments(editedExpert.id);
+            }
+
             const response = await this.userResolver.update({
               ...editedExpert,
               email:
                 editedExpert.email === this.oldMail
-                  ? ""
+                  ? null
                   : editedExpert.email,
             });
             if (response.status === 200) {
@@ -394,6 +538,32 @@
               };
             }
           }
+        } else {
+          const newExpert: UserInputDto = {
+            lastName: this.expertForm.fullName.split(" ")[0],
+            firstName: this.expertForm.fullName.split(" ")[1],
+            patronymic: this.expertForm.fullName.split(" ")[2],
+            email: this.expertForm.email,
+            mobileNumber: this.mobileNumberFormatted,
+            password: "",
+            tutorId: UserState.id!,
+            role: Roles.EXPERT,
+            dateOfBirth: this.dateOfBirthFormatted,
+            avatarId: null,
+          }
+
+
+          const response = await this.userResolver.create(newExpert);
+
+          if (response.status === 200) {
+            await this.createExpertDocuments(response.message.id);
+            this.cancelEdit();
+          } else {
+            this.errors.toastPopup = {
+              title: response.status.toString(),
+              message: response.message.toString(),
+            };
+          }
         }
         await this.loadExperts();
       },
@@ -401,10 +571,13 @@
         this.isEditing = false;
         this.editingExpertId = null;
         this.expertForm = {
+          tutor: null,
           fullName: "",
           email: "",
           phone: "",
           birthDate: "",
+          institution: "",
+          post: ""
         };
         this.showAddExpertDialog = false;
       },
@@ -433,6 +606,7 @@
 
         return isValid;
       },
+
       async loadExperts() {
         const response = await this.userResolver.getAllByRole(Roles.EXPERT);
         if (response.status === 200 && typeof response.message !== "string") {
@@ -448,6 +622,18 @@
               });
             }
           }
+        } else {
+          this.errors.toastPopup = {
+            title: response.status.toString(),
+            message: response.message.toString(),
+          };
+        }
+      },
+
+      async loadTutors() {
+        const response = await this.userResolver.getAllByRole(Roles.TUTOR);
+        if (response.status === 200 && typeof response.message !== "string") {
+          this.tutors = response.message;
         } else {
           this.errors.toastPopup = {
             title: response.status.toString(),

@@ -487,7 +487,6 @@ export default {
 
         const response = await this.userResolver.create(newExpert);
 
-
         if (response.status === 200) {
           await this.createExpertDocuments(response.message.id);
           this.cancelEdit();

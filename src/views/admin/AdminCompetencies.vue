@@ -217,10 +217,10 @@
             </template>
           </Dropdown>
           <small
-            v-if="errors.ageCategory"
+            v-if="errors.expert"
             class="p-error"
           >{{
-            errors.ageCategory
+            errors.expert
           }}</small>
         </div>
       </div>
