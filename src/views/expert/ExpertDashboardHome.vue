@@ -40,7 +40,7 @@
             <div class="data-item">
               <span class="data-label">Должность:</span>
               <span class="data-value">{{
-                UserState.position ? UserState.position : "Не указано"
+                currentExpert?.expertDocuments?.post ? currentExpert?.expertDocuments?.post : "Не указано"
               }}</span>
             </div>
           </div>
@@ -335,6 +335,8 @@ import Dropdown from "primevue/dropdown";
 import { FileType } from "@/api/resolvers/files/file.resolver";
 import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
+import {UserResolver} from "@/api/resolvers/user/user.resolver.ts";
 
 export default {
   name: "ExpertDashboardHome",
@@ -378,6 +380,8 @@ export default {
         selectedDoctype: "",
         selectedDocument: "",
       },
+      currentExpert: null as UserOutputDto | null,
+      usersResolver: new UserResolver(),
     };
   },
   computed: {
@@ -386,13 +390,29 @@ export default {
     },
   },
   async mounted() {
+    await this.getCurrentExpert();
+
     const competenceResolver = new CompetenceResolver();
     const response = await competenceResolver.getAllByExpertId(UserState.id!);
     if (response.status === 200 && typeof response.message !== "string") {
       this.competencies = response.message;
     }
   },
+
   methods: {
+    async getCurrentExpert() {
+      const res = await this.usersResolver.getById(UserState.id!)
+
+      if (res.status === 200) {
+        this.currentExpert = res.message as UserOutputDto;
+      } else {
+        this.errors.toastPopup = {
+          title: res.status.toString(),
+          message: res.message.toString(),
+        };
+      }
+    },
+
     goToCompetence(competenceId: number) {
       this.$router.push(`/expert/competencies/${competenceId}`);
     },
