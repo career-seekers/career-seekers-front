@@ -60,6 +60,8 @@
                 competence.description.length > 50
                   ? competence.description.substring(0, 50) + '...'
                   : competence.description
+                    ? competence.description
+                    : "Без описания"
               }}
             </div>
           </div>

@@ -28,6 +28,15 @@ export class PlatformResolver {
     >("", "PATCH", data, this.token ? this.token : undefined);
   }
 
+  public async updatePlatformVerification(id: number) {
+    return await this.apiResolver.request<null, CommonOutputDto<string>>(
+      `verify/${id}`,
+      "PATCH",
+      null,
+      this.token ? this.token : undefined,
+    );
+  }
+
   public async delete(id: number) {
     return await this.apiResolver.request<null, CommonOutputDto<string>>(
       `${id}`,
