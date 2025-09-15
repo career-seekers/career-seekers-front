@@ -40,9 +40,6 @@
                   expert.patronymic
               }}
             </h3>
-            <p class="expert-position">
-              {{ expert.expertDocuments }}
-            </p>
           </div>
           <div class="expert-actions">
             <Button
@@ -189,6 +186,36 @@
             class="p-error"
           >{{ errors.phone }}</small>
         </div>
+
+        <div class="form-field">
+          <label for="institution">Место работы *</label>
+          <InputText
+              id="institution"
+              v-model="expertForm.institution"
+              placeholder="Введите место работы"
+              :class="{ 'p-invalid': !expertForm.institution }"
+          />
+          <small
+              v-if="errors.institution"
+              class="p-error"
+          >{{
+              errors.institution
+            }}</small>
+        </div>
+
+        <div class="form-field">
+          <label for="post">Должность *</label>
+          <InputText
+              id="post"
+              v-model="expertForm.post"
+              placeholder="Введите должность"
+              :class="{ 'p-invalid': !expertForm.post}"
+          />
+          <small
+              v-if="errors.post"
+              class="p-error"
+          >{{ errors.post }}</small>
+        </div>
       </div>
 
       <template #footer>
@@ -224,6 +251,9 @@ import type { UpdateUserInputDto } from "@/api/resolvers/user/dto/input/update-u
 import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
 import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
 import { UserState } from "@/state/UserState";
+import {PlatformResolver} from "@/api/resolvers/platform/platform.resolver.ts";
+import type {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-output.dto.ts";
+import {ExpertDocumentsResolver} from "@/api/resolvers/expertDocuments/expert-documents.resolver.ts";
 
 export default {
   name: "TutorExperts",
@@ -245,17 +275,9 @@ export default {
         birthDate: "",
         email: "",
         phone: "",
+        institution: "",
+        post: "",
       },
-      availableCompetencies: [
-        { id: 1, name: "Веб-разработка" },
-        { id: 2, name: "Мобильная разработка" },
-        { id: 3, name: "Дизайн интерфейсов" },
-        { id: 4, name: "Анализ данных" },
-        { id: 5, name: "Кибербезопасность" },
-        { id: 6, name: "Искусственный интеллект" },
-        { id: 7, name: "Робототехника" },
-        { id: 8, name: "3D-моделирование" },
-      ],
       errors: {
         toastPopup: {
           title: "",
@@ -265,14 +287,19 @@ export default {
         fullName: "",
         birthDate: "",
         phone: "",
+        institution: "",
+        post: "",
       },
       expertCompetencies: [] as {
         expertId: number;
         competencies: CompetenceOutputDto[];
       }[],
       experts: [] as UserOutputDto[],
+      currentPlatform: null as PlatformOutputDto | null,
       userResolver: new UserResolver(),
       competenceResolver: new CompetenceResolver(),
+      platformsResolver: new PlatformResolver(),
+      expertDocsResolver: new ExpertDocumentsResolver(),
     };
   },
   computed: {
@@ -297,12 +324,15 @@ export default {
         toastPopup: {
           title: "",
           message: "",
-        }
+        },
+        institution: "",
+        post: "",
       };
     },
   },
   async mounted() {
     await this.loadExperts();
+    await this.loadCurrentPlatform();
   },
   methods: {
     addExpert() {
@@ -311,9 +341,12 @@ export default {
         email: "",
         phone: "",
         birthDate: "",
+        institution: this.currentPlatform?.shortName || "",
+        post: "",
       };
       this.showAddExpertDialog = true;
     },
+
     editExpert(expert: UserOutputDto) {
       this.isEditing = true;
       this.editingExpertId = expert.id;
@@ -322,17 +355,22 @@ export default {
         email: expert.email,
         phone: this.reformatPhone(expert.mobileNumber),
         birthDate: this.reformatDateOfBirth(expert.dateOfBirth),
+        institution: expert.expertDocuments?.institution ?? (this.currentPlatform?.shortName || ""),
+        post: expert.expertDocuments?.post ?? "",
       };
       this.oldMail = expert.email;
       this.showAddExpertDialog = true;
     },
+
     reformatDateOfBirth(date: string) {
       const [year, month, day] = date.substring(0, 10).split("-");
       return `${day}.${month}.${year}`;
     },
+
     reformatPhone(phone: string) {
       return `${phone.substring(0, 2)} (${phone.substring(2, 5)}) ${phone.substring(5, 8)}-${phone.substring(8, 10)}-${phone.substring(10, 12)}`;
     },
+
     async deleteExpert(expert: UserOutputDto) {
       if (
         confirm(`Вы уверены, что хотите удалить эксперта ${expert.firstName}?`)
@@ -348,6 +386,43 @@ export default {
         }
       }
     },
+
+    async createExpertDocuments(userId: number) {
+      const response = await this.expertDocsResolver.create({
+        id: null,
+        userId: userId,
+        institution: this.expertForm.institution,
+        post: this.expertForm.post,
+      });
+
+      if (response.status === 200) {
+        this.cancelEdit();
+      } else {
+        this.errors.toastPopup = {
+          title: response.status.toString(),
+          message: response.message.toString(),
+        };
+      }
+    },
+
+    async updateExpertDocuments(id: number) {
+      const response = await this.expertDocsResolver.update({
+        id: id,
+        userId: null,
+        institution: this.expertForm.institution,
+        post: this.expertForm.post,
+      })
+
+      if (response.status === 200) {
+        this.cancelEdit();
+      } else {
+        this.errors.toastPopup = {
+          title: response.status.toString(),
+          message: response.message.toString(),
+        };
+      }
+    },
+
     async saveExpert() {
       if (!this.validateForm()) {
         return;
@@ -357,6 +432,7 @@ export default {
         const expert = this.experts.find(
           (ex: UserOutputDto) => ex.id === this.editingExpertId,
         );
+
         if (expert) {
           const editedExpert: UpdateUserInputDto = {
             avatarId: expert.avatarId,
@@ -372,13 +448,20 @@ export default {
             tutorId: UserState.id!,
           };
 
+          if (expert.expertDocuments != null) {
+            await this.updateExpertDocuments(expert.expertDocuments.id);
+          } else {
+            await this.createExpertDocuments(editedExpert.id);
+          }
+
           const response = await this.userResolver.update({
             ...editedExpert,
             email:
               editedExpert.email === this.oldMail
-                ? ""
+                ? null
                 : editedExpert.email,
           });
+
           if (response.status === 200) {
             this.cancelEdit();
           } else {
@@ -403,7 +486,10 @@ export default {
         };
 
         const response = await this.userResolver.create(newExpert);
+
+
         if (response.status === 200) {
+          await this.createExpertDocuments(response.message.id);
           this.cancelEdit();
         } else {
           this.errors.toastPopup = {
@@ -414,6 +500,7 @@ export default {
       }
       await this.loadExperts();
     },
+
     cancelEdit() {
       this.isEditing = false;
       this.editingExpertId = null;
@@ -422,9 +509,12 @@ export default {
         email: "",
         phone: "",
         birthDate: "",
+        institution: "",
+        post: ""
       };
       this.showAddExpertDialog = false;
     },
+
     validateForm() {
       let isValid = true;
 
@@ -448,8 +538,32 @@ export default {
         isValid = false;
       }
 
+      if (!this.expertForm.institution.trim()) {
+        this.errors.institution = "Место работы обязательно";
+        isValid = false;
+      }
+
+      if (!this.expertForm.post.trim()) {
+        this.errors.post = "Должность обязательна";
+        isValid = false;
+      }
+
       return isValid;
     },
+
+    async loadCurrentPlatform() {
+      const response = await this.platformsResolver.getByUserId(UserState.id!);
+
+      if (response.status === 200) {
+        this.currentPlatform = response.message;
+      } else {
+        this.errors.toastPopup = {
+          title: response.status.toString(),
+          message: response.message.toString(),
+        };
+      }
+    },
+
     async loadExperts() {
       const response = await this.userResolver.getAllByTutorId(UserState.id!);
       if (response.status === 200) {
