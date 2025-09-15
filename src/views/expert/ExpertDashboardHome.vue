@@ -68,13 +68,13 @@
                   {{ competence.name }}
                 </h4>
                 <div class="competence-ages-container">
-                 <span
-                     v-for="item in competence.ageCategories"
-                     :key="item.id"
-                     class="competence-age"
-                 >
-                   {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
-                 </span>
+                  <span
+                    v-for="item in competence.ageCategories"
+                    :key="item.id"
+                    class="competence-age"
+                  >
+                    {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
+                  </span>
                 </div>
               </div>
               <div class="competence-content">

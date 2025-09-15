@@ -215,8 +215,8 @@
             <template #value="{ value }">
               {{
                 value
-                   ? `${value.lastName} ${value.firstName} ${value.patronymic}`
-                   : "Не выбран"
+                  ? `${value.lastName} ${value.firstName} ${value.patronymic}`
+                  : "Не выбран"
               }}
             </template>
           </Dropdown>
