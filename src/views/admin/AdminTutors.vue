@@ -123,7 +123,7 @@
       },
       async deleteTutor(tutor: UserOutputDto) {
         if (
-          confirm(`Вы уверены, что хотите удалить эксперта ${tutor.firstName}?`)
+          confirm(`Вы уверены, что хотите удалить куратора ${tutor.firstName}?`)
         ) {
           const response = await this.userResolver.delete(tutor.id);
           if (response.status === 200) {

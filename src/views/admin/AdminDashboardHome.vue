@@ -253,9 +253,7 @@
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import type { PlatformOutputDto } from '@/api/resolvers/platform/dto/output/platform-output.dto.ts';
   import { Roles } from '@/state/UserState.types.ts';
-  import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
   import router from '@/router';
-  import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
   import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
   import type {
     CompetenceDocumentsOutputDto
@@ -276,7 +274,7 @@
         tutors: [] as UserOutputDto[],
         competencies: [] as CompetenceOutputDto[],
         experts: [] as UserOutputDto[],
-        documents: [] as DocsOutputFileUploadDto[],
+        documents: [] as CompetenceDocumentsOutputDto[],
         venues: [] as PlatformOutputDto[]
       };
     },
@@ -311,7 +309,7 @@
       }
       response = await this.competenceDocumentsResolver.getByAll()
       if (typeof response.message !== 'string') {
-        this.documents = response.message as CompetenceDocumentsOutputDto[]
+        this.documents = response.message
       }
     },
     methods: {

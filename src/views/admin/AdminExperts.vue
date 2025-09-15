@@ -377,7 +377,7 @@
               patronymic: this.expertForm.fullName.split(" ")[2],
               role: Roles.EXPERT,
               id: this.editingExpertId!,
-              tutorId: UserState.id!,
+              tutorId: expert.tutorId,
             };
 
             const response = await this.userResolver.update({
