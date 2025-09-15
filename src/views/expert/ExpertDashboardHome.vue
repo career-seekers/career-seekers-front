@@ -378,35 +378,6 @@ export default {
         selectedDoctype: "",
         selectedDocument: "",
       },
-      recentEvents: [
-        {
-          id: 1,
-          title: "Мастер-класс по нейронным сетям",
-          competence: "Искусственный интеллект",
-          date: "15.12.2024, 14:00",
-          status: "Запланировано",
-          statusClass: "status-planned",
-          icon: "pi pi-calendar",
-        },
-        {
-          id: 2,
-          title: "Практическое занятие по анализу данных",
-          competence: "Анализ данных",
-          date: "12.12.2024, 10:00",
-          status: "Проведено",
-          statusClass: "status-completed",
-          icon: "pi pi-check-circle",
-        },
-        {
-          id: 3,
-          title: "Введение в машинное обучение",
-          competence: "Машинное обучение",
-          date: "10.12.2024, 16:00",
-          status: "Проведено",
-          statusClass: "status-completed",
-          icon: "pi pi-check-circle",
-        },
-      ],
     };
   },
   computed: {
