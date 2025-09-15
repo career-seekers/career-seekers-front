@@ -1,5 +1,5 @@
 <template>
-  <ToastPopup :content="errors.toastPopup"/>
+  <ToastPopup :content="errors.toastPopup" />
   <div class="competencies-page">
     <div class="page-header">
       <h1 class="page-title">
@@ -15,32 +15,32 @@
       <div class="filter-group">
         <label for="ageFilter">Возрастная группа:</label>
         <MultiSelect
-            id="ageFilter"
-            v-model="selectedAge"
-            :options="ageGroups"
-            option-label="label"
-            option-value="value"
-            placeholder="Все возрасты"
-            class="filter-dropdown"
+          id="ageFilter"
+          v-model="selectedAge"
+          :options="ageGroups"
+          option-label="label"
+          option-value="value"
+          placeholder="Все возрасты"
+          class="filter-dropdown"
         />
       </div>
       <div class="filter-group">
         <Button
-            label="Сбросить фильтр"
-            icon="pi pi-refresh"
-            class="p-button-text p-button-sm"
-            @click="resetFilters"
+          label="Сбросить фильтр"
+          icon="pi pi-refresh"
+          class="p-button-text p-button-sm"
+          @click="resetFilters"
         />
       </div>
       <div
-          class="filter-group"
-          style="margin-left: auto"
+        class="filter-group"
+        style="margin-left: auto"
       >
         <Button
-            label="Добавить компетенцию"
-            icon="pi pi-plus"
-            class="p-button-primary right"
-            @click="addCompetence"
+          label="Добавить компетенцию"
+          icon="pi pi-plus"
+          class="p-button-primary right"
+          @click="addCompetence"
         />
       </div>
     </div>
@@ -48,9 +48,9 @@
     <!-- Список компетенций -->
     <div class="competencies-grid">
       <div
-          v-for="competence in filteredCompetencies"
-          :key="competence.id"
-          class="competence-card"
+        v-for="competence in filteredCompetencies"
+        :key="competence.id"
+        class="competence-card"
       >
         <div class="competence-header">
           <div class="competence-info">
@@ -58,13 +58,13 @@
               {{ competence.name }}
             </h3>
             <div class="competence-ages-container">
-                 <span
-                     v-for="item in competence.ageCategories"
-                     :key="item.id"
-                     class="competence-age"
-                 >
-                   {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
-                 </span>
+              <span
+                v-for="item in competence.ageCategories"
+                :key="item.id"
+                class="competence-age"
+              >
+                {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
+              </span>
             </div>
             <div class="competence-description">
               {{ competence.description }}
@@ -99,10 +99,10 @@
           <!--            @click="goToParticipants(competence.id)"-->
           <!--          />-->
           <Button
-              label="Документы"
-              icon="pi pi-file-text"
-              class="p-button-outlined"
-              @click="goToDocuments(competence)"
+            label="Документы"
+            icon="pi pi-file-text"
+            class="p-button-outlined"
+            @click="goToDocuments(competence)"
           />
           <!--          <Button -->
           <!--            label="События" -->
@@ -111,23 +111,23 @@
           <!--            @click="goToEvents(competence.id)"-->
           <!--          />-->
           <Button
-              label="Подробнее"
-              icon="pi pi-eye"
-              class="p-button-primary"
-              @click="viewDetails(competence.id)"
+            label="Подробнее"
+            icon="pi pi-eye"
+            class="p-button-primary"
+            @click="viewDetails(competence.id)"
           />
           <div>
             <Button
-                v-tooltip="'Редактировать'"
-                icon="pi pi-pencil"
-                class="p-button-text p-button-sm"
-                @click="editCompetence(competence)"
+              v-tooltip="'Редактировать'"
+              icon="pi pi-pencil"
+              class="p-button-text p-button-sm"
+              @click="editCompetence(competence)"
             />
             <Button
-                v-tooltip="'Удалить'"
-                icon="pi pi-trash"
-                class="p-button-text p-button-sm p-button-danger"
-                @click="deleteCompetence(competence)"
+              v-tooltip="'Удалить'"
+              icon="pi pi-trash"
+              class="p-button-text p-button-sm p-button-danger"
+              @click="deleteCompetence(competence)"
             />
           </div>
         </div>
@@ -136,77 +136,77 @@
 
     <!-- Диалог добавления/редактирования эксперта -->
     <Dialog
-        v-model:visible="showAddCompetenceDialog"
-        :header="isEditing ? 'Редактировать компетенцию' : 'Добавить компетенцию'"
-        :modal="true"
-        :style="{ width: '600px' }"
+      v-model:visible="showAddCompetenceDialog"
+      :header="isEditing ? 'Редактировать компетенцию' : 'Добавить компетенцию'"
+      :modal="true"
+      :style="{ width: '600px' }"
     >
       <div class="competence-form">
         <div class="form-field">
           <label for="name">Название *</label>
           <InputText
-              id="name"
-              v-model="competenceForm.name"
-              placeholder="Введите название компетенции"
-              :class="{ 'p-invalid': !competenceForm.name }"
+            id="name"
+            v-model="competenceForm.name"
+            placeholder="Введите название компетенции"
+            :class="{ 'p-invalid': !competenceForm.name }"
           />
           <small
-              v-if="errors.name"
-              class="p-error"
+            v-if="errors.name"
+            class="p-error"
           >{{ errors.name }}</small>
         </div>
 
         <div class="form-field">
           <label for="name">Описание *</label>
           <Textarea
-              id="name"
-              v-model="competenceForm.description"
-              placeholder="Введите описание компетенции"
-              :class="{ 'p-invalid': !competenceForm.description }"
+            id="name"
+            v-model="competenceForm.description"
+            placeholder="Введите описание компетенции"
+            :class="{ 'p-invalid': !competenceForm.description }"
           />
           <small
-              v-if="errors.description"
-              class="p-error"
+            v-if="errors.description"
+            class="p-error"
           >{{
-              errors.description
-            }}</small>
+            errors.description
+          }}</small>
         </div>
 
         <div class="form-field">
           <label
-              for="competenceAgeFilter"
-              class="field-label"
+            for="competenceAgeFilter"
+            class="field-label"
           >Возрастная категория *</label>
           <MultiSelect
-              id="competenceAgeFilter"
-              v-model="competenceForm.ageCategory"
-              :options="ageGroups"
-              option-label="label"
-              option-value="value"
-              placeholder="Все возрасты"
-              class="filter-dropdown"
-              :class="{ 'p-invalid': !competenceForm.ageCategory || competenceForm.ageCategory.length === 0 }"
+            id="competenceAgeFilter"
+            v-model="competenceForm.ageCategory"
+            :options="ageGroups"
+            option-label="label"
+            option-value="value"
+            placeholder="Все возрасты"
+            class="filter-dropdown"
+            :class="{ 'p-invalid': !competenceForm.ageCategory || competenceForm.ageCategory.length === 0 }"
           />
           <small
-              v-if="errors.ageCategory"
-              class="p-error"
+            v-if="errors.ageCategory"
+            class="p-error"
           >{{
-              errors.ageCategory
-            }}</small>
+            errors.ageCategory
+          }}</small>
         </div>
 
         <div class="form-field">
           <label
-              for="competenceExpertList"
-              class="field-label"
+            for="competenceExpertList"
+            class="field-label"
           >Главный эксперт *</label>
           <Dropdown
-              id="competenceExpertList"
-              v-model="competenceForm.expert"
-              :options="experts"
-              placeholder="Не выбран"
-              class="filter-dropdown"
-              :class="{ 'p-invalid': !competenceForm.expert }"
+            id="competenceExpertList"
+            v-model="competenceForm.expert"
+            :options="experts"
+            placeholder="Не выбран"
+            class="filter-dropdown"
+            :class="{ 'p-invalid': !competenceForm.expert }"
           >
             <template #option="slotProps">
               {{ slotProps.option.firstName }} {{ slotProps.option.lastName }}
@@ -215,46 +215,46 @@
             <template #value="{ value }">
               {{
                 value
-                    ? `${value.firstName} ${value.lastName} ${value.patronymic}`
-                    : "Не выбран"
+                  ? `${value.firstName} ${value.lastName} ${value.patronymic}`
+                  : "Не выбран"
               }}
             </template>
           </Dropdown>
           <small
-              v-if="errors.ageCategory"
-              class="p-error"
+            v-if="errors.ageCategory"
+            class="p-error"
           >{{
-              errors.ageCategory
-            }}</small>
+            errors.ageCategory
+          }}</small>
         </div>
       </div>
 
       <template #footer>
         <Button
-            label="Отмена"
-            icon="pi pi-times"
-            class="p-button-text"
-            @click="cancelEdit"
+          label="Отмена"
+          icon="pi pi-times"
+          class="p-button-text"
+          @click="cancelEdit"
         />
         <Button
-            :label="isEditing ? 'Сохранить' : 'Добавить'"
-            icon="pi pi-check"
-            class="p-button-primary"
-            @click="saveCompetence"
+          :label="isEditing ? 'Сохранить' : 'Добавить'"
+          icon="pi pi-check"
+          class="p-button-primary"
+          @click="saveCompetence"
         />
       </template>
     </Dialog>
 
     <!-- Диалог подробной информации -->
     <Dialog
-        v-model:visible="showDetailsDialog"
-        :header="selectedCompetence?.name || 'Компетенция'"
-        :modal="true"
-        :style="{ width: '800px' }"
+      v-model:visible="showDetailsDialog"
+      :header="selectedCompetence?.name || 'Компетенция'"
+      :modal="true"
+      :style="{ width: '800px' }"
     >
       <div
-          v-if="selectedCompetence"
-          class="competence-details"
+        v-if="selectedCompetence"
+        class="competence-details"
       >
         <div class="detail-section">
           <h4>Описание компетенции</h4>
@@ -266,10 +266,10 @@
           <p>
             {{
               competenceExpert(selectedCompetence)?.lastName +
-              " " +
-              competenceExpert(selectedCompetence)?.firstName +
-              " " +
-              competenceExpert(selectedCompetence)?.patronymic
+                " " +
+                competenceExpert(selectedCompetence)?.firstName +
+                " " +
+                competenceExpert(selectedCompetence)?.patronymic
             }}
           </p>
         </div>
@@ -289,9 +289,9 @@
               <div class="stat-number">
                 {{
                   selectedCompetence?.ageCategories
-                      .map(item => ageGroups.find(group => group.value === item.ageCategory)?.label?.split(" ")[0])
-                      .filter(Boolean)
-                      .join(', ')
+                    .map(item => ageGroups.find(group => group.value === item.ageCategory)?.label?.split(" ")[0])
+                    .filter(Boolean)
+                    .join(', ')
                 }}
               </div>
               <div class="stat-label">
@@ -319,10 +319,10 @@
       </div>
       <template #footer>
         <Button
-            label="Закрыть"
-            icon="pi pi-times"
-            class="p-button-text"
-            @click="closeDetails"
+          label="Закрыть"
+          icon="pi pi-times"
+          class="p-button-text"
+          @click="closeDetails"
         />
         <!--        <Button -->
         <!--          label="Участники" -->
@@ -548,7 +548,7 @@ export default {
       }
 
       const expertResponse = await this.userResolver.getAllByTutorId(UserState.id as number);
-      if (expertResponse.status == 200) {
+      if (expertResponse.status == 200 && typeof expertResponse.message !== "string") {
         this.experts = expertResponse.message;
       } else {
         this.errors.toastPopup = {
