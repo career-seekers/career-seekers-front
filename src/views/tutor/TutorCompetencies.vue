@@ -209,13 +209,13 @@
               :class="{ 'p-invalid': !competenceForm.expert }"
           >
             <template #option="slotProps">
-              {{ slotProps.option.firstName }} {{ slotProps.option.lastName }}
+              {{ slotProps.option.lastName }} {{ slotProps.option.firstName }}
               {{ slotProps.option.patronymic }}
             </template>
             <template #value="{ value }">
               {{
                 value
-                    ? `${value.firstName} ${value.lastName} ${value.patronymic}`
+                    ? `${value.lastName} ${value.firstName} ${value.patronymic}`
                     : "Не выбран"
               }}
             </template>
