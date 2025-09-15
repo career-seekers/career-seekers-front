@@ -332,8 +332,8 @@
             if (tutor.tutorDocuments != null) {
               const response = await this.tutorDocumentsResolver.update({
                 id: tutor.id,
-                post: tutor.tutorDocuments.post,
-                institution: tutor.tutorDocuments.institution,
+                post: this.tutorForm.post,
+                institution: this.tutorForm.institution,
               })
               if (response.status !== 200) {
                 this.errors.toastPopup = {
