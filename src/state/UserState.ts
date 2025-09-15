@@ -271,6 +271,12 @@ export const redirectByUserState = async () => {
             }
             break
         }
+        case Roles.ADMIN: {
+            if (!router.currentRoute.value.path.includes("admin")) {
+                await router.push("/admin");
+            }
+            break
+        }
         default:
             if (!router.currentRoute.value.path.includes("login") &&
             !router.currentRoute.value.path.includes("register") &&

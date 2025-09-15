@@ -13,7 +13,7 @@
     <div class="filters-section">
       <div class="filter-group">
         <label for="ageFilter">Возрастная группа:</label>
-        <Dropdown
+        <MultiSelect
           id="ageFilter"
           v-model="selectedAge"
           :options="ageGroups"
@@ -45,12 +45,14 @@
             <h3 class="competence-name">
               {{ competence.name }}
             </h3>
-            <div class="competence-age">
-              {{
-                ageGroups.find(
-                  (group) => group.value === competence.ageCategory,
-                )?.label
-              }}
+            <div class="competence-ages-container">
+              <span
+                v-for="item in competence.ageCategories"
+                :key="item.id"
+                class="competence-age"
+              >
+                {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
+              </span>
             </div>
             <div class="competence-description">
               {{
@@ -139,12 +141,13 @@
             </div>
             <div class="stat-item">
               <div class="stat-number">
-                {{
-                  ageGroups
-                    .find(
-                      (group) => group.value === selectedCompetence?.ageCategory,
-                    )?.label.split(" ")[0]
-                }}
+                <span
+                  v-for="item in selectedCompetence?.ageCategories"
+                  :key="item.id"
+                  class="competence-age"
+                >
+                  {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
+                </span>
               </div>
               <div class="stat-label">
                 лет
@@ -190,24 +193,24 @@
 <script lang="ts">
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import Dropdown from "primevue/dropdown";
 import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
 import {
   AgeCategories,
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
 import { UserState } from "@/state/UserState";
+import MultiSelect from 'primevue/multiselect';
 
 export default {
   name: "ExpertCompetencies",
   components: {
     Button,
+    MultiSelect,
     Dialog,
-    Dropdown,
   },
   data() {
     return {
-      selectedAge: null as AgeCategories | null,
+      selectedAge: [] as AgeCategories[],
       showDetailsDialog: false,
       selectedCompetence: undefined as CompetenceOutputDto | undefined,
       ageGroups: [
@@ -224,16 +227,15 @@ export default {
     filteredCompetencies() {
       let filtered = this.competencies;
 
-      if (this.selectedAge) {
+      if (this.selectedAge.length > 0) {
         filtered = filtered.filter(
-          (competence) => competence.ageCategory == this.selectedAge,
-        );
+          (competence) => competence.ageCategories.some(age => this.selectedAge?.includes(age.ageCategory)));
       }
 
       return filtered;
     },
   },
-  async mounted() {
+  async beforeMount() {
     await this.loadCompetencies();
   },
   methods: {
@@ -257,7 +259,7 @@ export default {
       this.selectedCompetence = undefined;
     },
     resetFilters() {
-      this.selectedAge = null;
+      this.selectedAge = [];
     },
     async loadCompetencies() {
       const competenceResolver = new CompetenceResolver();

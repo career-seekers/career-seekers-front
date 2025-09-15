@@ -313,7 +313,8 @@ export default {
               this.documents.push({
                 createdAt: document.createdAt,
                 direction: {
-                  ageCategory: competence.ageCategory,
+
+                  ageCategories: competence.ageCategories,
                   description: competence.description,
                   iconId: competence.iconId,
                   id: competence.id,

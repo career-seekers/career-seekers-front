@@ -190,30 +190,30 @@
         <div class="form-field">
           <label for="institution">Место работы *</label>
           <InputText
-              id="institution"
-              v-model="expertForm.institution"
-              placeholder="Введите место работы"
-              :class="{ 'p-invalid': !expertForm.institution }"
+            id="institution"
+            v-model="expertForm.institution"
+            placeholder="Введите место работы"
+            :class="{ 'p-invalid': !expertForm.institution }"
           />
           <small
-              v-if="errors.institution"
-              class="p-error"
+            v-if="errors.institution"
+            class="p-error"
           >{{
-              errors.institution
-            }}</small>
+            errors.institution
+          }}</small>
         </div>
 
         <div class="form-field">
           <label for="post">Должность *</label>
           <InputText
-              id="post"
-              v-model="expertForm.post"
-              placeholder="Введите должность"
-              :class="{ 'p-invalid': !expertForm.post}"
+            id="post"
+            v-model="expertForm.post"
+            placeholder="Введите должность"
+            :class="{ 'p-invalid': !expertForm.post}"
           />
           <small
-              v-if="errors.post"
-              class="p-error"
+            v-if="errors.post"
+            class="p-error"
           >{{ errors.post }}</small>
         </div>
       </div>
@@ -570,7 +570,7 @@ export default {
 
     async loadExperts() {
       const response = await this.userResolver.getAllByTutorId(UserState.id!);
-      if (response.status === 200) {
+      if (response.status === 200 && typeof response.message !== "string") {
         this.experts = response.message;
         for (const expert of this.experts) {
           const response = await this.competenceResolver.getAllByExpertId(

@@ -492,7 +492,7 @@ export default {
     },
     async loadExperts() {
       const response = await this.userResolver.getAllByTutorId(UserState.id!);
-      if (response.status === 200) {
+      if (response.status === 200 && typeof response.message !== "string") {
         this.experts = response.message;
       }
     },

@@ -40,6 +40,13 @@ import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
 import { fillUserState, redirectByUserState } from "../state/UserState";
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
+import AdminDashboard from '@/views/admin/AdminDashboard.vue';
+import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
+import AdminTutors from '@/views/admin/AdminTutors.vue';
+import AdminExperts from '@/views/admin/AdminExperts.vue';
+import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
+import AdminDocuments from '@/views/admin/AdminDocuments.vue';
+import AdminVenues from '@/views/admin/AdminVenues.vue';
 
 const routes = [
   {
@@ -208,6 +215,41 @@ const routes = [
       },
     ],
   },
+  {
+    path: "/admin",
+    component: AdminDashboard,
+    children: [
+      {
+        path: "",
+        redirect: "/admin/dashboard",
+      },
+      {
+        path: "dashboard",
+        component: AdminDashboardHome
+      },
+      {
+        path: "tutors",
+        component: AdminTutors
+      },
+      {
+        path: "experts",
+        component: AdminExperts
+      },
+      {
+        path: "competencies",
+        component: AdminCompetencies
+      },
+      {
+        path: "documents/:competenceId?",
+        component: AdminDocuments,
+        props: true
+      },
+      {
+        path: "venues",
+        component: AdminVenues
+      },
+    ]
+  }
 ];
 
 const router = createRouter({
