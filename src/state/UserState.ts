@@ -63,20 +63,17 @@ export const fillUserState = async () => {
         const userJwt = jwtDecode<UserJwt>(access_token);
         const userResolver = new UserResolver();
         const userData = await userResolver.getById(userJwt.id)
-        if (typeof userData.message === "string") {
-            if (userData.status === 403) {
-                const authResolver = new AuthResolver();
-                const response = await authResolver.updateTokens({
-                    accessToken: access_token,
-                    refreshToken: refresh_token,
-                    uuid: uuid,
-                })
-                if (response.status === 200 && typeof response.message !== "string") {
-                    localStorage.setItem("access_token", response.message.accessToken)
-                    localStorage.setItem("refresh_token", response.message.refreshToken)
-                }
+        if (typeof userData.message === "string" || userData.status >= 400) {
+            const authResolver = new AuthResolver();
+            const response = await authResolver.updateTokens({
+                accessToken: access_token,
+                refreshToken: refresh_token,
+                uuid: uuid,
+            })
+            if (response.status === 200 && typeof response.message !== "string") {
+                localStorage.setItem("access_token", response.message.accessToken)
+                localStorage.setItem("refresh_token", response.message.refreshToken)
             }
-            console.log(typeof userData.message)
         } else {
             const fileManager = new FileManager();
             let response: CommonOutputDto<TutorDocsOutputDto | UserDocsOutputDto | MentorDocsOutputDto | string>
