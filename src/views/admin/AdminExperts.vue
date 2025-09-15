@@ -546,7 +546,7 @@
             email: this.expertForm.email,
             mobileNumber: this.mobileNumberFormatted,
             password: "",
-            tutorId: UserState.id!,
+            tutorId: this.expertForm.tutor?.id,
             role: Roles.EXPERT,
             dateOfBirth: this.dateOfBirthFormatted,
             avatarId: null,
