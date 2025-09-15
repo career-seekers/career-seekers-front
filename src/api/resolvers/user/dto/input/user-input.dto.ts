@@ -5,7 +5,7 @@ export interface UserInputDto {
   lastName: string;
   patronymic: string;
   dateOfBirth: string;
-  email: string;
+  email: string | null;
   mobileNumber: string;
   password: string;
   role: Roles;
