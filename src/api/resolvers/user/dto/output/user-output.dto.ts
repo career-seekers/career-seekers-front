@@ -17,8 +17,8 @@ export interface UserOutputDto {
   isMentor: boolean;
   tutorId: number | null;
   userDocuments: null;
-  expertDocuments: UserOutputExpertDocsDto;
-  tutorDocuments: UserOutputTutorDocsDto;
+  expertDocuments: UserOutputExpertDocsDto | null;
+  tutorDocuments: UserOutputTutorDocsDto | null;
   mentorDocuments: null;
   menteeChildren: [];
   children: [];
