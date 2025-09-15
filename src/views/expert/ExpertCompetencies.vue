@@ -229,14 +229,13 @@ export default {
 
       if (this.selectedAge.length > 0) {
         filtered = filtered.filter(
-          (competence) => competence.ageCategories.filter(age => this.selectedAge?.includes(age.ageCategory)).length > 0
-        );
+          (competence) => competence.ageCategories.some(age => this.selectedAge?.includes(age.ageCategory)));
       }
 
       return filtered;
     },
   },
-  async mounted() {
+  async beforeMount() {
     await this.loadCompetencies();
   },
   methods: {

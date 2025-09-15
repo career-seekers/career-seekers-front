@@ -224,11 +224,9 @@
   import ToastPopup from "@/components/ToastPopup.vue";
   import type { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto.ts";
   import { Roles } from "@/state/UserState.types";
-  import type { UserInputDto } from '@/api/resolvers/user/dto/input/user-input.dto.ts';
   import type { UpdateUserInputDto } from "@/api/resolvers/user/dto/input/update-user-input.dto.ts";
   import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
   import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
-  import { UserState } from "@/state/UserState";
 
   export default {
     name: "AdminExperts",
@@ -436,7 +434,7 @@
         return isValid;
       },
       async loadExperts() {
-        const response = await this.userResolver.getAll();
+        const response = await this.userResolver.getAllByRole(Roles.EXPERT);
         if (response.status === 200 && typeof response.message !== "string") {
           this.experts = response.message;
           for (const expert of this.experts) {
