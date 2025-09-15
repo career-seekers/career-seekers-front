@@ -557,10 +557,14 @@ export default {
       if (response.status === 200) {
         this.currentPlatform = response.message;
       } else {
-        this.errors.toastPopup = {
-          title: response.status.toString(),
-          message: response.message.toString(),
-        };
+        if (response.status === 404) {
+          this.currentPlatform = null
+        } else {
+          this.errors.toastPopup = {
+            title: response.status.toString(),
+            message: response.message.toString(),
+          };
+        }
       }
     },
 
