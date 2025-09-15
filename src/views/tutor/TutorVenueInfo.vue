@@ -195,7 +195,7 @@ export default {
       cachedData: null as null | PlatformOutputDto,
       isChanged: false,
       venueData: {
-        id: -1,
+        id: null as number | null,
         fullName: "",
         shortName: "",
         address: "",
