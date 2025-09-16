@@ -59,19 +59,16 @@ const routes = [
     component: LoginView,
   },
   {
-    path: "/register",
-    name: "register",
-    component: MentorRegisterView,
-  },
-  {
     path: "/register/mentor",
     name: "mentor-register",
     component: MentorRegisterView,
+    meta: { blocked: true },
   },
   {
     path: "/register/parent",
     name: "parent-register",
     component: ParentRegisterView,
+    meta: { blocked: true },
   },
   {
     path: "/register/tutor",
@@ -86,6 +83,7 @@ const routes = [
   {
     path: "/parent",
     component: ParentDashboard,
+    meta: { blocked: true },
     children: [
       {
         path: "",
@@ -116,6 +114,7 @@ const routes = [
   {
     path: "/mentor",
     component: MentorDashboard,
+    meta: { blocked: true },
     children: [
       {
         path: "",
@@ -249,7 +248,11 @@ const routes = [
         component: AdminVenues
       },
     ]
-  }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: "/login"
+  },
 ];
 
 const router = createRouter({
@@ -257,17 +260,26 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async () => {
-  await fillUserState();
+export const historyStack = []
+
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.blocked) {
+    next({ path: "/" })
+  } else {
+    await fillUserState();
+    next()
+  }
 });
 // Обновляем title при переходах между страницами
-router.afterEach(async (to) => {
+router.afterEach(async (to, from) => {
   const pageTitle = titleManager.getPageTitle(
     to.name
       ? to.name.toString()
       : "No title"
   );
+  historyStack.push(from.fullPath);
   titleManager.setTitle(pageTitle);
+
   await redirectByUserState();
 });
 

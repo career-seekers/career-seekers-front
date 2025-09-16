@@ -94,6 +94,7 @@ import type {
   TutorStateInterface,
 } from "@/state/UserState.types";
 import { fillUserState, redirectByUserState } from "@/state/UserState";
+import router, { historyStack } from '@/router';
 
 export default {
   name: "EmailConfirmationView",
@@ -117,15 +118,16 @@ export default {
         code: "",
       },
       authResolver: new AuthResolver(),
-      registrationData: (
-        JSON.parse(localStorage.getItem("dataToVerify") as string) as RegistrationData<
-          UserWithChildRegistrationDto | UserRegistrationDto,
-          TutorStateInterface | MentorStateInterface | ParentStateInterface
-        >
-      ).dto as UserRegistrationDto | UserWithChildRegistrationDto,
+      registrationData: null as null | UserWithChildRegistrationDto | UserRegistrationDto,
     };
   },
   mounted() {
+    this.registrationData = localStorage.getItem("dataToVerify")
+      ? (JSON.parse(localStorage.getItem("dataToVerify") as string) as RegistrationData<
+          UserWithChildRegistrationDto | UserRegistrationDto,
+          TutorStateInterface | MentorStateInterface | ParentStateInterface
+        >).dto as UserRegistrationDto | UserWithChildRegistrationDto
+      : null
     // Получаем email из query параметров или localStorage
     this.userEmail =
       this.$route.query.email as string ||
@@ -214,8 +216,11 @@ export default {
       }
     },
 
-    goBack() {
-      this.$router.push("/register");
+    async goBack() {
+      const registerStack = historyStack.filter(routePath => routePath.includes("register"));
+      if (registerStack.length > 0) {
+        await router.push(registerStack[registerStack.length - 1])
+      } else await router.push("/")
     },
   },
 };
