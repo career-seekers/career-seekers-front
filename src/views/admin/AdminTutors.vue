@@ -295,7 +295,7 @@
                 tutor.tutorDocuments?.institution.toLowerCase().includes(query)
           })
         }
-        return filtered
+        return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
       },
 
       dateOfBirthFormatted() {

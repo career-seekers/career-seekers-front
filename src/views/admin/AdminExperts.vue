@@ -303,7 +303,6 @@
   import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
   import { PlatformResolver } from '@/api/resolvers/platform/platform.resolver.ts';
   import { ExpertDocumentsResolver } from '@/api/resolvers/expertDocuments/expert-documents.resolver.ts';
-  import { UserState } from '@/state/UserState.ts';
   import type { UserInputDto } from '@/api/resolvers/user/dto/input/user-input.dto.ts';
   import Dropdown from 'primevue/dropdown';
 
@@ -370,7 +369,7 @@
               expert.expertDocuments?.institution.toLowerCase().includes(query)
           })
         }
-        return filtered
+        return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
       },
       dateOfBirthFormatted() {
         const [day, month, year] = this.expertForm.birthDate.split(".");
