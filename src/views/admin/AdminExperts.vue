@@ -14,7 +14,7 @@
       <div class="search-group">
         <InputText
           v-model="searchQuery"
-          placeholder="Поиск по ФИО эксперта..."
+          placeholder="Поиск по ФИО эксперта, образовательному учреждению, номеру телефона или электронной почте..."
           class="search-input"
         />
         <i class="pi pi-search search-icon" />
@@ -303,7 +303,6 @@
   import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
   import { PlatformResolver } from '@/api/resolvers/platform/platform.resolver.ts';
   import { ExpertDocumentsResolver } from '@/api/resolvers/expertDocuments/expert-documents.resolver.ts';
-  import { UserState } from '@/state/UserState.ts';
   import type { UserInputDto } from '@/api/resolvers/user/dto/input/user-input.dto.ts';
   import Dropdown from 'primevue/dropdown';
 
@@ -366,11 +365,15 @@
           filtered = filtered.filter(expert => {
             return expert.lastName.toLowerCase().includes(query) ||
               expert.firstName.toLowerCase().includes(query) ||
-              expert.patronymic.toLowerCase().includes(query)
+              expert.patronymic.toLowerCase().includes(query) ||
+              expert.expertDocuments?.institution.toLowerCase().includes(query) ||
+              expert.email.toLowerCase().includes(query) ||
+              expert.mobileNumber.toLowerCase().includes(query)
           })
         }
-        return filtered
+        return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
       },
+
       dateOfBirthFormatted() {
         const [day, month, year] = this.expertForm.birthDate.split(".");
         const date = new Date(
@@ -378,6 +381,7 @@
         );
         return date.toISOString();
       },
+
       mobileNumberFormatted() {
         return this.expertForm.phone.replaceAll(/\s|-|\(|\)/g, "");
       },

@@ -9,10 +9,21 @@
       </p>
     </div>
 
+    <div class="filters-section">
+      <div class="search-group">
+        <InputText
+            v-model="searchQuery"
+            placeholder="Поиск по ФИО куратора, образовательному учреждению, номеру телефона или электронной почте..."
+            class="search-input"
+        />
+        <i class="pi pi-search search-icon" />
+      </div>
+    </div>
+
     <!-- Список экспертов -->
     <div class="experts-grid">
       <div
-        v-for="tutor in tutors"
+        v-for="tutor in filteredTutors"
         :key="tutor.id"
         class="expert-card"
       >
@@ -244,7 +255,9 @@
         isEditing: false,
         editingTutorId: null as null | number,
         oldMail: null as null | string,
-        
+
+        searchQuery: "",
+
         tutorForm: {
           fullName: "",
           birthDate: "",
@@ -271,6 +284,22 @@
       }
     },
     computed: {
+      filteredTutors(): UserOutputDto[] {
+        let filtered = this.tutors
+        if (this.searchQuery) {
+          const query = this.searchQuery.toLowerCase()
+          filtered = filtered.filter(tutor => {
+            return tutor.lastName.toLowerCase().includes(query) ||
+                tutor.firstName.toLowerCase().includes(query) ||
+                tutor.patronymic.toLowerCase().includes(query) ||
+                tutor.tutorDocuments?.institution.toLowerCase().includes(query) ||
+                tutor.email.toLowerCase().includes(query) ||
+                tutor.mobileNumber.toLowerCase().includes(query)
+          })
+        }
+        return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
+      },
+
       dateOfBirthFormatted() {
         const [day, month, year] = this.tutorForm.birthDate.split(".");
         const date = new Date(
@@ -278,6 +307,7 @@
         );
         return date.toISOString();
       },
+
       mobileNumberFormatted() {
         return this.tutorForm.phone.replaceAll(/\s|-|\(|\)/g, "");
       },
@@ -510,6 +540,37 @@
     justify-content: center;
     font-size: 1.5rem;
     flex-shrink: 0;
+  }
+
+  .filters-section {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    flex-wrap: wrap;
+  }
+
+  .search-group {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .search-input {
+    width: 100%;
+    padding-right: 2.5rem;
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
   }
 
   .expert-info {
