@@ -264,10 +264,10 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   if (to.meta.blocked) {
     next({ path: "/" })
-    return
+  } else {
+    await fillUserState();
+    next()
   }
-  await fillUserState();
-  next()
 });
 // Обновляем title при переходах между страницами
 router.afterEach(async (to) => {
