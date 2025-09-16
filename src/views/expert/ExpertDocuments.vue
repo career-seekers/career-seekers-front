@@ -67,49 +67,83 @@
     <!--      </div>-->
     <!--    </div>-->
 
-    <!-- Загрузка документов -->
-    <div class="upload-section">
-      <div class="upload-card">
-        <div class="upload-header">
-          <h3 class="upload-title">
-            <i class="pi pi-upload" />
-            Загрузить документы
-          </h3>
+    <div class="docs">
+      <!--    Шаблоны документов-->
+      <div class="upload-section">
+        <div class="upload-card">
+          <div class="upload-header">
+            <h3 class="upload-title">
+              <i class="pi pi-file-edit" />
+              Шаблоны документов
+            </h3>
+          </div>
+          <div class="download-content">
+            <div class="download-list">
+              <div
+                v-for="template in docTemplates"
+                :key="template.link"
+                class="download-info"
+              >
+                <p class="download-text">
+                  {{ template.label }}
+                </p>
+                <a
+                  class="p-button p-button-primary download-link"
+                  :href="`/docs/${template.link}`"
+                  :download="`${template.label}.${template.link.split('.')[1]}`"
+                >
+                  Скачать
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="upload-content">
-          <FileUpload
-            :key="uploadKey"
-            mode="basic"
-            accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.png"
-            :max-file-size="10000000"
-            :multiple="false"
-            choose-label="Выбрать файл"
-            class="file-upload"
-            @select="onDocumentSelect"
-          />
-          <Dropdown
-            v-model="uploadingType"
-            :options="docTypes"
-            option-label="label"
-            option-value="value"
-            placeholder="Тип документа"
-            class="filter-dropdown filter-upload"
-          />
-          <Button
-            type="submit"
-            label="Загрузить"
-            class="p-button-outlined submit-upload"
-            :disabled="uploadingType === null || uploadingDocument === null"
-            @click="uploadDocument"
-          />
-          <div class="upload-info">
-            <p class="upload-text">
-              Поддерживаемые форматы: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT,
-              JPG, PNG
-            </p>
-            <p class="upload-text">
-              Максимальный размер файла: 10 МБ
-            </p>
+      </div>
+
+      <!-- Загрузка документов -->
+      <div class="upload-section">
+        <div class="upload-card">
+          <div class="upload-header">
+            <h3 class="upload-title">
+              <i class="pi pi-upload" />
+              Загрузить документы
+            </h3>
+          </div>
+          <div class="upload-content">
+            <Dropdown
+              v-model="uploadingType"
+              :options="docTypes"
+              option-label="label"
+              option-value="value"
+              placeholder="Тип документа"
+              class="filter-dropdown filter-upload"
+            />
+            <FileUpload
+              :key="uploadKey"
+              mode="basic"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.png"
+              :max-file-size="10000000"
+              :multiple="false"
+              choose-label="Выбрать файл"
+              class="file-upload"
+              @select="onDocumentSelect"
+            />
+            <div class="upload-info">
+              <p class="upload-text">
+                Поддерживаемые форматы: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT,
+                JPG, PNG
+              </p>
+              <p class="upload-text">
+                Максимальный размер файла: 10 МБ
+              </p>
+            </div>
+            <Button
+              type="submit"
+              label="Загрузить"
+              class="p-button-outlined submit-upload"
+              :disabled="uploadingType === null || uploadingDocument === null"
+              @click="uploadDocument"
+            />
           </div>
         </div>
       </div>
@@ -234,6 +268,12 @@ export default {
         { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
         { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
         { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
+      ],
+      docTemplates: [
+        { label: "Конкурсное задание ОЧНОГО отборочного этапа", link: "task_offline_template.docx" },
+        { label: "Конкурсное задание ОНЛАЙН отборочного этапа", link: "task_online_template.docx" },
+        { label: "Лист регистрации для очных мероприятий", link: "registration_list_offline_events_template.docx" },
+        { label: "Критерии оценки", link: "criteria_template.xlsx" },
       ],
       documents: [] as DocumentsOutputDto[],
     };
@@ -449,8 +489,55 @@ export default {
   font-weight: 500;
 }
 
-.upload-section {
-  margin-bottom: 2rem;
+.docs {
+  display: grid;
+  gap: 1.5rem;
+  column-gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+
+  .upload-section {
+    width: 100%;
+    height: 40vh;
+    margin-bottom: 2rem;
+  }
+}
+
+.download-content {
+  padding: 1.5rem 0.4rem;
+  height: 80%;
+  overflow: hidden;
+}
+
+.download-list {
+  height: 100%;
+  padding: 0 1.1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  overflow: scroll;
+}
+
+.download-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.5rem;
+  border-radius: 10px;
+  background: #f8f9fa;
+
+  .download-text {
+    font-size: 1rem;
+    width: 55%;
+    height: min-content;
+    margin: 0;
+  }
+
+  .download-link {
+    text-decoration: none;
+    font-weight: 500
+  }
 }
 
 .upload-card {
@@ -458,6 +545,7 @@ export default {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
+  height: 100%
 }
 
 .upload-header {
@@ -476,11 +564,11 @@ export default {
 }
 
 .upload-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  column-gap: 1.5rem;
-  row-gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   padding: 1.5rem;
+  height: 80%;
 }
 
 .file-upload {
@@ -492,7 +580,6 @@ export default {
 }
 
 .upload-info {
-  grid-row: 2 /3;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
