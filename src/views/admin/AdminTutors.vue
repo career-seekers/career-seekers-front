@@ -13,7 +13,7 @@
       <div class="search-group">
         <InputText
             v-model="searchQuery"
-            placeholder="Поиск по ФИО эксперта или образовательному учреждению..."
+            placeholder="Поиск по ФИО куратора, образовательному учреждению, номеру телефона или электронной почте..."
             class="search-input"
         />
         <i class="pi pi-search search-icon" />
@@ -292,7 +292,9 @@
             return tutor.lastName.toLowerCase().includes(query) ||
                 tutor.firstName.toLowerCase().includes(query) ||
                 tutor.patronymic.toLowerCase().includes(query) ||
-                tutor.tutorDocuments?.institution.toLowerCase().includes(query)
+                tutor.tutorDocuments?.institution.toLowerCase().includes(query) ||
+                tutor.email.toLowerCase().includes(query) ||
+                tutor.mobileNumber.toLowerCase().includes(query)
           })
         }
         return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));

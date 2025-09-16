@@ -14,7 +14,7 @@
       <div class="search-group">
         <InputText
           v-model="searchQuery"
-          placeholder="Поиск по ФИО эксперта или образовательному учреждению..."
+          placeholder="Поиск по ФИО эксперта, образовательному учреждению, номеру телефона или электронной почте..."
           class="search-input"
         />
         <i class="pi pi-search search-icon" />
@@ -366,11 +366,14 @@
             return expert.lastName.toLowerCase().includes(query) ||
               expert.firstName.toLowerCase().includes(query) ||
               expert.patronymic.toLowerCase().includes(query) ||
-              expert.expertDocuments?.institution.toLowerCase().includes(query)
+              expert.expertDocuments?.institution.toLowerCase().includes(query) ||
+              expert.email.toLowerCase().includes(query) ||
+              expert.mobileNumber.toLowerCase().includes(query)
           })
         }
         return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
       },
+
       dateOfBirthFormatted() {
         const [day, month, year] = this.expertForm.birthDate.split(".");
         const date = new Date(
@@ -378,6 +381,7 @@
         );
         return date.toISOString();
       },
+
       mobileNumberFormatted() {
         return this.expertForm.phone.replaceAll(/\s|-|\(|\)/g, "");
       },
