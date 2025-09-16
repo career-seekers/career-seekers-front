@@ -205,7 +205,7 @@ export default {
       const authResolver = new AuthResolver();
       const uuid = generateUuidV4();
       const response = await authResolver.login({
-        email: this.loginForm.email,
+        email: this.loginForm.email.toLowerCase(),
         password: this.loginForm.password,
         uuid: uuid,
       });
