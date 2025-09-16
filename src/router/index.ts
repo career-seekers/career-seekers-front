@@ -248,12 +248,12 @@ const routes = [
         path: "venues",
         component: AdminVenues
       },
-      {
-        path: '/:pathMatch(.*)*',
-        redirect: "/login"
-      },
     ]
-  }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: "/login"
+  },
 ];
 
 const router = createRouter({
