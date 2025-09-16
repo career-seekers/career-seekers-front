@@ -280,7 +280,7 @@ router.afterEach(async (to, from) => {
   historyStack.push(from.fullPath);
   titleManager.setTitle(pageTitle);
 
-  await redirectByUserState();
+  // await redirectByUserState();
 });
 
 export default router;
