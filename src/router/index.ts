@@ -47,7 +47,6 @@ import AdminExperts from '@/views/admin/AdminExperts.vue';
 import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
 import AdminDocuments from '@/views/admin/AdminDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
-import { JwtManager } from '@/utils/JwtManager.ts';
 
 const routes = [
   {
@@ -261,6 +260,8 @@ const router = createRouter({
   routes,
 });
 
+export const historyStack = []
+
 router.beforeEach(async (to, from, next) => {
   if (to.meta.blocked) {
     next({ path: "/" })
@@ -270,13 +271,15 @@ router.beforeEach(async (to, from, next) => {
   }
 });
 // Обновляем title при переходах между страницами
-router.afterEach(async (to) => {
+router.afterEach(async (to, from) => {
   const pageTitle = titleManager.getPageTitle(
     to.name
       ? to.name.toString()
       : "No title"
   );
+  historyStack.push(from.fullPath);
   titleManager.setTitle(pageTitle);
+
   await redirectByUserState();
 });
 

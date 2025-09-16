@@ -94,7 +94,7 @@ import type {
   TutorStateInterface,
 } from "@/state/UserState.types";
 import { fillUserState, redirectByUserState } from "@/state/UserState";
-import router from '@/router';
+import router, { historyStack } from '@/router';
 
 export default {
   name: "EmailConfirmationView",
@@ -216,8 +216,11 @@ export default {
       }
     },
 
-    goBack() {
-      router.go(-1)
+    async goBack() {
+      const registerStack = historyStack.filter(routePath => routePath.includes("register"));
+      if (registerStack.length > 0) {
+        await router.push(registerStack[registerStack.length - 1])
+      } else await router.push("/")
     },
   },
 };
