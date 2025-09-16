@@ -331,7 +331,7 @@
 
             if (tutor.tutorDocuments != null) {
               const response = await this.tutorDocumentsResolver.update({
-                id: tutor.id,
+                id: tutor.tutorDocuments.id,
                 post: this.tutorForm.post,
                 institution: this.tutorForm.institution,
               })
