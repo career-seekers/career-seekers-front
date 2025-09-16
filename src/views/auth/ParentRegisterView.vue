@@ -1186,7 +1186,7 @@ export default {
       try {
         const authResolver = new AuthResolver();
         const response = await authResolver.preRegister({
-          email: this.parentForm.email,
+          email: this.parentForm.email.toLowerCase(),
           mobileNumber: this.parentForm.phone,
         });
 
@@ -1208,7 +1208,7 @@ export default {
               firstName: this.parentForm.fullName.split(" ")[1],
               patronymic: this.parentForm.fullName.split(" ")[2],
               dateOfBirth: this.formatBirthDate(this.parentForm.birthDate),
-              email: this.parentForm.email,
+              email: this.parentForm.email.toLowerCase(),
               mobileNumber: this.mobileNumberFormatted,
               password: this.mentorForm.password,
               role: Roles.USER,
@@ -1254,7 +1254,7 @@ export default {
           );
           this.$router.push({
             path: "/email-confirmation",
-            query: { email: this.parentForm.email },
+            query: { email: this.parentForm.email.toLowerCase() },
           });
         }
       } catch (error) {
