@@ -9,6 +9,35 @@
       </p>
     </div>
 
+    <div class="upload-section">
+      <div class="upload-card">
+        <div class="upload-header">
+          <h3 class="upload-title">
+            <i class="pi pi-file-edit" />
+            Шаблоны документов
+          </h3>
+        </div>
+        <div class="download-content">
+          <div class="download-list">
+            <div
+              v-for="template in docTemplates"
+              :key="template.link"
+              class="download-info"
+            >
+              <p class="download-text">
+                {{ template.label }}
+              </p>
+              <Button
+                class="p-button-primary"
+                label="Скачать"
+                :href="template.link"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Фильтры -->
     <div class="filters-section">
       <div class="filter-group">
@@ -220,6 +249,12 @@ export default {
         { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
         { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
         { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
+      ],
+      docTemplates: [
+        { label: "Конкурсное задание ОЧНОГО отборочного этапа", link: "" },
+        { label: "Конкурсное задание ОНЛАЙН отборочного этапа", link: "" },
+        { label: "Лист регистрации для очных мероприятий", link: "" },
+        { label: "Критерии оценки", link: "" },
       ],
       errors: {
         toastPopup: {
@@ -554,6 +589,68 @@ export default {
   color: #6c757d;
   margin: 0;
   font-size: 0.9rem;
+}
+
+.upload-section {
+  height: 40vh;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.download-content {
+  padding: 1.5rem 0.4rem;
+  height: 80%;
+  overflow: hidden;
+}
+
+.download-list {
+  height: 100%;
+  padding: 0 1.1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 2fr));
+  gap: 1.5rem;
+  overflow: scroll;
+}
+
+.download-info {
+  display: flex;
+  padding: 1.5rem;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  border-radius: 10px;
+  background: #f8f9fa;
+
+  .download-text {
+    font-size: 1rem;
+    width: 70%;
+    height: min-content;
+    margin: 0;
+  }
+
+}
+
+.upload-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  height: 100%
+}
+
+.upload-header {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+  padding: 1.5rem;
+}
+
+.upload-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 /* Формы */

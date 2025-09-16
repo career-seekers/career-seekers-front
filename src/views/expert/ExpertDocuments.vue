@@ -67,8 +67,8 @@
     <!--      </div>-->
     <!--    </div>-->
 
-    <!--    Шаблоны документов-->
     <div class="docs">
+      <!--    Шаблоны документов-->
       <div class="upload-section">
         <div class="upload-card">
           <div class="upload-header">
@@ -494,8 +494,9 @@ export default {
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 
   .upload-section {
-    height: 46vh;
     width: 100%;
+    height: 40vh;
+    margin-bottom: 2rem;
   }
 }
 
@@ -520,6 +521,9 @@ export default {
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
+  padding: 1.5rem;
+  border-radius: 10px;
+  background: #f8f9fa;
 
   .download-text {
     font-size: 1rem;
@@ -528,10 +532,6 @@ export default {
     margin: 0;
   }
 
-}
-
-.upload-section {
-  margin-bottom: 2rem;
 }
 
 .upload-card {
