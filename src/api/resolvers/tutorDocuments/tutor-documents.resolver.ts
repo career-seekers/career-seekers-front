@@ -10,24 +10,24 @@ export class TutorDocumentsResolver {
 
   public async create(data: TutorDocsInputDto) {
     return await this.apiResolver.request<
-      FormData,
+      TutorDocsInputDto,
       CommonOutputDto<TutorDocsOutputDto | string>
     >(
       "",
       "POST",
-      this.apiResolver.DTOToFormData(data as never),
+      data,
       this.token ? this.token : undefined,
     );
   }
 
   public async update(data: TutorUpdateDocsInputDto) {
     return await this.apiResolver.request<
-      FormData,
+      TutorUpdateDocsInputDto,
       CommonOutputDto<TutorDocsOutputDto | string>
     >(
       "",
       "PATCH",
-      this.apiResolver.DTOToFormData(data as never),
+      data,
       this.token ? this.token : undefined,
     );
   }
