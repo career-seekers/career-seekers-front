@@ -87,11 +87,13 @@
                 <p class="download-text">
                   {{ template.label }}
                 </p>
-                <Button
-                  class="p-button-primary"
-                  label="Скачать"
-                  :href="template.link"
-                />
+                <a
+                  class="p-button p-button-primary download-link"
+                  :href="`/docs/${template.link}`"
+                  :download="`${template.label}.${template.link.split('.')[1]}`"
+                >
+                  Скачать
+                </a>
               </div>
             </div>
           </div>
@@ -268,10 +270,10 @@ export default {
         { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
       ],
       docTemplates: [
-        { label: "Конкурсное задание ОЧНОГО отборочного этапа", link: "" },
-        { label: "Конкурсное задание ОНЛАЙН отборочного этапа", link: "" },
-        { label: "Лист регистрации для очных мероприятий", link: "" },
-        { label: "Критерии оценки", link: "" },
+        { label: "Конкурсное задание ОЧНОГО отборочного этапа", link: "task_offline_template.docx" },
+        { label: "Конкурсное задание ОНЛАЙН отборочного этапа", link: "task_online_template.docx" },
+        { label: "Лист регистрации для очных мероприятий", link: "criteria_template.xlsx" },
+        { label: "Критерии оценки", link: "registration_list_offline_events_template.docx" },
       ],
       documents: [] as DocumentsOutputDto[],
     };
@@ -532,6 +534,10 @@ export default {
     margin: 0;
   }
 
+  .download-link {
+    text-decoration: none;
+    font-weight: 500
+  }
 }
 
 .upload-card {
