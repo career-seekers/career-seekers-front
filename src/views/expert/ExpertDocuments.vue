@@ -527,7 +527,7 @@ export default {
 
   .download-text {
     font-size: 1rem;
-    width: 70%;
+    width: 55%;
     height: min-content;
     margin: 0;
   }

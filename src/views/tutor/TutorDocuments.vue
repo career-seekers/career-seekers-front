@@ -607,23 +607,23 @@ export default {
   height: 100%;
   padding: 0 1.1rem;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 2fr));
+  grid-template-columns: repeat(auto-fill, minmax(324px, 1fr));
   gap: 1.5rem;
   overflow: scroll;
 }
 
 .download-info {
   display: flex;
-  padding: 1.5rem;
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
+  padding: 1.5rem;
   border-radius: 10px;
   background: #f8f9fa;
 
   .download-text {
     font-size: 1rem;
-    width: 70%;
+    width: 55%;
     height: min-content;
     margin: 0;
   }
