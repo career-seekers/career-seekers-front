@@ -6,7 +6,6 @@ import type {
     TutorStateInterface,
     UserStateInterface
 } from "./UserState.types.ts";
-import {jwtDecode} from "jwt-decode";
 import { Roles } from './UserState.types.ts';
 import { AuthResolver } from '@/api/resolvers/auth/auth.resolver.ts';
 import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
@@ -24,6 +23,7 @@ import type { MentorDocsOutputDto } from '@/api/resolvers/mentorDocuments/dto/ou
 import type { UserDocsOutputDto } from '@/api/resolvers/userDocuments/dto/output/user-docs-output.dto.ts';
 import router from '@/router';
 import { TelegramLinkResolver } from '@/api/resolvers/telegramLink/telegram-link.resolver.ts';
+import { JwtManager } from '@/utils/JwtManager.ts';
 export const UserState = reactive<
     UserStateInterface
 >({
@@ -43,26 +43,15 @@ export const UserState = reactive<
     position: null
 })
 
-interface UserJwt {
-    id: number;
-    email: string;
-    role: Roles;
-    iat: number;
-    exp: number;
-    header: {
-        alg: string;
-    }
-}
-
 export const fillUserState = async () => {
     const access_token = localStorage.getItem("access_token");
     const refresh_token =  localStorage.getItem("refresh_token")
     const uuid =  localStorage.getItem("uuid")
 
     if (access_token && refresh_token && uuid) {
-        const userJwt = jwtDecode<UserJwt>(access_token);
+        const jwtData = JwtManager.decode(access_token)
         const userResolver = new UserResolver();
-        const userData = await userResolver.getById(userJwt.id)
+        const userData = await userResolver.getById(jwtData.id)
         if (typeof userData.message === "string" || userData.status >= 400) {
             const authResolver = new AuthResolver();
             const response = await authResolver.updateTokens({
@@ -107,7 +96,7 @@ export const fillUserState = async () => {
                             >
                         if (registrationData.extra.consentFileName) {
                             response = await tutorDocsResolver.create({
-                                userId: userJwt.id,
+                                userId: jwtData.id,
                                 post: registrationData.extra.post
                                   ? registrationData.extra.post
                                   : "",
@@ -141,7 +130,7 @@ export const fillUserState = async () => {
                             >
                         if (registrationData.extra.consentFileName) {
                             response = await mentorDocsResolver.create({
-                                userId: userJwt.id,
+                                userId: jwtData.id,
                                 post: registrationData.extra.post
                                     ? registrationData.extra.post
                                     : "",
@@ -172,7 +161,7 @@ export const fillUserState = async () => {
                               ParentStateInterface
                             >
                         response = await userDocsResolver.create({
-                            userId: userJwt.id,
+                            userId: jwtData.id,
                             snilsNumber: registrationData.extra.snilsNumber,
                             snilsFile: await fileManager.loadFileFromCache(
                                 registrationData.extra.snilsFileName

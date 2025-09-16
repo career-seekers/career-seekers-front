@@ -47,6 +47,7 @@ import AdminExperts from '@/views/admin/AdminExperts.vue';
 import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
 import AdminDocuments from '@/views/admin/AdminDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
+import { JwtManager } from '@/utils/JwtManager.ts';
 
 const routes = [
   {
@@ -59,19 +60,16 @@ const routes = [
     component: LoginView,
   },
   {
-    path: "/register",
-    name: "register",
-    component: MentorRegisterView,
-  },
-  {
     path: "/register/mentor",
     name: "mentor-register",
     component: MentorRegisterView,
+    meta: { blocked: true },
   },
   {
     path: "/register/parent",
     name: "parent-register",
     component: ParentRegisterView,
+    meta: { blocked: true },
   },
   {
     path: "/register/tutor",
@@ -86,6 +84,7 @@ const routes = [
   {
     path: "/parent",
     component: ParentDashboard,
+    meta: { blocked: true },
     children: [
       {
         path: "",
@@ -116,6 +115,7 @@ const routes = [
   {
     path: "/mentor",
     component: MentorDashboard,
+    meta: { blocked: true },
     children: [
       {
         path: "",
@@ -248,6 +248,10 @@ const routes = [
         path: "venues",
         component: AdminVenues
       },
+      {
+        path: '/:pathMatch(.*)*',
+        redirect: "/login"
+      },
     ]
   }
 ];
@@ -257,8 +261,13 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async () => {
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.blocked) {
+    next({ path: "/" })
+    return
+  }
   await fillUserState();
+  next()
 });
 // Обновляем title при переходах между страницами
 router.afterEach(async (to) => {
