@@ -14,7 +14,7 @@
       <div class="search-group">
         <InputText
           v-model="searchQuery"
-          placeholder="Поиск по ФИО эксперта..."
+          placeholder="Поиск по ФИО эксперта или образовательному учреждению..."
           class="search-input"
         />
         <i class="pi pi-search search-icon" />
@@ -366,7 +366,8 @@
           filtered = filtered.filter(expert => {
             return expert.lastName.toLowerCase().includes(query) ||
               expert.firstName.toLowerCase().includes(query) ||
-              expert.patronymic.toLowerCase().includes(query)
+              expert.patronymic.toLowerCase().includes(query) ||
+              expert.expertDocuments?.institution.toLowerCase().includes(query)
           })
         }
         return filtered
