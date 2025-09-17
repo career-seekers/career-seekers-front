@@ -292,7 +292,7 @@
             option-value="value"
             placeholder="Возрастная группа"
             class="filter-dropdown filter-upload"
-            :class="{ 'p-invalid': !selectedDoctype }"
+            :class="{ 'p-invalid': !selectedAge }"
           />
           <small
             v-if="!selectedAge"
