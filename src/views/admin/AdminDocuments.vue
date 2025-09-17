@@ -306,10 +306,10 @@
         return filtered;
       },
       availableAges() {
+        const ageOrder = new Map(this.ageGroups.map((group, index) => [group.value, index]));
         return [...new Set(this.documents.map(doc => doc.ageCategory))].toSorted((a, b) => {
-          return this.ageGroups.indexOf(this.ageGroups.find(group => group.value == a)!!) -
-            this.ageGroups.indexOf(this.ageGroups.find(group => group.value == b)!!)
-        })
+          return ageOrder.get(a)!! - ageOrder.get(b)!!;
+        });
       }
     },
     async mounted() {

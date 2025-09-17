@@ -126,7 +126,7 @@
               :options="ageGroups"
               option-label="label"
               option-value="value"
-              placeholder="Взозрастная группа"
+              placeholder="Возрастная группа"
               class="filter-dropdown filter-upload"
             />
             <FileUpload
@@ -152,7 +152,7 @@
               type="submit"
               label="Загрузить"
               class="p-button-outlined submit-upload"
-              :disabled="uploadingType === null || uploadingDocument === null"
+              :disabled="uploadingType === null || uploadingDocument === null || uploadingAge === null"
               @click="uploadDocument"
             />
           </div>
@@ -332,10 +332,10 @@
         return filtered;
       },
       availableAges() {
+        const ageOrder = new Map(this.ageGroups.map((group, index) => [group.value, index]));
         return [...new Set(this.documents.map(doc => doc.ageCategory))].toSorted((a, b) => {
-          return this.ageGroups.indexOf(this.ageGroups.find(group => group.value == a)!!) -
-            this.ageGroups.indexOf(this.ageGroups.find(group => group.value == b)!!)
-        })
+          return ageOrder.get(a)!! - ageOrder.get(b)!!;
+        });
       }
     },
     async beforeMount() {
