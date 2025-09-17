@@ -262,7 +262,7 @@
           <Dropdown
             id="competenceList"
             v-model="selectedDoctype"
-            :options="docTypes"
+            :options="DocumentTypes"
             option-value="value"
             option-label="label"
             placeholder="Не выбран"
@@ -274,6 +274,30 @@
             class="p-error"
           >{{
             errors.selectedDoctype
+          }}</small>
+        </div>
+
+        <div
+          class="form-field"
+          style="gap: 0.5rem"
+        >
+          <label
+            for="competenceList"
+            class="field-label"
+          >Возрастная группа *</label>
+          <Dropdown
+            v-model="selectedAge"
+            :options="ageGroups"
+            option-label="label"
+            option-value="value"
+            placeholder="Возрастная группа"
+            class="filter-dropdown filter-upload"
+            :class="{ 'p-invalid': !selectedDoctype }"
+          />
+          <small
+            v-if="!selectedAge"
+            class="p-error"
+          >{{ errors.selectedAge
           }}</small>
         </div>
 
@@ -339,6 +363,7 @@ import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import {UserResolver} from "@/api/resolvers/user/user.resolver.ts";
+import { DocumentTypes } from '@/shared/DocumentTypes.ts';
 
 export default {
   name: "ExpertDashboardHome",
@@ -350,15 +375,7 @@ export default {
   },
   data() {
     return {
-      docTypes: [
-        { label: "Конкурсное задание отборочного этапа", value: FileType.TASK },
-        { label: "Критерии оценок отборочного этапа", value: FileType.CRITERIA },
-        { label: "Итоговая ведомость отборочного этапа", value: FileType.STATEMENT },
-        { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
-        { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
-        { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
-        { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
-      ],
+      DocumentTypes,
       ageGroups: [
         { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет" },
         { value: AgeCategories.PRESCHOOL, label: "6-7 лет" },
@@ -371,6 +388,7 @@ export default {
       selectedCompetence: null as CompetenceOutputDto | null,
       competencies: [] as CompetenceOutputDto[],
       selectedDocument: null as null | File,
+      selectedAge: null as null | AgeCategories,
       errors: {
         toastPopup: {
           title: "",
@@ -381,6 +399,7 @@ export default {
         selectedCompetence: "",
         selectedDoctype: "",
         selectedDocument: "",
+        selectedAge: "",
       },
       currentExpert: null as UserOutputDto | null,
       usersResolver: new UserResolver(),
@@ -441,11 +460,16 @@ export default {
         this.errors.selectedDoctype = "Выберите тип документа";
         isValid = false;
       }
+      if (this.selectedAge == null) {
+        this.errors.selectedAge = "Выберите возрастную группу";
+        isValid = false;
+      }
       if (isValid) {
         const competenceDocumentsResolver = new CompetenceDocumentsResolver();
         const response = await competenceDocumentsResolver.create({
           documentType: this.selectedDoctype!!,
           document: this.selectedDocument!!,
+          ageCategory: this.selectedAge!,
           userId: UserState.id!!,
           directionId: this.selectedCompetence!!.id,
         });

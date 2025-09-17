@@ -115,7 +115,7 @@
           <div class="upload-content">
             <Dropdown
               v-model="uploadingType"
-              :options="docTypes"
+              :options="DocumentTypes"
               option-label="label"
               option-value="value"
               placeholder="Тип документа"
@@ -179,14 +179,17 @@
         <div class="filter-group">
           <Dropdown
             v-model="selectedType"
-            :options="docTypes"
+            :options="DocumentTypes"
             option-label="label"
             option-value="value"
             placeholder="Все типы"
             class="filter-dropdown"
           />
         </div>
-        <div class="filter-group" style="margin-left: auto">
+        <div
+          class="filter-group"
+          style="margin-left: auto"
+        >
           <Button
             label="Сбросить фильтры"
             icon="pi pi-refresh"
@@ -210,10 +213,10 @@
           </div>
           <div class="document-info">
             <h3 class="document-name">
-              {{ docTypes.find(docType => docType.value === document.documentType)?.label }}
+              {{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}
             </h3>
             <p class="document-type">
-              {{ docTypes.find(docType => docType.value === document.documentType)?.value }}
+              {{ DocumentTypes.find(docType => docType.value === document.documentType)?.value }}
             </p>
             <div class="document-meta">
               <span class="document-size">#{{ document.documentId }}</span>
@@ -264,6 +267,7 @@
   import type {
     CompetenceDocumentsOutputDto
   } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
+  import { DocumentTypes } from '@/shared/DocumentTypes.ts';
 
   export default {
     name: "CompetenceDocuments",
@@ -280,6 +284,7 @@
     },
     data() {
       return {
+        DocumentTypes,
         uploadKey: ref(0),
         selectedType: null as null | FileType,
         selectedDocument: null as null | DocumentsOutputDto,
@@ -288,15 +293,6 @@
         competence: null as null | CompetenceOutputDto,
         competenceResolver: new CompetenceResolver(),
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
-        docTypes: [
-          { label: "Конкурсное задание", value: FileType.TASK },
-          { label: "Критерии оценок", value: FileType.CRITERIA },
-          { label: "Итоговая ведомость", value: FileType.STATEMENT },
-          { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
-          { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
-          { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
-          { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
-        ],
         uploadingAge: null as AgeCategories | null,
         selectedAge: null as AgeCategories | null,
         docTemplates: [

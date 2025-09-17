@@ -61,7 +61,7 @@
           <Dropdown
             id="typeFilter"
             v-model="selectedType"
-            :options="docTypes"
+            :options="DocumentTypes"
             option-label="label"
             option-value="value"
             placeholder="Все типы"
@@ -143,7 +143,7 @@
             <div class="detail-item">
               <span class="detail-label">Тип:</span>
               <span class="detail-value">{{
-                docTypes.find((type) => type.value === document.documentType)?.label
+                DocumentTypes.find((type) => type.value === document.documentType)?.label
               }}</span>
             </div>
             <div class="detail-item">
@@ -226,6 +226,7 @@ import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments
 import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
 import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
 import apiConf from '@/api/api.conf.ts';
+import { DocumentTypes } from '@/shared/DocumentTypes.ts';
 
 export default {
   name: "TutorDocuments",
@@ -251,15 +252,7 @@ export default {
       documents: [] as CompetenceDocumentsOutputDto[],
       competencies: [] as CompetenceOutputDto[],
       experts: [] as UserOutputDto[],
-      docTypes: [
-        { label: "Конкурсное задание отборочного этапа", value: FileType.TASK },
-        { label: "Критерии оценок отборочного этапа", value: FileType.CRITERIA },
-        { label: "Итоговая ведомость отборочного этапа", value: FileType.STATEMENT },
-        { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
-        { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
-        { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
-        { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
-      ],
+      DocumentTypes,
       docTemplates: [
         { label: "Конкурсное задание ОЧНОГО отборочного этапа", link: "task_offline_template.docx" },
         { label: "Конкурсное задание ОНЛАЙН отборочного этапа", link: "task_online_template.docx" },
