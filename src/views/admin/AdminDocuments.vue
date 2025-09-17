@@ -9,45 +9,91 @@
       </p>
     </div>
 
-    <!-- Фильтры -->
-    <div class="filters-section">
-      <div class="filter-group">
-        <label for="typeFilter">Тип документа:</label>
-        <Dropdown
-          id="typeFilter"
-          v-model="selectedType"
-          :options="docTypes"
-          option-label="label"
-          option-value="value"
-          placeholder="Все типы"
-          class="filter-dropdown"
-        />
+    <div class="upload-section">
+      <div class="upload-card">
+        <div class="upload-header">
+          <h3 class="upload-title">
+            <i class="pi pi-file-edit" />
+            Шаблоны документов
+          </h3>
+        </div>
+        <div class="download-content">
+          <div class="download-list">
+            <div
+              v-for="template in docTemplates"
+              :key="template.link"
+              class="download-info"
+            >
+              <p class="download-text">
+                {{ template.label }}
+              </p>
+              <a
+                class="p-button p-button-primary download-link"
+                :href="`/docs/${template.link}`"
+                :download="`${template.label}.${template.link.split('.')[1]}`"
+              >
+                Скачать
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="filter-group">
-        <label for="statusFilter">Компетенция:</label>
-        <Dropdown
-          id="statusFilter"
-          v-model="selectedCompetence"
-          :options="competencies"
-          :disabled="competencies.length === 0"
-          placeholder="Все компетенции"
-          class="filter-dropdown"
-        >
-          <template #option="slotProps">
-            {{ slotProps ? slotProps.option.name : "Не выбран" }}
-          </template>
-          <template #value="{ value }">
-            {{ value ? value.name : "Все компетенции" }}
-          </template>
-        </Dropdown>
-      </div>
-      <div class="filter-group">
+    </div>
+
+    <div
+      v-if="availableAges.length > 0"
+      class="settings-section"
+    >
+      <div class="filters-section flex column-gap-5">
         <Button
-          label="Сбросить фильтры"
-          icon="pi pi-refresh"
-          class="p-button-text p-button-sm"
-          @click="resetFilters"
+          v-for="age in availableAges"
+          :key="age"
+          :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
+          :label="ageGroups.find(group => group.value === age)?.label"
+          @click="selectedAge = age"
         />
+      </div>
+
+      <!-- Фильтры -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label for="typeFilter">Тип документа:</label>
+          <Dropdown
+            id="typeFilter"
+            v-model="selectedType"
+            :options="docTypes"
+            option-label="label"
+            option-value="value"
+            placeholder="Все типы"
+            class="filter-dropdown"
+          />
+        </div>
+        <div class="filter-group">
+          <label for="statusFilter">Компетенция:</label>
+          <Dropdown
+            id="statusFilter"
+            v-model="selectedCompetence"
+            :options="competencies"
+            :disabled="competencies.length === 0"
+            placeholder="Все компетенции"
+            class="filter-dropdown"
+          >
+            <template #option="slotProps">
+              {{ slotProps ? slotProps.option.name : "Не выбран" }}
+            </template>
+            <template #value="{ value }">
+              {{ value ? value.name : "Все компетенции" }}
+            </template>
+          </Dropdown>
+        </div>
+        <div class="filter-group">
+          <Button
+            label="Сбросить фильтры"
+            icon="pi pi-refresh"
+            class="p-button-text p-button-sm"
+            @click="resetFilters"
+          />
+        </div>
       </div>
     </div>
 
@@ -170,7 +216,7 @@
   import Dialog from "primevue/dialog";
   import Dropdown from "primevue/dropdown";
   import { FileResolver, FileType } from "@/api/resolvers/files/file.resolver";
-  import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
+  import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
   import ToastPopup from "@/components/ToastPopup.vue";
   import { UserResolver } from "@/api/resolvers/user/user.resolver";
   import type { CompetenceDocumentsOutputDto } from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts";
@@ -204,6 +250,12 @@
         documents: [] as CompetenceDocumentsOutputDto[],
         competencies: [] as CompetenceOutputDto[],
         experts: [] as UserOutputDto[],
+        docTemplates: [
+          { label: "Конкурсное задание ОЧНОГО отборочного этапа", link: "task_offline_template.docx" },
+          { label: "Конкурсное задание ОНЛАЙН отборочного этапа", link: "task_online_template.docx" },
+          { label: "Лист регистрации для очных мероприятий", link: "registration_list_offline_events_template.docx" },
+          { label: "Критерии оценки", link: "criteria_template.xlsx" },
+        ],
         docTypes: [
           { label: "Конкурсное задание отборочного этапа", value: FileType.TASK },
           { label: "Критерии оценок отборочного этапа", value: FileType.CRITERIA },
@@ -219,6 +271,14 @@
             message: "",
           },
         },
+        ageGroups: [
+          {value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет"},
+          {value: AgeCategories.PRESCHOOL, label: "6-7 лет"},
+          {value: AgeCategories.EARLY_SCHOOL, label: "7-8 лет"},
+          {value: AgeCategories.SCHOOL, label: "9-11 лет"},
+          {value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет"},
+        ],
+        selectedAge: null as null | AgeCategories,
         showPreviewDialog: false,
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
       };
@@ -239,8 +299,18 @@
           );
         }
 
+        if (this.selectedAge) {
+          filtered = filtered.filter((d) => d.ageCategory === this.selectedAge);
+        }
+
         return filtered;
       },
+      availableAges() {
+        return [...new Set(this.documents.map(doc => doc.ageCategory))].toSorted((a, b) => {
+          return this.ageGroups.indexOf(this.ageGroups.find(group => group.value == a)!!) -
+            this.ageGroups.indexOf(this.ageGroups.find(group => group.value == b)!!)
+        })
+      }
     },
     async mounted() {
       await this.loadCompetencies();
@@ -298,6 +368,7 @@
                     userId: competence.userId
                   },
                   documentType: document.documentType,
+                  ageCategory: document.ageCategory,
                   id: document.id,
                   userId: document.userId,
                   documentId: document.documentId
@@ -530,6 +601,72 @@
     color: #6c757d;
     margin: 0;
     font-size: 0.9rem;
+  }
+
+  .upload-section {
+    height: 40vh;
+    margin-bottom: 2rem;
+    width: 100%;
+  }
+
+  .download-content {
+    padding: 1.5rem 0.4rem;
+    height: 80%;
+    overflow: hidden;
+  }
+
+  .download-list {
+    height: 100%;
+    padding: 0 1.1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(324px, 1fr));
+    gap: 1.5rem;
+    overflow: scroll;
+  }
+
+  .download-info {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 10px;
+    background: #f8f9fa;
+
+    .download-text {
+      font-size: 1rem;
+      width: 55%;
+      height: min-content;
+      margin: 0;
+    }
+  }
+
+  .download-link {
+    text-decoration: none;
+    font-weight: 500
+  }
+
+  .upload-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    height: 100%
+  }
+
+  .upload-header {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    padding: 1.5rem;
+  }
+
+  .upload-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   /* Формы */
