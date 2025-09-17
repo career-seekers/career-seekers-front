@@ -161,7 +161,7 @@
     </div>
 
     <div
-      v-if="availableAges.size > 0"
+      v-if="availableAges.length > 0"
       class="settings-section"
     >
       <div class="filters-section flex column-gap-5">
@@ -332,7 +332,10 @@
         return filtered;
       },
       availableAges() {
-        return new Set(this.documents.map(doc => doc.ageCategory))
+        return [...new Set(this.documents.map(doc => doc.ageCategory))].toSorted((a, b) => {
+          return this.ageGroups.indexOf(this.ageGroups.find(group => group.value == a)!!) -
+            this.ageGroups.indexOf(this.ageGroups.find(group => group.value == b)!!)
+        })
       }
     },
     async beforeMount() {
@@ -349,8 +352,8 @@
           .getAllByCompetenceId(parseInt(this.$props.competenceId))
         if (typeof response.message !== "string") {
           this.documents = response.message
-          this.selectedAge = this.availableAges.size > 0
-            ? [...this.availableAges][0]
+          this.selectedAge = this.availableAges.length > 0
+            ? this.availableAges[0]
             : null
         }
       },
