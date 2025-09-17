@@ -12,9 +12,9 @@
     <div class="filters-section">
       <div class="search-group">
         <InputText
-            v-model="searchQuery"
-            placeholder="Поиск по ФИО куратора, образовательному учреждению, номеру телефона или электронной почте..."
-            class="search-input"
+          v-model="searchQuery"
+          placeholder="Поиск по ФИО куратора, образовательному учреждению, номеру телефона или электронной почте..."
+          class="search-input"
         />
         <i class="pi pi-search search-icon" />
       </div>

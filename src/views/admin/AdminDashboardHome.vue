@@ -235,6 +235,7 @@
               label="Управление документами"
               icon="pi pi-cog"
               class="p-button-outlined"
+              @click="router().push('/admin/documents')"
             />
           </div>
         </div>

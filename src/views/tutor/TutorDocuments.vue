@@ -40,45 +40,60 @@
       </div>
     </div>
 
-    <!-- Фильтры -->
-    <div class="filters-section">
-      <div class="filter-group">
-        <label for="typeFilter">Тип документа:</label>
-        <Dropdown
-          id="typeFilter"
-          v-model="selectedType"
-          :options="docTypes"
-          option-label="label"
-          option-value="value"
-          placeholder="Все типы"
-          class="filter-dropdown"
-        />
-      </div>
-      <div class="filter-group">
-        <label for="statusFilter">Компетенция:</label>
-        <Dropdown
-          id="statusFilter"
-          v-model="selectedCompetence"
-          :options="competencies"
-          :disabled="competencies.length === 0"
-          placeholder="Все компетенции"
-          class="filter-dropdown"
-        >
-          <template #option="slotProps">
-            {{ slotProps ? slotProps.option.name : "Не выбран" }}
-          </template>
-          <template #value="{ value }">
-            {{ value ? value.name : "Все компетенции" }}
-          </template>
-        </Dropdown>
-      </div>
-      <div class="filter-group">
+    <div
+      v-if="availableAges.length > 0"
+      class="settings-section"
+    >
+      <div class="filters-section flex column-gap-5">
         <Button
-          label="Сбросить фильтры"
-          icon="pi pi-refresh"
-          class="p-button-text p-button-sm"
-          @click="resetFilters"
+          v-for="age in availableAges"
+          :key="age"
+          :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
+          :label="ageGroups.find(group => group.value === age)?.label"
+          @click="selectedAge = age"
         />
+      </div>
+
+      <!-- Фильтры -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label for="typeFilter">Тип документа:</label>
+          <Dropdown
+            id="typeFilter"
+            v-model="selectedType"
+            :options="docTypes"
+            option-label="label"
+            option-value="value"
+            placeholder="Все типы"
+            class="filter-dropdown"
+          />
+        </div>
+        <div class="filter-group">
+          <label for="statusFilter">Компетенция:</label>
+          <Dropdown
+            id="statusFilter"
+            v-model="selectedCompetence"
+            :options="competencies"
+            :disabled="competencies.length === 0"
+            placeholder="Все компетенции"
+            class="filter-dropdown"
+          >
+            <template #option="slotProps">
+              {{ slotProps ? slotProps.option.name : "Не выбран" }}
+            </template>
+            <template #value="{ value }">
+              {{ value ? value.name : "Все компетенции" }}
+            </template>
+          </Dropdown>
+        </div>
+        <div class="filter-group">
+          <Button
+            label="Сбросить фильтры"
+            icon="pi pi-refresh"
+            class="p-button-text p-button-sm"
+            @click="resetFilters"
+          />
+        </div>
       </div>
     </div>
 
@@ -201,7 +216,7 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
 import { FileResolver, FileType } from "@/api/resolvers/files/file.resolver";
-import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
+import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
 import { UserState } from "@/state/UserState";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { UserResolver } from "@/api/resolvers/user/user.resolver";
@@ -219,13 +234,6 @@ export default {
     Button,
     Dialog,
     Dropdown,
-  },
-  props: {
-    competenceId: {
-      type: String,
-      required: false,
-      default: undefined
-    }
   },
   data: function () {
     return {
@@ -264,6 +272,14 @@ export default {
           message: "",
         },
       },
+      ageGroups: [
+        {value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет"},
+        {value: AgeCategories.PRESCHOOL, label: "6-7 лет"},
+        {value: AgeCategories.EARLY_SCHOOL, label: "7-8 лет"},
+        {value: AgeCategories.SCHOOL, label: "9-11 лет"},
+        {value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет"},
+      ],
+      selectedAge: null as AgeCategories | null,
       showPreviewDialog: false,
       competenceDocumentsResolver: new CompetenceDocumentsResolver(),
     };
@@ -284,8 +300,18 @@ export default {
         );
       }
 
+      if (this.selectedAge) {
+        filtered = filtered.filter((d) => d.ageCategory === this.selectedAge);
+      }
+
       return filtered;
     },
+    availableAges() {
+      const ageOrder = new Map(this.ageGroups.map((group, index) => [group.value, index]));
+      return [...new Set(this.documents.map(doc => doc.ageCategory))].toSorted((a, b) => {
+        return ageOrder.get(a)!! - ageOrder.get(b)!!;
+      });
+    }
   },
   async mounted() {
     await this.loadCompetencies();
@@ -342,15 +368,12 @@ export default {
       );
       if (response.status === 200 && typeof response.message !== "string") {
         response.message.forEach((competence) => {
-          if (this.$props.competenceId && competence.id === parseInt(this.$props.competenceId))
-            this.selectedCompetence = competence;
           if (competence.documents.length > 0) {
             this.competencies.push(competence);
             competence.documents.forEach(async (document) => {
               this.documents.push({
                 createdAt: document.createdAt,
                 direction: {
-
                   ageCategories: competence.ageCategories,
                   description: competence.description,
                   iconId: competence.iconId,
@@ -360,6 +383,7 @@ export default {
                 },
                 documentType: document.documentType,
                 id: document.id,
+                ageCategory: document.ageCategory,
                 userId: document.userId,
                 documentId: document.documentId
               });
@@ -370,6 +394,9 @@ export default {
             });
           }
         });
+        this.selectedAge = this.availableAges.length > 0
+          ? this.availableAges[0]
+          : null
       }
     },
   },

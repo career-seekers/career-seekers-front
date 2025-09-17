@@ -51,7 +51,7 @@ src/
 │   │   ├── ExpertCompetencies.vue
 │   │   ├── ExpertDashboard.vue
 │   │   ├── ExpertDashboardHome.vue
-│   │   ├── ExpertDocuments.vue
+│   │   ├── ExpertCompetenceDocuments
 │   │   ├── ExpertEvents.vue
 │   │   └── ExpertParticipants.vue
 │   └── tutor/            # Дашборд куратора

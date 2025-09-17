@@ -22,7 +22,6 @@ import ExpertDashboard from "@/views/expert/ExpertDashboard.vue";
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
 import ExpertCompetencies from "@/views/expert/ExpertCompetencies.vue";
 import ExpertParticipants from "@/views/expert/ExpertParticipants.vue";
-import ExpertDocuments from "@/views/expert/ExpertDocuments.vue";
 import ExpertEvents from "@/views/expert/ExpertEvents.vue";
 
 // mentor views
@@ -38,7 +37,7 @@ import TutorDashboardHome from "@/views/tutor/TutorDashboardHome.vue";
 import TutorExperts from "@/views/tutor/TutorExperts.vue";
 import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
-import { fillUserState, redirectByUserState } from "../state/UserState";
+import { fillUserState, redirectByUserState } from '../state/UserState';
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
 import AdminDashboard from '@/views/admin/AdminDashboard.vue';
 import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
@@ -47,6 +46,8 @@ import AdminExperts from '@/views/admin/AdminExperts.vue';
 import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
 import AdminDocuments from '@/views/admin/AdminDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
+import CompetenceDocuments from '@/views/shared/CompetenceDocuments.vue';
+import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
 
 const routes = [
   {
@@ -167,8 +168,8 @@ const routes = [
       },
       {
         path: "documents/:competenceId",
-        name: "expert-documents",
-        component: ExpertDocuments,
+        name: "expert-competence-documents",
+        component: CompetenceDocuments,
         props: true
       },
       {
@@ -202,9 +203,14 @@ const routes = [
         component: TutorCompetencies,
       },
       {
-        path: "documents/:competenceId?",
+        path: "documents/",
         name: "tutor-documents",
         component: TutorDocuments,
+      },
+      {
+        path: "documents/:competenceId",
+        name: "tutor-competence-documents",
+        component: CompetenceDocuments,
         props: true
       },
       {
@@ -239,8 +245,13 @@ const routes = [
         component: AdminCompetencies
       },
       {
-        path: "documents/:competenceId?",
+        path: "documents",
         component: AdminDocuments,
+      },
+      {
+        path: "documents/:competenceId",
+        name: "admin-competence-documents",
+        component: CompetenceDocuments,
         props: true
       },
       {
@@ -260,14 +271,18 @@ const router = createRouter({
   routes,
 });
 
-export const historyStack = []
+export const historyStack: string[] = []
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _, next) => {
   if (to.meta.blocked) {
     next({ path: "/" })
   } else {
     await fillUserState();
-    next()
+
+    const redirectPath = await RouterGuardManager.checkCompetenceDocumentsRoute(to)
+
+    if (redirectPath === null) next()
+    else next({ path: redirectPath })
   }
 });
 // Обновляем title при переходах между страницами
