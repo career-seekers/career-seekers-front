@@ -20,7 +20,7 @@
         <div class="download-content">
           <div class="download-list">
             <div
-              v-for="template in docTemplates"
+              v-for="template in DocumentTemplates"
               :key="template.link"
               class="download-info"
             >
@@ -61,7 +61,7 @@
           <Dropdown
             id="typeFilter"
             v-model="selectedType"
-            :options="docTypes"
+            :options="DocumentTypes"
             option-label="label"
             option-value="value"
             placeholder="Все типы"
@@ -143,7 +143,7 @@
             <div class="detail-item">
               <span class="detail-label">Тип:</span>
               <span class="detail-value">{{
-                docTypes.find((type) => type.value === document.documentType)?.label
+                DocumentTypes.find((type) => type.value === document.documentType)?.label
               }}</span>
             </div>
             <div class="detail-item">
@@ -225,6 +225,8 @@
   import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
   import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
   import apiConf from '@/api/api.conf.ts';
+  import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
+  import { DocumentTypes } from '@/shared/DocumentTypes.ts';
 
   export default {
     name: "AdminDocuments",
@@ -250,21 +252,8 @@
         documents: [] as CompetenceDocumentsOutputDto[],
         competencies: [] as CompetenceOutputDto[],
         experts: [] as UserOutputDto[],
-        docTemplates: [
-          { label: "Конкурсное задание ОЧНОГО отборочного этапа", link: "task_offline_template.docx" },
-          { label: "Конкурсное задание ОНЛАЙН отборочного этапа", link: "task_online_template.docx" },
-          { label: "Лист регистрации для очных мероприятий", link: "registration_list_offline_events_template.docx" },
-          { label: "Критерии оценки", link: "criteria_template.xlsx" },
-        ],
-        docTypes: [
-          { label: "Конкурсное задание отборочного этапа", value: FileType.TASK },
-          { label: "Критерии оценок отборочного этапа", value: FileType.CRITERIA },
-          { label: "Итоговая ведомость отборочного этапа", value: FileType.STATEMENT },
-          { label: "Конкурсное задание финала", value: FileType.FINAL_TASK },
-          { label: "Критерии оценок финала", value: FileType.FINAL_CRITERIA },
-          { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
-          { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
-        ],
+        DocumentTemplates,
+        DocumentTypes,
         errors: {
           toastPopup: {
             title: "",
