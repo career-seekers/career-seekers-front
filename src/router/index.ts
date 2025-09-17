@@ -37,7 +37,7 @@ import TutorDashboardHome from "@/views/tutor/TutorDashboardHome.vue";
 import TutorExperts from "@/views/tutor/TutorExperts.vue";
 import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
-import { fillUserState, redirectByUserState } from "../state/UserState";
+import { fillUserState, redirectByUserState } from '../state/UserState';
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
 import AdminDashboard from '@/views/admin/AdminDashboard.vue';
 import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
@@ -47,6 +47,7 @@ import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
 import AdminDocuments from '@/views/admin/AdminDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
 import CompetenceDocuments from '@/views/shared/CompetenceDocuments.vue';
+import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
 
 const routes = [
   {
@@ -209,7 +210,7 @@ const routes = [
       {
         path: "documents/:competenceId",
         name: "tutor-competence-documents",
-        component: TutorDocuments,
+        component: CompetenceDocuments,
         props: true
       },
       {
@@ -249,6 +250,7 @@ const routes = [
       },
       {
         path: "documents/:competenceId",
+        name: "admin-competence-documents",
         component: CompetenceDocuments,
         props: true
       },
@@ -276,7 +278,11 @@ router.beforeEach(async (to, _, next) => {
     next({ path: "/" })
   } else {
     await fillUserState();
-    next()
+
+    const redirectPath = await RouterGuardManager.checkCompetenceDocumentsRoute(to)
+
+    if (redirectPath === null) next()
+    else next({ path: redirectPath })
   }
 });
 // Обновляем title при переходах между страницами
@@ -289,7 +295,7 @@ router.afterEach(async (to, from) => {
   historyStack.push(from.fullPath);
   titleManager.setTitle(pageTitle);
 
-  // await redirectByUserState();
+  await redirectByUserState();
 });
 
 export default router;
