@@ -220,13 +220,6 @@ export default {
     Dialog,
     Dropdown,
   },
-  props: {
-    competenceId: {
-      type: String,
-      required: false,
-      default: undefined
-    }
-  },
   data: function () {
     return {
       fileResolver: new FileResolver(),
@@ -342,8 +335,6 @@ export default {
       );
       if (response.status === 200 && typeof response.message !== "string") {
         response.message.forEach((competence) => {
-          if (this.$props.competenceId && competence.id === parseInt(this.$props.competenceId))
-            this.selectedCompetence = competence;
           if (competence.documents.length > 0) {
             this.competencies.push(competence);
             competence.documents.forEach(async (document) => {

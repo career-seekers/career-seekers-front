@@ -5,7 +5,7 @@
         Документы
       </h1>
       <p class="page-subtitle">
-        Управление документами, подтверждающими экспертность
+        Управление документами компетенций
       </p>
     </div>
 
@@ -188,13 +188,6 @@
       Dialog,
       Dropdown,
     },
-    props: {
-      competenceId: {
-        type: String,
-        required: false,
-        default: undefined
-      }
-    },
     data: function () {
       return {
         fileResolver: new FileResolver(),
@@ -291,8 +284,6 @@
         const response = await this.competenceResolver.getAll();
         if (response.status === 200 && typeof response.message !== "string") {
           response.message.forEach((competence) => {
-            if (this.$props.competenceId && competence.id === parseInt(this.$props.competenceId))
-              this.selectedCompetence = competence;
             if (competence.documents.length > 0) {
               this.competencies.push(competence);
               competence.documents.forEach(async (document) => {

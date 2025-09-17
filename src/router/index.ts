@@ -22,7 +22,6 @@ import ExpertDashboard from "@/views/expert/ExpertDashboard.vue";
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
 import ExpertCompetencies from "@/views/expert/ExpertCompetencies.vue";
 import ExpertParticipants from "@/views/expert/ExpertParticipants.vue";
-import ExpertCompetenceDocuments from "@/views/expert/ExpertCompetenceDocuments.vue";
 import ExpertEvents from "@/views/expert/ExpertEvents.vue";
 
 // mentor views
@@ -47,6 +46,7 @@ import AdminExperts from '@/views/admin/AdminExperts.vue';
 import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
 import AdminDocuments from '@/views/admin/AdminDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
+import CompetenceDocuments from '@/views/shared/CompetenceDocuments.vue';
 
 const routes = [
   {
@@ -167,8 +167,8 @@ const routes = [
       },
       {
         path: "documents/:competenceId",
-        name: "expert-documents",
-        component: ExpertCompetenceDocuments,
+        name: "expert-competence-documents",
+        component: CompetenceDocuments,
         props: true
       },
       {
@@ -202,8 +202,13 @@ const routes = [
         component: TutorCompetencies,
       },
       {
-        path: "documents/:competenceId?",
+        path: "documents/",
         name: "tutor-documents",
+        component: TutorDocuments,
+      },
+      {
+        path: "documents/:competenceId",
+        name: "tutor-competence-documents",
         component: TutorDocuments,
         props: true
       },
@@ -239,8 +244,12 @@ const routes = [
         component: AdminCompetencies
       },
       {
-        path: "documents/:competenceId?",
+        path: "documents",
         component: AdminDocuments,
+      },
+      {
+        path: "documents/:competenceId",
+        component: CompetenceDocuments,
         props: true
       },
       {
@@ -260,9 +269,9 @@ const router = createRouter({
   routes,
 });
 
-export const historyStack = []
+export const historyStack: string[] = []
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _, next) => {
   if (to.meta.blocked) {
     next({ path: "/" })
   } else {
