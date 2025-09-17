@@ -20,7 +20,7 @@
         <div class="download-content">
           <div class="download-list">
             <div
-              v-for="template in docTemplates"
+              v-for="template in DocumentTemplates"
               :key="template.link"
               class="download-info"
             >
@@ -227,6 +227,7 @@ import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.
 import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
 import apiConf from '@/api/api.conf.ts';
 import { DocumentTypes } from '@/shared/DocumentTypes.ts';
+import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
 
 export default {
   name: "TutorDocuments",
@@ -253,12 +254,7 @@ export default {
       competencies: [] as CompetenceOutputDto[],
       experts: [] as UserOutputDto[],
       DocumentTypes,
-      docTemplates: [
-        { label: "Конкурсное задание ОЧНОГО отборочного этапа", link: "task_offline_template.docx" },
-        { label: "Конкурсное задание ОНЛАЙН отборочного этапа", link: "task_online_template.docx" },
-        { label: "Лист регистрации для очных мероприятий", link: "registration_list_offline_events_template.docx" },
-        { label: "Критерии оценки", link: "criteria_template.xlsx" },
-      ],
+      DocumentTemplates,
       errors: {
         toastPopup: {
           title: "",

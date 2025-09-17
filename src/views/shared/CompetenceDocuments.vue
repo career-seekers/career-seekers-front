@@ -83,7 +83,7 @@
           <div class="download-content">
             <div class="download-list">
               <div
-                v-for="template in docTemplates"
+                v-for="template in DocumentTemplates"
                 :key="template.link"
                 class="download-info"
               >
@@ -268,6 +268,7 @@
     CompetenceDocumentsOutputDto
   } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
   import { DocumentTypes } from '@/shared/DocumentTypes.ts';
+  import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
 
   export default {
     name: "CompetenceDocuments",
@@ -285,6 +286,7 @@
     data() {
       return {
         DocumentTypes,
+        DocumentTemplates,
         uploadKey: ref(0),
         selectedType: null as null | FileType,
         selectedDocument: null as null | DocumentsOutputDto,
@@ -295,12 +297,6 @@
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
         uploadingAge: null as AgeCategories | null,
         selectedAge: null as AgeCategories | null,
-        docTemplates: [
-          { label: "Конкурсное задание ОЧНОГО отборочного этапа", link: "task_offline_template.docx" },
-          { label: "Конкурсное задание ОНЛАЙН отборочного этапа", link: "task_online_template.docx" },
-          { label: "Лист регистрации для очных мероприятий", link: "registration_list_offline_events_template.docx" },
-          { label: "Критерии оценки", link: "criteria_template.xlsx" },
-        ],
         ageGroups: [
           {value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет"},
           {value: AgeCategories.PRESCHOOL, label: "6-7 лет"},
