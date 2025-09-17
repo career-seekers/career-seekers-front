@@ -1,5 +1,8 @@
 <template>
-  <div class="documents-page">
+  <div
+    class="documents-page"
+    :style="documents.length > 0 ? 'min-height: 150vh;' : ''"
+  >
     <div class="page-header">
       <div
         v-if="competence"
@@ -118,6 +121,14 @@
               placeholder="Тип документа"
               class="filter-dropdown filter-upload"
             />
+            <Dropdown
+              v-model="uploadingAge"
+              :options="ageGroups"
+              option-label="label"
+              option-value="value"
+              placeholder="Взозрастная группа"
+              class="filter-dropdown filter-upload"
+            />
             <FileUpload
               :key="uploadKey"
               mode="basic"
@@ -149,25 +160,40 @@
       </div>
     </div>
 
-    <!-- Фильтры и поиск -->
-    <div class="filters-section">
-      <div class="filter-group">
-        <Dropdown
-          v-model="selectedType"
-          :options="docTypes"
-          option-label="label"
-          option-value="value"
-          placeholder="Все типы"
-          class="filter-dropdown"
+    <div
+      v-if="availableAges.size > 0"
+      class="settings-section"
+    >
+      <div class="filters-section flex column-gap-5">
+        <Button
+          v-for="age in availableAges"
+          :key="age"
+          :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
+          :label="ageGroups.find(group => group.value === age)?.label"
+          @click="selectedAge = age"
         />
       </div>
-      <div class="filter-group">
-        <Button
-          label="Сбросить фильтры"
-          icon="pi pi-refresh"
-          class="p-button-text p-button-sm"
-          @click="resetFilters"
-        />
+
+      <!-- Фильтры и поиск -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <Dropdown
+            v-model="selectedType"
+            :options="docTypes"
+            option-label="label"
+            option-value="value"
+            placeholder="Все типы"
+            class="filter-dropdown"
+          />
+        </div>
+        <div class="filter-group" style="margin-left: auto">
+          <Button
+            label="Сбросить фильтры"
+            icon="pi pi-refresh"
+            class="p-button-text p-button-sm"
+            @click="resetFilters"
+          />
+        </div>
       </div>
     </div>
 
@@ -227,14 +253,17 @@
   import Button from "primevue/button";
   import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
   import Dropdown from "primevue/dropdown";
-  import { FileResolver, FileType } from '@/api/resolvers/files/file.resolver.ts';
+  import { FileType } from '@/api/resolvers/files/file.resolver.ts';
   import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
   import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
   import { UserState } from '@/state/UserState.ts';
-  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+  import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import { ref } from 'vue';
   import apiConf from '@/api/api.conf.ts';
+  import type {
+    CompetenceDocumentsOutputDto
+  } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
 
   export default {
     name: "CompetenceDocuments",
@@ -257,7 +286,6 @@
         uploadingType: null,
         uploadingDocument: null as null | File,
         competence: null as null | CompetenceOutputDto,
-        fileResolver: new FileResolver(),
         competenceResolver: new CompetenceResolver(),
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
         docTypes: [
@@ -269,13 +297,22 @@
           { label: "Итоговая ведомость", value: FileType.FINAL_STATEMENT },
           { label: "Полное описание компетенции", value: FileType.DESCRIPTION },
         ],
+        uploadingAge: null as AgeCategories | null,
+        selectedAge: null as AgeCategories | null,
         docTemplates: [
           { label: "Конкурсное задание ОЧНОГО отборочного этапа", link: "task_offline_template.docx" },
           { label: "Конкурсное задание ОНЛАЙН отборочного этапа", link: "task_online_template.docx" },
           { label: "Лист регистрации для очных мероприятий", link: "registration_list_offline_events_template.docx" },
           { label: "Критерии оценки", link: "criteria_template.xlsx" },
         ],
-        documents: [] as DocumentsOutputDto[],
+        ageGroups: [
+          {value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет"},
+          {value: AgeCategories.PRESCHOOL, label: "6-7 лет"},
+          {value: AgeCategories.EARLY_SCHOOL, label: "7-8 лет"},
+          {value: AgeCategories.SCHOOL, label: "9-11 лет"},
+          {value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет"},
+        ],
+        documents: [] as CompetenceDocumentsOutputDto[],
       };
     },
     computed: {
@@ -288,9 +325,15 @@
         if (this.selectedType) {
           filtered = filtered.filter((d) => d.documentType === this.selectedType);
         }
-
+        // Фильтр по возрастной группе
+        if (this.selectedAge) {
+          filtered = filtered.filter((d) => d.ageCategory === this.selectedAge);
+        }
         return filtered;
       },
+      availableAges() {
+        return new Set(this.documents.map(doc => doc.ageCategory))
+      }
     },
     async beforeMount() {
       const response = await this.competenceResolver.getById(parseInt(this.$props.competenceId));
@@ -306,6 +349,9 @@
           .getAllByCompetenceId(parseInt(this.$props.competenceId))
         if (typeof response.message !== "string") {
           this.documents = response.message
+          this.selectedAge = this.availableAges.size > 0
+            ? [...this.availableAges][0]
+            : null
         }
       },
       async uploadDocument() {
@@ -315,6 +361,7 @@
         }
         const response = await this.competenceDocumentsResolver.create({
           document: this.uploadingDocument,
+          ageCategory: this.uploadingAge!,
           documentType: this.uploadingType,
           userId: UserState.id,
           directionId: parseInt(this.$props.competenceId),
@@ -323,6 +370,7 @@
           this.uploadingType = null
           this.uploadingDocument = null
           this.uploadKey++
+          this.uploadingAge = null
           await this.loadDocuments()
         }
       },
@@ -489,7 +537,7 @@
     font-weight: 500;
   }
 
-  .docs {
+  .docs, .settings-section {
     display: grid;
     gap: 1.5rem;
     column-gap: 1.5rem;
@@ -497,7 +545,7 @@
 
     .upload-section {
       width: 100%;
-      height: 40vh;
+      height: 57vh;
       margin-bottom: 2rem;
     }
   }
