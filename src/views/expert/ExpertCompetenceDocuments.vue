@@ -237,7 +237,7 @@ import { ref } from 'vue';
 import apiConf from '@/api/api.conf.ts';
 
 export default {
-  name: "ExpertDocuments",
+  name: "ExpertCompetenceDocuments",
   components: {
     Button,
     FileUpload,

@@ -22,7 +22,7 @@ import ExpertDashboard from "@/views/expert/ExpertDashboard.vue";
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
 import ExpertCompetencies from "@/views/expert/ExpertCompetencies.vue";
 import ExpertParticipants from "@/views/expert/ExpertParticipants.vue";
-import ExpertDocuments from "@/views/expert/ExpertDocuments.vue";
+import ExpertCompetenceDocuments from "@/views/expert/ExpertCompetenceDocuments.vue";
 import ExpertEvents from "@/views/expert/ExpertEvents.vue";
 
 // mentor views
@@ -168,7 +168,7 @@ const routes = [
       {
         path: "documents/:competenceId",
         name: "expert-documents",
-        component: ExpertDocuments,
+        component: ExpertCompetenceDocuments,
         props: true
       },
       {
@@ -280,7 +280,7 @@ router.afterEach(async (to, from) => {
   historyStack.push(from.fullPath);
   titleManager.setTitle(pageTitle);
 
-  await redirectByUserState();
+  // await redirectByUserState();
 });
 
 export default router;
