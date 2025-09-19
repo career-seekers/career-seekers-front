@@ -162,7 +162,7 @@
       <!-- Футер -->
       <footer class="dashboard-footer">
         <p class="footer-text">
-          Академия Технического Творчества и Цифровых Технологий <b>|</b>
+          Региональный чемпионат «Искатели профессий» <b>|</b>
           <a href="https://t.me/career_seekers_help">Техническая поддержка</a>
         </p>
       </footer>
