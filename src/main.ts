@@ -8,7 +8,9 @@ import "primevue/resources/primevue.min.css";
 import "primeicons/primeicons.css";
 import "primeflex/primeflex.css";
 import "@/assets/fonts/fonts.css";
+import { createPinia } from 'pinia';
 
+const pinia = createPinia()
 const app = createApp(App);
 
 // Русская локаль для PrimeVue
@@ -63,6 +65,7 @@ const ruLocale = {
   passwordPrompt: "Введите пароль",
 };
 
+app.use(pinia)
 app.use(router);
 app.use(PrimeVue, {
   locale: {

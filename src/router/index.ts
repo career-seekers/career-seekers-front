@@ -37,7 +37,7 @@ import TutorDashboardHome from "@/views/tutor/TutorDashboardHome.vue";
 import TutorExperts from "@/views/tutor/TutorExperts.vue";
 import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
-import { fillUserState, redirectByUserState } from '../state/UserState';
+import { redirectByUserState } from '../state/UserState';
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
 import AdminDashboard from '@/views/admin/AdminDashboard.vue';
 import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
@@ -48,6 +48,7 @@ import AdminDocuments from '@/views/admin/AdminDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
 import CompetenceDocuments from '@/views/shared/CompetenceDocuments.vue';
 import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
+// import { useAuthStore } from '@/stores/authStore.ts';
 
 const routes = [
   {
@@ -277,8 +278,6 @@ router.beforeEach(async (to, _, next) => {
   if (to.meta.blocked) {
     next({ path: "/" })
   } else {
-    await fillUserState();
-
     const redirectPath = await RouterGuardManager.checkCompetenceDocumentsRoute(to)
 
     if (redirectPath === null) next()
@@ -295,7 +294,6 @@ router.afterEach(async (to, from) => {
   historyStack.push(from.fullPath);
   titleManager.setTitle(pageTitle);
 
-  await redirectByUserState();
 });
 
 export default router;

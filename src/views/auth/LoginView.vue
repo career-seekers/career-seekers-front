@@ -137,7 +137,8 @@ import Button from "primevue/button";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver";
 import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
-import { fillUserState, redirectByUserState } from "@/state/UserState";
+import { redirectByUserState } from "@/state/UserState";
+import { useAuthStore } from '@/stores/authStore.ts';
 
 export default {
   name: "LoginView",
@@ -193,13 +194,13 @@ export default {
       return true;
     },
 
-    async handleLogin() {
+    handleLogin: async function() {
       if (!this.validateForm()) return;
 
       this.isLoading = true;
       this.errors.toastPopup = {
-        title: "",
-        message: "",
+        title: '',
+        message: '',
       };
 
       const authResolver = new AuthResolver();
@@ -210,16 +211,18 @@ export default {
         uuid: uuid,
       });
 
-      if (typeof response.message === "string") {
+      if (typeof response.message === 'string') {
         this.errors.toastPopup = {
           title: `Ошибка #${response.status}`,
           message: response.message,
         };
       } else {
-        localStorage.setItem("access_token", response.message.accessToken);
-        localStorage.setItem("refresh_token", response.message.refreshToken);
-        localStorage.setItem("uuid", uuid);
-        await fillUserState();
+        localStorage.setItem('access_token', response.message.accessToken);
+        localStorage.setItem('refresh_token', response.message.refreshToken);
+        localStorage.setItem('uuid', uuid);
+        const authStore = useAuthStore();
+        await authStore.fillUser();
+        console.log(authStore.user)
         await redirectByUserState();
       }
       this.isLoading = false;

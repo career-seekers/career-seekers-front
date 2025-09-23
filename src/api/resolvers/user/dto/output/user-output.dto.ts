@@ -12,7 +12,7 @@ export interface UserOutputDto {
   mobileNumber: string;
   password: string;
   role: Roles;
-  avatarId: number | null;
+  avatarId: number;
   verified: boolean;
   isMentor: boolean;
   tutorId: number | null;

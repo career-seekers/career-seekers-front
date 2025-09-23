@@ -141,7 +141,6 @@
 
 <script lang="ts">
   import Button from 'primevue/button';
-  import { clearUserState } from '@/state/UserState.ts';
 
   export default {
     name: "AdminDashboard",
@@ -163,7 +162,7 @@
     },
     methods: {
       async logout() {
-        await clearUserState();
+        // await clearUserState();
       },
       toggleSidebar() {
         this.sidebarOpen = !this.sidebarOpen;
