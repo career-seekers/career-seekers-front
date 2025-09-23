@@ -186,7 +186,7 @@ export default {
             localStorage.setItem("uuid", this.registrationData.uuid);
             const authStore = useAuthStore();
             await authStore.fillUser();
-            await redirectByUserState();
+
           }
         }
       } catch (error) {

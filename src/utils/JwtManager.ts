@@ -1,8 +1,8 @@
 import { Roles } from '@/state/UserState.types.ts';
 import { jwtDecode } from 'jwt-decode';
 
-export class JwtManager {
-  public static decode(token: string): UserJwt {
+export const JwtManager = {
+  decode(token: string): UserJwt {
     return jwtDecode<UserJwt>(token);
   }
 }

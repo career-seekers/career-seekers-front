@@ -137,7 +137,6 @@ import Button from "primevue/button";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver";
 import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
-import { redirectByUserState } from "@/state/UserState";
 import { useAuthStore } from '@/stores/authStore.ts';
 
 export default {
@@ -223,7 +222,6 @@ export default {
         const authStore = useAuthStore();
         await authStore.fillUser();
         console.log(authStore.user)
-        await redirectByUserState();
       }
       this.isLoading = false;
     },

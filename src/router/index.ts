@@ -37,7 +37,6 @@ import TutorDashboardHome from "@/views/tutor/TutorDashboardHome.vue";
 import TutorExperts from "@/views/tutor/TutorExperts.vue";
 import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
-import { redirectByUserState } from '../state/UserState';
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
 import AdminDashboard from '@/views/admin/AdminDashboard.vue';
 import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
@@ -285,7 +284,7 @@ router.beforeEach(async (to, _, next) => {
   }
 });
 // Обновляем title при переходах между страницами
-router.afterEach(async (to, from) => {
+router.afterEach((to, from) => {
   const pageTitle = titleManager.getPageTitle(
     to.name
       ? to.name.toString()
@@ -293,7 +292,6 @@ router.afterEach(async (to, from) => {
   );
   historyStack.push(from.fullPath);
   titleManager.setTitle(pageTitle);
-
 });
 
 export default router;

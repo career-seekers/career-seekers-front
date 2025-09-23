@@ -13,7 +13,7 @@ export class UserResolver {
     return await this.apiResolver.request<
       null,
       CommonOutputDto<UserOutputDto | string>
-    >(`${id}`, "GET", null, this.token ? this.token : undefined);
+    >(id.toString(), "GET", null, this.token ? this.token : undefined);
   }
 
   public async getAllByRole(role: Roles) {
@@ -27,7 +27,7 @@ export class UserResolver {
     return await this.apiResolver.request<
       null,
       CommonOutputDto<UserOutputDto[] | string>
-    >(`getByTutorId/${id}`, "GET", null, this.token ? this.token : undefined);
+    >(`getByTutorId/${id.toString()}`, "GET", null, this.token ? this.token : undefined);
   }
 
   public async getAll() {
@@ -53,7 +53,7 @@ export class UserResolver {
 
   public async delete(id: number) {
     return await this.apiResolver.request<null, CommonOutputDto<string>>(
-      `${id}`,
+      id.toString(),
       "DELETE",
       null,
       this.token ? this.token : undefined,
