@@ -130,6 +130,13 @@
               }}</span>
             </div>
             <div class="detail-item">
+              <span class="detail-label">Возрастная группа:</span>
+              <span class="detail-value">
+                {{
+                  ageGroups.find(group => document.ageCategory == group.value)?.label
+                }}</span>
+            </div>
+            <div class="detail-item">
               <span class="detail-label">Дата загрузки:</span>
               <span class="detail-value">{{
                 document.createdAt.substring(0, 10)
@@ -245,6 +252,13 @@
               <span class="detail-value">{{
                 DocumentTypes.find((type) => type.value === document.documentType)?.label
               }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Возрастная группа:</span>
+              <span class="detail-value">
+                {{
+                  ageGroups.find(group => document.ageCategory == group.value)?.label
+                }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Дата загрузки:</span>
