@@ -176,7 +176,6 @@
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import type { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto.ts";
-import { UserState } from "@/state/UserState";
 import type { PlatformInputDto } from "@/api/resolvers/platform/dto/input/platform-input.dto.ts";
 import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";

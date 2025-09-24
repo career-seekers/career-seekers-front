@@ -47,7 +47,9 @@ import AdminDocuments from '@/views/admin/AdminDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
 import CompetenceDocuments from '@/views/shared/CompetenceDocuments.vue';
 import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
-// import { useAuthStore } from '@/stores/authStore.ts';
+import { Roles } from '@/state/UserState.types.ts';
+import { useUserStore } from '@/stores/userStore.ts';
+import { useAuthStore } from '@/stores/authStore.ts';
 
 const routes = [
   {
@@ -84,7 +86,10 @@ const routes = [
   {
     path: "/parent",
     component: ParentDashboard,
-    meta: { blocked: true },
+    meta: {
+      blocked: true,
+      allowedRole: Roles.USER
+    },
     children: [
       {
         path: "",
@@ -115,7 +120,10 @@ const routes = [
   {
     path: "/mentor",
     component: MentorDashboard,
-    meta: { blocked: true },
+    meta: {
+      blocked: true,
+      allowedRole: Roles.MENTOR
+    },
     children: [
       {
         path: "",
@@ -146,6 +154,9 @@ const routes = [
   {
     path: "/expert",
     component: ExpertDashboard,
+    meta: {
+      allowedRole: Roles.EXPERT
+    },
     children: [
       {
         path: "",
@@ -182,6 +193,9 @@ const routes = [
   {
     path: "/tutor",
     component: TutorDashboard,
+    meta: {
+      allowedRole: Roles.TUTOR
+    },
     children: [
       {
         path: "",
@@ -223,6 +237,9 @@ const routes = [
   {
     path: "/admin",
     component: AdminDashboard,
+    meta: {
+      allowedRole: Roles.ADMIN
+    },
     children: [
       {
         path: "",
@@ -274,14 +291,31 @@ const router = createRouter({
 export const historyStack: string[] = []
 
 router.beforeEach(async (to, _, next) => {
-  if (to.meta.blocked) {
-    next({ path: "/" })
-  } else {
+  const authStore = useAuthStore();
+  const userStore = useUserStore();
+  if (authStore.access_token !== null) {
+    const userData = await authStore.loadByTokens()
+    if (userData !== null) await userStore.fillUser(userData)
+  }
+
+  if (userStore.user === null && to.meta.allowedRole) {
+    next({ path: "/login" })
+    return
+  }
+  if (userStore.user !== null && (to.path === "/login" || to.meta.allowedRole !== userStore.user.role)) {
+    next({ path: `/${userStore.user.role.toLowerCase()}/dashboard` })
+    return
+  }
+
+  if (to.name?.toString().includes("competence-documents")) {
     const redirectPath = await RouterGuardManager.checkCompetenceDocumentsRoute(to)
 
     if (redirectPath === null) next()
     else next({ path: redirectPath })
+
+    return
   }
+  next()
 });
 // Обновляем title при переходах между страницами
 router.afterEach((to, from) => {

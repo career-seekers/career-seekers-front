@@ -250,7 +250,6 @@ import type { UserInputDto } from "@/api/resolvers/user/dto/input/user-input.dto
 import type { UpdateUserInputDto } from "@/api/resolvers/user/dto/input/update-user-input.dto.ts";
 import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
 import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
-import { UserState } from "@/state/UserState";
 import {PlatformResolver} from "@/api/resolvers/platform/platform.resolver.ts";
 import type {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-output.dto.ts";
 import {ExpertDocumentsResolver} from "@/api/resolvers/expertDocuments/expert-documents.resolver.ts";

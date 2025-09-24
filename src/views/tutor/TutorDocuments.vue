@@ -217,7 +217,6 @@ import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
 import { FileResolver, FileType } from "@/api/resolvers/files/file.resolver";
 import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
-import { UserState } from "@/state/UserState";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { UserResolver } from "@/api/resolvers/user/user.resolver";
 import type { CompetenceDocumentsOutputDto } from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts";

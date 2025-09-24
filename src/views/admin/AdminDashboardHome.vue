@@ -2,7 +2,7 @@
   <div class="dashboard-home">
     <div class="page-header">
       <h1 class="page-title">
-        Добро пожаловать, {{ UserState.firstName }}!
+        Добро пожаловать, {{ user?.firstName }}!
       </h1>
       <p class="page-subtitle">
         Управляйте всеми основными аспектами сервиса
@@ -25,20 +25,20 @@
             <div class="data-item">
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{
-                UserState.lastName +
+                user?.lastName +
                   " " +
-                  UserState.firstName +
+                  user?.firstName +
                   " " +
-                  UserState.patronymic
+                  user?.patronymic
               }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ UserState.email }}</span>
+              <span class="data-value">{{ user?.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ UserState.mobileNumber }}</span>
+              <span class="data-value">{{ user?.mobileNumber }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Должность:</span>
@@ -245,7 +245,6 @@
 </template>
 
 <script lang="ts">
-  import { UserState } from '@/state/UserState.ts';
   import Button from 'primevue/button';
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
   import { PlatformResolver } from '@/api/resolvers/platform/platform.resolver.ts';
@@ -259,6 +258,7 @@
   import type {
     CompetenceDocumentsOutputDto
   } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
+  import { useUserStore } from '@/stores/userStore.ts';
 
   export default {
     name: 'AdminDashboardHome',
@@ -267,6 +267,7 @@
     },
     data: function() {
       return {
+        user: useUserStore().user,
         userResolver: new UserResolver(),
         platformResolver: new PlatformResolver(),
         competenceResolver: new CompetenceResolver(),
@@ -280,9 +281,6 @@
       };
     },
     computed: {
-      UserState() {
-        return UserState
-      },
       recentDoc() {
         if (this.documents.length === 0) return null
         return this.documents.toSorted((a, b) => {

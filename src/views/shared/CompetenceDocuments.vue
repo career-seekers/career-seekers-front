@@ -259,7 +259,6 @@
   import { FileType } from '@/api/resolvers/files/file.resolver.ts';
   import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
   import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
-  import { UserState } from '@/state/UserState.ts';
   import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import { ref } from 'vue';

@@ -198,7 +198,6 @@ import {
   AgeCategories,
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
-import { UserState } from "@/state/UserState";
 import MultiSelect from 'primevue/multiselect';
 
 export default {

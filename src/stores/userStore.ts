@@ -15,7 +15,6 @@ import type {
 } from '@/api/resolvers/auth/dto/input/register-input.dto.ts';
 import { MentorDocumentsResolver } from '@/api/resolvers/mentorDocuments/mentor-documents.resolver.ts';
 import { UserDocumentsResolver } from '@/api/resolvers/userDocuments/user-documents.resolver.ts';
-import router from '@/router';
 
 export const useUserStore = defineStore("user", {
   state: (): { user: UserStateInterface | null } => ({
@@ -139,12 +138,5 @@ export const useUserStore = defineStore("user", {
         }
       }
     },
-    async clear() {
-      this.user = null
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      localStorage.removeItem('uuid')
-      await router.push("/login")
-    }
   }
 })

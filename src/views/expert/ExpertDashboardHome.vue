@@ -350,7 +350,6 @@
 
 <script lang="ts">
 import Button from "primevue/button";
-import { UserState } from "@/state/UserState";
 import {
   AgeCategories,
   CompetenceResolver,

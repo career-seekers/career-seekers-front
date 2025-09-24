@@ -341,7 +341,6 @@ import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
 import MultiSelect from 'primevue/multiselect';
 import type {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
-import {UserState} from "@/state/UserState";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
 import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import ToastPopup from "@/components/ToastPopup.vue";

@@ -138,6 +138,7 @@ import { AuthResolver } from "@/api/resolvers/auth/auth.resolver";
 import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { useAuthStore } from '@/stores/authStore.ts';
+import router from '@/router';
 
 export default {
   name: "LoginView",
@@ -220,8 +221,10 @@ export default {
         localStorage.setItem('refresh_token', response.message.refreshToken);
         localStorage.setItem('uuid', uuid);
         const authStore = useAuthStore();
-        await authStore.fillUser();
-        console.log(authStore.user)
+        authStore.getTokens()
+        const userData = await authStore.loadByTokens();
+        if (userData !== null)
+          await router.push(`/${userData.role.toLowerCase()}/dashboard`)
       }
       this.isLoading = false;
     },

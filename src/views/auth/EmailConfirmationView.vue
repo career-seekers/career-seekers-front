@@ -92,7 +92,6 @@ import type {
   RegistrationData, TutorCachedData,
   UserCachedData,
 } from '@/state/UserState.types';
-import { redirectByUserState } from "@/state/UserState";
 import router, { historyStack } from '@/router';
 import { useAuthStore } from '@/stores/authStore.ts';
 
@@ -185,7 +184,7 @@ export default {
             localStorage.setItem("refresh_token", response.message.refreshToken);
             localStorage.setItem("uuid", this.registrationData.uuid);
             const authStore = useAuthStore();
-            await authStore.fillUser();
+            await authStore.loadByTokens();
 
           }
         }
