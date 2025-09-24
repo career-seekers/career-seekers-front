@@ -429,12 +429,12 @@
         }
 
         if (!this.tutorForm.post.trim()) {
-          this.errors.birthDate = "Должность обязательна";
+          this.errors.post = "Должность обязательна";
           isValid = false;
         }
 
         if (!this.tutorForm.institution.trim()) {
-          this.errors.birthDate = "Образовательное учреждение обязательно";
+          this.errors.institution = "Образовательное учреждение обязательно";
           isValid = false;
         }
 
