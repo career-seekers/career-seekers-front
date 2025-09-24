@@ -237,10 +237,11 @@
   import type {
     CompetenceDocumentsOutputDto
   } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
-  import { DocumentTypes } from '@/shared/DocumentTypes.ts';
-  import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
+  import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
+  import { useDocumentTemplates } from '@/shared/UseDocumentTemplates.ts';
   import { useUserStore } from '@/stores/userStore.ts';
   import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
+  import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 
   export default {
     name: "CompetenceDocuments",
@@ -259,8 +260,8 @@
     data() {
       return {
         user: useUserStore().user,
-        DocumentTypes,
-        DocumentTemplates,
+        DocumentTypes: useDocumentTypes,
+        DocumentTemplates: useDocumentTemplates,
         uploadKey: ref(0),
         selectedType: null as null | FileType,
         selectedDocument: null as null | DocumentsOutputDto,
@@ -271,13 +272,7 @@
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
         uploadingAge: null as AgeCategories | null,
         selectedAge: null as AgeCategories | null,
-        ageGroups: [
-          {value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет"},
-          {value: AgeCategories.PRESCHOOL, label: "6-7 лет"},
-          {value: AgeCategories.EARLY_SCHOOL, label: "7-8 лет"},
-          {value: AgeCategories.SCHOOL, label: "9-11 лет"},
-          {value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет"},
-        ],
+        ageGroups: useAgeGroups,
         documents: [] as CompetenceDocumentsOutputDto[],
       };
     },

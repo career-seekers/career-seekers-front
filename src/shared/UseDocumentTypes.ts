@@ -1,6 +1,6 @@
 import { FileType } from '@/api/resolvers/files/file.resolver.ts';
 
-export const DocumentTypes = [
+export const useDocumentTypes = [
   { label: "Конкурсное задание отборочного этапа", value: FileType.TASK },
   { label: "Критерии оценок отборочного этапа", value: FileType.CRITERIA },
   { label: "Итоговая ведомость отборочного этапа", value: FileType.STATEMENT },

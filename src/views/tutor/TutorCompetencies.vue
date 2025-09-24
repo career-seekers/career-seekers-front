@@ -352,6 +352,7 @@ import {
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
 import { useUserStore } from '@/stores/userStore.ts';
+import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 
 export default {
   name: "ExpertCompetencies",
@@ -393,13 +394,7 @@ export default {
         ageCategory: [] as AgeCategories[],
         expert: undefined as UserOutputDto | undefined,
       },
-      ageGroups: [
-        {value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет"},
-        {value: AgeCategories.PRESCHOOL, label: "6-7 лет"},
-        {value: AgeCategories.EARLY_SCHOOL, label: "7-8 лет"},
-        {value: AgeCategories.SCHOOL, label: "9-11 лет"},
-        {value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет"},
-      ],
+      ageGroups: useAgeGroups,
       competencies: [] as CompetenceOutputDto[],
     };
   },

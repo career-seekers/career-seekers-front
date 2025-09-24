@@ -130,6 +130,13 @@
               }}</span>
             </div>
             <div class="detail-item">
+              <span class="detail-label">Возрастная группа:</span>
+              <span class="detail-value">
+                {{
+                  ageGroups.find(group => document.ageCategory === group.value)?.label
+                }}</span>
+            </div>
+            <div class="detail-item">
               <span class="detail-label">Дата загрузки:</span>
               <span class="detail-value">{{
                 document.createdAt.substring(0, 10)
@@ -229,6 +236,13 @@
               }}</span>
             </div>
             <div class="detail-item">
+              <span class="detail-label">Возрастная группа:</span>
+              <span class="detail-value">
+                {{
+                  ageGroups.find(group => document.ageCategory === group.value)?.label
+                }}</span>
+            </div>
+            <div class="detail-item">
               <span class="detail-label">Дата загрузки:</span>
               <span class="detail-value">{{
                 document.createdAt.substring(0, 10)
@@ -307,8 +321,8 @@ import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments
 import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
 import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
 import apiConf from '@/api/api.conf.ts';
-import { DocumentTypes } from '@/shared/DocumentTypes.ts';
-import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
+import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
+import { useDocumentTemplates } from '@/shared/UseDocumentTemplates.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
 
@@ -338,8 +352,8 @@ export default {
       documents: [] as CompetenceDocumentsOutputDto[],
       competencies: [] as CompetenceOutputDto[],
       experts: [] as UserOutputDto[],
-      DocumentTypes,
-      DocumentTemplates,
+      DocumentTypes: useDocumentTypes,
+      DocumentTemplates: useDocumentTemplates,
       errors: {
         toastPopup: {
           title: "",

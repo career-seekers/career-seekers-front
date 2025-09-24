@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
+  import { useDocumentTemplates } from '@/shared/UseDocumentTemplates.ts';
 
   export default {
     name: 'DocumentsTemplates',
     methods: {
       DocumentTemplates() {
-        return DocumentTemplates
+        return useDocumentTemplates
       }
     },
   };
