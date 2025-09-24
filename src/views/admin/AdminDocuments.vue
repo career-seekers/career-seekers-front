@@ -68,10 +68,139 @@
       </div>
     </div>
 
+    <div
+      v-if="filteredDocuments.filter((doc) => doc.verified !== false).length > 0"
+      class="documents-grid-header"
+    >
+      <h1 class="documents-grid-title">
+        Принятые / необработанные
+      </h1>
+    </div>
+
     <!-- Список документов -->
-    <div class="documents-grid">
+    <div
+      v-if="filteredDocuments.filter((doc) => doc.verified !== false).length > 0"
+      class="documents-grid"
+    >
       <div
-        v-for="document in filteredDocuments"
+        v-for="document in filteredDocuments.filter((doc) => doc.verified !== false)"
+        :key="document.id"
+        class="document-card"
+      >
+        <div class="document-header">
+          <div class="document-icon">
+            <i class="pi pi-file" />
+          </div>
+          <div class="document-info">
+            <h3 class="document-name">
+              Документ №{{ document.id }}
+            </h3>
+          </div>
+          <div class="document-actions">
+            <Button
+              v-tooltip="'Просмотреть'"
+              icon="pi pi-eye"
+              style="background: white;"
+              class="p-button-text p-button-sm"
+              @click="viewDocument(document)"
+            />
+            <Button
+              v-tooltip="'Скачать'"
+              icon="pi pi-download"
+              style="background: white"
+              class="p-button-text p-button-sm"
+              @click="downloadDocument(document)"
+            />
+            <Button
+              v-tooltip="'Удалить'"
+              icon="pi pi-trash"
+              style="background: white"
+              class="p-button-text p-button-sm p-button-danger"
+              @click="deleteDocument(document)"
+            />
+          </div>
+        </div>
+
+        <div class="document-content">
+          <div class="document-details">
+            <div class="detail-item">
+              <span class="detail-label">Тип:</span>
+              <span class="detail-value">{{
+                DocumentTypes.find((type) => type.value === document.documentType)?.label
+              }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Дата загрузки:</span>
+              <span class="detail-value">{{
+                document.createdAt.substring(0, 10)
+              }}</span>
+            </div>
+            <div
+              v-if="document"
+              class="detail-item"
+            >
+              <span class="detail-label">Компетенция:</span>
+              <span class="detail-value">{{
+                documentCompetence(document)?.name
+              }}</span>
+            </div>
+          </div>
+
+          <div
+            v-if="documentExpert(document)"
+            class="mentor-info"
+          >
+            <h4 class="mentor-title">
+              Связанный эксперт:
+            </h4>
+            <p class="mentor-name">
+              {{
+                documentExpert(document)?.lastName +
+                  " " +
+                  documentExpert(document)?.firstName +
+                  " " +
+                  documentExpert(document)?.patronymic
+              }}
+            </p>
+          </div>
+          <div
+            v-if="document.verified === null"
+            class="verify"
+          >
+            <Button
+              icon="pi pi-check"
+              style="background: white"
+              label="Принять"
+              class="p-button-text p-button-sm p-button-success"
+              @click="verifyDocument(document, true)"
+            />
+            <Button
+              icon="pi pi-times"
+              style="background: white"
+              label="Отклонить"
+              class="p-button-text p-button-sm p-button-danger"
+              @click="verifyDocument(document, false)"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="filteredDocuments.filter((doc) => doc.verified === false).length > 0"
+      class="documents-grid-header"
+    >
+      <h1 class="documents-grid-title">
+        Отклоненные
+      </h1>
+    </div>
+
+    <div
+      v-if="filteredDocuments.filter((doc) => doc.verified === false)"
+      class="documents-grid"
+    >
+      <div
+        v-for="document in filteredDocuments.filter((doc) => doc.verified === false)"
         :key="document.id"
         class="document-card"
       >
@@ -286,6 +415,10 @@
       documentExpert(document: CompetenceDocumentsOutputDto) {
         return this.experts.find((expert) => expert.id === document.userId);
       },
+      async verifyDocument(doc: CompetenceDocumentsOutputDto, status: boolean) {
+        const response = await this.competenceDocumentsResolver.verify(doc.id, status)
+        if (response.status === 200) await this.loadCompetencies()
+      },
       viewDocument(doc: CompetenceDocumentsOutputDto) {
         this.selectedDocument = doc;
         window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`, "_blank");
@@ -321,6 +454,7 @@
               competence.documents.forEach(async (document) => {
                 this.documents.push({
                   createdAt: document.createdAt,
+                  verified: document.verified,
                   direction: {
                     ageCategories: competence.ageCategories,
                     description: competence.description,
@@ -368,7 +502,7 @@
     }
   }
 
-  .page-header {
+  .page-header, .documents-grid-header {
     margin-bottom: 2rem;
   }
 
@@ -426,6 +560,15 @@
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 1.5rem;
     width: 100%;
+    margin-bottom: 4rem;
+  }
+
+  .documents-grid-title {
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+    font-family: "BIPS", sans-serif;
   }
 
   .document-card {
@@ -563,6 +706,12 @@
     color: #6c757d;
     margin: 0;
     font-size: 0.9rem;
+  }
+
+  .verify {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: flex-end;
   }
 
 

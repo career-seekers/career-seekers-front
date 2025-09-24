@@ -11,7 +11,7 @@ export class PlatformResolver {
     return await this.apiResolver.request<
       null,
       CommonOutputDto<PlatformOutputDto>
-    >(`getByUserId/${id}`, "GET", null, this.token ? this.token : undefined);
+    >(`getByUserId/${id.toString()}`, "GET", null, this.token ? this.token : undefined);
   }
 
   public async create(data: PlatformInputDto) {
@@ -30,7 +30,7 @@ export class PlatformResolver {
 
   public async updatePlatformVerification(id: number) {
     return await this.apiResolver.request<null, CommonOutputDto<string>>(
-      `verify/${id}`,
+      `verify/${id.toString()}`,
       "PATCH",
       null,
       this.token ? this.token : undefined,
@@ -39,7 +39,7 @@ export class PlatformResolver {
 
   public async delete(id: number) {
     return await this.apiResolver.request<null, CommonOutputDto<string>>(
-      `${id}`,
+      id.toString(),
       "DELETE",
       null,
       this.token ? this.token : undefined,

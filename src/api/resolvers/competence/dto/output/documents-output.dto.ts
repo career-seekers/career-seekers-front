@@ -7,5 +7,6 @@ export interface DocumentsOutputDto {
   ageCategory: AgeCategories
   documentId: number;
   createdAt: string;
+  verified: boolean | null;
   userId: number;
 }

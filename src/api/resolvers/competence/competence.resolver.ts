@@ -45,21 +45,21 @@ export class CompetenceResolver {
     return await this.apiResolver.request<
       null,
       CommonOutputDto<CompetenceOutputDto | string>
-    >(`${id}`, "GET", null, this.token ? this.token : undefined);
+    >(id.toString(), "GET", null, this.token ? this.token : undefined);
   }
 
   public async getAllByUserId(id: number) {
     return await this.apiResolver.request<
       null,
       CommonOutputDto<CompetenceOutputDto[] | string>
-    >(`getByUserId/${id}`, "GET", null, this.token ? this.token : undefined);
+    >(`getByUserId/${id.toString()}`, "GET", null, this.token ? this.token : undefined);
   }
 
   public async getAllByExpertId(id: number) {
     return await this.apiResolver.request<
       null,
       CommonOutputDto<CompetenceOutputDto[] | string>
-    >(`getByExpertId/${id}`, "GET", null, this.token ? this.token : undefined);
+    >(`getByExpertId/${id.toString()}`, "GET", null, this.token ? this.token : undefined);
   }
 
   public async update(data: CompetenceInputDto) {
@@ -71,7 +71,7 @@ export class CompetenceResolver {
 
   public async delete(id: number) {
     return await this.apiResolver.request<null, CommonOutputDto<string>>(
-      `${id}`,
+      id.toString(),
       "DELETE",
       null,
       this.token ? this.token : undefined,

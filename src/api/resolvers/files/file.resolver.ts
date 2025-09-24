@@ -35,7 +35,7 @@ export class FileResolver {
 
   public async viewById(id: number) {
     return await this.apiResolver.request<null, Blob>(
-      `view/${id}`,
+      `view/${id.toString()}`,
       "GET",
       null,
       this.token ? this.token : undefined,
@@ -47,7 +47,7 @@ export class FileResolver {
       null,
       DocsOutputFileUploadDto | CommonOutputDto<string>
     >(
-      `${id}`,
+      id.toString(),
       "GET",
       null,
       this.token ? this.token : undefined,

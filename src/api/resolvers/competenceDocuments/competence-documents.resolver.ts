@@ -12,7 +12,7 @@ export class CompetenceDocumentsResolver {
       null,
       CommonOutputDto<CompetenceDocumentsOutputDto[] | string>
     >(
-      `getByDirectoryId/${id}`,
+      `getByDirectoryId/${id.toString()}`,
       "GET",
       null,
       this.token ? this.token : undefined
@@ -47,6 +47,13 @@ export class CompetenceDocumentsResolver {
     return await this.apiResolver.request<
       null,
       CommonOutputDto<CompetenceDocumentsOutputDto | string>
-    >(`${id}`, "DELETE", null, this.token ? this.token : undefined);
+    >(id.toString(), "DELETE", null, this.token ? this.token : undefined);
+  }
+
+  public async verify(id: number, status: boolean) {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<string>
+    >(`verify/${id.toString()}/${status.toString()}`, "PATCH", null, this.token ? this.token : undefined);
   }
 }
