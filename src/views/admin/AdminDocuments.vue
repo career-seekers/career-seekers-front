@@ -196,7 +196,7 @@
     </div>
 
     <div
-      v-if="filteredDocuments.filter((doc) => doc.verified === false)"
+      v-if="filteredDocuments.filter((doc) => doc.verified === false).length > 0"
       class="documents-grid"
     >
       <div
