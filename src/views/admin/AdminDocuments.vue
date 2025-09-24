@@ -325,9 +325,10 @@
   import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
   import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
   import apiConf from '@/api/api.conf.ts';
-  import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
-  import { DocumentTypes } from '@/shared/DocumentTypes.ts';
+  import { useDocumentTemplates } from '@/shared/UseDocumentTemplates.ts';
+  import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
   import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
+  import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 
   export default {
     name: "AdminDocuments",
@@ -340,6 +341,7 @@
     },
     data() {
       return {
+        ageGroups: useAgeGroups,
         fileResolver: new FileResolver(),
         filePreview: null,
         competenceResolver: new CompetenceResolver(),
@@ -354,21 +356,14 @@
         documents: [] as CompetenceDocumentsOutputDto[],
         competencies: [] as CompetenceOutputDto[],
         experts: [] as UserOutputDto[],
-        DocumentTemplates,
-        DocumentTypes,
+        DocumentTemplates: useDocumentTemplates,
+        DocumentTypes: useDocumentTypes,
         errors: {
           toastPopup: {
             title: "",
             message: "",
           },
         },
-        ageGroups: [
-          {value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет"},
-          {value: AgeCategories.PRESCHOOL, label: "6-7 лет"},
-          {value: AgeCategories.EARLY_SCHOOL, label: "7-8 лет"},
-          {value: AgeCategories.SCHOOL, label: "9-11 лет"},
-          {value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет"},
-        ],
         selectedAge: null as null | AgeCategories,
         showPreviewDialog: false,
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),

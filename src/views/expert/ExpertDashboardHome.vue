@@ -365,8 +365,9 @@ import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import {UserResolver} from "@/api/resolvers/user/user.resolver.ts";
-import { DocumentTypes } from '@/shared/DocumentTypes.ts';
+import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
 import { useUserStore } from '@/stores/userStore.ts';
+import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 
 export default {
   name: "ExpertDashboardHome",
@@ -379,14 +380,8 @@ export default {
   data() {
     return {
       user: useUserStore().user,
-      DocumentTypes,
-      ageGroups: [
-        { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет" },
-        { value: AgeCategories.PRESCHOOL, label: "6-7 лет" },
-        { value: AgeCategories.EARLY_SCHOOL, label: "7-8 лет" },
-        { value: AgeCategories.SCHOOL, label: "9-11 лет" },
-        { value: AgeCategories.HIGH_SCHOOL, label: "12-13 лет" },
-      ],
+      DocumentTypes: useDocumentTypes,
+      ageGroups: useAgeGroups,
       selectedDoctype: null as null | FileType,
       showCompetenceDocModal: false,
       selectedCompetence: null as CompetenceOutputDto | null,
