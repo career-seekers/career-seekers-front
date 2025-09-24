@@ -22,6 +22,7 @@ export const RouterGuardManager = {
           break
         }
         case Roles.USER: return "/parent"
+        case Roles.ADMIN: return null
         default: return "/not-found"
       }
     }

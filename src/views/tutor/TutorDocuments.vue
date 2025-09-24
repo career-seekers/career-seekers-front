@@ -9,36 +9,7 @@
       </p>
     </div>
 
-    <div class="upload-section">
-      <div class="upload-card">
-        <div class="upload-header">
-          <h3 class="upload-title">
-            <i class="pi pi-file-edit" />
-            Шаблоны документов
-          </h3>
-        </div>
-        <div class="download-content">
-          <div class="download-list">
-            <div
-              v-for="template in DocumentTemplates"
-              :key="template.link"
-              class="download-info"
-            >
-              <p class="download-text">
-                {{ template.label }}
-              </p>
-              <a
-                class="p-button p-button-primary download-link"
-                :href="`/docs/${template.link}`"
-                :download="`${template.label}.${template.link.split('.')[1]}`"
-              >
-                Скачать
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <DocumentsTemplates />
 
     <div
       v-if="availableAges.length > 0"
@@ -97,10 +68,121 @@
       </div>
     </div>
 
+    <div
+      v-if="filteredDocuments.filter((doc) => doc.verified !== false).length > 0"
+      class="documents-grid-header"
+    >
+      <h1 class="documents-grid-title">
+        Принятые / необработанные
+      </h1>
+    </div>
+
     <!-- Список документов -->
-    <div class="documents-grid">
+    <div
+      v-if="filteredDocuments.filter((doc) => doc.verified !== false).length > 0"
+      class="documents-grid"
+    >
       <div
-        v-for="document in filteredDocuments"
+        v-for="document in filteredDocuments.filter((doc) => doc.verified !== false)"
+        :key="document.id"
+        class="document-card"
+      >
+        <div class="document-header">
+          <div class="document-icon">
+            <i class="pi pi-file" />
+          </div>
+          <div class="document-info">
+            <h3 class="document-name">
+              Документ №{{ document.id }}
+            </h3>
+          </div>
+          <div class="document-actions">
+            <Button
+              v-tooltip="'Просмотреть'"
+              icon="pi pi-eye"
+              style="background: white;"
+              class="p-button-text p-button-sm"
+              @click="viewDocument(document)"
+            />
+            <Button
+              v-tooltip="'Скачать'"
+              icon="pi pi-download"
+              style="background: white"
+              class="p-button-text p-button-sm"
+              @click="downloadDocument(document)"
+            />
+            <Button
+              v-tooltip="'Удалить'"
+              icon="pi pi-trash"
+              style="background: white"
+              class="p-button-text p-button-sm p-button-danger"
+              @click="deleteDocument(document)"
+            />
+          </div>
+        </div>
+
+        <div class="document-content">
+          <div class="document-details">
+            <div class="detail-item">
+              <span class="detail-label">Тип:</span>
+              <span class="detail-value">{{
+                DocumentTypes.find((type) => type.value === document.documentType)?.label
+              }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Дата загрузки:</span>
+              <span class="detail-value">{{
+                document.createdAt.substring(0, 10)
+              }}</span>
+            </div>
+            <div
+              v-if="document"
+              class="detail-item"
+            >
+              <span class="detail-label">Компетенция:</span>
+              <span class="detail-value">{{
+                documentCompetence(document)?.name
+              }}</span>
+            </div>
+          </div>
+
+          <div
+            v-if="documentExpert(document)"
+            class="mentor-info"
+          >
+            <h4 class="mentor-title">
+              Связанный эксперт:
+            </h4>
+            <p class="mentor-name">
+              {{
+                documentExpert(document)?.lastName +
+                  " " +
+                  documentExpert(document)?.firstName +
+                  " " +
+                  documentExpert(document)?.patronymic
+              }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="filteredDocuments.filter((doc) => doc.verified === false).length > 0"
+      class="documents-grid-header"
+    >
+      <h1 class="documents-grid-title">
+        Отклоненные
+      </h1>
+    </div>
+
+    <!-- Список документов -->
+    <div
+      v-if="filteredDocuments.filter((doc) => doc.verified === false).length > 0"
+      class="documents-grid"
+    >
+      <div
+        v-for="document in filteredDocuments.filter((doc) => doc.verified === false)"
         :key="document.id"
         class="document-card"
       >
@@ -228,10 +310,12 @@ import apiConf from '@/api/api.conf.ts';
 import { DocumentTypes } from '@/shared/DocumentTypes.ts';
 import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
 import { useUserStore } from '@/stores/userStore.ts';
+import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
 
 export default {
   name: "TutorDocuments",
   components: {
+    DocumentsTemplates,
     ToastPopup,
     Button,
     Dialog,
@@ -364,6 +448,7 @@ export default {
               competence.documents.forEach(async (document) => {
                 this.documents.push({
                   createdAt: document.createdAt,
+                  verified: document.verified,
                   direction: {
                     ageCategories: competence.ageCategories,
                     description: competence.description,
@@ -612,71 +697,6 @@ export default {
   font-size: 0.9rem;
 }
 
-.upload-section {
-  height: 40vh;
-  margin-bottom: 2rem;
-  width: 100%;
-}
-
-.download-content {
-  padding: 1.5rem 0.4rem;
-  height: 80%;
-  overflow: hidden;
-}
-
-.download-list {
-  height: 100%;
-  padding: 0 1.1rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(324px, 1fr));
-  gap: 1.5rem;
-  overflow: scroll;
-}
-
-.download-info {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  padding: 1.5rem;
-  border-radius: 10px;
-  background: #f8f9fa;
-
-  .download-text {
-    font-size: 1rem;
-    width: 55%;
-    height: min-content;
-    margin: 0;
-  }
-}
-
-.download-link {
-  text-decoration: none;
-  font-weight: 500
-}
-
-.upload-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  height: 100%
-}
-
-.upload-header {
-  background: linear-gradient(135deg, #ff9800, #f57c00);
-  color: white;
-  padding: 1.5rem;
-}
-
-.upload-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
 
 /* Формы */
 .upload-form,

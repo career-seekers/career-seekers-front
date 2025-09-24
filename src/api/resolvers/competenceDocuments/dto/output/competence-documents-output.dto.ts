@@ -8,6 +8,7 @@ export interface CompetenceDocumentsOutputDto {
   ageCategory: AgeCategories;
   documentId: number;
   createdAt: string;
+  verified: boolean | null;
   userId: number;
   direction: {
     id: number;
