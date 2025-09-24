@@ -499,6 +499,9 @@
         if (!this.validateForm()) {
           return;
         }
+        if (this.expertForm.tutor === null) {
+          return
+        }
 
         if (this.isEditing) {
           const expert = this.experts.find(

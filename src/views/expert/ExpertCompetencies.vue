@@ -199,6 +199,7 @@ import {
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
 import MultiSelect from 'primevue/multiselect';
+import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "ExpertCompetencies",
@@ -209,6 +210,7 @@ export default {
   },
   data() {
     return {
+      user: useUserStore().user,
       selectedAge: [] as AgeCategories[],
       showDetailsDialog: false,
       selectedCompetence: undefined as CompetenceOutputDto | undefined,
@@ -261,10 +263,12 @@ export default {
       this.selectedAge = [];
     },
     async loadCompetencies() {
-      const competenceResolver = new CompetenceResolver();
-      const response = await competenceResolver.getAllByExpertId(UserState.id!);
-      if (response.status === 200 && typeof response.message !== "string")
-        this.competencies = response.message;
+      if (this.user !== null) {
+        const competenceResolver = new CompetenceResolver();
+        const response = await competenceResolver.getAllByExpertId(this.user.id);
+        if (response.status === 200 && typeof response.message !== "string")
+          this.competencies = response.message;
+      }
     },
   },
 };

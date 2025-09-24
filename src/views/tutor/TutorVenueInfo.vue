@@ -179,6 +179,7 @@ import type { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/plat
 import type { PlatformInputDto } from "@/api/resolvers/platform/dto/input/platform-input.dto.ts";
 import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
+import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "TutorVenueInfo",
@@ -189,6 +190,7 @@ export default {
   },
   data() {
     return {
+      user: useUserStore().user,
       platformResolver: new PlatformResolver(),
       oldMail: "",
       cachedData: null as null | PlatformOutputDto,
@@ -201,7 +203,7 @@ export default {
         email: "",
         website: "",
         verified: false,
-        userId: UserState.id,
+        userId: -1,
       } as PlatformOutputDto,
       errors: {
         toastPopup: {
@@ -256,14 +258,14 @@ export default {
   },
   methods: {
     async sendForModeration() {
-      if (this.validateForm()) {
+      if (this.validateForm() && this.user !== null) {
         this.addHistoryEntry(
           "pi pi-send",
           "Информация отправлена на модерацию",
         );
 
         const data: PlatformInputDto = {
-          userId: UserState.id!,
+          userId: this.user.id,
           fullName: this.venueData.fullName,
           shortName: this.venueData.shortName,
           address: this.venueData.address,
@@ -300,11 +302,13 @@ export default {
       }
     },
     async loadPlatform() {
-      const response = await this.platformResolver.getByUserId(UserState.id!);
-      if (response.status === 200) {
-        this.oldMail = response.message.email;
-        this.venueData = response.message;
-        this.cachedData = null;
+      if (this.user !== null) {
+        const response = await this.platformResolver.getByUserId(this.user.id);
+        if (response.status === 200) {
+          this.oldMail = response.message.email;
+          this.venueData = response.message;
+          this.cachedData = null;
+        }
       }
     },
     validateForm() {

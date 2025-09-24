@@ -268,6 +268,7 @@
   } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
   import { DocumentTypes } from '@/shared/DocumentTypes.ts';
   import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
+  import { useUserStore } from '@/stores/userStore.ts';
 
   export default {
     name: "CompetenceDocuments",
@@ -284,6 +285,7 @@
     },
     data() {
       return {
+        user: useUserStore().user,
         DocumentTypes,
         DocumentTemplates,
         uploadKey: ref(0),
@@ -349,7 +351,7 @@
         }
       },
       async uploadDocument() {
-        if (!this.uploadingDocument || !this.uploadingType || !UserState.id) {
+        if (!this.uploadingDocument || !this.uploadingType || this.user === null) {
           alert("Пожалуйста, выберите документ, тип документа и убедитесь, что вы авторизованы.");
           return;
         }
@@ -357,7 +359,7 @@
           document: this.uploadingDocument,
           ageCategory: this.uploadingAge!,
           documentType: this.uploadingType,
-          userId: UserState.id,
+          userId: this.user.id,
           directionId: parseInt(this.$props.competenceId),
         })
         if (typeof response.message !== "string") {

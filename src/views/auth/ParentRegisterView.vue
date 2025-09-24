@@ -741,8 +741,7 @@ import { AuthResolver } from "@/api/resolvers/auth/auth.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
 import type { UserWithChildRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto.ts";
 import {
-  type ParentStateInterface,
-  type RegistrationData, Roles,
+  type RegistrationData, Roles, type UserCachedData,
 } from '@/state/UserState.types';
 import { FileManager } from "@/utils/FileManager";
 import VuePdfEmbed from "vue-pdf-embed";
@@ -1199,7 +1198,7 @@ export default {
           const fileManager = new FileManager();
           const registrationData: RegistrationData<
             UserWithChildRegistrationDto,
-            ParentStateInterface
+            UserCachedData
           > = {
             dto: {
               type: "UserWithChildRegistrationDto",
@@ -1236,10 +1235,10 @@ export default {
                   this.childForm.platformCertificate as File,
                 ),
               parentRole: this.parentForm.relationship,
-              consentToChildPdpFileName: await fileManager.saveFileToCache(
+              consentToChildPdpFilename: await fileManager.saveFileToCache(
                 this.parentForm.childConsentFile,
               ),
-              birthCertificateFileName: await fileManager.saveFileToCache(
+              birthCertificateFilename: await fileManager.saveFileToCache(
                 this.childForm.birthCertificate as File,
               ),
             },

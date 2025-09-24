@@ -253,6 +253,7 @@ import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolv
 import {PlatformResolver} from "@/api/resolvers/platform/platform.resolver.ts";
 import type {PlatformOutputDto} from "@/api/resolvers/platform/dto/output/platform-output.dto.ts";
 import {ExpertDocumentsResolver} from "@/api/resolvers/expertDocuments/expert-documents.resolver.ts";
+import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "TutorExperts",
@@ -265,6 +266,7 @@ export default {
   },
   data() {
     return {
+      user: useUserStore().user,
       oldMail: "",
       showAddExpertDialog: false,
       isEditing: false,
@@ -426,6 +428,7 @@ export default {
       if (!this.validateForm()) {
         return;
       }
+      if (this.user === null) return
 
       if (this.isEditing) {
         const expert = this.experts.find(
@@ -444,7 +447,7 @@ export default {
             patronymic: this.expertForm.fullName.split(" ")[2],
             role: Roles.EXPERT,
             id: this.editingExpertId!,
-            tutorId: UserState.id!,
+            tutorId: this.user.id,
           };
 
           if (expert.expertDocuments != null) {
@@ -478,7 +481,7 @@ export default {
           email: this.expertForm.email,
           mobileNumber: this.mobileNumberFormatted,
           password: "",
-          tutorId: UserState.id!,
+          tutorId: this.user.id,
           role: Roles.EXPERT,
           dateOfBirth: this.dateOfBirthFormatted,
           avatarId: null,
@@ -550,42 +553,46 @@ export default {
     },
 
     async loadCurrentPlatform() {
-      const response = await this.platformsResolver.getByUserId(UserState.id!);
+      if (this.user !== null) {
+        const response = await this.platformsResolver.getByUserId(this.user.id);
 
-      if (response.status === 200) {
-        this.currentPlatform = response.message;
-      } else {
-        if (response.status === 404) {
-          this.currentPlatform = null
+        if (response.status === 200) {
+          this.currentPlatform = response.message;
+        } else {
+          if (response.status === 404) {
+            this.currentPlatform = null
+          } else {
+            this.errors.toastPopup = {
+              title: response.status.toString(),
+              message: response.message.toString(),
+            };
+          }
+        }
+      }
+    },
+
+    async loadExperts() {
+      if (this.user !== null) {
+        const response = await this.userResolver.getAllByTutorId(this.user.id);
+        if (response.status === 200 && typeof response.message !== "string") {
+          this.experts = response.message;
+          for (const expert of this.experts) {
+            const response = await this.competenceResolver.getAllByExpertId(
+              expert.id,
+            );
+            if (response.status === 200 && typeof response.message !== "string") {
+              this.expertCompetencies.push({
+                expertId: expert.id,
+                competencies: response.message,
+              });
+            }
+          }
         } else {
           this.errors.toastPopup = {
             title: response.status.toString(),
             message: response.message.toString(),
           };
         }
-      }
-    },
-
-    async loadExperts() {
-      const response = await this.userResolver.getAllByTutorId(UserState.id!);
-      if (response.status === 200 && typeof response.message !== "string") {
-        this.experts = response.message;
-        for (const expert of this.experts) {
-          const response = await this.competenceResolver.getAllByExpertId(
-            expert.id,
-          );
-          if (response.status === 200 && typeof response.message !== "string") {
-            this.expertCompetencies.push({
-              expertId: expert.id,
-              competencies: response.message,
-            });
-          }
-        }
-      } else {
-        this.errors.toastPopup = {
-          title: response.status.toString(),
-          message: response.message.toString(),
-        };
       }
     },
   },
