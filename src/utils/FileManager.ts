@@ -1,21 +1,26 @@
+interface FileRecord {
+  name: string,
+  file: File
+}
+
 export class FileManager {
   saveFileToCache(file: File) {
     return new Promise<string>((resolve, reject) => {
       const request = indexedDB.open("FileCacheDB", 1);
-      const fileName = `${file.name}_${Date.now()}`;
+      const fileName = `${file.name}_${Date.now().toString()}`;
 
       request.onupgradeneeded = function (event) {
-        const db = (event.target as IDBRequest).result;
+        const db = (event.target as IDBOpenDBRequest).result;
         if (!db.objectStoreNames.contains("files")) {
           db.createObjectStore("files", { keyPath: "name" });
         }
       };
 
       request.onsuccess = function (event) {
-        const db = (event.target as IDBRequest).result;
+        const db = (event.target as IDBOpenDBRequest).result;
         const transaction = db.transaction(["files"], "readwrite");
         const store = transaction.objectStore("files");
-        store.put({ name: fileName, file: file });
+        store.put({ name: fileName, file: file } as FileRecord);
 
         transaction.oncomplete = () => {
           db.close();
@@ -24,7 +29,7 @@ export class FileManager {
       };
 
       request.onerror = function (event) {
-        reject("IndexedDB error:" + (event.target as IDBRequest).error);
+        reject(new Error((event.target as IDBOpenDBRequest).error?.message.toString()));
       };
     });
   }
@@ -34,30 +39,30 @@ export class FileManager {
       const request = indexedDB.open("FileCacheDB", 1);
 
       request.onsuccess = function (event) {
-        const db = (event.target as IDBRequest).result;
+        const db = (event.target as IDBOpenDBRequest).result;
         const transaction = db.transaction(["files"], "readonly");
         const store = transaction.objectStore("files");
         const getRequest = store.get(fileName);
 
         getRequest.onsuccess = function () {
-          const record = getRequest.result;
+          const record = getRequest.result as FileRecord | undefined;
           if (record) {
             resolve(record.file);
           } else {
-            reject(File);
+            reject(new Error((event.target as IDBOpenDBRequest).error?.message.toString()));
           }
           db.close();
         };
 
         getRequest.onerror = function () {
-          reject(File);
+          reject(new Error((event.target as IDBOpenDBRequest).error?.message.toString()));
           db.close();
         };
       };
 
       request.onerror = function (event) {
         reject(
-          new Error("IndexedDB error: " + (event.target as IDBRequest).error),
+          new Error((event.target as IDBOpenDBRequest).error?.message.toString()),
         );
       };
     });
@@ -68,7 +73,7 @@ export class FileManager {
       const request = indexedDB.open("FileCacheDB", 1);
 
       request.onsuccess = function (event) {
-        const db = (event.target as IDBRequest).result;
+        const db = (event.target as IDBOpenDBRequest).result;
         const transaction = db.transaction(["files"], "readwrite");
         const store = transaction.objectStore("files");
 
@@ -81,12 +86,12 @@ export class FileManager {
 
         deleteRequest.onerror = function () {
           db.close();
-          reject(false);
+          reject(false as unknown as Error);
         };
       };
 
       request.onerror = function () {
-        reject(false);
+        reject(false as unknown as Error);
       };
     });
   }

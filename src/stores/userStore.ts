@@ -15,6 +15,7 @@ import type {
 } from '@/api/resolvers/auth/dto/input/register-input.dto.ts';
 import { MentorDocumentsResolver } from '@/api/resolvers/mentorDocuments/mentor-documents.resolver.ts';
 import { UserDocumentsResolver } from '@/api/resolvers/userDocuments/user-documents.resolver.ts';
+import { TelegramLinkResolver } from '@/api/resolvers/telegramLink/telegram-link.resolver.ts';
 
 export const useUserStore = defineStore("user", {
   state: (): { user: UserStateInterface | null } => ({
@@ -43,8 +44,16 @@ export const useUserStore = defineStore("user", {
       };
       
       const docsToVerifyStr = localStorage.getItem("dataToVerify")
+      const telegramLink = localStorage.getItem("telegramLink")
       if (docsToVerifyStr !== null)
         await this.fillDocuments(docsToVerifyStr);
+      if (telegramLink !== null) {
+        const response = await new TelegramLinkResolver().create({
+          userId: this.user.id,
+          tgLink: telegramLink,
+        })
+        if (response.status === 200) localStorage.removeItem("telegramLink");
+      }
     },
     async fillDocuments(docsToVerifyStr: string) {
       const fileManager = new FileManager()
@@ -89,7 +98,10 @@ export const useUserStore = defineStore("user", {
               )
             })
 
-            if (response.status === 200) localStorage.removeItem("dataToVerify");
+            if (response.status === 200 && typeof response.message !== "string") {
+              this.user.mentorDocuments.push(response.message)
+              localStorage.removeItem("dataToVerify");
+            }
 
             await fileManager.removeFileFromCache(cachedData.extra.consentToMentorPdpFilename);
 
@@ -125,7 +137,10 @@ export const useUserStore = defineStore("user", {
               )
             })
 
-            if (response.status === 200) localStorage.removeItem("dataToVerify");
+            if (response.status === 200 && typeof response.message !== "string") {
+              this.user.userDocuments.push(response.message)
+              localStorage.removeItem("dataToVerify");
+            }
 
             await fileManager.removeFileFromCache(cachedData.extra.snilsFileName);
             await fileManager.removeFileFromCache(cachedData.extra.studyingCertificateFileName);

@@ -130,6 +130,7 @@
 
 <script lang="ts">
 import Button from "primevue/button";
+import { useAuthStore } from '@/stores/authStore.ts';
 
 export default {
   name: "TutorDashboard",
@@ -138,6 +139,7 @@ export default {
   },
   data() {
     return {
+      authStore: useAuthStore(),
       sidebarOpen: false,
       isMobile: false,
     };
@@ -151,6 +153,7 @@ export default {
   },
   methods: {
     async logout() {
+      await this.authStore.logout();
     },
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen;

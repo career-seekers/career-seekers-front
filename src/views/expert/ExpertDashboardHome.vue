@@ -1,8 +1,11 @@
 <template>
-  <div class="dashboard-home">
+  <div
+    v-if="user !== null"
+    class="dashboard-home"
+  >
     <div class="page-header">
       <h1 class="page-title">
-        Добро пожаловать, {{ UserState.firstName }}!
+        Добро пожаловать, {{ user.firstName }}!
       </h1>
       <p class="page-subtitle">
         Управляйте компетенциями и участниками
@@ -26,16 +29,16 @@
             <div class="data-item">
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{
-                `${UserState.lastName} ${UserState.firstName} ${UserState.patronymic}`
+                `${user.lastName} ${user.firstName} ${user.patronymic}`
               }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ UserState.email }}</span>
+              <span class="data-value">{{ user.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ UserState.mobileNumber }}</span>
+              <span class="data-value">{{ user.mobileNumber }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Должность:</span>
@@ -363,6 +366,7 @@ import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/
 import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import {UserResolver} from "@/api/resolvers/user/user.resolver.ts";
 import { DocumentTypes } from '@/shared/DocumentTypes.ts';
+import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "ExpertDashboardHome",
@@ -374,6 +378,7 @@ export default {
   },
   data() {
     return {
+      user: useUserStore().user,
       DocumentTypes,
       ageGroups: [
         { value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет" },
@@ -404,32 +409,30 @@ export default {
       usersResolver: new UserResolver(),
     };
   },
-  computed: {
-    UserState() {
-      return UserState;
-    },
-  },
   async mounted() {
     await this.getCurrentExpert();
-
-    const competenceResolver = new CompetenceResolver();
-    const response = await competenceResolver.getAllByExpertId(UserState.id!);
-    if (response.status === 200 && typeof response.message !== "string") {
-      this.competencies = response.message;
+    if (this.user !== null) {
+      const competenceResolver = new CompetenceResolver();
+      const response = await competenceResolver.getAllByExpertId(this.user.id);
+      if (response.status === 200 && typeof response.message !== "string") {
+        this.competencies = response.message;
+      }
     }
   },
 
   methods: {
     async getCurrentExpert() {
-      const res = await this.usersResolver.getById(UserState.id!)
+      if (this.user !== null) {
+        const res = await this.usersResolver.getById(this.user.id)
 
-      if (res.status === 200) {
-        this.currentExpert = res.message as UserOutputDto;
-      } else {
-        this.errors.toastPopup = {
-          title: res.status.toString(),
-          message: res.message.toString(),
-        };
+        if (res.status === 200) {
+          this.currentExpert = res.message as UserOutputDto;
+        } else {
+          this.errors.toastPopup = {
+            title: res.status.toString(),
+            message: res.message.toString(),
+          };
+        }
       }
     },
 
@@ -463,13 +466,13 @@ export default {
         this.errors.selectedAge = "Выберите возрастную группу";
         isValid = false;
       }
-      if (isValid) {
+      if (isValid && this.user !== null) {
         const competenceDocumentsResolver = new CompetenceDocumentsResolver();
         const response = await competenceDocumentsResolver.create({
           documentType: this.selectedDoctype!!,
           document: this.selectedDocument!!,
           ageCategory: this.selectedAge!,
-          userId: UserState.id!!,
+          userId: this.user.id,
           directionId: this.selectedCompetence!!.id,
         });
         if (response.status !== 200) {

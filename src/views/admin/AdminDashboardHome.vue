@@ -1,8 +1,11 @@
 <template>
-  <div class="dashboard-home">
+  <div 
+    v-if="user !== null"
+    class="dashboard-home"
+  >
     <div class="page-header">
       <h1 class="page-title">
-        Добро пожаловать, {{ user?.firstName }}!
+        Добро пожаловать, {{ user.firstName }}!
       </h1>
       <p class="page-subtitle">
         Управляйте всеми основными аспектами сервиса
@@ -25,20 +28,20 @@
             <div class="data-item">
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{
-                user?.lastName +
+                user.lastName +
                   " " +
-                  user?.firstName +
+                  user.firstName +
                   " " +
-                  user?.patronymic
+                  user.patronymic
               }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ user?.email }}</span>
+              <span class="data-value">{{ user.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ user?.mobileNumber }}</span>
+              <span class="data-value">{{ user.mobileNumber }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Должность:</span>
