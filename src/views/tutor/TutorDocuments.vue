@@ -133,7 +133,7 @@
               <span class="detail-label">Возрастная группа:</span>
               <span class="detail-value">
                 {{
-                  ageGroups.find(group => document.ageCategory == group.value)?.label
+                  ageGroups.find(group => document.ageCategory === group.value)?.label
                 }}</span>
             </div>
             <div class="detail-item">
@@ -239,7 +239,7 @@
               <span class="detail-label">Возрастная группа:</span>
               <span class="detail-value">
                 {{
-                  ageGroups.find(group => document.ageCategory == group.value)?.label
+                  ageGroups.find(group => document.ageCategory === group.value)?.label
                 }}</span>
             </div>
             <div class="detail-item">
