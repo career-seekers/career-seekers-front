@@ -69,7 +69,7 @@ export class FileManager {
   }
 
   removeFileFromCache(fileName: string) {
-    return new Promise<boolean>((resolve, reject) => {
+    return new Promise<boolean>((resolve) => {
       const request = indexedDB.open("FileCacheDB", 1);
 
       request.onsuccess = function (event) {
@@ -86,12 +86,12 @@ export class FileManager {
 
         deleteRequest.onerror = function () {
           db.close();
-          reject(false as unknown as Error);
+          resolve(false);
         };
       };
 
       request.onerror = function () {
-        reject(false as unknown as Error);
+        resolve(false);
       };
     });
   }
