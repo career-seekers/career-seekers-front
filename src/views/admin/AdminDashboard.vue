@@ -140,8 +140,8 @@
 </template>
 
 <script lang="ts">
-  import Button from 'primevue/button';
-  import { clearUserState } from '@/state/UserState.ts';
+  import { useAuthStore } from '@/stores/authStore';
+import Button from 'primevue/button';
 
   export default {
     name: "AdminDashboard",
@@ -150,6 +150,7 @@
     },
     data() {
       return {
+        authStore: useAuthStore(),
         sidebarOpen: false,
         isMobile: false,
       };
@@ -163,7 +164,7 @@
     },
     methods: {
       async logout() {
-        await clearUserState();
+        await this.authStore.logout();
       },
       toggleSidebar() {
         this.sidebarOpen = !this.sidebarOpen;

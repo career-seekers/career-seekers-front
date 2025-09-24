@@ -88,13 +88,13 @@ import type {
 import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
 import type {
-  MentorStateInterface,
-  ParentStateInterface,
-  RegistrationData,
-  TutorStateInterface,
-} from "@/state/UserState.types";
-import { fillUserState, redirectByUserState } from "@/state/UserState";
+  MentorCachedData,
+  RegistrationData, TutorCachedData,
+  UserCachedData,
+} from '@/state/UserState.types';
 import router, { historyStack } from '@/router';
+import { useAuthStore } from '@/stores/authStore.ts';
+import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "EmailConfirmationView",
@@ -125,7 +125,7 @@ export default {
     this.registrationData = localStorage.getItem("dataToVerify")
       ? (JSON.parse(localStorage.getItem("dataToVerify") as string) as RegistrationData<
           UserWithChildRegistrationDto | UserRegistrationDto,
-          TutorStateInterface | MentorStateInterface | ParentStateInterface
+          MentorCachedData | TutorCachedData | UserCachedData
         >).dto as UserRegistrationDto | UserWithChildRegistrationDto
       : null
     // Получаем email из query параметров или localStorage
@@ -166,25 +166,33 @@ export default {
       };
 
       try {
-        if ((this.registrationData as UserWithChildRegistrationDto).childPatronymic)
-          this.registrationData.type = "UserWithChildRegistrationDto";
-        else this.registrationData.type = "UserRegistrationDto";
-        this.registrationData.uuid = generateUuidV4();
-        this.registrationData.verificationCode = this.confirmationForm.code;
-        const response = await this.authResolver.register(
-          this.registrationData,
-        );
-        if (typeof response.message === "string") {
-          this.errors.toastPopup = {
-            title: `Ошибка #${response.status}`,
-            message: response.message,
-          };
-        } else {
-          localStorage.setItem("access_token", response.message.accessToken);
-          localStorage.setItem("refresh_token", response.message.refreshToken);
-          localStorage.setItem("uuid", this.registrationData.uuid);
-          await fillUserState();
-          await redirectByUserState();
+        if (this.registrationData !== null) {
+          if ((this.registrationData as UserWithChildRegistrationDto).childPatronymic)
+            this.registrationData.type = "UserWithChildRegistrationDto";
+          else this.registrationData.type = "UserRegistrationDto";
+          this.registrationData.uuid = generateUuidV4();
+          this.registrationData.verificationCode = this.confirmationForm.code;
+          const response = await this.authResolver.register(
+            this.registrationData,
+          );
+          if (typeof response.message === "string") {
+            this.errors.toastPopup = {
+              title: `Ошибка #${response.status}`,
+              message: response.message,
+            };
+          } else {
+            localStorage.setItem("access_token", response.message.accessToken);
+            localStorage.setItem("refresh_token", response.message.refreshToken);
+            localStorage.setItem("uuid", this.registrationData.uuid);
+            const authStore = useAuthStore();
+            const userStore = useUserStore();
+            authStore.getTokens()
+            const userData = await authStore.loadByTokens();
+            if (userData !== null) {
+              await userStore.fillUser(userData)
+              await router.push(`/${userData.role.toLowerCase()}/dashboard`)
+            }
+          }
         }
       } catch (error) {
         this.errors.code = "Неверный код подтверждения";
@@ -195,21 +203,23 @@ export default {
 
     async resendCode() {
       try {
-        const response = await this.authResolver.preRegister({
-          email: this.userEmail,
-          mobileNumber: this.registrationData.mobileNumber,
-        });
+        if (this.registrationData !== null) {
+          const response = await this.authResolver.preRegister({
+            email: this.userEmail,
+            mobileNumber: this.registrationData.mobileNumber,
+          });
 
-        if (response.status !== 200) {
-          this.errors.toastPopup = {
-            title: `Ошибка #${response.status}`,
-            message: response.message,
-          };
-        } else {
-          this.errors.toastPopup = {
-            title: "Код отправлен",
-            message: "Проверьте почтовый ящик",
-          };
+          if (response.status !== 200) {
+            this.errors.toastPopup = {
+              title: `Ошибка #${response.status}`,
+              message: response.message,
+            };
+          } else {
+            this.errors.toastPopup = {
+              title: "Код отправлен",
+              message: "Проверьте почтовый ящик",
+            };
+          }
         }
       } catch (error) {
         console.error("Ошибка повторной отправки:", error);

@@ -1,33 +1,47 @@
+import type { UserDocsOutputDto } from '@/api/resolvers/userDocuments/dto/output/user-docs-output.dto.ts';
+import type { ExpertDocsOutputDto } from '@/api/resolvers/expertDocuments/dto/output/expert-docs.output.dto.ts';
+import type { TutorDocsOutputDto } from '@/api/resolvers/tutorDocuments/dto/output/tutor-docs-output.dto.ts';
+import type { MentorDocsOutputDto } from '@/api/resolvers/mentorDocuments/dto/output/mentor-docs-output.dto.ts';
+
 export interface UserStateInterface {
-    id: number | undefined;
-    firstName: string | undefined;
-    lastName: string | undefined;
-    patronymic: string | undefined;
-    dateOfBirth: string | undefined;
-    email: string | undefined;
-    mobileNumber: string | undefined;
-    password: string | undefined;
-    role: Roles | undefined;
-    avatarId: number | null;
-    verified: boolean | undefined;
-    isMentor: boolean | undefined;
-    position: string | null;
+    id: number;
+    firstName: string;
+    lastName: string;
+    patronymic: string;
+    dateOfBirth: string | null;
+    email: string;
+    mobileNumber: string;
+    password: string;
+    role: Roles;
+    avatarId: number;
+    verified: boolean;
+    isMentor: boolean;
     telegramLink: string | null;
+    userDocuments: UserDocsOutputDto[];
+    expertDocuments: ExpertDocsOutputDto[];
+    tutorDocuments: TutorDocsOutputDto[];
+    mentorDocuments: MentorDocsOutputDto[];
 }
 
-export interface TutorStateInterface {
-    post: string | undefined;
-    institution: string | undefined;
-    consentFileName: string | undefined;
+
+export interface RegistrationData<U, R> {
+    dto: U,
+    extra: R,
 }
 
-export interface MentorStateInterface {
-    post: string | undefined;
-    institution: string | undefined;
-    consentFileName: string | undefined;
+export interface MentorCachedData {
+    post: string;
+    institution: string;
+    consentToMentorPdpFilename: string;
 }
 
-export interface ParentStateInterface {
+export interface TutorCachedData {
+    post: string;
+    institution: string;
+    consentToTutorPdpFilename: string;
+}
+
+export interface UserCachedData {
     snilsNumber: string;
     snilsFileName: string;
     studyingPlace: string;
@@ -36,14 +50,8 @@ export interface ParentStateInterface {
     trainingGround: string;
     additionalStudyingCertificateFileName: string;
     parentRole: string;
-    consentToChildPdpFileName: string;
-    birthCertificateFileName: string;
-}
-
-
-export interface RegistrationData<U, R> {
-    dto: U,
-    extra: R,
+    consentToChildPdpFilename: string;
+    birthCertificateFilename: string;
 }
 
 export enum Roles {

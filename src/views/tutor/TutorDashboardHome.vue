@@ -1,8 +1,11 @@
 <template>
-  <div class="dashboard-home">
+  <div
+    v-if="user !== null"
+    class="dashboard-home"
+  >
     <div class="page-header">
       <h1 class="page-title">
-        Добро пожаловать, {{ UserState.firstName }}!
+        Добро пожаловать, {{ user.firstName }}!
       </h1>
       <p class="page-subtitle">
         Управляйте площадкой и главными экспертами
@@ -26,31 +29,34 @@
             <div class="data-item">
               <span class="data-label">ФИО:</span>
               <span class="data-value">{{
-                UserState.lastName +
+                user.lastName +
                   " " +
-                  UserState.firstName +
+                  user.firstName +
                   " " +
-                  UserState.patronymic
+                  user.patronymic
               }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ UserState.email }}</span>
+              <span class="data-value">{{ user.email }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ UserState.mobileNumber }}</span>
+              <span class="data-value">{{ user.mobileNumber }}</span>
             </div>
             <!--            <div class="data-item">-->
             <!--              <span class="data-label">Должность:</span>-->
-            <!--              <span class="data-value">{{ UserState.position }}</span>-->
+            <!--              <span class="data-value">{{ user.position }}</span>-->
             <!--            </div>-->
           </div>
         </div>
       </div>
 
       <!-- Информация о площадке -->
-      <div class="info-card">
+      <div
+        v-if="venueData.userId === user.id"
+        class="info-card"
+      >
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-building" />
@@ -289,7 +295,6 @@
 
 <script lang="ts">
 import Button from "primevue/button";
-import { UserState } from "@/state/UserState";
 import { PlatformResolver } from "@/api/resolvers/platform/platform.resolver";
 import type { PlatformOutputDto } from "@/api/resolvers/platform/dto/output/platform-output.dto.js";
 import ToastPopup from "@/components/ToastPopup.vue";
@@ -302,6 +307,7 @@ import InputText from "primevue/inputtext";
 import Dialog from "primevue/dialog";
 import InputMask from "primevue/inputmask";
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "TutorDashboardHome",
@@ -314,6 +320,7 @@ export default {
   },
   data() {
     return {
+      user: useUserStore().user,
       platformResolver: new PlatformResolver(),
       userResolver: new UserResolver(),
       competenceResolver: new CompetenceResolver(),
@@ -334,7 +341,7 @@ export default {
         email: "",
         website: "",
         verified: false,
-        userId: UserState.id,
+        userId: -1,
       } as PlatformOutputDto,
       errors: {
         toastPopup: {
@@ -377,9 +384,6 @@ export default {
     };
   },
   computed: {
-    UserState() {
-      return UserState;
-    },
     venueStatusClass() {
       if (!this.venueData.verified) return "status-pending";
       return "status-approved";
@@ -427,7 +431,7 @@ export default {
       this.showAddExpertDialog = false;
     },
     async saveExpert() {
-      if (!this.validateForm()) {
+      if (!this.validateForm() || this.user === null) {
         return;
       }
       const newExpert: UserInputDto = {
@@ -437,7 +441,7 @@ export default {
         email: this.expertForm.email,
         mobileNumber: this.mobileNumberFormatted,
         password: "",
-        tutorId: UserState.id!,
+        tutorId: this.user.id,
         role: Roles.EXPERT,
         dateOfBirth: this.dateOfBirthFormatted,
         avatarId: null,
@@ -485,23 +489,29 @@ export default {
       this.$router.push("/tutor/documents");
     },
     async loadPlatform() {
-      const response = await this.platformResolver.getByUserId(UserState.id!);
-      if (response.status === 200) {
-        this.venueData = response.message;
+      if (this.user !== null) {
+        const response = await this.platformResolver.getByUserId(this.user.id);
+        if (response.status === 200) {
+          this.venueData = response.message;
+        }
       }
     },
     async loadExperts() {
-      const response = await this.userResolver.getAllByTutorId(UserState.id!);
-      if (response.status === 200 && typeof response.message !== "string") {
-        this.experts = response.message;
+      if (this.user !== null) {
+        const response = await this.userResolver.getAllByTutorId(this.user.id);
+        if (response.status === 200 && typeof response.message !== "string") {
+          this.experts = response.message;
+        }
       }
     },
     async loadCompetencies() {
-      const response = await this.competenceResolver.getAllByUserId(
-        UserState.id!,
-      );
-      if (response.status === 200 && typeof response.message !== "string") {
-        this.competencies = response.message;
+      if (this.user !== null) {
+        const response = await this.competenceResolver.getAllByUserId(
+          this.user.id,
+        );
+        if (response.status === 200 && typeof response.message !== "string") {
+          this.competencies = response.message;
+        }
       }
     },
   },

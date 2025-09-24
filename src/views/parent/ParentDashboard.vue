@@ -171,7 +171,6 @@
 <script lang="ts">
 import Button from "primevue/button";
 import ToastPopup from "@/components/ToastPopup.vue";
-import { clearUserState } from "@/state/UserState";
 
 export default {
   name: "ParentDashboard",
@@ -197,7 +196,7 @@ export default {
   },
   methods: {
     async logout() {
-      await clearUserState();
+      // await clearUserState();
     },
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen;

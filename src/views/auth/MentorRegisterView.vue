@@ -403,7 +403,7 @@ import ToastPopup from "@/components/ToastPopup.vue";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver.js";
 import type { UserRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto.ts";
 import {
-  type MentorStateInterface,
+  type MentorCachedData,
   type RegistrationData, Roles,
 } from '@/state/UserState.types';
 import { FileManager } from "@/utils/FileManager";
@@ -650,10 +650,7 @@ export default {
           };
         } else {
           const fileManager = new FileManager();
-          const registrationDto: RegistrationData<
-            UserRegistrationDto,
-            MentorStateInterface
-          > = {
+          const registrationDto: RegistrationData<UserRegistrationDto, MentorCachedData> = {
             dto: {
               type: "UserRegistrationDto",
               verificationCode: "",
@@ -670,7 +667,7 @@ export default {
             extra: {
               post: this.registerForm.position,
               institution: this.registerForm.educationalInstitution,
-              consentFileName: await fileManager.saveFileToCache(
+              consentToMentorPdpFilename: await fileManager.saveFileToCache(
                 this.registerForm.consentFile,
               ),
             },

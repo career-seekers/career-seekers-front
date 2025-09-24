@@ -217,7 +217,6 @@ import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
 import { FileResolver, FileType } from "@/api/resolvers/files/file.resolver";
 import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
-import { UserState } from "@/state/UserState";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { UserResolver } from "@/api/resolvers/user/user.resolver";
 import type { CompetenceDocumentsOutputDto } from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts";
@@ -228,6 +227,7 @@ import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/d
 import apiConf from '@/api/api.conf.ts';
 import { DocumentTypes } from '@/shared/DocumentTypes.ts';
 import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
+import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "TutorDocuments",
@@ -239,6 +239,7 @@ export default {
   },
   data: function () {
     return {
+      user: useUserStore().user,
       fileResolver: new FileResolver(),
       filePreview: null,
       competenceResolver: new CompetenceResolver(),
@@ -352,40 +353,42 @@ export default {
       this.selectedCompetence = null;
     },
     async loadCompetencies() {
-      const response = await this.competenceResolver.getAllByUserId(
-        UserState.id!,
-      );
-      if (response.status === 200 && typeof response.message !== "string") {
-        response.message.forEach((competence) => {
-          if (competence.documents.length > 0) {
-            this.competencies.push(competence);
-            competence.documents.forEach(async (document) => {
-              this.documents.push({
-                createdAt: document.createdAt,
-                direction: {
-                  ageCategories: competence.ageCategories,
-                  description: competence.description,
-                  iconId: competence.iconId,
-                  id: competence.id,
-                  name: competence.name,
-                  userId: competence.userId
-                },
-                documentType: document.documentType,
-                id: document.id,
-                ageCategory: document.ageCategory,
-                userId: document.userId,
-                documentId: document.documentId
+      if (this.user !== null) {
+        const response = await this.competenceResolver.getAllByUserId(
+          this.user.id,
+        );
+        if (response.status === 200 && typeof response.message !== "string") {
+          response.message.forEach((competence) => {
+            if (competence.documents.length > 0) {
+              this.competencies.push(competence);
+              competence.documents.forEach(async (document) => {
+                this.documents.push({
+                  createdAt: document.createdAt,
+                  direction: {
+                    ageCategories: competence.ageCategories,
+                    description: competence.description,
+                    iconId: competence.iconId,
+                    id: competence.id,
+                    name: competence.name,
+                    userId: competence.userId
+                  },
+                  documentType: document.documentType,
+                  id: document.id,
+                  ageCategory: document.ageCategory,
+                  userId: document.userId,
+                  documentId: document.documentId
+                });
+                const response = await this.userResolver.getById(document.userId);
+                if (response.status === 200 && typeof response.message !== "string") {
+                  this.experts.push(response.message);
+                }
               });
-              const response = await this.userResolver.getById(document.userId);
-              if (response.status === 200 && typeof response.message !== "string") {
-                this.experts.push(response.message);
-              }
-            });
-          }
-        });
-        this.selectedAge = this.availableAges.length > 0
-          ? this.availableAges[0]
-          : null
+            }
+          });
+          this.selectedAge = this.availableAges.length > 0
+            ? this.availableAges[0]
+            : null
+        }
       }
     },
   },

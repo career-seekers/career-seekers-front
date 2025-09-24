@@ -263,8 +263,8 @@
           birthDate: "",
           phone: "",
           email: "",
-          post: null as null | string,
-          institution: null as null | string,
+          post: "",
+          institution: "",
         },
         
         errors: {
@@ -425,6 +425,16 @@
 
         if (!this.tutorForm.birthDate.trim()) {
           this.errors.birthDate = "Дата рождения обязательна";
+          isValid = false;
+        }
+
+        if (!this.tutorForm.post.trim()) {
+          this.errors.post = "Должность обязательна";
+          isValid = false;
+        }
+
+        if (!this.tutorForm.institution.trim()) {
+          this.errors.institution = "Образовательное учреждение обязательно";
           isValid = false;
         }
 

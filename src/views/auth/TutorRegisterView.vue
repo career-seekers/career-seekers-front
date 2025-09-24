@@ -401,9 +401,8 @@ import ToastPopup from "@/components/ToastPopup.vue";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver.js";
 import type { UserRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto.js";
 import type {
-  RegistrationData,
-  TutorStateInterface,
-} from "@/state/UserState.types.ts";
+  RegistrationData, TutorCachedData,
+} from '@/state/UserState.types.ts';
 import { Roles } from "@/state/UserState.types.ts"
 import { FileManager } from "@/utils/FileManager";
 import VuePdfEmbed from "vue-pdf-embed";
@@ -649,7 +648,7 @@ export default {
           const fileManager = new FileManager();
           const registrationData: RegistrationData<
             UserRegistrationDto,
-            TutorStateInterface
+            TutorCachedData
           > = {
             dto: {
               type: "UserRegistrationDto",
@@ -667,7 +666,7 @@ export default {
             extra: {
               post: this.registerForm.position,
               institution: this.registerForm.educationalInstitution,
-              consentFileName: await fileManager.saveFileToCache(
+              consentToTutorPdpFilename: await fileManager.saveFileToCache(
                 this.registerForm.consentFile,
               ),
             },

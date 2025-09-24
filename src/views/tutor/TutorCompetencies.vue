@@ -341,7 +341,6 @@ import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
 import MultiSelect from 'primevue/multiselect';
 import type {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
-import {UserState} from "@/state/UserState";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
 import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import ToastPopup from "@/components/ToastPopup.vue";
@@ -352,6 +351,7 @@ import {
   AgeCategories,
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
+import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "ExpertCompetencies",
@@ -366,6 +366,7 @@ export default {
   },
   data() {
     return {
+      user: useUserStore().user,
       competenceResolver: new CompetenceResolver(),
       userResolver: new UserResolver(),
       experts: [] as UserOutputDto[],
@@ -511,50 +512,53 @@ export default {
     },
 
     async saveCompetence() {
-      console.log(this.competenceForm);
-      const data: CompetenceInputDto = {
-        id: this.competenceForm.id,
-        userId: UserState.id!,
-        expertId: this.competenceForm.expert!.id,
-        name: this.competenceForm.name,
-        description: this.competenceForm.description,
-        ageCategory: this.competenceForm.ageCategory!,
-      };
-      const response = this.isEditing
+      if (this.user !== null) {
+        const data: CompetenceInputDto = {
+          id: this.competenceForm.id,
+          userId: this.user.id,
+          expertId: this.competenceForm.expert!.id,
+          name: this.competenceForm.name,
+          description: this.competenceForm.description,
+          ageCategory: this.competenceForm.ageCategory!,
+        };
+        const response = this.isEditing
           ? await this.competenceResolver.update(data)
           : await this.competenceResolver.create(data);
 
-      if (typeof response.message === "string") {
-        this.errors.toastPopup = {
-          title: response.status.toString(),
-          message: response.message,
-        };
+        if (typeof response.message === "string") {
+          this.errors.toastPopup = {
+            title: response.status.toString(),
+            message: response.message,
+          };
+        }
+        this.cancelEdit();
+        await this.loadCompetencies();
       }
-      this.cancelEdit();
-      await this.loadCompetencies();
     },
 
     async loadCompetencies() {
-      const competenceResponse = await this.competenceResolver.getAllByUserId(
-          UserState.id!,
-      );
-      if (competenceResponse.status === 200 && typeof competenceResponse.message !== "string") {
-        this.competencies = competenceResponse.message;
-      } else {
-        this.errors.toastPopup = {
-          title: competenceResponse.status.toString(),
-          message: competenceResponse.message.toString(),
-        };
-      }
+      if (this.user !== null) {
+        const competenceResponse = await this.competenceResolver.getAllByUserId(
+          this.user.id,
+        );
+        if (competenceResponse.status === 200 && typeof competenceResponse.message !== "string") {
+          this.competencies = competenceResponse.message;
+        } else {
+          this.errors.toastPopup = {
+            title: competenceResponse.status.toString(),
+            message: competenceResponse.message.toString(),
+          };
+        }
 
-      const expertResponse = await this.userResolver.getAllByTutorId(UserState.id as number);
-      if (expertResponse.status == 200 && typeof expertResponse.message !== "string") {
-        this.experts = expertResponse.message;
-      } else {
-        this.errors.toastPopup = {
-          title: expertResponse.status.toString(),
-          message: expertResponse.message.toString(),
-        };
+        const expertResponse = await this.userResolver.getAllByTutorId(this.user.id);
+        if (expertResponse.status == 200 && typeof expertResponse.message !== "string") {
+          this.experts = expertResponse.message;
+        } else {
+          this.errors.toastPopup = {
+            title: expertResponse.status.toString(),
+            message: expertResponse.message.toString(),
+          };
+        }
       }
     },
   },

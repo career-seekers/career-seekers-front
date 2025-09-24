@@ -10,7 +10,7 @@ export class UserDocumentsResolver {
   public async create(data: UserDocsInputDto) {
     return await this.apiResolver.request<
       FormData,
-      CommonOutputDto<UserDocsOutputDto>
+      CommonOutputDto<UserDocsOutputDto | string>
     >(
       "",
       "POST",
