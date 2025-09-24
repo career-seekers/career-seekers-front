@@ -83,7 +83,7 @@
       class="documents-grid"
     >
       <div
-        v-for="document in filteredDocuments"
+        v-for="document in filteredDocuments.filter((doc) => doc.verified !== false)"
         :key="document.id"
         class="document-card"
       >
@@ -178,11 +178,11 @@
 
     <!-- Список документов -->
     <div
-      v-if="filteredDocuments.filter((doc) => doc.verified === false)"
+      v-if="filteredDocuments.filter((doc) => doc.verified === false).length > 0"
       class="documents-grid"
     >
       <div
-        v-for="document in filteredDocuments"
+        v-for="document in filteredDocuments.filter((doc) => doc.verified === false)"
         :key="document.id"
         class="document-card"
       >
