@@ -72,36 +72,7 @@
 
     <div class="docs">
       <!--    Шаблоны документов-->
-      <div class="upload-section">
-        <div class="upload-card">
-          <div class="upload-header">
-            <h3 class="upload-title">
-              <i class="pi pi-file-edit" />
-              Шаблоны документов
-            </h3>
-          </div>
-          <div class="download-content">
-            <div class="download-list">
-              <div
-                v-for="template in DocumentTemplates"
-                :key="template.link"
-                class="download-info"
-              >
-                <p class="download-text">
-                  {{ template.label }}
-                </p>
-                <a
-                  class="p-button p-button-primary download-link"
-                  :href="`/docs/${template.link}`"
-                  :download="`${template.label}.${template.link.split('.')[1]}`"
-                >
-                  Скачать
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <DocumentsTemplates />
 
       <!-- Загрузка документов -->
       <div class="upload-section">
@@ -269,10 +240,12 @@
   import { DocumentTypes } from '@/shared/DocumentTypes.ts';
   import { DocumentTemplates } from '@/shared/DocumentTemplates.ts';
   import { useUserStore } from '@/stores/userStore.ts';
+  import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
 
   export default {
     name: "CompetenceDocuments",
     components: {
+      DocumentsTemplates,
       Button,
       FileUpload,
       Dropdown,
