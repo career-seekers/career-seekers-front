@@ -46,13 +46,19 @@
         }
       }
     },
-    async mounted() {
-      for (const doc of this.$props.documents) {
-        const response = await this.userResolver.getById(doc.userId);
-        if (response.status === 200 && typeof response.message !== "string") {
-          this.experts.push(response.message);
-        }
-      }
+    watch: {
+      documents: {
+        immediate: true,
+        handler: async function (newDocs: CompetenceDocumentsOutputDto[]) {
+          this.experts = [];
+          for (const doc of newDocs) {
+            const response = await this.userResolver.getById(doc.userId);
+            if (response.status === 200 && typeof response.message !== "string") {
+              this.experts.push(response.message);
+            }
+          }
+        },
+      },
     },
     methods: {
       viewDocument(doc: CompetenceDocumentsOutputDto) {
@@ -168,13 +174,15 @@
         </div>
 
         <div
-          v-if="documentExpert(document)"
           class="mentor-info"
         >
           <h4 class="mentor-title">
             Связанный эксперт:
           </h4>
-          <p class="mentor-name">
+          <p
+            v-if="documentExpert(document)"
+            class="mentor-name"
+          >
             {{
               documentExpert(document)?.lastName +
               " " +
@@ -182,6 +190,12 @@
               " " +
               documentExpert(document)?.patronymic
             }}
+          </p>
+          <p
+            v-else
+            class="mentor-name"
+          >
+            ...
           </p>
         </div>
         <div

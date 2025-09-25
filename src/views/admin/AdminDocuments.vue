@@ -150,13 +150,19 @@
     },
     computed: {
       rejectedDocuments() {
-        return this.documents.filter(doc => doc.verified === false)
+        return this.documents
+          .filter(doc => doc.verified === false)
+          .sort((a, b) => b.id - a.id);
       },
       acceptedDocuments() {
-        return this.documents.filter(doc => doc.verified === true)
+        return this.documents
+          .filter(doc => doc.verified === true)
+          .sort((a, b) => b.id - a.id);
       },
       uncheckedDocuments() {
-        return this.documents.filter(doc => doc.verified === null)
+        return this.documents
+          .filter(doc => doc.verified === null)
+          .sort((a, b) => b.id - a.id);
       },
       availableAges() {
         const ageOrder = new Map(this.ageGroups.map((group, index) => [group.value, index]));
@@ -201,16 +207,16 @@
         this.selectedAge = null
       },
       async loadCompetencies() {
-        this.documents = []
-        this.experts = []
-        this.competencies = []
         const response = await this.competenceResolver.getAll();
         if (response.status === 200 && typeof response.message !== "string") {
+          const docs = [] as CompetenceDocumentsOutputDto[];
+          const experts = [] as UserOutputDto[]
+          const competencies = [] as CompetenceOutputDto[]
           response.message.forEach((competence) => {
             if (competence.documents.length > 0) {
-              this.competencies.push(competence);
+              competencies.push(competence);
               competence.documents.forEach(async (document) => {
-                this.documents.push({
+                docs.push({
                   createdAt: document.createdAt,
                   verified: document.verified,
                   direction: {
@@ -229,11 +235,14 @@
                 });
                 const response = await this.userResolver.getById(document.userId);
                 if (response.status === 200 && typeof response.message !== "string") {
-                  this.experts.push(response.message);
+                  experts.push(response.message);
                 }
               });
             }
           });
+          this.documents = docs
+          this.competencies = competencies
+          this.experts = experts
         }
       },
     },
