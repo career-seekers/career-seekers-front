@@ -50,13 +50,12 @@
       documents: {
         immediate: true,
         handler: async function (newDocs: CompetenceDocumentsOutputDto[]) {
-          this.experts = [];
-          for (const doc of newDocs) {
-            const response = await this.userResolver.getById(doc.userId);
-            if (response.status === 200 && typeof response.message !== "string") {
-              this.experts.push(response.message);
-            }
-          }
+          const responses = await Promise.all(
+            newDocs.map(doc => this.userResolver.getById(doc.userId))
+          );
+          this.experts = responses
+            .filter(response => response.status === 200 && typeof response.message !== "string")
+            .map(response => response.message) as UserOutputDto[];
         },
       },
     },
@@ -146,30 +145,29 @@
           <div class="detail-item">
             <span class="detail-label">Тип:</span>
             <span class="detail-value">{{
-                documentTypes.find((type) => type.value === document.documentType)?.label
-              }}</span>
+              documentTypes.find((type) => type.value === document.documentType)?.label
+            }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Возрастная группа:</span>
             <span class="detail-value">
-                {{
+              {{
                 ageGroups.find(group => document.ageCategory === group.value)?.label
               }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Дата загрузки:</span>
             <span class="detail-value">{{
-                document.createdAt.substring(0, 10)
-              }}</span>
+              document.createdAt.substring(0, 10)
+            }}</span>
           </div>
           <div
-            v-if="document"
             class="detail-item"
           >
             <span class="detail-label">Компетенция:</span>
             <span class="detail-value">{{
-                document.direction?.name
-              }}</span>
+              document.direction?.name
+            }}</span>
           </div>
         </div>
 
@@ -185,10 +183,10 @@
           >
             {{
               documentExpert(document)?.lastName +
-              " " +
-              documentExpert(document)?.firstName +
-              " " +
-              documentExpert(document)?.patronymic
+                " " +
+                documentExpert(document)?.firstName +
+                " " +
+                documentExpert(document)?.patronymic
             }}
           </p>
           <p

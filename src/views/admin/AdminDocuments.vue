@@ -212,10 +212,10 @@
           const docs = [] as CompetenceDocumentsOutputDto[];
           const experts = [] as UserOutputDto[]
           const competencies = [] as CompetenceOutputDto[]
-          response.message.forEach((competence) => {
+          for (const competence of response.message) {
             if (competence.documents.length > 0) {
               competencies.push(competence);
-              competence.documents.forEach(async (document) => {
+              for (const document of competence.documents) {
                 docs.push({
                   createdAt: document.createdAt,
                   verified: document.verified,
@@ -237,9 +237,9 @@
                 if (response.status === 200 && typeof response.message !== "string") {
                   experts.push(response.message);
                 }
-              });
+              }
             }
-          });
+          }
           this.documents = docs
           this.competencies = competencies
           this.experts = experts
