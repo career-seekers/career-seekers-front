@@ -277,9 +277,6 @@
       };
     },
     computed: {
-      apiConf() {
-        return apiConf
-      },
       filteredDocuments() {
         let filtered = this.documents;
         // Фильтр по типу
@@ -303,7 +300,7 @@
       const response = await this.competenceResolver.getById(parseInt(this.$props.competenceId));
       if (typeof response.message !== "string") {
         this.competence = response.message;
-        // await this.loadDocuments()
+        await this.loadDocuments()
       }
     },
     methods: {
