@@ -32,7 +32,6 @@ import MentorMyCertificates from "@/views/mentor/MentorMyCertificates.vue";
 import MentorParticipantsCertificates from "@/views/mentor/MentorParticipantsCertificates.vue";
 
 // tutor views
-import TutorDashboard from "@/views/tutor/TutorDashboard.vue";
 import TutorDashboardHome from "@/views/tutor/TutorDashboardHome.vue";
 import TutorExperts from "@/views/tutor/TutorExperts.vue";
 import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
@@ -192,7 +191,7 @@ const routes = [
   },
   {
     path: "/tutor",
-    component: TutorDashboard,
+    component: DashboardWrapper,
     meta: {
       allowedRole: Roles.TUTOR
     },
@@ -205,32 +204,52 @@ const routes = [
         path: "dashboard",
         name: "tutor-dashboard",
         component: TutorDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home",
+        }
       },
       {
         path: "experts",
         name: "tutor-experts",
         component: TutorExperts,
+        meta: {
+          title: "Главные эксперты",
+          icon: "pi pi-users",
+        }
       },
       {
         path: "competencies",
         name: "tutor-competencies",
         component: TutorCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase",
+        }
       },
       {
         path: "documents/",
         name: "tutor-documents",
         component: TutorDocuments,
+        meta: {
+          title: "Документы",
+          icon: "pi pi-file",
+        }
+      },
+      {
+        path: "venue-info",
+        name: "tutor-venue-info",
+        component: TutorVenueInfo,
+        meta: {
+          title: "Информация о площадке",
+          icon: "pi pi-building",
+        }
       },
       {
         path: "documents/:competenceId",
         name: "tutor-competence-documents",
         component: CompetenceDocuments,
         props: true
-      },
-      {
-        path: "venue-info",
-        name: "tutor-venue-info",
-        component: TutorVenueInfo,
       },
     ],
   },

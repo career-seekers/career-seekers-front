@@ -114,7 +114,12 @@
         return Array.from(
           new Map(router
             .getRoutes()
-            .filter(route => route.meta.title)
+            .filter(route => route.meta.title && route.path.includes(
+              this.userStore.user
+                ? `${this.userStore.user.role.toLowerCase()}/`
+                : "logged-out"
+            ))
+            .sort((a, b) => (a.meta.title as string).localeCompare(b.meta.title as string))
             .map(route => {
               return [
                 route.path,
