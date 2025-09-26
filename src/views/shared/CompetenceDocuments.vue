@@ -277,9 +277,6 @@
       };
     },
     computed: {
-      apiConf() {
-        return apiConf
-      },
       filteredDocuments() {
         let filtered = this.documents;
         // Фильтр по типу
