@@ -35,7 +35,7 @@
       <nav class="sidebar-nav">
         <ul class="nav-list">
           <li
-            v-for="routeLink in userRouteLinks"
+            v-for="routeLink in routeLinks"
             :key="routeLink.path"
             class="nav-item"
           >
@@ -102,41 +102,37 @@
     },
     data() {
       return {
-        routeLinks: [],
+        routeLinks: [] as Array<{title: string; icon: string; path: string}>,
         authStore: useAuthStore(),
         userStore: useUserStore(),
         sidebarOpen: false,
         isMobile: false,
       };
     },
-    computed: {
-      userRouteLinks() {
-        return Array.from(
-          new Map(router
-            .getRoutes()
-            .filter(route => route.meta.title && route.path.includes(
-              this.userStore.user
-                ? `${this.userStore.user.role.toLowerCase()}/`
-                : "logged-out"
-            ))
-            .sort((a, b) => (a.meta.title as string).localeCompare(b.meta.title as string))
-            .map(route => {
-              return [
-                route.path,
-                {
-                  title: route.meta.title,
-                  icon: route.meta.icon,
-                  path: route.path
-                }
-              ]
-            })
-          ).values()
-        )
-      }
-    },
     mounted() {
       this.checkMobile();
       window.addEventListener("resize", this.checkMobile);
+      this.routeLinks = Array.from(
+        new Map(router
+          .getRoutes()
+          .filter(route => route.meta.title && route.path.includes(
+            this.userStore.user
+              ? `${this.userStore.user.role.toLowerCase()}/`
+              : "logged-out"
+          ))
+          .sort((a, b) => (a.meta.title as string).localeCompare(b.meta.title as string))
+          .map(route => {
+            return [
+              route.path,
+              {
+                title: route.meta.title as string,
+                icon: route.meta.icon as string,
+                path: route.path
+              }
+            ]
+          })
+        ).values()
+      )
     },
     beforeUnmount() {
       window.removeEventListener("resize", this.checkMobile);
