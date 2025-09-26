@@ -25,6 +25,10 @@
       documents: {
         type: Array as PropType<CompetenceDocumentsOutputDto[]>,
         required: true,
+      },
+      experts: {
+        type: Array as PropType<UserOutputDto[]>,
+        required: true,
       }
     },
     emits: ['update'],
@@ -34,7 +38,6 @@
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
         documentTypes: useDocumentTypes,
         ageGroups: useAgeGroups,
-        experts: [] as UserOutputDto[],
       }
     },
     computed: {
@@ -45,19 +48,6 @@
           default: return "Необработанные"
         }
       }
-    },
-    watch: {
-      documents: {
-        immediate: true,
-        handler: async function (newDocs: CompetenceDocumentsOutputDto[]) {
-          const responses = await Promise.all(
-            newDocs.map(doc => this.userResolver.getById(doc.userId))
-          );
-          this.experts = responses
-            .filter(response => response.status === 200 && typeof response.message !== "string")
-            .map(response => response.message) as UserOutputDto[];
-        },
-      },
     },
     methods: {
       viewDocument(doc: CompetenceDocumentsOutputDto) {

@@ -76,18 +76,21 @@
 
     <DocsToVerifyList
       :documents="filterDocs(uncheckedDocuments)"
+      :experts="experts"
       verify-status="UNCHECKED"
       @update="loadCompetencies"
     />
 
     <DocsToVerifyList
       :documents="filterDocs(acceptedDocuments)"
+      :experts="experts"
       verify-status="ACCEPTED"
       @update="loadCompetencies"
     />
 
     <DocsToVerifyList
       :documents="filterDocs(rejectedDocuments)"
+      :experts="experts"
       verify-status="REJECTED"
       @update="loadCompetencies"
     />
@@ -97,24 +100,27 @@
 </template>
 
 <script lang="ts">
-  import Button from "primevue/button";
-  import Dropdown from "primevue/dropdown";
-  import { FileResolver, FileType } from "@/api/resolvers/files/file.resolver";
-  import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
-  import ToastPopup from "@/components/ToastPopup.vue";
-  import { UserResolver } from "@/api/resolvers/user/user.resolver";
-  import type { CompetenceDocumentsOutputDto } from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts";
-  import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
-  import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
-  import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
-  import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
-  import { useDocumentTemplates } from '@/shared/UseDocumentTemplates.ts';
-  import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
-  import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
-  import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
-  import DocsToVerifyList from '@/components/DocsToVerifyList.vue';
+import Button from "primevue/button";
+import Dropdown from "primevue/dropdown";
+import {FileResolver, FileType} from "@/api/resolvers/files/file.resolver";
+import {AgeCategories, CompetenceResolver} from '@/api/resolvers/competence/competence.resolver';
+import ToastPopup from "@/components/ToastPopup.vue";
+import {UserResolver} from "@/api/resolvers/user/user.resolver";
+import type {
+  CompetenceDocumentsOutputDto
+} from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts";
+import type {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
+import {CompetenceDocumentsResolver} from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
+import type {DocumentsOutputDto} from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
+import {useDocumentTemplates} from '@/shared/UseDocumentTemplates.ts';
+import {useDocumentTypes} from '@/shared/UseDocumentTypes.ts';
+import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
+import {useAgeGroups} from '@/shared/UseAgeGroups.ts';
+import DocsToVerifyList from '@/components/DocsToVerifyList.vue';
+import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
+import {Roles} from "@/state/UserState.types.ts";
 
-  export default {
+export default {
     name: "AdminDocuments",
     components: {
       DocsToVerifyList,
@@ -131,8 +137,8 @@
           ? JSON.parse(localStorage.getItem("selectedCompetence") as string)
           : (null as CompetenceOutputDto | null),
         documents: [] as CompetenceDocumentsOutputDto[],
-        competencies: [] as CompetenceOutputDto[],
         experts: [] as UserOutputDto[],
+        competencies: [] as CompetenceOutputDto[],
         DocumentTemplates: useDocumentTemplates,
         DocumentTypes: useDocumentTypes,
         errors: {
@@ -173,6 +179,7 @@
     },
     async mounted() {
       await this.loadCompetencies();
+      await this.loadExperts();
     },
     methods: {
       documentCompetence(document: DocumentsOutputDto): CompetenceOutputDto | undefined {
@@ -180,6 +187,7 @@
           competence.documents.some((doc) => doc.id === document.id),
         );
       },
+
       filterDocs(docs: CompetenceDocumentsOutputDto[]) {
         if (this.selectedType) {
           docs = docs.filter(
@@ -199,18 +207,20 @@
 
         return docs;
       },
+
       resetFilters() {
         this.selectedType = null;
         this.selectedCompetence = null;
       },
+
       resetAge() {
         this.selectedAge = null
       },
+
       async loadCompetencies() {
         const response = await this.competenceResolver.getAll();
         if (response.status === 200 && typeof response.message !== "string") {
           const docs = [] as CompetenceDocumentsOutputDto[];
-          const experts = [] as UserOutputDto[]
           const competencies = [] as CompetenceOutputDto[]
           for (const competence of response.message) {
             if (competence.documents.length > 0) {
@@ -233,18 +243,25 @@
                   userId: document.userId,
                   documentId: document.documentId
                 });
-                const response = await this.userResolver.getById(document.userId);
-                if (response.status === 200 && typeof response.message !== "string") {
-                  experts.push(response.message);
-                }
               }
             }
           }
           this.documents = docs
           this.competencies = competencies
-          this.experts = experts
         }
       },
+
+      async loadExperts() {
+        const expResponse = await this.userResolver.getAllByRole(Roles.EXPERT);
+        if (expResponse.status === 200 && typeof expResponse.message !== "string") {
+          this.experts = expResponse.message;
+        }
+
+        const tutResponse = await this.userResolver.getAllByRole(Roles.TUTOR);
+        if (tutResponse.status === 200 && typeof tutResponse.message !== "string") {
+          this.experts = this.experts.concat(tutResponse.message);
+        }
+      }
     },
   };
 </script>
