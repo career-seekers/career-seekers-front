@@ -1,5 +1,3 @@
-
-
 import { createRouter, createWebHistory } from "vue-router";
 import { titleManager } from "@/utils/titleManager.ts";
 
@@ -11,41 +9,37 @@ import TutorRegisterView from "@/views/auth/TutorRegisterView.vue";
 import EmailConfirmationView from "@/views/auth/EmailConfirmationView.vue";
 
 // Parent views
-import ParentDashboard from "@/views/parent/ParentDashboard.vue";
 import ParentDashboardHome from "@/views/parent/ParentDashboardHome.vue";
 import ParentCompetenciesSelection from "@/views/parent/ParentCompetenciesSelection.vue";
-import ParentMyCompetencies from "@/views/parent/ParentMyCompetencies.vue";
-import ParentAchievements from "@/views/parent/ParentAchievements.vue";
 
 //expert views
-import ExpertDashboard from "@/views/expert/ExpertDashboard.vue";
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
 import ExpertCompetencies from "@/views/expert/ExpertCompetencies.vue";
 import ExpertParticipants from "@/views/expert/ExpertParticipants.vue";
 import ExpertEvents from "@/views/expert/ExpertEvents.vue";
 
 // mentor views
-import MentorDashboard from "@/views/mentor/MentorDashboard.vue";
 import MentorDashboardHome from "@/views/mentor/MentorDashboardHome.vue";
-import MentorParticipants from "@/views/mentor/MentorParticipants.vue";
-import MentorMyCertificates from "@/views/mentor/MentorMyCertificates.vue";
-import MentorParticipantsCertificates from "@/views/mentor/MentorParticipantsCertificates.vue";
 
 // tutor views
-import TutorDashboard from "@/views/tutor/TutorDashboard.vue";
 import TutorDashboardHome from "@/views/tutor/TutorDashboardHome.vue";
 import TutorExperts from "@/views/tutor/TutorExperts.vue";
 import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
-import AdminDashboard from '@/views/admin/AdminDashboard.vue';
+
+// admin views
 import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
 import AdminTutors from '@/views/admin/AdminTutors.vue';
 import AdminExperts from '@/views/admin/AdminExperts.vue';
 import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
 import AdminDocuments from '@/views/admin/AdminDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
+
+//shared views
 import CompetenceDocuments from '@/views/shared/CompetenceDocuments.vue';
+import DashboardWrapper from '@/views/shared/DashboardWrapper.vue';
+
 import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
 import { Roles } from '@/state/UserState.types.ts';
 import { useUserStore } from '@/stores/userStore.ts';
@@ -85,7 +79,7 @@ const routes = [
   },
   {
     path: "/parent",
-    component: ParentDashboard,
+    component: DashboardWrapper,
     meta: {
       blocked: true,
       allowedRole: Roles.USER
@@ -99,27 +93,25 @@ const routes = [
         path: "dashboard",
         name: "parent-dashboard",
         component: ParentDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home"
+        }
       },
       {
         path: "competencies",
         name: "parent-competencies",
         component: ParentCompetenciesSelection,
-      },
-      {
-        path: "my-competencies",
-        name: "parent-my-competencies",
-        component: ParentMyCompetencies,
-      },
-      {
-        path: "achievements",
-        name: "parent-achievements",
-        component: ParentAchievements,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase"
+        }
       },
     ],
   },
   {
     path: "/mentor",
-    component: MentorDashboard,
+    component: DashboardWrapper,
     meta: {
       blocked: true,
       allowedRole: Roles.MENTOR
@@ -133,27 +125,16 @@ const routes = [
         path: "dashboard",
         name: "mentor-dashboard",
         component: MentorDashboardHome,
-      },
-      {
-        path: "participants",
-        name: "mentor-participants",
-        component: MentorParticipants,
-      },
-      {
-        path: "my-certificates",
-        name: "mentor-my-certificates",
-        component: MentorMyCertificates,
-      },
-      {
-        path: "participants-certificates",
-        name: "mentor-participants-certificates",
-        component: MentorParticipantsCertificates,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home"
+        }
       },
     ],
   },
   {
     path: "/expert",
-    component: ExpertDashboard,
+    component: DashboardWrapper,
     meta: {
       allowedRole: Roles.EXPERT
     },
@@ -166,11 +147,24 @@ const routes = [
         path: "dashboard",
         name: "expert-dashboard",
         component: ExpertDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home"
+        }
       },
       {
         path: "competencies",
         name: "expert-competencies",
         component: ExpertCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase"
+        }
+      },
+      {
+        path: "events",
+        name: "expert-events",
+        component: ExpertEvents,
       },
       {
         path: "participants/:competenceId",
@@ -183,16 +177,11 @@ const routes = [
         component: CompetenceDocuments,
         props: true
       },
-      {
-        path: "events",
-        name: "expert-events",
-        component: ExpertEvents,
-      },
     ],
   },
   {
     path: "/tutor",
-    component: TutorDashboard,
+    component: DashboardWrapper,
     meta: {
       allowedRole: Roles.TUTOR
     },
@@ -205,21 +194,46 @@ const routes = [
         path: "dashboard",
         name: "tutor-dashboard",
         component: TutorDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home",
+        }
       },
       {
         path: "experts",
         name: "tutor-experts",
         component: TutorExperts,
+        meta: {
+          title: "Главные эксперты",
+          icon: "pi pi-users",
+        }
       },
       {
         path: "competencies",
         name: "tutor-competencies",
         component: TutorCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase",
+        }
       },
       {
         path: "documents/",
         name: "tutor-documents",
         component: TutorDocuments,
+        meta: {
+          title: "Документы",
+          icon: "pi pi-file",
+        }
+      },
+      {
+        path: "venue-info",
+        name: "tutor-venue-info",
+        component: TutorVenueInfo,
+        meta: {
+          title: "Информация о площадке",
+          icon: "pi pi-building",
+        }
       },
       {
         path: "documents/:competenceId",
@@ -227,16 +241,11 @@ const routes = [
         component: CompetenceDocuments,
         props: true
       },
-      {
-        path: "venue-info",
-        name: "tutor-venue-info",
-        component: TutorVenueInfo,
-      },
     ],
   },
   {
     path: "/admin",
-    component: AdminDashboard,
+    component: DashboardWrapper,
     meta: {
       allowedRole: Roles.ADMIN
     },
@@ -247,33 +256,56 @@ const routes = [
       },
       {
         path: "dashboard",
-        component: AdminDashboardHome
+        component: AdminDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home",
+        }
       },
       {
         path: "tutors",
-        component: AdminTutors
+        component: AdminTutors,
+        meta: {
+          title: "Кураторы",
+          icon: "pi pi-users",
+        }
       },
       {
         path: "experts",
-        component: AdminExperts
+        component: AdminExperts,
+        meta: {
+          title: "Главные эксперты",
+          icon: "pi pi-users",
+        }
       },
       {
         path: "competencies",
-        component: AdminCompetencies
+        component: AdminCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase",
+        }
       },
       {
         path: "documents",
         component: AdminDocuments,
-      },
-      {
-        path: "documents/:competenceId",
-        name: "admin-competence-documents",
-        component: CompetenceDocuments,
-        props: true
+        meta: {
+          title: "Документы",
+          icon: "pi pi-file",
+        }
       },
       {
         path: "venues",
-        component: AdminVenues
+        component: AdminVenues,
+        meta: {
+          title: "Площадки",
+          icon: "pi pi-building",
+        }
+      },
+      {
+        path: "documents/:competenceId",
+        component: CompetenceDocuments,
+        props: true
       },
     ]
   },

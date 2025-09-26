@@ -45,6 +45,8 @@ export default {
     shouldAnimate(path: string) {
       // Анимируем только страницы входа/регистрации, не дашборд
       return (
+        !path.startsWith("/admin") &&
+        !path.startsWith("/expert") &&
         !path.startsWith("/parent") &&
         !path.startsWith("/mentor") &&
         !path.startsWith("/tutor")
