@@ -21,7 +21,7 @@
           class="sidebar-logo"
         >
         <h2 class="sidebar-title">
-          Личный кабинет администратора
+          Личный кабинет {{ asideText() }}
         </h2>
         <button
           v-if="isMobile"
@@ -34,70 +34,19 @@
 
       <nav class="sidebar-nav">
         <ul class="nav-list">
-          <li class="nav-item">
+          <li
+            v-for="routeLink in userRouteLinks"
+            :key="routeLink.path"
+            class="nav-item"
+          >
             <router-link
-              to="/admin/dashboard"
+              :to="routeLink"
               class="nav-link"
-              :class="{ active: $route.path === '/admin/dashboard' }"
+              :class="{ active: $route.path === routeLink.path }"
               @click="closeSidebarOnMobile"
             >
-              <i class="pi pi-home" />
-              <span>Главная</span>
-            </router-link>
-          </li>
-          <li class="nav-item">
-            <router-link
-              to="/admin/tutors"
-              class="nav-link"
-              :class="{ active: $route.path === '/admin/tutors' }"
-              @click="closeSidebarOnMobile"
-            >
-              <i class="pi pi-users" />
-              <span>Кураторы</span>
-            </router-link>
-          </li>
-          <li class="nav-item">
-            <router-link
-              to="/admin/experts"
-              class="nav-link"
-              :class="{ active: $route.path === '/admin/experts' }"
-              @click="closeSidebarOnMobile"
-            >
-              <i class="pi pi-users" />
-              <span>Главные эксперты</span>
-            </router-link>
-          </li>
-          <li class="nav-item">
-            <router-link
-              to="/admin/competencies"
-              class="nav-link"
-              :class="{ active: $route.path === '/admin/competencies' }"
-              @click="closeSidebarOnMobile"
-            >
-              <i class="pi pi-briefcase" />
-              <span>Компетенции</span>
-            </router-link>
-          </li>
-          <li class="nav-item">
-            <router-link
-              to="/admin/documents"
-              class="nav-link"
-              :class="{ active: $route.path === '/admin/documents' }"
-              @click="closeSidebarOnMobile"
-            >
-              <i class="pi pi-file" />
-              <span>Документы</span>
-            </router-link>
-          </li>
-          <li class="nav-item">
-            <router-link
-              to="/admin/venues"
-              class="nav-link"
-              :class="{ active: $route.path === '/admin/venues' }"
-              @click="closeSidebarOnMobile"
-            >
-              <i class="pi pi-building" />
-              <span>Площадки</span>
+              <i :class="routeLink.icon" />
+              <span>{{ routeLink.title }}</span>
             </router-link>
           </li>
         </ul>
@@ -140,20 +89,45 @@
 </template>
 
 <script lang="ts">
-  import { useAuthStore } from '@/stores/authStore';
-import Button from 'primevue/button';
+  import Button from "primevue/button";
+  import { useAuthStore } from '@/stores/authStore.ts';
+  import router from '@/router';
+  import { useUserStore } from '@/stores/userStore.ts';
+  import { Roles } from '@/state/UserState.types.ts';
 
   export default {
-    name: "AdminDashboard",
+    name: "DashboardWrapper",
     components: {
       Button,
     },
     data() {
       return {
+        routeLinks: [],
         authStore: useAuthStore(),
+        userStore: useUserStore(),
         sidebarOpen: false,
         isMobile: false,
       };
+    },
+    computed: {
+      userRouteLinks() {
+        return Array.from(
+          new Map(router
+            .getRoutes()
+            .filter(route => route.meta.title)
+            .map(route => {
+              return [
+                route.path,
+                {
+                  title: route.meta.title,
+                  icon: route.meta.icon,
+                  path: route.path
+                }
+              ]
+            })
+          ).values()
+        )
+      }
     },
     mounted() {
       this.checkMobile();
@@ -165,6 +139,16 @@ import Button from 'primevue/button';
     methods: {
       async logout() {
         await this.authStore.logout();
+      },
+      asideText() {
+        switch (this.userStore.user?.role) {
+          case Roles.ADMIN: return "администратора"
+          case Roles.TUTOR: return "куратора"
+          case Roles.EXPERT: return "главного эксперта"
+          case Roles.MENTOR: return "наставника"
+          case Roles.USER: return "родителя"
+          default: return "пользователя"
+        }
       },
       toggleSidebar() {
         this.sidebarOpen = !this.sidebarOpen;

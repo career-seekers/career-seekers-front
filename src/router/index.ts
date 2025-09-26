@@ -38,7 +38,6 @@ import TutorExperts from "@/views/tutor/TutorExperts.vue";
 import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
-import AdminDashboard from '@/views/admin/AdminDashboard.vue';
 import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
 import AdminTutors from '@/views/admin/AdminTutors.vue';
 import AdminExperts from '@/views/admin/AdminExperts.vue';
@@ -50,6 +49,7 @@ import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
 import { Roles } from '@/state/UserState.types.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAuthStore } from '@/stores/authStore.ts';
+import DashboardWrapper from '@/views/shared/DashboardWrapper.vue';
 
 const routes = [
   {
@@ -236,7 +236,7 @@ const routes = [
   },
   {
     path: "/admin",
-    component: AdminDashboard,
+    component: DashboardWrapper,
     meta: {
       allowedRole: Roles.ADMIN
     },
@@ -247,33 +247,56 @@ const routes = [
       },
       {
         path: "dashboard",
-        component: AdminDashboardHome
+        component: AdminDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home",
+        }
       },
       {
         path: "tutors",
-        component: AdminTutors
+        component: AdminTutors,
+        meta: {
+          title: "Кураторы",
+          icon: "pi pi-users",
+        }
       },
       {
         path: "experts",
-        component: AdminExperts
+        component: AdminExperts,
+        meta: {
+          title: "Главные эксперты",
+          icon: "pi pi-users",
+        }
       },
       {
         path: "competencies",
-        component: AdminCompetencies
+        component: AdminCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase",
+        }
       },
       {
         path: "documents",
         component: AdminDocuments,
-      },
-      {
-        path: "documents/:competenceId",
-        name: "admin-competence-documents",
-        component: CompetenceDocuments,
-        props: true
+        meta: {
+          title: "Документы",
+          icon: "pi pi-file",
+        }
       },
       {
         path: "venues",
-        component: AdminVenues
+        component: AdminVenues,
+        meta: {
+          title: "Площадки",
+          icon: "pi pi-building",
+        }
+      },
+      {
+        path: "documents/:competenceId",
+        component: CompetenceDocuments,
+        props: true
       },
     ]
   },
