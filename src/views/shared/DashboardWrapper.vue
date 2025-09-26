@@ -115,10 +115,10 @@
       this.routeLinks = Array.from(
         new Map(router
           .getRoutes()
-          .filter(route => route.meta.title && route.path.includes(
+          .filter(route => route.meta.title && route.path.startsWith(
             this.userStore.user
-              ? `${this.userStore.user.role.toLowerCase()}/`
-              : "logged-out"
+              ? `/${this.userStore.user.role.toLowerCase()}/`
+              : "/logged-out"
           ))
           .sort((a, b) => (a.meta.title as string).localeCompare(b.meta.title as string))
           .map(route => {
