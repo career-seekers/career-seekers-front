@@ -19,11 +19,7 @@ import ExpertParticipants from "@/views/expert/ExpertParticipants.vue";
 import ExpertEvents from "@/views/expert/ExpertEvents.vue";
 
 // mentor views
-import MentorDashboard from "@/views/mentor/MentorDashboard.vue";
 import MentorDashboardHome from "@/views/mentor/MentorDashboardHome.vue";
-import MentorParticipants from "@/views/mentor/MentorParticipants.vue";
-import MentorMyCertificates from "@/views/mentor/MentorMyCertificates.vue";
-import MentorParticipantsCertificates from "@/views/mentor/MentorParticipantsCertificates.vue";
 
 // tutor views
 import TutorDashboardHome from "@/views/tutor/TutorDashboardHome.vue";
@@ -115,7 +111,7 @@ const routes = [
   },
   {
     path: "/mentor",
-    component: MentorDashboard,
+    component: DashboardWrapper,
     meta: {
       blocked: true,
       allowedRole: Roles.MENTOR
@@ -129,21 +125,10 @@ const routes = [
         path: "dashboard",
         name: "mentor-dashboard",
         component: MentorDashboardHome,
-      },
-      {
-        path: "participants",
-        name: "mentor-participants",
-        component: MentorParticipants,
-      },
-      {
-        path: "my-certificates",
-        name: "mentor-my-certificates",
-        component: MentorMyCertificates,
-      },
-      {
-        path: "participants-certificates",
-        name: "mentor-participants-certificates",
-        component: MentorParticipantsCertificates,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home"
+        }
       },
     ],
   },
