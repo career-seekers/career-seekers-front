@@ -259,7 +259,7 @@ export default {
 
         const tutResponse = await this.userResolver.getAllByRole(Roles.TUTOR);
         if (tutResponse.status === 200 && typeof tutResponse.message !== "string") {
-          tutResponse.message.forEach((tutor) => this.experts.push(tutor));
+          this.experts = this.experts.concat(tutResponse.message);
         }
       }
     },
