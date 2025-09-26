@@ -1,5 +1,3 @@
-
-
 import { createRouter, createWebHistory } from "vue-router";
 import { titleManager } from "@/utils/titleManager.ts";
 
@@ -18,7 +16,6 @@ import ParentMyCompetencies from "@/views/parent/ParentMyCompetencies.vue";
 import ParentAchievements from "@/views/parent/ParentAchievements.vue";
 
 //expert views
-import ExpertDashboard from "@/views/expert/ExpertDashboard.vue";
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
 import ExpertCompetencies from "@/views/expert/ExpertCompetencies.vue";
 import ExpertParticipants from "@/views/expert/ExpertParticipants.vue";
@@ -37,18 +34,23 @@ import TutorExperts from "@/views/tutor/TutorExperts.vue";
 import TutorDocuments from "@/views/tutor/TutorDocuments.vue";
 import TutorVenueInfo from "@/views/tutor/TutorVenueInfo.vue";
 import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
+
+// admin views
 import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
 import AdminTutors from '@/views/admin/AdminTutors.vue';
 import AdminExperts from '@/views/admin/AdminExperts.vue';
 import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
 import AdminDocuments from '@/views/admin/AdminDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
+
+//shared views
 import CompetenceDocuments from '@/views/shared/CompetenceDocuments.vue';
+import DashboardWrapper from '@/views/shared/DashboardWrapper.vue';
+
 import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
 import { Roles } from '@/state/UserState.types.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAuthStore } from '@/stores/authStore.ts';
-import DashboardWrapper from '@/views/shared/DashboardWrapper.vue';
 
 const routes = [
   {
@@ -152,7 +154,7 @@ const routes = [
   },
   {
     path: "/expert",
-    component: ExpertDashboard,
+    component: DashboardWrapper,
     meta: {
       allowedRole: Roles.EXPERT
     },
@@ -165,11 +167,24 @@ const routes = [
         path: "dashboard",
         name: "expert-dashboard",
         component: ExpertDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home"
+        }
       },
       {
         path: "competencies",
         name: "expert-competencies",
         component: ExpertCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase"
+        }
+      },
+      {
+        path: "events",
+        name: "expert-events",
+        component: ExpertEvents,
       },
       {
         path: "participants/:competenceId",
@@ -181,11 +196,6 @@ const routes = [
         name: "expert-competence-documents",
         component: CompetenceDocuments,
         props: true
-      },
-      {
-        path: "events",
-        name: "expert-events",
-        component: ExpertEvents,
       },
     ],
   },
