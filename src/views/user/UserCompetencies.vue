@@ -24,6 +24,7 @@
         <Button
           class="p-button save-btn"
           label="Сохранить"
+          icon="pi pi-save"
           :disabled="selectedChildCompetencies.competencies.length === 0"
           @click="assignToCompetencies"
         />
@@ -104,111 +105,30 @@
         </div>
       </div>
     </div>
-
-    <div class="selection-actions">
-      <Button
-        label="Сохранить выбор"
-        icon="pi pi-save"
-        class="p-button-primary p-button-lg"
-        :disabled="selectedCompetencies.length === 0"
-        @click="saveSelection"
-      />
-    </div>
-
-    <!-- Диалог с подробной информацией о компетенции -->
-    <Dialog
-      v-model:visible="showDetailsDialog"
-      :header="selectedCompetence?.name"
-      modal
-      :style="{ width: '90vw', maxWidth: '800px' }"
-      class="competence-dialog"
-    >
-      <div
-        v-if="selectedCompetence"
-        class="competence-details"
-      >
-        <div class="details-header">
-          <div class="details-meta">
-            <div class="meta-item">
-              <i class="pi pi-calendar" />
-              <span>Возраст: {{ competenceAgeCategories(selectedCompetence) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="details-content">
-          <h4>Описание</h4>
-          <p>{{ selectedCompetence.description }}</p>
-
-          <h4>Контакты главного эксперта</h4>
-          <div
-            v-if="expert"
-            class="mentor-contacts"
-          >
-            <div class="contact-item">
-              <i class="pi pi-user" />
-              <span>
-                {{ `${expert.lastName} ${expert.firstName} ${expert.patronymic}` }}
-              </span>
-            </div>
-            <div class="contact-item">
-              <i class="pi pi-envelope" />
-              <a :href="`mailto:${expert.email}`">{{ expert.email }}</a>
-            </div>
-            <div class="contact-item">
-              <i class="pi pi-phone" />
-              <a :href="`tel:${expert.mobileNumber}`">{{ expert.mobileNumber }}</a>
-            </div>
-          </div>
-
-          <h4>Информация о площадке</h4>
-          <div
-            v-if="platform"
-            class="mentor-contacts"
-          >
-            <div class="contact-item">
-              <i class="pi pi-building" />
-              <span>
-                {{ platform.fullName }}
-              </span>
-            </div>
-            <div class="contact-item">
-              <i class="pi pi-map" />
-              <span>{{ platform.address }}</span>
-            </div>
-            <div
-              v-if="platform.website"
-              class="contact-item"
-            >
-              <i class="pi pi-globe" />
-              <a :href="platform.website">{{ platform.website }}</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Dialog>
+    <CompetenceDialog
+      v-if="selectedCompetence !== null"
+      :selected-competence-prop="selectedCompetence"
+      :show-details-dialog-prop="showDetailsDialog"
+      @update:show-details-dialog="(show) => showDetailsDialog = show"
+    />
   </div>
 </template>
 
 <script lang="ts">
   import Button from 'primevue/button';
-  import Dialog from 'primevue/dialog';
   import Dropdown from 'primevue/dropdown';
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type { ChildOutputDto } from '@/api/resolvers/user/dto/output/child-output.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
-  import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
-  import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
-  import type { PlatformOutputDto } from '@/api/resolvers/platform/dto/output/platform-output.dto.ts';
-  import { PlatformResolver } from '@/api/resolvers/platform/platform.resolver.ts';
+  import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
 
   export default {
     name: "ParentCompetenciesSelection",
     components: {
+      CompetenceDialog,
       Button,
-      Dialog,
       Dropdown
     },
     data: function() {
@@ -223,14 +143,10 @@
 
         competencies: [] as CompetenceOutputDto[],
         competenceResolver: new CompetenceResolver(),
-        userResolver: new UserResolver(),
-        platformResolver: new PlatformResolver(),
         ageGroups: useAgeGroups,
         userStore: useUserStore(),
 
         children: null as ChildOutputDto[] | null,
-        expert: null as UserOutputDto | null,
-        platform: null as PlatformOutputDto | null
       };
     },
     computed: {
@@ -266,21 +182,6 @@
           .find(row => row.childId === this.selectedChild?.id)?.competencies
           .some(compId => compId === competenceId)
       },
-      competenceAgeCategories(competence: CompetenceOutputDto) {
-        return competence.ageCategories.map(category => {
-          return this.ageGroups.find(group => group.value === category.ageCategory)?.label
-        }).join(", ")
-      },
-      async competenceExpert(competence: CompetenceOutputDto) {
-        const response = await this.userResolver.getById(competence.expertId)
-        if (typeof response.message === 'string' || response.status !== 200) return
-        this.expert = response.message
-      },
-      async competencePlatform(competence: CompetenceOutputDto) {
-        const response = await this.platformResolver.getByUserId(competence.userId)
-        if (typeof response.message === 'string' || response.status !== 200) return
-        this.platform = response.message
-      },
       toggleCompetence(competence: CompetenceOutputDto) {
         if (this.selectedChild === null) return
         const childId = this.selectedChild.id
@@ -310,17 +211,14 @@
 
       async showCompetenceDetails(competence: CompetenceOutputDto) {
         if (this.selectedCompetence !== competence) {
-          await this.competenceExpert(competence)
-          await this.competencePlatform(competence)
           this.selectedCompetence = competence;
         }
         this.showDetailsDialog = true;
       },
-
-      saveSelection() {
-        if (this.selectedCompetencies.length === 0) {
-          return;
-        }
+      competenceAgeCategories(competence: CompetenceOutputDto) {
+        return competence.ageCategories.map(category => {
+          return this.ageGroups.find(group => group.value === category.ageCategory)?.label
+        }).join(", ")
       },
       calculateAge(birthDate: string) {
         const birth = new Date(birthDate.substring(0, 10));
@@ -549,79 +447,6 @@
   padding: 0 1.5rem 1.5rem 1.5rem;
 }
 
-.selection-actions {
-  text-align: center;
-  padding: 2rem 0;
-}
-
-.competence-details {
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-.details-header {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.competence-image img {
-  width: 200px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.details-meta {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #495057;
-}
-
-.meta-item i {
-  color: #ff9800;
-  width: 16px;
-}
-
-.details-content h4 {
-  color: #2c3e50;
-  margin: 1.5rem 0 0.75rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.details-content p {
-  color: #6c757d;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-
-
-.mentor-contacts {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #495057;
-}
-
-.contact-item i {
-  color: #ff9800;
-  width: 16px;
-}
 
 /* Мобильные стили */
 @media (max-width: 768px) {
@@ -632,21 +457,6 @@
 
   .page-title {
     font-size: 1.5rem;
-  }
-
-  .selection-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .details-header {
-    flex-direction: column;
-  }
-
-  .competence-image img {
-    width: 100%;
-    height: 150px;
   }
 }
 </style>
