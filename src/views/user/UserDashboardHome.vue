@@ -87,8 +87,10 @@
         @submit.prevent=""
       >
         <AddChildForm
-          :model-value="childForm"
-          @update:model-value="(form) => childForm = form"
+          :model-child-form="childForm"
+          :model-child-form-errors="errors"
+          @update:model-child-form="(form) => childForm = form"
+          @update:model-child-form-errors="(formErrors) => errors = formErrors"
         />
 
         <Button
@@ -107,7 +109,7 @@ import Button from "primevue/button";
 import { useUserStore } from '@/stores/userStore.ts';
 import ChildrenList from '@/components/ChildrenList.vue';
 import Dialog from 'primevue/dialog';
-import AddChildForm from '@/components/AddChildForm.vue';
+import AddChildForm, { type ChildFormErrors, type ChildFormFields } from '@/components/AddChildForm.vue';
 
 export default {
   name: "UserDashboardHome",
@@ -126,26 +128,29 @@ export default {
       childForm: {
         fullName: "",
         birthDate: "",
-        birthCertificate: null as null | File,
         snilsNumber: "",
-        snilsScan: null as null | File,
         schoolName: "",
+        platform: "",
         grade: null as number | null,
-        platform: null as string | null,
+        childConsentFile: null as null | File,
+        snilsScan: null as null | File,
+        birthCertificate: null as null | File,
         schoolCertificate: null as null | File,
         platformCertificate: null as null | File,
-      },
+      } as ChildFormFields,
 
       errors: {
-        platformCertificate: "",
-        platform: "",
-        snilsScan: "",
-        snilsNumber: "",
-        grade: "",
-        birthCertificate: "",
-        schoolCertificate: "",
-        childFullName: ""
-      }
+        fullName: '',
+        birthDate: '',
+        snilsNumber: '',
+        schoolName: '',
+        platform: '',
+        grade: '',
+        snilsScan: '',
+        schoolCertificate: '',
+        birthCertificate: '',
+        platformCertificate: ''
+      } as ChildFormErrors
     };
   },
   computed: {

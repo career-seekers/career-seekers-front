@@ -58,42 +58,42 @@
 
             <div class="field">
               <label
-                for="parentFullName"
+                for="fullName"
                 class="field-label"
               >ФИО *</label>
               <InputText
-                id="parentFullName"
+                id="fullName"
                 v-model="parentForm.fullName"
                 placeholder="Введите ваше полное имя"
                 class="w-full"
-                :class="{ 'p-invalid': errors.parentFullName }"
+                :class="{ 'p-invalid': parentFormErrors.fullName }"
               />
               <small
-                v-if="errors.parentFullName"
+                v-if="parentFormErrors.fullName"
                 class="p-error"
               >{{
-                errors.parentFullName
+                parentFormErrors.fullName
               }}</small>
             </div>
 
             <div class="field">
               <label
-                for="parentBirthDate"
+                for="birthDate"
                 class="field-label"
               >Дата рождения *</label>
               <InputMask
-                id="parentBirthDate"
+                id="birthDate"
                 v-model="parentForm.birthDate"
                 mask="99.99.9999"
                 placeholder="дд.мм.гггг"
                 class="w-full"
-                :class="{ 'p-invalid': errors.parentBirthDate }"
+                :class="{ 'p-invalid': parentFormErrors.birthDate }"
               />
               <small
-                v-if="errors.parentBirthDate"
+                v-if="parentFormErrors.birthDate"
                 class="p-error"
               >{{
-                errors.parentBirthDate
+                parentFormErrors.birthDate
               }}</small>
             </div>
 
@@ -107,13 +107,13 @@
                 v-model="parentForm.relationship"
                 placeholder="Например: мать, отец, опекун"
                 class="w-full"
-                :class="{ 'p-invalid': errors.relationship }"
+                :class="{ 'p-invalid': parentFormErrors.relationship }"
               />
               <small
-                v-if="errors.relationship"
+                v-if="parentFormErrors.relationship"
                 class="p-error"
               >{{
-                errors.relationship
+                parentFormErrors.relationship
               }}</small>
             </div>
 
@@ -127,57 +127,57 @@
                 v-model="parentForm.telegramLink"
                 placeholder="Например, @telegram_username"
                 class="w-full"
-                :class="{ 'p-invalid': errors.telegramLink }"
+                :class="{ 'p-invalid': parentFormErrors.telegramLink }"
                 @blur="validateTelegramLink"
               />
               <small
-                v-if="errors.telegramLink"
+                v-if="parentFormErrors.telegramLink"
                 class="p-error"
               >{{
-                errors.telegramLink
+                parentFormErrors.telegramLink
               }}</small>
             </div>
 
             <div class="field">
               <label
-                for="parentPhone"
+                for="phone"
                 class="field-label"
               >Контактный телефон *</label>
               <InputMask
-                id="parentPhone"
+                id="phone"
                 v-model="parentForm.phone"
                 mask="+7 (999) 999-99-99"
                 placeholder="+7 (___) ___-__-__"
                 class="w-full"
-                :class="{ 'p-invalid': errors.parentPhone }"
+                :class="{ 'p-invalid': parentFormErrors.phone }"
               />
               <small
-                v-if="errors.parentPhone"
+                v-if="parentFormErrors.phone"
                 class="p-error"
               >{{
-                errors.parentPhone
+                parentFormErrors.phone
               }}</small>
             </div>
 
             <div class="field">
               <label
-                for="parentEmail"
+                for="email"
                 class="field-label"
               >Адрес электронной почты *</label>
               <InputText
-                id="parentEmail"
+                id="email"
                 v-model="parentForm.email"
                 type="email"
                 placeholder="example@email.com"
                 class="w-full"
-                :class="{ 'p-invalid': errors.parentEmail }"
+                :class="{ 'p-invalid': parentFormErrors.email }"
                 @blur="validateEmail"
               />
               <small
-                v-if="errors.parentEmail"
+                v-if="parentFormErrors.email"
                 class="p-error"
               >{{
-                errors.parentEmail
+                parentFormErrors.email
               }}</small>
             </div>
 
@@ -191,7 +191,7 @@
                 v-model="parentForm.password"
                 placeholder="Введите пароль"
                 class="w-full"
-                :class="{ 'p-invalid': errors.password }"
+                :class="{ 'p-invalid': parentFormErrors.password }"
                 :feedback="true"
                 toggle-mask
                 weak-label="Слабый"
@@ -201,10 +201,10 @@
                 @blur="validatePassword"
               />
               <small
-                v-if="errors.password"
+                v-if="parentFormErrors.password"
                 class="p-error"
               >{{
-                errors.password
+                parentFormErrors.password
               }}</small>
             </div>
 
@@ -218,15 +218,15 @@
                 v-model="parentForm.confirmPassword"
                 placeholder="Подтвердите пароль"
                 class="w-full"
-                :class="{ 'p-invalid': errors.confirmPassword }"
+                :class="{ 'p-invalid': parentFormErrors.confirmPassword }"
                 :feedback="false"
                 toggle-mask
               />
               <small
-                v-if="errors.confirmPassword"
+                v-if="parentFormErrors.confirmPassword"
                 class="p-error"
               >{{
-                errors.confirmPassword
+                parentFormErrors.confirmPassword
               }}</small>
             </div>
 
@@ -252,7 +252,7 @@
                   v-model="parentForm.consent"
                   input-id="consent"
                   :binary="true"
-                  :class="{ 'p-invalid': errors.consent }"
+                  :class="{ 'p-invalid': parentFormErrors.consent }"
                 />
                 <label
                   for="consent"
@@ -269,10 +269,10 @@
                 </label>
               </div>
               <small
-                v-if="errors.consent"
+                v-if="parentFormErrors.consent"
                 class="p-error"
               >{{
-                errors.consent
+                parentFormErrors.consent
               }}</small>
             </div>
 
@@ -282,7 +282,7 @@
                   v-model="parentForm.agreement"
                   input-id="agreement"
                   :binary="true"
-                  :class="{ 'p-invalid': errors.agreement }"
+                  :class="{ 'p-invalid': parentFormErrors.agreement }"
                 />
                 <label
                   for="agreement"
@@ -297,10 +297,10 @@
                 </label>
               </div>
               <small
-                v-if="errors.agreement"
+                v-if="parentFormErrors.agreement"
                 class="p-error"
               >{{
-                errors.agreement
+                parentFormErrors.agreement
               }}</small>
             </div>
           </div>
@@ -313,9 +313,12 @@
             <h3 class="step-title">
               Данные ребенка
             </h3>
+
             <AddChildForm
-              :model-value="childForm"
-              @update:model-value="(form) => childForm = form"
+              :model-child-form="childForm"
+              :model-child-form-errors="childFormErrors"
+              @update:model-child-form="(form) => childForm = form"
+              @update:model-child-form-errors="(formErrors) => childFormErrors = formErrors"
             />
           </div>
 
@@ -453,7 +456,7 @@
       </div>
     </Dialog>
 
-    <ToastPopup :content="errors.toastPopup" />
+    <ToastPopup :content="toastPopupErrors" />
   </div>
 </template>
 
@@ -462,10 +465,8 @@ import InputText from "primevue/inputtext";
 import InputMask from "primevue/inputmask";
 import Password from "primevue/password";
 import Button from "primevue/button";
-import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
 import Checkbox from "primevue/checkbox";
 import Dialog from "primevue/dialog";
-import Dropdown from "primevue/dropdown";
 import { AuthResolver } from "@/api/resolvers/auth/auth.resolver";
 import ToastPopup from "@/components/ToastPopup.vue";
 import type { UserWithChildRegistrationDto } from "@/api/resolvers/auth/dto/input/register-input.dto.ts";
@@ -474,7 +475,22 @@ import {
 } from '@/state/UserState.types';
 import { FileManager } from "@/utils/FileManager";
 import VuePdfEmbed from "vue-pdf-embed";
-import AddChildForm from '@/components/AddChildForm.vue';
+import AddChildForm, { type ChildFormErrors, type ChildFormFields } from '@/components/AddChildForm.vue';
+import { useGradeOptions } from '@/shared/UseGradeOptions.ts';
+
+export type ParentFormErrors = {
+  fullName: string;
+  birthDate: string;
+  relationship: string;
+  phone: string;
+  telegramLink: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  childConsentFile: string;
+  consent: string;
+  agreement: string;
+}
 
 export default {
   name: "ParentRegisterView",
@@ -496,6 +512,11 @@ export default {
       showAgreementDialog: false,
       showPoliticsDialog: false,
 
+      toastPopupErrors: {
+        title: "",
+        message: "",
+      },
+
       parentForm: {
         fullName: "",
         birthDate: "",
@@ -508,66 +529,51 @@ export default {
         isParentMentor: false,
         consent: false,
         agreement: false,
-        childConsentFile: new File(["Содержимое файла"], "myfile.txt", {
-          type: "text/plain",
-        }),
+        childConsentFile: null as null | File,
       },
 
       childForm: {
         fullName: "",
         birthDate: "",
-        birthCertificate: null as null | File,
         snilsNumber: "",
-        snilsScan: null as null | File,
         schoolName: "",
-        grade: null as number | null,
-        platform: null as string | null,
+        grade: null,
+        platform: "",
+        childConsentFile: null as null | File,
+        birthCertificate: null as null | File,
+        snilsScan: null as null | File,
         schoolCertificate: null as null | File,
         platformCertificate: null as null | File,
-      },
-
-      errors: {
-        mentor: "",
-        childFullName: "",
-        parentFullName: "",
-        childBirthDate: "",
-        parentBirthDate: "",
-        snilsNumber: "",
-        grade: "",
-        relationship: "",
-        telegramLink: "",
-        phone: "",
-        email: "",
-        consent: "",
-        snilsScan: "",
-        schoolName: "",
-        password: "",
-        platform: "",
-        confirmPassword: "",
-        birthCertificate: "",
-        schoolCertificate: "",
-        platformCertificate: "",
-        agreement: "",
-        toastPopup: {
-          title: "",
-          message: "",
-        },
+      } as ChildFormFields,
+      
+      childFormErrors: {
+        birthCertificate: '',
         birthDate: '',
-        parentEmail: "",
-        parentPhone: "",
+        fullName: '',
+        grade: '',
+        platform: '',
+        childConsentFile: '',
+        platformCertificate: '',
+        schoolCertificate: '',
+        schoolName: '',
+        snilsNumber: '',
+        snilsScan: ''
+      } as ChildFormErrors,
+      
+      parentFormErrors: {
+        fullName: "",
+        birthDate: "",
+        relationship: "",
+        phone: "",
+        telegramLink: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        consent: "",
+        agreement: "",
+      }  as ParentFormErrors,
 
-      },
-
-      gradeOptions: [
-        { label: "1 класс", value: 1 },
-        { label: "2 класс", value: 2 },
-        { label: "3 класс", value: 3 },
-        { label: "4 класс", value: 4 },
-        { label: "5 класс", value: 5 },
-        { label: "6 класс", value: 6 },
-        { label: "7 класс", value: 7 },
-        { label: "8 класс", value: 8 },
-      ],
+      gradeOptions: useGradeOptions,
 
       platformOptions: [
         { label: "Площадка 1", value: "platform1" },
@@ -593,26 +599,26 @@ export default {
         this.parentForm.email &&
         !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.parentForm.email)
       ) {
-        this.errors.email = "Введите корректный email";
+        this.parentFormErrors.email = "Введите корректный email";
       } else {
-        this.errors.email = "";
+        this.parentFormErrors.email = "";
       }
     },
     validatePassword() {
       if (!this.parentForm.password) {
-        this.errors.password = "Пароль обязателен";
+        this.parentFormErrors.password = "Пароль обязателен";
         return;
       } else if (this.parentForm.password.length < 8) {
-        this.errors.password = "Пароль должен содержать минимум 8 символов";
+        this.parentFormErrors.password = "Пароль должен содержать минимум 8 символов";
         return;
       } else if (
         !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.parentForm.password)
       ) {
-        this.errors.password =
+        this.parentFormErrors.password =
           "Пароль должен содержать заглавные и строчные буквы, а также цифры";
         return;
       }
-      this.errors.password = "";
+      this.parentFormErrors.password = "";
     },
 
     formatBirthDate(birthDate: string) {
@@ -624,110 +630,86 @@ export default {
     },
 
     validateStep(step: number) {
-      this.errors = {
-        parentPhone: "",
-        parentEmail: "",
-        birthDate: '',
-        mentor: "",
-        childFullName: "",
-        parentFullName: "",
-        childBirthDate: "",
-        parentBirthDate: "",
-        snilsNumber: "",
-        grade: "",
-        relationship: "",
-        telegramLink: "",
-        phone: "",
-        email: "",
-        consent: "",
-        snilsScan: "",
-        schoolName: "",
-        password: "",
-        platform: "",
-        confirmPassword: "",
-        birthCertificate: "",
-        schoolCertificate: "",
-        platformCertificate: "",
-        agreement: "",
-        toastPopup: {
-          title: "",
-          message: "",
-        }
-      };
+      Object.keys(this.parentFormErrors).forEach(key => {
+        this.parentFormErrors[key as keyof ParentFormErrors] = "";
+      });
+      Object.keys(this.childFormErrors).forEach(key => {
+        this.childFormErrors[key as keyof ChildFormErrors] = "";
+      });
 
       let isValid = true;
 
       if (step === 1) {
         // Валидация данных родителя
         if (!this.parentForm.fullName.trim()) {
-          this.errors.parentFullName = "ФИО обязательно";
+          this.parentFormErrors.fullName = "ФИО обязательно";
           isValid = false;
         }
 
         if (!this.parentForm.relationship.trim()) {
-          this.errors.relationship = "Укажите, кем вы приходитесь ребенку";
+          this.parentFormErrors.relationship = "Укажите, кем вы приходитесь ребенку";
           isValid = false;
         }
 
         if (!this.parentForm.telegramLink.trim()) {
-          this.errors.telegramLink = "Ссылка обязательна для связи";
+          this.parentFormErrors.telegramLink = "Ссылка обязательна для связи";
           isValid = false;
         } else if (
           !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.parentForm.telegramLink)
         ) {
-          this.errors.telegramLink = "Введите корректную ссылку";
+          this.parentFormErrors.telegramLink = "Введите корректную ссылку";
           isValid = false;
         }
 
         if (!this.parentForm.birthDate.trim()) {
-          this.errors.parentBirthDate = "Дата рождения обязательна";
+          this.parentFormErrors.birthDate = "Дата рождения обязательна";
           isValid = false;
         }
 
         if (!this.parentForm.phone) {
-          this.errors.parentPhone = "Телефон обязателен";
+          this.parentFormErrors.phone = "Телефон обязателен";
           isValid = false;
         } else if (this.parentForm.phone.replace(/\D/g, "").length !== 11) {
-          this.errors.parentPhone = "Введите корректный номер телефона";
+          this.parentFormErrors.phone = "Введите корректный номер телефона";
           isValid = false;
         }
 
         if (!this.parentForm.email) {
-          this.errors.parentEmail = "Email обязателен";
+          this.parentFormErrors.email = "Email обязателен";
           isValid = false;
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.parentForm.email)) {
-          this.errors.parentEmail = "Введите корректный email";
+          this.parentFormErrors.email = "Введите корректный email";
           isValid = false;
         }
 
         if (!this.parentForm.password) {
-          this.errors.password = "Пароль обязателен";
+          this.parentFormErrors.password = "Пароль обязателен";
           isValid = false;
         } else if (this.parentForm.password.length < 8) {
-          this.errors.password = "Пароль должен содержать минимум 8 символов";
+          this.parentFormErrors.password = "Пароль должен содержать минимум 8 символов";
           isValid = false;
         }
 
         if (!this.parentForm.confirmPassword) {
-          this.errors.confirmPassword = "Подтверждение пароля обязательно";
+          this.parentFormErrors.confirmPassword = "Подтверждение пароля обязательно";
           isValid = false;
         } else if (
           this.parentForm.password !== this.parentForm.confirmPassword
         ) {
-          this.errors.confirmPassword = "Пароли не совпадают";
+          this.parentFormErrors.confirmPassword = "Пароли не совпадают";
           isValid = false;
         }
 
         // Проверка согласия с условиями использования
         if (!this.parentForm.agreement) {
-          this.errors.agreement =
+          this.parentFormErrors.agreement =
             "Необходимо согласиться с политикой использования сервиса";
           isValid = false;
         }
 
         // Проверка согласия на обработку данных
         if (!this.parentForm.consent) {
-          this.errors.consent =
+          this.parentFormErrors.consent =
             "Необходимо согласиться с обработкой персональных данных";
           isValid = false;
         }
@@ -736,61 +718,66 @@ export default {
       if (step === 2) {
         // Валидация данных ребенка
         if (!this.childForm.fullName.trim()) {
-          this.errors.childFullName = "ФИО ребенка обязательно";
+          this.childFormErrors.fullName = "ФИО ребенка обязательно";
           isValid = false;
         }
 
         if (!this.childForm.birthDate) {
-          this.errors.childBirthDate = "Дата рождения обязательна";
+          this.childFormErrors.birthDate = "Дата рождения обязательна";
           isValid = false;
         } else if (!/^\d{2}\.\d{2}\.\d{4}$/.test(this.childForm.birthDate)) {
-          this.errors.birthDate = "Введите дату в формате дд.мм.гггг";
+          this.childFormErrors.birthDate = "Введите дату в формате дд.мм.гггг";
           isValid = false;
         }
 
         if (!this.childForm.birthCertificate) {
-          this.errors.birthCertificate =
+          this.childFormErrors.birthCertificate =
             "Необходимо загрузить скан свидетельства о рождении";
           isValid = false;
         }
 
         if (!this.childForm.snilsNumber) {
-          this.errors.snilsNumber = "Номер СНИЛС обязателен";
+          this.childFormErrors.snilsNumber = "Номер СНИЛС обязателен";
           isValid = false;
         }
 
         if (!this.childForm.snilsScan) {
-          this.errors.snilsScan = "Необходимо загрузить скан СНИЛС";
-          isValid = false;
-        }
-
-        if (!this.childForm.grade) {
-          this.errors.grade = "Выберите класс обучения";
+          this.childFormErrors.snilsScan = "Необходимо загрузить скан СНИЛС";
           isValid = false;
         }
 
         if (!this.childForm.schoolName) {
-          this.errors.schoolName = "Название учреждения обязательно";
+          this.childFormErrors.schoolName = "Название учреждения обязательно";
+          isValid = false;
+        }
+
+        if (this.childForm.grade === null) {
+          this.childFormErrors.grade = "Класс обучения обязателен";
           isValid = false;
         }
 
         if (!this.childForm.platform) {
-          this.errors.platform = "Выберите площадку подготовки";
+          this.childFormErrors.platform = "Выберите площадку подготовки";
           isValid = false;
         }
 
         if (!this.childForm.schoolCertificate) {
-          this.errors.schoolCertificate = "Необходимо загрузить справку из ОУ";
+          this.childFormErrors.schoolCertificate = "Необходимо загрузить справку из ОУ";
           isValid = false;
         }
 
         if (!this.childForm.platformCertificate) {
-          this.errors.platformCertificate =
+          this.childFormErrors.platformCertificate =
             "Необходимо загрузить справку из площадки подготовки";
           isValid = false;
         }
-      }
 
+        if (!this.childForm.childConsentFile) {
+          this.childFormErrors.childConsentFile =
+            "Необходимо загрузить согласие на обработку персональных данных";
+          isValid = false;
+        }
+      }
       return isValid;
     },
 
@@ -804,92 +791,19 @@ export default {
       this.currentStep--;
     },
 
-    onBirthCertificateSelect(event: FileUploadSelectEvent) {
-      this.handleFileSelect(event, "birthCertificate");
-    },
-
-    onBirthCertificateRemove() {
-      this.childForm.birthCertificate = null;
-      this.errors.birthCertificate = "";
-    },
-
-    onSnilsScanSelect(event: FileUploadSelectEvent) {
-      this.handleFileSelect(event, "snilsScan");
-    },
-
-    onSnilsScanRemove() {
-      this.childForm.snilsScan = null;
-      this.errors.snilsScan = "";
-    },
-
-    onSchoolCertificateSelect(event: FileUploadSelectEvent) {
-      this.handleFileSelect(event, "schoolCertificate");
-    },
-
-    onSchoolCertificateRemove() {
-      this.childForm.schoolCertificate = null;
-      this.errors.schoolCertificate = "";
-    },
-
-    onPlatformCertificateSelect(event: FileUploadSelectEvent) {
-      this.handleFileSelect(event, "platformCertificate");
-    },
-
-    onPlatformCertificateRemove() {
-      this.childForm.platformCertificate = null;
-      this.errors.platformCertificate = "";
-    },
-
     validateTelegramLink() {
       if (
         this.parentForm.telegramLink &&
         !/^@[a-zA-Z][a-zA-Z0-9_]{4,31}$/.test(this.parentForm.telegramLink)
       ) {
-        this.errors.telegramLink = "Введите корректную ссылку";
-      } else this.errors.telegramLink = "";
-    },
-
-    handleFileSelect(event: FileUploadSelectEvent, fieldName: string) {
-      const file = event.files[0];
-      const typedFieldName = fieldName as keyof typeof this.errors;
-      if (file) {
-        if (file.size > 10000000) {
-          (this.errors[typedFieldName] as string) = "Размер файла не должен превышать 10 МБ";
-          return;
-        }
-
-        const allowedTypes = [
-          "application/pdf",
-          "image/jpeg",
-          "image/jpg",
-          "image/png",
-          "application/msword",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        ];
-        if (!allowedTypes.includes(file.type)) {
-          (this.errors[typedFieldName] as string) =
-            "Поддерживаются только файлы PDF, JPG, PNG, DOC, DOCX";
-          return;
-        }
-
-        if (fieldName === "childConsentFile") {
-          this.parentForm.childConsentFile = file;
-        } else {
-          const childTypedKey = fieldName as keyof typeof this.childForm;
-          (this.childForm[childTypedKey] as File) = file;
-        }
-        (this.errors[typedFieldName] as string) = "";
-      }
+        this.parentFormErrors.telegramLink = "Введите корректную ссылку";
+      } else this.parentFormErrors.telegramLink = "";
     },
 
     handleSubmit: async function () {
-      if (!this.validateStep(3)) return;
+      if (!this.validateStep(2)) return;
 
       this.isLoading = true;
-      this.errors.toastPopup = {
-        title: "",
-        message: "",
-      };
 
       try {
         const authResolver = new AuthResolver();
@@ -899,7 +813,7 @@ export default {
         });
 
         if (response.status !== 200) {
-          this.errors.toastPopup = {
+          this.toastPopupErrors = {
             title: `Ошибка #${response.status}`,
             message: response.message,
           };
@@ -937,7 +851,7 @@ export default {
               studyingCertificateFileName: await fileManager.saveFileToCache(
                 this.childForm.schoolCertificate as File,
               ),
-              learningClass: this.childForm.grade as number,
+              learningClass: this.childForm.grade,
               trainingGround: this.childForm.platform as string,
               additionalStudyingCertificateFileName:
                 await fileManager.saveFileToCache(
@@ -945,7 +859,7 @@ export default {
                 ),
               parentRole: this.parentForm.relationship,
               consentToChildPdpFilename: await fileManager.saveFileToCache(
-                this.parentForm.childConsentFile,
+                this.childForm.childConsentFile as File,
               ),
               birthCertificateFilename: await fileManager.saveFileToCache(
                 this.childForm.birthCertificate as File,

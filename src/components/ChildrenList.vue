@@ -4,6 +4,7 @@
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import Button from 'primevue/button';
   import Dialog from 'primevue/dialog';
+  import { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
 
   export default {
     name: 'ChildrenList',
@@ -37,6 +38,25 @@
           age--;
         }
         return age;
+      },
+      getAgeGroupByAge(age: number, learningClass: number) {
+        if (age === 7) {
+          const group = this.ageGroups
+            .find(group => learningClass > 0
+              ? group.value === AgeCategories.EARLY_SCHOOL
+              : group.value === AgeCategories.PRESCHOOLz
+            )
+          return group
+            ? group.label
+            : "-"
+        }
+        this.ageGroups.forEach(group => {
+          const edges = group.label.split(" ")[0].split("-")
+          const min = parseInt(edges[0]);
+          const max = parseInt(edges[1]);
+          if (min <= age && age <= max) return group.label
+        })
+        return "-"
       }
     }
   };
@@ -95,7 +115,7 @@
           <div class="detail-item">
             <span class="detail-label">Возрастная группа:</span>
             <span class="detail-value">
-              -
+              {{ getAgeGroupByAge(calculateAge(child.dateOfBirth), child.learningClass) }}
             </span>
           </div>
         </div>
@@ -115,29 +135,29 @@
     </div>
 
     <Dialog>
-<!--      <p class="preview-text">-->
-<!--        Выбрано компетенций: {{ selectedCompetenciesCount }}/3-->
-<!--      </p>-->
+      <!--      <p class="preview-text">-->
+      <!--        Выбрано компетенций: {{ selectedCompetenciesCount }}/3-->
+      <!--      </p>-->
 
-<!--      <div class="selected-competencies">-->
-<!--        <div-->
-<!--          v-for="competence in selectedCompetencies"-->
-<!--          :key="competence.id"-->
-<!--          class="competence-item"-->
-<!--        >-->
-<!--          <div class="competence-icon">-->
-<!--            <i :class="competence.icon" />-->
-<!--          </div>-->
-<!--          <div class="competence-info">-->
-<!--            <h4 class="competence-name">-->
-<!--              {{ competence.name }}-->
-<!--            </h4>-->
-<!--            <p class="competence-status">-->
-<!--              {{ competence.status }}-->
-<!--            </p>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
+      <!--      <div class="selected-competencies">-->
+      <!--        <div-->
+      <!--          v-for="competence in selectedCompetencies"-->
+      <!--          :key="competence.id"-->
+      <!--          class="competence-item"-->
+      <!--        >-->
+      <!--          <div class="competence-icon">-->
+      <!--            <i :class="competence.icon" />-->
+      <!--          </div>-->
+      <!--          <div class="competence-info">-->
+      <!--            <h4 class="competence-name">-->
+      <!--              {{ competence.name }}-->
+      <!--            </h4>-->
+      <!--            <p class="competence-status">-->
+      <!--              {{ competence.status }}-->
+      <!--            </p>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
     </Dialog>
   </div>
 </template>

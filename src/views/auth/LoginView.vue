@@ -100,7 +100,7 @@
               <!--                </div>-->
               <!--              </router-link>-->
               <router-link
-                to="/register/parent"
+                to="/register/user"
                 class="register-option"
                 @click="closeRegisterOptions"
               >
@@ -147,7 +147,6 @@ import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { useAuthStore } from '@/stores/authStore.ts';
 import router from '@/router';
-import { Roles } from '@/state/UserState.types.ts';
 
 export default {
   name: "LoginView",

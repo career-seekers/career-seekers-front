@@ -4,13 +4,13 @@ import { titleManager } from "@/utils/titleManager.ts";
 // Auth views
 import LoginView from '@/views/auth/LoginView.vue';
 import MentorRegisterView from "@/views/auth/MentorRegisterView.vue";
-import ParentRegisterView from "@/views/auth/ParentRegisterView.vue";
+import ParentRegisterView from "@/views/auth/UserRegisterView.vue";
 import TutorRegisterView from "@/views/auth/TutorRegisterView.vue";
 import EmailConfirmationView from "@/views/auth/EmailConfirmationView.vue";
 
 // user views
 import UserDashboardHome from "@/views/user/UserDashboardHome.vue";
-import ParentCompetenciesSelection from "@/views/user/ParentCompetenciesSelection.vue";
+import UserCompetencies from '@/views/user/UserCompetencies.vue';
 
 //expert views
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
@@ -99,7 +99,7 @@ const routes = [
       {
         path: "competencies",
         name: "user-competencies",
-        component: ParentCompetenciesSelection,
+        component: UserCompetencies,
         meta: {
           title: "Компетенции",
           icon: "pi pi-briefcase"

@@ -9,13 +9,13 @@
       v-model="childForm.fullName"
       placeholder="Введите полное имя ребенка, двойное имя вводите через '-'"
       class="w-full"
-      :class="{ 'p-invalid': errors.childFullName }"
+      :class="{ 'p-invalid': errors.fullName }"
     />
     <small
-      v-if="errors.childFullName"
+      v-if="errors.fullName"
       class="p-error"
     >{{
-      errors.childFullName
+      errors.fullName
     }}</small>
   </div>
 
@@ -30,13 +30,13 @@
       mask="99.99.9999"
       placeholder="дд.мм.гггг"
       class="w-full"
-      :class="{ 'p-invalid': errors.childBirthDate }"
+      :class="{ 'p-invalid': errors.birthDate }"
     />
     <small
-      v-if="errors.childBirthDate"
+      v-if="errors.birthDate"
       class="p-error"
     >{{
-      errors.childBirthDate
+      errors.birthDate
     }}</small>
   </div>
 
@@ -184,15 +184,12 @@
       for="platform"
       class="field-label"
     >Площадка подготовки *</label>
-    <Dropdown
+    <InputText
       id="platform"
       v-model="childForm.platform"
-      :options="platformOptions"
-      placeholder="Выберите площадку"
+      placeholder="Полное название учреждения"
       class="w-full"
       :class="{ 'p-invalid': errors.platform }"
-      option-label="label"
-      option-value="value"
     />
     <small
       v-if="errors.platform"
@@ -226,6 +223,30 @@
     }}</small>
     <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
   </div>
+  <div class="field">
+    <label
+      for="schoolCertificate"
+      class="field-label"
+    >Скан согласия на ОПД *</label>
+    <FileUpload
+      id="childConsentFile"
+      mode="basic"
+      accept=".pdf,.jpg,.jpeg,.png"
+      :max-file-size="10000000"
+      choose-label="Выберите файл"
+      class="w-full"
+      :class="{ 'p-invalid': errors.childConsentFile }"
+      @select="onChildConsentFileSelect"
+      @remove="onChildConsentFileRemove"
+    />
+    <small
+      v-if="errors.childConsentFile"
+      class="p-error"
+    >{{
+      errors.childConsentFile
+    }}</small>
+    <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
+  </div>
 </template>
 
 <script lang="ts">
@@ -233,6 +254,36 @@
   import InputMask from "primevue/inputmask";
   import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
   import Dropdown from "primevue/dropdown";
+  import type { PropType } from 'vue';
+  import { useGradeOptions } from '@/shared/UseGradeOptions.ts';
+
+  export type ChildFormFields = {
+    fullName: string,
+    birthDate: string,
+    snilsNumber: string,
+    schoolName: string,
+    platform: string,
+    grade: number | null,
+    childConsentFile: null | File,
+    birthCertificate: null | File,
+    snilsScan: null | File,
+    schoolCertificate: null | File,
+    platformCertificate: null | File,
+  }
+
+  export type ChildFormErrors = {
+    fullName: string,
+    birthDate: string,
+    snilsNumber: string,
+    schoolName: string,
+    platform: string,
+    grade: string,
+    snilsScan: string,
+    childConsentFile: string,
+    schoolCertificate: string,
+    birthCertificate: string,
+    platformCertificate: string
+  }
 
   export default {
     name: "AddChildForm",
@@ -243,43 +294,28 @@
       Dropdown,
     },
     props: {
-      modelValue: {
-        type: Object,
+      modelChildForm: {
+        type: Object as PropType<ChildFormFields>,
+        required: true,
+      },
+      modelChildFormErrors: {
+        type: Object as PropType<ChildFormErrors>,
         required: true,
       },
     },
-    emits: ['update:model-value'],
+    emits: [
+      'update:model-child-form',
+      'update:model-child-form-errors'
+    ],
     data() {
       return {
         isLoading: false,
         showAgreementDialog: false,
         showPoliticsDialog: false,
+        gradeOptions: useGradeOptions,
 
-        childForm: { ...this.modelValue },
-
-        errors: {
-          childFullName: "",
-          childBirthDate: "",
-          snilsNumber: "",
-          grade: "",
-          snilsScan: "",
-          schoolName: "",
-          platform: "",
-          birthCertificate: "",
-          schoolCertificate: "",
-          platformCertificate: "",
-        },
-
-        gradeOptions: [
-          { label: "1 класс", value: 1 },
-          { label: "2 класс", value: 2 },
-          { label: "3 класс", value: 3 },
-          { label: "4 класс", value: 4 },
-          { label: "5 класс", value: 5 },
-          { label: "6 класс", value: 6 },
-          { label: "7 класс", value: 7 },
-          { label: "8 класс", value: 8 },
-        ],
+        childForm: { ...this.modelChildForm },
+        errors: { ... this.modelChildFormErrors },
 
         platformOptions: [
           { label: "Площадка 1", value: "platform1" },
@@ -289,9 +325,23 @@
       };
     },
     watch: {
+      modelChildFormErrors: {
+        handler(newVal) {
+          this.errors = { ...newVal }
+        },
+        deep: true
+      },
       childForm: {
         handler(newVal) {
-          this.$emit("update:model-value", { ...newVal });
+          this.$emit("update:model-child-form", { ...newVal });
+        },
+        deep: true
+      },
+      errors: {
+        handler(newVal) {
+          if (JSON.stringify(this.$props.modelChildFormErrors) !== JSON.stringify(this.errors)) {
+            this.$emit("update:model-child-form-errors", { ...newVal });
+          }
         },
         deep: true
       }
@@ -332,7 +382,14 @@
         this.childForm.platformCertificate = null;
         this.errors.platformCertificate = "";
       },
+      onChildConsentFileSelect(event: FileUploadSelectEvent) {
+        this.handleFileSelect(event, "childConsentFile");
+      },
 
+      onChildConsentFileRemove() {
+        this.childForm.childConsentFile = null;
+        this.errors.childConsentFile = "";
+      },
       handleFileSelect(event: FileUploadSelectEvent, fieldName: string) {
         const file = event.files[0];
         const typedFieldName = fieldName as keyof typeof this.errors;

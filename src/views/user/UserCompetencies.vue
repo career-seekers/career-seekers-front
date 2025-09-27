@@ -20,6 +20,36 @@
         </div>
       </div>
     </div>
+    <div class="filters-section">
+      <div class="filter-group">
+        <Dropdown
+          id="ageFilter"
+          v-model="selectedChild"
+          :options="children"
+          class="filter-dropdown"
+        >
+          <template #option="slotProps">
+            {{ slotProps.option.lastName }} {{ slotProps.option.firstName }}
+            {{ slotProps.option.patronymic }}
+          </template>
+          <template #value="{ value }">
+            {{
+              value
+                ? `${value.lastName} ${value.firstName} ${value.patronymic}`
+                : "Ребёнок не выбран"
+            }}
+          </template>
+        </Dropdown>
+      </div>
+      <div class="filter-group">
+        <Button
+          label="Сбросить фильтр"
+          icon="pi pi-refresh"
+          class="p-button-text p-button-sm"
+          @click="resetFilters"
+        />
+      </div>
+    </div>
 
     <div class="competencies-grid">
       <div
@@ -35,7 +65,7 @@
       >
         <div class="card-header">
           <div class="competence-icon">
-            <i :class="competence.icon" />
+            <i class="pi pi-briefcase" />
           </div>
           <div
             v-if="isSelected(competence.id)"
@@ -138,15 +168,15 @@
           <div class="mentor-contacts">
             <div class="contact-item">
               <i class="pi pi-user" />
-              <span>{{ selectedCompetence.mentor.name }}</span>
+              <span>{{ competenceExpert(selectedCompetence.expertId).name }}</span>
             </div>
             <div class="contact-item">
               <i class="pi pi-envelope" />
-              <span>{{ selectedCompetence.mentor.email }}</span>
+              <span>{{ competenceExpert(selectedCompetence.expertId).email }}</span>
             </div>
             <div class="contact-item">
               <i class="pi pi-phone" />
-              <span>{{ selectedCompetence.mentor.phone }}</span>
+              <span>{{ competenceExpert(selectedCompetence.expertId).phone }}</span>
             </div>
           </div>
         </div>
@@ -156,168 +186,64 @@
 </template>
 
 <script lang="ts">
-import Button from "primevue/button";
-import Dialog from "primevue/dialog";
+  import Button from 'primevue/button';
+  import Dialog from 'primevue/dialog';
+  import Dropdown from 'primevue/dropdown';
+  import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+  import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+  import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+  import type { ChildOutputDto } from '@/api/resolvers/user/dto/output/child-output.dto.ts';
+  import { useUserStore } from '@/stores/userStore.ts';
 
-export default {
+  export default {
   name: "ParentCompetenciesSelection",
   components: {
     Button,
     Dialog,
+    Dropdown
   },
-  data() {
+  data: function() {
     return {
-      selectedCompetencies: [],
       showDetailsDialog: false,
-      selectedCompetence: null,
-      competencies: [
-        {
-          id: 1,
-          name: "Веб-дизайн и разработка",
-          shortDescription: "Создание современных веб-сайтов и приложений",
-          description:
-            "Компетенция включает в себя создание пользовательских интерфейсов, верстку, программирование на современных технологиях и оптимизацию веб-приложений.",
-          ageRange: "14-16 лет",
-          duration: "2 дня",
-          format: "Индивидуальное",
-          icon: "pi pi-desktop",
-          image: "/api/placeholder/400/200",
-          skills: [
-            "HTML/CSS",
-            "JavaScript",
-            "Responsive Design",
-            "UI/UX Design",
-            "Frameworks (React, Vue)",
-          ],
-          mentor: {
-            name: "Петров Иван Сергеевич",
-            email: "i.petrov@mentor.ru",
-            phone: "+7 (999) 111-22-33",
-          },
-        },
-        {
-          id: 2,
-          name: "Мобильная разработка",
-          shortDescription: "Разработка мобильных приложений для iOS и Android",
-          description:
-            "Создание нативных и кроссплатформенных мобильных приложений с использованием современных технологий и фреймворков.",
-          ageRange: "16-18 лет",
-          duration: "3 дня",
-          format: "Командное",
-          icon: "pi pi-mobile",
-          image: "/api/placeholder/400/200",
-          skills: [
-            "Swift/Kotlin",
-            "React Native",
-            "Flutter",
-            "Mobile UI/UX",
-            "API Integration",
-          ],
-          mentor: {
-            name: "Сидорова Мария Александровна",
-            email: "m.sidorova@mentor.ru",
-            phone: "+7 (999) 222-33-44",
-          },
-        },
-        {
-          id: 3,
-          name: "Кибербезопасность",
-          shortDescription: "Защита информационных систем и данных",
-          description:
-            "Изучение методов защиты информации, выявление уязвимостей и создание безопасных систем.",
-          ageRange: "16-18 лет",
-          duration: "2 дня",
-          format: "Индивидуальное",
-          icon: "pi pi-shield",
-          image: "/api/placeholder/400/200",
-          skills: [
-            "Network Security",
-            "Penetration Testing",
-            "Cryptography",
-            "Incident Response",
-            "Security Auditing",
-          ],
-          mentor: {
-            name: "Козлов Дмитрий Владимирович",
-            email: "d.kozlov@mentor.ru",
-            phone: "+7 (999) 333-44-55",
-          },
-        },
-        {
-          id: 4,
-          name: "Искусственный интеллект",
-          shortDescription: "Разработка AI-решений и машинное обучение",
-          description:
-            "Создание интеллектуальных систем, работа с данными и алгоритмами машинного обучения.",
-          ageRange: "16-18 лет",
-          duration: "3 дня",
-          format: "Командное",
-          icon: "pi pi-cog",
-          image: "/api/placeholder/400/200",
-          skills: [
-            "Python",
-            "Machine Learning",
-            "Neural Networks",
-            "Data Analysis",
-            "TensorFlow/PyTorch",
-          ],
-          mentor: {
-            name: "Новикова Елена Игоревна",
-            email: "e.novikova@mentor.ru",
-            phone: "+7 (999) 444-55-66",
-          },
-        },
-        {
-          id: 5,
-          name: "3D-моделирование",
-          shortDescription: "Создание трехмерных моделей и анимации",
-          description:
-            "Работа с 3D-графикой, создание моделей, текстур и анимации для различных областей применения.",
-          ageRange: "14-16 лет",
-          duration: "2 дня",
-          format: "Индивидуальное",
-          icon: "pi pi-box",
-          image: "/api/placeholder/400/200",
-          skills: ["Blender", "3ds Max", "Maya", "Texturing", "Animation"],
-          mentor: {
-            name: "Морозов Андрей Петрович",
-            email: "a.morozov@mentor.ru",
-            phone: "+7 (999) 555-66-77",
-          },
-        },
-        {
-          id: 6,
-          name: "Робототехника",
-          shortDescription: "Создание и программирование роботов",
-          description:
-            "Разработка роботизированных систем, программирование микроконтроллеров и создание автоматизированных решений.",
-          ageRange: "12-16 лет",
-          duration: "2 дня",
-          format: "Командное",
-          icon: "pi pi-cog",
-          image: "/api/placeholder/400/200",
-          skills: [
-            "Arduino",
-            "Raspberry Pi",
-            "C++",
-            "Electronics",
-            "Mechanics",
-          ],
-          mentor: {
-            name: "Волков Сергей Николаевич",
-            email: "s.volkov@mentor.ru",
-            phone: "+7 (999) 666-77-88",
-          },
-        },
-      ],
+
+      selectedCompetencies: [] as CompetenceOutputDto[],
+      selectedCompetence: null as CompetenceOutputDto | null,
+      selectedChild: null as ChildOutputDto | null,
+
+      competencies: [] as CompetenceOutputDto[],
+      competenceResolver: new CompetenceResolver(),
+      ageGroups: useAgeGroups,
+      userStore: useUserStore(),
+
+      children: null as ChildOutputDto[] | null
     };
   },
+  async beforeMount() {
+    await this.loadCompetencies()
+    if (this.userStore.user !== null)
+      this.children = this.userStore.user.children
+  },
   methods: {
-    isSelected(competenceId) {
+    async loadCompetencies() {
+      if (this.userStore.user === null) return
+      this.selectedChild = this.userStore.user.children[0]
+      const ageCategory = this.getAgeGroupByAge(
+        this.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild.isPupil
+      )
+      console.log(ageCategory)
+      if (!ageCategory) return
+      const response = await this.competenceResolver.getByAgeCategory(ageCategory.value)
+      if (typeof response.message === 'string' || response.status !== 200) return
+      this.competencies = response.message
+    },
+    resetFilters() {
+      this.selectedChild = null
+    },
+    isSelected(competenceId: number) {
       return this.selectedCompetencies.some((c) => c.id === competenceId);
     },
 
-    toggleCompetence(competence) {
+    toggleCompetence(competence: CompetenceOutputDto) {
       if (this.isSelected(competence.id)) {
         // Убираем из выбранных
         this.selectedCompetencies = this.selectedCompetencies.filter(
@@ -329,7 +255,7 @@ export default {
       }
     },
 
-    showCompetenceDetails(competence) {
+    showCompetenceDetails(competence: CompetenceOutputDto) {
       this.selectedCompetence = competence;
       this.showDetailsDialog = true;
     },
@@ -338,24 +264,33 @@ export default {
       if (this.selectedCompetencies.length === 0) {
         return;
       }
-
-      // Сохраняем выбор (здесь будет API вызов)
-      console.log(
-        "Сохранение выбранных компетенций:",
-        this.selectedCompetencies,
-      );
-
-      // Показываем уведомление об успехе
-      this.$toast.add({
-        severity: "success",
-        summary: "Успешно",
-        detail: `Выбрано ${this.selectedCompetencies.length} компетенций`,
-        life: 3000,
-      });
-
-      // Переходим к странице "Мои компетенции"
-      this.$router.push("/user/my-competencies");
     },
+    calculateAge(birthDate: string) {
+      const birth = new Date(birthDate.substring(0, 10));
+      const onDate = new Date(2026, 1, 14)
+
+      let age = onDate.getFullYear() - birth.getFullYear();
+      let monthDiff = onDate.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && onDate.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age;
+    },
+    getAgeGroupByAge(age: number, learningClass: number) {
+      if (age === 7) {
+        return this.ageGroups
+          .find(group => learningClass > 0
+            ? group.value === AgeCategories.EARLY_SCHOOL
+            : group.value === AgeCategories.PRESCHOOL
+          )
+      }
+      this.ageGroups.forEach(group => {
+        const edges = group.label.split(" ")[0].split("-")
+        const min = parseInt(edges[0]);
+        const max = parseInt(edges[1]);
+        if (min <= age && age <= max) return group.label
+      })
+    }
   },
 };
 </script>
@@ -419,6 +354,34 @@ export default {
   color: #e74c3c;
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+.filters-section {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 150px;
+}
+
+.filter-group label {
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.filter-dropdown {
+  width: 100%;
 }
 
 .competencies-grid {
