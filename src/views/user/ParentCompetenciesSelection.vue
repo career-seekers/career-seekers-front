@@ -354,7 +354,7 @@ export default {
       });
 
       // Переходим к странице "Мои компетенции"
-      this.$router.push("/parent/my-competencies");
+      this.$router.push("/user/my-competencies");
     },
   },
 };

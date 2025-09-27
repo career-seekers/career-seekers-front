@@ -110,7 +110,7 @@ import Dialog from 'primevue/dialog';
 import AddChildForm from '@/components/AddChildForm.vue';
 
 export default {
-  name: "ParentDashboardHome",
+  name: "UserDashboardHome",
   components: {
     AddChildForm,
     ChildrenList,

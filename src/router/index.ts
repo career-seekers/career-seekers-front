@@ -8,9 +8,9 @@ import ParentRegisterView from "@/views/auth/ParentRegisterView.vue";
 import TutorRegisterView from "@/views/auth/TutorRegisterView.vue";
 import EmailConfirmationView from "@/views/auth/EmailConfirmationView.vue";
 
-// Parent views
-import ParentDashboardHome from "@/views/parent/ParentDashboardHome.vue";
-import ParentCompetenciesSelection from "@/views/parent/ParentCompetenciesSelection.vue";
+// user views
+import UserDashboardHome from "@/views/user/UserDashboardHome.vue";
+import ParentCompetenciesSelection from "@/views/user/ParentCompetenciesSelection.vue";
 
 //expert views
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
@@ -62,8 +62,8 @@ const routes = [
     meta: { blocked: true },
   },
   {
-    path: "/register/parent",
-    name: "parent-register",
+    path: "/register/user",
+    name: "user-register",
     component: ParentRegisterView,
   },
   {
@@ -77,7 +77,7 @@ const routes = [
     component: EmailConfirmationView,
   },
   {
-    path: "/parent",
+    path: "/user",
     component: DashboardWrapper,
     meta: {
       allowedRole: Roles.USER
@@ -85,12 +85,12 @@ const routes = [
     children: [
       {
         path: "",
-        redirect: "/parent/dashboard",
+        redirect: "/user/dashboard",
       },
       {
         path: "dashboard",
-        name: "parent-dashboard",
-        component: ParentDashboardHome,
+        name: "user-dashboard",
+        component: UserDashboardHome,
         meta: {
           title: "Главная",
           icon: "pi pi-home"
@@ -98,7 +98,7 @@ const routes = [
       },
       {
         path: "competencies",
-        name: "parent-competencies",
+        name: "user-competencies",
         component: ParentCompetenciesSelection,
         meta: {
           title: "Компетенции",

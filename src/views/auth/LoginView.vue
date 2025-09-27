@@ -233,8 +233,7 @@ export default {
         authStore.getTokens()
         const userData = await authStore.loadByTokens();
         if (userData !== null)
-          if (userData.role === Roles.USER) await router.push(`/parent/dashboard`)
-          else await router.push(`/${userData.role.toLowerCase()}/dashboard`)
+          await router.push(`/${userData.role.toLowerCase()}/dashboard`)
       }
       this.isLoading = false;
     },

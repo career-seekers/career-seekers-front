@@ -58,7 +58,7 @@ export default {
   },
   methods: {
     goHome() {
-      this.$router.push("/parent/dashboard");
+      this.$router.push("/user/dashboard");
     },
   },
 };

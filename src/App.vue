@@ -47,7 +47,7 @@ export default {
       return (
         !path.startsWith("/admin") &&
         !path.startsWith("/expert") &&
-        !path.startsWith("/parent") &&
+        !path.startsWith("/user") &&
         !path.startsWith("/mentor") &&
         !path.startsWith("/tutor")
       );
