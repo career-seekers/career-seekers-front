@@ -44,7 +44,7 @@
           const group = this.ageGroups
             .find(group => learningClass > 0
               ? group.value === AgeCategories.EARLY_SCHOOL
-              : group.value === AgeCategories.PRESCHOOLz
+              : group.value === AgeCategories.PRESCHOOL
             )
           return group
             ? group.label

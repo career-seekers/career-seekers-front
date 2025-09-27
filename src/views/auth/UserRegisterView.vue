@@ -851,7 +851,7 @@ export default {
               studyingCertificateFileName: await fileManager.saveFileToCache(
                 this.childForm.schoolCertificate as File,
               ),
-              learningClass: this.childForm.grade,
+              learningClass: this.childForm.grade ?? 0,
               trainingGround: this.childForm.platform as string,
               additionalStudyingCertificateFileName:
                 await fileManager.saveFileToCache(

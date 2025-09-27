@@ -10,14 +10,14 @@ export class PlatformResolver {
   public async getByUserId(id: number) {
     return await this.apiResolver.request<
       null,
-      CommonOutputDto<PlatformOutputDto>
+      CommonOutputDto<PlatformOutputDto | string>
     >(`getByUserId/${id.toString()}`, "GET", null, this.token ? this.token : undefined);
   }
 
   public async create(data: PlatformInputDto) {
     return await this.apiResolver.request<
       PlatformInputDto,
-      CommonOutputDto<PlatformOutputDto>
+      CommonOutputDto<PlatformOutputDto | string>
     >("", "POST", data, this.token ? this.token : undefined);
   }
 

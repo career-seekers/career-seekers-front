@@ -1,5 +1,8 @@
 <template>
-  <div class="competencies-selection">
+  <div
+    v-if="selectedChildCompetencies && children !== null"
+    class="competencies-selection"
+  >
     <div class="page-header">
       <h1 class="page-title">
         Выбор компетенций
@@ -9,15 +12,21 @@
       </p>
       <div class="selection-info">
         <span class="selection-counter">
-          Выбрано: {{ selectedCompetencies.length }}/3
+          Выбрано: {{ selectedChildCompetencies.competencies.length }}/3
         </span>
         <div
-          v-if="selectedCompetencies.length >= 3"
+          v-if="selectedChildCompetencies.competencies.length >= 3"
           class="selection-limit"
         >
           <i class="pi pi-info-circle" />
           <span>Достигнут лимит выбора компетенций</span>
         </div>
+        <Button
+          class="p-button save-btn"
+          label="Сохранить"
+          :disabled="selectedChildCompetencies.competencies.length === 0"
+          @click="assignToCompetencies"
+        />
       </div>
     </div>
     <div class="filters-section">
@@ -41,14 +50,6 @@
           </template>
         </Dropdown>
       </div>
-      <div class="filter-group">
-        <Button
-          label="Сбросить фильтр"
-          icon="pi pi-refresh"
-          class="p-button-text p-button-sm"
-          @click="resetFilters"
-        />
-      </div>
     </div>
 
     <div class="competencies-grid">
@@ -59,7 +60,7 @@
         :class="{
           selected: isSelected(competence.id),
           disabled:
-            !isSelected(competence.id) && selectedCompetencies.length >= 3,
+            !isSelected(competence.id) && selectedChildCompetencies.competencies.length >= 3,
         }"
         @click="toggleCompetence(competence)"
       >
@@ -80,16 +81,15 @@
             {{ competence.name }}
           </h3>
           <p class="competence-description">
-            {{ competence.shortDescription }}
+            {{ competence.description.length > 150
+              ? competence.description.substring(0, 120) + "..."
+              : competence.description
+            }}
           </p>
           <div class="competence-meta">
             <span class="age-range">
               <i class="pi pi-calendar" />
-              {{ competence.ageRange }}
-            </span>
-            <span class="duration">
-              <i class="pi pi-clock" />
-              {{ competence.duration }}
+              {{ competenceAgeCategories(competence) }}
             </span>
           </div>
         </div>
@@ -120,7 +120,7 @@
       v-model:visible="showDetailsDialog"
       :header="selectedCompetence?.name"
       modal
-      :style="{ width: '90vw', maxWidth: '500px' }"
+      :style="{ width: '90vw', maxWidth: '800px' }"
       class="competence-dialog"
     >
       <div
@@ -128,24 +128,10 @@
         class="competence-details"
       >
         <div class="details-header">
-          <div class="competence-image">
-            <img
-              :src="selectedCompetence.image"
-              :alt="selectedCompetence.name"
-            >
-          </div>
           <div class="details-meta">
             <div class="meta-item">
               <i class="pi pi-calendar" />
-              <span>Возраст: {{ selectedCompetence.ageRange }}</span>
-            </div>
-            <div class="meta-item">
-              <i class="pi pi-clock" />
-              <span>Длительность: {{ selectedCompetence.duration }}</span>
-            </div>
-            <div class="meta-item">
-              <i class="pi pi-users" />
-              <span>Формат: {{ selectedCompetence.format }}</span>
+              <span>Возраст: {{ competenceAgeCategories(selectedCompetence) }}</span>
             </div>
           </div>
         </div>
@@ -154,29 +140,48 @@
           <h4>Описание</h4>
           <p>{{ selectedCompetence.description }}</p>
 
-          <h4>Навыки и компетенции</h4>
-          <ul class="skills-list">
-            <li
-              v-for="skill in selectedCompetence.skills"
-              :key="skill"
-            >
-              {{ skill }}
-            </li>
-          </ul>
-
           <h4>Контакты главного эксперта</h4>
-          <div class="mentor-contacts">
+          <div
+            v-if="expert"
+            class="mentor-contacts"
+          >
             <div class="contact-item">
               <i class="pi pi-user" />
-              <span>{{ competenceExpert(selectedCompetence.expertId).name }}</span>
+              <span>
+                {{ `${expert.lastName} ${expert.firstName} ${expert.patronymic}` }}
+              </span>
             </div>
             <div class="contact-item">
               <i class="pi pi-envelope" />
-              <span>{{ competenceExpert(selectedCompetence.expertId).email }}</span>
+              <a :href="`mailto:${expert.email}`">{{ expert.email }}</a>
             </div>
             <div class="contact-item">
               <i class="pi pi-phone" />
-              <span>{{ competenceExpert(selectedCompetence.expertId).phone }}</span>
+              <a :href="`tel:${expert.mobileNumber}`">{{ expert.mobileNumber }}</a>
+            </div>
+          </div>
+
+          <h4>Информация о площадке</h4>
+          <div
+            v-if="platform"
+            class="mentor-contacts"
+          >
+            <div class="contact-item">
+              <i class="pi pi-building" />
+              <span>
+                {{ platform.fullName }}
+              </span>
+            </div>
+            <div class="contact-item">
+              <i class="pi pi-map" />
+              <span>{{ platform.address }}</span>
+            </div>
+            <div
+              v-if="platform.website"
+              class="contact-item"
+            >
+              <i class="pi pi-globe" />
+              <a :href="platform.website">{{ platform.website }}</a>
             </div>
           </div>
         </div>
@@ -194,104 +199,159 @@
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type { ChildOutputDto } from '@/api/resolvers/user/dto/output/child-output.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
+  import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
+  import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
+  import type { PlatformOutputDto } from '@/api/resolvers/platform/dto/output/platform-output.dto.ts';
+  import { PlatformResolver } from '@/api/resolvers/platform/platform.resolver.ts';
 
   export default {
-  name: "ParentCompetenciesSelection",
-  components: {
-    Button,
-    Dialog,
-    Dropdown
-  },
-  data: function() {
-    return {
-      showDetailsDialog: false,
-
-      selectedCompetencies: [] as CompetenceOutputDto[],
-      selectedCompetence: null as CompetenceOutputDto | null,
-      selectedChild: null as ChildOutputDto | null,
-
-      competencies: [] as CompetenceOutputDto[],
-      competenceResolver: new CompetenceResolver(),
-      ageGroups: useAgeGroups,
-      userStore: useUserStore(),
-
-      children: null as ChildOutputDto[] | null
-    };
-  },
-  async beforeMount() {
-    await this.loadCompetencies()
-    if (this.userStore.user !== null)
-      this.children = this.userStore.user.children
-  },
-  methods: {
-    async loadCompetencies() {
-      if (this.userStore.user === null) return
-      this.selectedChild = this.userStore.user.children[0]
-      const ageCategory = this.getAgeGroupByAge(
-        this.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild.isPupil
-      )
-      console.log(ageCategory)
-      if (!ageCategory) return
-      const response = await this.competenceResolver.getByAgeCategory(ageCategory.value)
-      if (typeof response.message === 'string' || response.status !== 200) return
-      this.competencies = response.message
+    name: "ParentCompetenciesSelection",
+    components: {
+      Button,
+      Dialog,
+      Dropdown
     },
-    resetFilters() {
-      this.selectedChild = null
-    },
-    isSelected(competenceId: number) {
-      return this.selectedCompetencies.some((c) => c.id === competenceId);
-    },
+    data: function() {
+      return {
+        showDetailsDialog: false,
+        selectedCompetencies: [] as {
+          childId: number,
+          competencies: number[]
+        }[],
+        selectedCompetence: null as CompetenceOutputDto | null,
+        selectedChild: null as ChildOutputDto | null,
 
-    toggleCompetence(competence: CompetenceOutputDto) {
-      if (this.isSelected(competence.id)) {
-        // Убираем из выбранных
-        this.selectedCompetencies = this.selectedCompetencies.filter(
-          (c) => c.id !== competence.id,
-        );
-      } else if (this.selectedCompetencies.length < 3) {
-        // Добавляем к выбранным
-        this.selectedCompetencies.push(competence);
+        competencies: [] as CompetenceOutputDto[],
+        competenceResolver: new CompetenceResolver(),
+        userResolver: new UserResolver(),
+        platformResolver: new PlatformResolver(),
+        ageGroups: useAgeGroups,
+        userStore: useUserStore(),
+
+        children: null as ChildOutputDto[] | null,
+        expert: null as UserOutputDto | null,
+        platform: null as PlatformOutputDto | null
+      };
+    },
+    computed: {
+      selectedChildCompetencies() {
+        return this.selectedCompetencies.find(row => row.childId === this.selectedChild?.id)
       }
     },
-
-    showCompetenceDetails(competence: CompetenceOutputDto) {
-      this.selectedCompetence = competence;
-      this.showDetailsDialog = true;
+    async beforeMount() {
+      await this.loadCompetencies()
+      if (this.userStore.user !== null)
+        this.children = this.userStore.user.children
+        this.children?.forEach(child => {
+          this.selectedCompetencies.push({
+            childId: child.id,
+            competencies: []
+          });
+        })
     },
+    methods: {
+      async loadCompetencies() {
+        if (this.userStore.user === null) return
+        this.selectedChild = this.userStore.user.children[0]
+        const ageCategory = this.getAgeGroupByAge(
+          this.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild?.learningClass
+        )
+        if (!ageCategory) return
+        const response = await this.competenceResolver.getByAgeCategory(ageCategory.value)
+        if (typeof response.message === 'string' || response.status !== 200) return
+        this.competencies = response.message
+      },
+      isSelected(competenceId: number) {
+        return this.selectedCompetencies
+          .find(row => row.childId === this.selectedChild?.id)?.competencies
+          .some(compId => compId === competenceId)
+      },
+      competenceAgeCategories(competence: CompetenceOutputDto) {
+        return competence.ageCategories.map(category => {
+          return this.ageGroups.find(group => group.value === category.ageCategory)?.label
+        }).join(", ")
+      },
+      async competenceExpert(competence: CompetenceOutputDto) {
+        const response = await this.userResolver.getById(competence.expertId)
+        if (typeof response.message === 'string' || response.status !== 200) return
+        this.expert = response.message
+      },
+      async competencePlatform(competence: CompetenceOutputDto) {
+        const response = await this.platformResolver.getByUserId(competence.userId)
+        if (typeof response.message === 'string' || response.status !== 200) return
+        this.platform = response.message
+      },
+      toggleCompetence(competence: CompetenceOutputDto) {
+        if (this.selectedChild === null) return
+        const childId = this.selectedChild.id
+        const selectedChildRow = this.selectedCompetencies.find(row => row.childId === childId)
+        const noSelectedChildCompetencies = [...this.selectedCompetencies
+          .filter(row => row.childId !== childId)]
+        if (!this.isSelected(competence.id) && selectedChildRow && selectedChildRow.competencies.length < 3) {
+          const competencies = selectedChildRow
+              ? selectedChildRow.competencies : []
+          noSelectedChildCompetencies.push({
+            childId: this.selectedChild.id,
+            competencies: [
+              ...competencies,
+              competence.id
+            ]
+          })
+        } else {
+          noSelectedChildCompetencies.push({
+            childId: this.selectedChild.id,
+            competencies: selectedChildRow
+              ? selectedChildRow.competencies.filter(competenceId => competenceId !== competence.id)
+              : []
+          })
+        }
+        this.selectedCompetencies = noSelectedChildCompetencies
+      },
 
-    saveSelection() {
-      if (this.selectedCompetencies.length === 0) {
-        return;
+      async showCompetenceDetails(competence: CompetenceOutputDto) {
+        if (this.selectedCompetence !== competence) {
+          await this.competenceExpert(competence)
+          await this.competencePlatform(competence)
+          this.selectedCompetence = competence;
+        }
+        this.showDetailsDialog = true;
+      },
+
+      saveSelection() {
+        if (this.selectedCompetencies.length === 0) {
+          return;
+        }
+      },
+      calculateAge(birthDate: string) {
+        const birth = new Date(birthDate.substring(0, 10));
+        const onDate = new Date(2026, 1, 14)
+
+        let age = onDate.getFullYear() - birth.getFullYear();
+        let monthDiff = onDate.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && onDate.getDate() < birth.getDate())) {
+          age--;
+        }
+        return age;
+      },
+      getAgeGroupByAge(age: number, learningClass: number) {
+        if (age === 7) {
+          return this.ageGroups
+            .find(group => learningClass > 0
+              ? group.value === AgeCategories.EARLY_SCHOOL
+              : group.value === AgeCategories.PRESCHOOL
+            )
+        }
+        this.ageGroups.forEach(group => {
+          const edges = group.label.split(" ")[0].split("-")
+          const min = parseInt(edges[0]);
+          const max = parseInt(edges[1]);
+          if (min <= age && age <= max) return group.label
+        })
+      },
+      async assignToCompetencies() {
+
       }
     },
-    calculateAge(birthDate: string) {
-      const birth = new Date(birthDate.substring(0, 10));
-      const onDate = new Date(2026, 1, 14)
-
-      let age = onDate.getFullYear() - birth.getFullYear();
-      let monthDiff = onDate.getMonth() - birth.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && onDate.getDate() < birth.getDate())) {
-        age--;
-      }
-      return age;
-    },
-    getAgeGroupByAge(age: number, learningClass: number) {
-      if (age === 7) {
-        return this.ageGroups
-          .find(group => learningClass > 0
-            ? group.value === AgeCategories.EARLY_SCHOOL
-            : group.value === AgeCategories.PRESCHOOL
-          )
-      }
-      this.ageGroups.forEach(group => {
-        const edges = group.label.split(" ")[0].split("-")
-        const min = parseInt(edges[0]);
-        const max = parseInt(edges[1]);
-        if (min <= age && age <= max) return group.label
-      })
-    }
-  },
 };
 </script>
 
@@ -329,6 +389,10 @@
   color: #6c757d;
   margin: 0 0 1rem 0;
   font-size: 1.1rem;
+}
+
+.save-btn {
+  margin-left: auto;
 }
 
 .selection-info {
@@ -399,6 +463,8 @@
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .competence-card:hover {
@@ -472,20 +538,14 @@
 }
 
 .age-range,
-.duration {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #495057;
-  font-size: 0.9rem;
-}
-
 .age-range i,
 .duration i {
   color: #ff9800;
 }
 
 .card-footer {
+  display: flex;
+  margin-top: auto;
   padding: 0 1.5rem 1.5rem 1.5rem;
 }
 
@@ -503,10 +563,6 @@
   display: flex;
   gap: 1.5rem;
   margin-bottom: 1.5rem;
-}
-
-.competence-image {
-  flex-shrink: 0;
 }
 
 .competence-image img {
@@ -548,21 +604,6 @@
   margin-bottom: 1rem;
 }
 
-.skills-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem 0;
-}
-
-.skills-list li {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f1f3f4;
-  color: #495057;
-}
-
-.skills-list li:last-child {
-  border-bottom: none;
-}
 
 .mentor-contacts {
   display: flex;
