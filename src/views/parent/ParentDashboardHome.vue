@@ -34,7 +34,7 @@
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ user.mobileNumber }}</span>
+              <span class="data-value">{{ formatMobileNumber(user.mobileNumber) }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
@@ -45,113 +45,107 @@
               <span class="data-value">{{ user.verified ? 'Подтверждён' : 'Не подтверждён' }}</span>
             </div>
           </div>
-
-<!--          <div class="data-section">-->
-<!--            <h4 class="section-title">-->
-<!--              Ребенок-->
-<!--            </h4>-->
-<!--            <div class="data-item">-->
-<!--              <span class="data-label">ФИО:</span>-->
-<!--              <span class="data-value">{{ childData.fullName }}</span>-->
-<!--            </div>-->
-<!--            <div class="data-item">-->
-<!--              <span class="data-label">Дата рождения:</span>-->
-<!--              <span class="data-value">{{ childData.birthDate }}</span>-->
-<!--            </div>-->
-<!--            <div class="data-item">-->
-<!--              <span class="data-label">Класс:</span>-->
-<!--              <span class="data-value">{{ childData.grade }}</span>-->
-<!--            </div>-->
-<!--          </div>-->
         </div>
       </div>
 
-      <!-- Выбор компетенций -->
+      <!-- Данные о детях -->
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-list" />
-            Компетенции
+            Список детей
           </h3>
         </div>
         <div class="card-content">
           <div
-            v-if="!hasSelectedCompetencies"
-            class="empty-state"
-          >
-            <i class="pi pi-exclamation-triangle empty-icon" />
-            <p class="empty-text">
-              Вы еще не выбрали компетенции
-            </p>
-            <Button
-              label="Выбрать компетенции"
-              icon="pi pi-plus"
-              class="p-button-primary"
-              @click="goToCompetencies"
-            />
-          </div>
-          <div
-            v-else
             class="competencies-preview"
           >
             <p class="preview-text">
-              Выбрано компетенций: {{ selectedCompetenciesCount }}/3
+              Всего детей: {{ user.children.length }}
             </p>
-
-            <div class="selected-competencies">
-              <div
-                v-for="competence in selectedCompetencies"
-                :key="competence.id"
-                class="competence-item"
-              >
-                <div class="competence-icon">
-                  <i :class="competence.icon" />
-                </div>
-                <div class="competence-info">
-                  <h4 class="competence-name">
-                    {{ competence.name }}
-                  </h4>
-                  <p class="competence-status">
-                    {{ competence.status }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="competencies-actions">
-              <Button
-                label="Мои компетенции"
-                icon="pi pi-star"
-                class="p-button-outlined"
-                @click="goToMyCompetencies"
-              />
-              <Button
-                label="Изменить"
-                icon="pi pi-pencil"
-                class="p-button-text"
-                @click="goToCompetencies"
-              />
-            </div>
+            <Button
+              label="Добавить ребёнка"
+              icon="pi pi-plus"
+              class="p-button-primary"
+              @click="showAddChildDialog = true"
+            />
           </div>
         </div>
       </div>
-
     </div>
+    <ChildrenList :children="user.children" />
+    <Dialog
+      v-model:visible="showAddChildDialog"
+      :header="
+        isEditing ? 'Редактировать ребёнка' : 'Добавить ребёнка'
+      "
+      :modal="true"
+      :style="{ width: '600px' }"
+    >
+      <form
+        class="child-form"
+        @submit.prevent=""
+      >
+        <AddChildForm
+          :model-value="childForm"
+          @update:model-value="(form) => childForm = form"
+        />
+
+        <Button
+          label="Добавить ребёнка"
+          icon="pi pi-plus"
+          class="p-button-primary"
+          type="submit"
+        />
+      </form>
+    </Dialog>
   </div>
 </template>
 
 <script lang="ts">
 import Button from "primevue/button";
 import { useUserStore } from '@/stores/userStore.ts';
+import ChildrenList from '@/components/ChildrenList.vue';
+import Dialog from 'primevue/dialog';
+import AddChildForm from '@/components/AddChildForm.vue';
 
 export default {
   name: "ParentDashboardHome",
   components: {
+    AddChildForm,
+    ChildrenList,
     Button,
+    Dialog,
   },
   data() {
     return {
-      userStore: useUserStore()
+      userStore: useUserStore(),
+      showAddChildDialog: false,
+      isEditing: false,
+
+      childForm: {
+        fullName: "",
+        birthDate: "",
+        birthCertificate: null as null | File,
+        snilsNumber: "",
+        snilsScan: null as null | File,
+        schoolName: "",
+        grade: null as number | null,
+        platform: null as string | null,
+        schoolCertificate: null as null | File,
+        platformCertificate: null as null | File,
+      },
+
+      errors: {
+        platformCertificate: "",
+        platform: "",
+        snilsScan: "",
+        snilsNumber: "",
+        grade: "",
+        birthCertificate: "",
+        schoolCertificate: "",
+        childFullName: ""
+      }
     };
   },
   computed: {
@@ -162,6 +156,15 @@ export default {
   async beforeMount() {
 
   },
+  methods: {
+    formatMobileNumber(number: string) {
+      return `${number.substring(0, 2)}
+              (${number.substring(2, 5)})
+              ${number.substring(5, 8)}
+              ${number.substring(8, 10)}
+              -${number.substring(10, 12)}`;
+    },
+  }
 };
 </script>
 

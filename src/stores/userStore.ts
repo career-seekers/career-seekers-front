@@ -41,6 +41,8 @@ export const useUserStore = defineStore("user", {
         expertDocuments: [],
         tutorDocuments: [],
         mentorDocuments: [],
+        children: userData.children,
+        menteeChildren: userData.menteeChildren,
       };
       
       const docsToVerifyStr = localStorage.getItem("dataToVerify")

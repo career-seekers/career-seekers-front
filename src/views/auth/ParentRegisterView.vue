@@ -233,8 +233,8 @@
             <div class="field">
               <div class="flex align-items-center">
                 <Checkbox
-                  id="isParentMentor"
                   v-model="parentForm.isParentMentor"
+                  input-id="isParentMentor"
                   :binary="true"
                 />
                 <label
@@ -313,234 +313,10 @@
             <h3 class="step-title">
               Данные ребенка
             </h3>
-
-            <div class="field">
-              <label
-                for="childFullName"
-                class="field-label"
-              >ФИО ребенка *</label>
-              <InputText
-                id="childFullName"
-                v-model="childForm.fullName"
-                placeholder="Введите полное имя ребенка, двойное имя вводите через '-'"
-                class="w-full"
-                :class="{ 'p-invalid': errors.childFullName }"
-              />
-              <small
-                v-if="errors.childFullName"
-                class="p-error"
-              >{{
-                errors.childFullName
-              }}</small>
-            </div>
-
-            <div class="field">
-              <label
-                for="childBirthDate"
-                class="field-label"
-              >Дата рождения *</label>
-              <InputMask
-                id="childBirthDate"
-                v-model="childForm.birthDate"
-                mask="99.99.9999"
-                placeholder="дд.мм.гггг"
-                class="w-full"
-                :class="{ 'p-invalid': errors.childBirthDate }"
-              />
-              <small
-                v-if="errors.childBirthDate"
-                class="p-error"
-              >{{
-                errors.childBirthDate
-              }}</small>
-            </div>
-
-            <div class="field">
-              <label
-                for="birthCertificate"
-                class="field-label"
-              >Скан свидетельства о рождении *</label>
-              <FileUpload
-                id="birthCertificate"
-                mode="basic"
-                accept=".pdf,.jpg,.jpeg,.png"
-                :max-file-size="10000000"
-                choose-label="Выберите файл"
-                class="w-full"
-                :class="{ 'p-invalid': errors.birthCertificate }"
-                @select="onBirthCertificateSelect"
-                @remove="onBirthCertificateRemove"
-              />
-              <small
-                v-if="errors.birthCertificate"
-                class="p-error"
-              >{{
-                errors.birthCertificate
-              }}</small>
-              <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
-            </div>
-
-            <div class="field">
-              <label
-                for="snilsNumber"
-                class="field-label"
-              >Номер СНИЛС *</label>
-              <InputMask
-                id="snilsNumber"
-                v-model="childForm.snilsNumber"
-                mask="999-999-999 99"
-                placeholder="000-000-000 00"
-                class="w-full"
-                :class="{ 'p-invalid': errors.snilsNumber }"
-              />
-              <small
-                v-if="errors.snilsNumber"
-                class="p-error"
-              >{{
-                errors.snilsNumber
-              }}</small>
-            </div>
-
-            <div class="field">
-              <label
-                for="snilsScan"
-                class="field-label"
-              >Скан СНИЛС *</label>
-              <FileUpload
-                id="snilsScan"
-                mode="basic"
-                accept=".pdf,.jpg,.jpeg,.png"
-                :max-file-size="10000000"
-                choose-label="Выберите файл"
-                class="w-full"
-                :class="{ 'p-invalid': errors.snilsScan }"
-                @select="onSnilsScanSelect"
-                @remove="onSnilsScanRemove"
-              />
-              <small
-                v-if="errors.snilsScan"
-                class="p-error"
-              >{{
-                errors.snilsScan
-              }}</small>
-              <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
-            </div>
-
-            <div class="field">
-              <label
-                for="schoolName"
-                class="field-label"
-              >Название ОУ *</label>
-              <InputText
-                id="schoolName"
-                v-model="childForm.schoolName"
-                placeholder="Введите полное название учреждения"
-                class="w-full"
-                :class="{ 'p-invalid': errors.schoolName }"
-              />
-              <small
-                v-if="errors.schoolName"
-                class="p-error"
-              >{{
-                errors.schoolName
-              }}</small>
-            </div>
-
-            <div class="field">
-              <label
-                for="grade"
-                class="field-label"
-              >Класс обучения *</label>
-              <Dropdown
-                id="grade"
-                v-model="childForm.grade"
-                :options="gradeOptions"
-                placeholder="Выберите класс"
-                class="w-full"
-                :class="{ 'p-invalid': errors.grade }"
-                option-label="label"
-                option-value="value"
-              />
-              <small
-                v-if="errors.grade"
-                class="p-error"
-              >{{
-                errors.grade
-              }}</small>
-            </div>
-
-            <div class="field">
-              <label
-                for="schoolCertificate"
-                class="field-label"
-              >Скан справки из ОУ *</label>
-              <FileUpload
-                id="schoolCertificate"
-                mode="basic"
-                accept=".pdf,.jpg,.jpeg,.png"
-                :max-file-size="10000000"
-                choose-label="Выберите файл"
-                class="w-full"
-                :class="{ 'p-invalid': errors.schoolCertificate }"
-                @select="onSchoolCertificateSelect"
-                @remove="onSchoolCertificateRemove"
-              />
-              <small
-                v-if="errors.schoolCertificate"
-                class="p-error"
-              >{{
-                errors.schoolCertificate
-              }}</small>
-              <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
-            </div>
-
-            <div class="field">
-              <label
-                for="platform"
-                class="field-label"
-              >Площадка подготовки *</label>
-              <Dropdown
-                id="platform"
-                v-model="childForm.platform"
-                :options="platformOptions"
-                placeholder="Выберите площадку"
-                class="w-full"
-                :class="{ 'p-invalid': errors.platform }"
-                option-label="label"
-                option-value="value"
-              />
-              <small
-                v-if="errors.platform"
-                class="p-error"
-              >{{
-                errors.platform
-              }}</small>
-            </div>
-
-            <div class="field">
-              <label
-                for="platformCertificate"
-                class="field-label"
-              >Скан справки из площадки подготовки *</label>
-              <FileUpload
-                id="platformCertificate"
-                mode="basic"
-                accept=".pdf,.jpg,.jpeg,.png"
-                :max-file-size="10000000"
-                choose-label="Выберите файл"
-                class="w-full"
-                :class="{ 'p-invalid': errors.platformCertificate }"
-                @select="onPlatformCertificateSelect"
-                @remove="onPlatformCertificateRemove"
-              />
-              <small
-                v-if="errors.platformCertificate"
-                class="p-error"
-              >{{
-                errors.platformCertificate
-              }}</small>
-              <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
-            </div>
+            <AddChildForm
+              :model-value="childForm"
+              @update:model-value="(form) => childForm = form"
+            />
           </div>
 
           <!-- Кнопки навигации -->
@@ -698,20 +474,20 @@ import {
 } from '@/state/UserState.types';
 import { FileManager } from "@/utils/FileManager";
 import VuePdfEmbed from "vue-pdf-embed";
+import AddChildForm from '@/components/AddChildForm.vue';
 
 export default {
   name: "ParentRegisterView",
   components: {
+    AddChildForm,
     VuePdfEmbed,
     ToastPopup,
     InputText,
     InputMask,
     Password,
     Button,
-    FileUpload,
     Checkbox,
     Dialog,
-    Dropdown,
   },
   data() {
     return {
