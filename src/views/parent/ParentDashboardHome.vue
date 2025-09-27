@@ -1,8 +1,11 @@
 <template>
-  <div class="dashboard-home">
+  <div
+    v-if="user !== null"
+    class="dashboard-home"
+  >
     <div class="page-header">
       <h1 class="page-title">
-        Добро пожаловать, {{ parentName }}!
+        Добро пожаловать, {{ user.firstName }}!
       </h1>
       <p class="page-subtitle">
         Управляйте участием вашего ребенка в чемпионате
@@ -25,35 +28,41 @@
             </h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
-              <span class="data-value">{{ parentData.fullName }}</span>
+              <span class="data-value">
+                {{ `${user.lastName} ${user.firstName} ${user.patronymic}` }}
+              </span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ parentData.phone }}</span>
+              <span class="data-value">{{ user.mobileNumber }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ parentData.email }}</span>
+              <span class="data-value">{{ user.email }}</span>
+            </div>
+            <div class="data-item">
+              <span class="data-label">Статус:</span>
+              <span class="data-value">{{ user.verified ? 'Подтверждён' : 'Не подтверждён' }}</span>
             </div>
           </div>
 
-          <div class="data-section">
-            <h4 class="section-title">
-              Ребенок
-            </h4>
-            <div class="data-item">
-              <span class="data-label">ФИО:</span>
-              <span class="data-value">{{ childData.fullName }}</span>
-            </div>
-            <div class="data-item">
-              <span class="data-label">Дата рождения:</span>
-              <span class="data-value">{{ childData.birthDate }}</span>
-            </div>
-            <div class="data-item">
-              <span class="data-label">Класс:</span>
-              <span class="data-value">{{ childData.grade }}</span>
-            </div>
-          </div>
+<!--          <div class="data-section">-->
+<!--            <h4 class="section-title">-->
+<!--              Ребенок-->
+<!--            </h4>-->
+<!--            <div class="data-item">-->
+<!--              <span class="data-label">ФИО:</span>-->
+<!--              <span class="data-value">{{ childData.fullName }}</span>-->
+<!--            </div>-->
+<!--            <div class="data-item">-->
+<!--              <span class="data-label">Дата рождения:</span>-->
+<!--              <span class="data-value">{{ childData.birthDate }}</span>-->
+<!--            </div>-->
+<!--            <div class="data-item">-->
+<!--              <span class="data-label">Класс:</span>-->
+<!--              <span class="data-value">{{ childData.grade }}</span>-->
+<!--            </div>-->
+<!--          </div>-->
         </div>
       </div>
 
@@ -127,81 +136,13 @@
         </div>
       </div>
 
-      <!-- Информация о наставнике -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-users" />
-            Наставник
-          </h3>
-        </div>
-        <div class="card-content">
-          <div
-            v-if="mentorData"
-            class="mentor-info"
-          >
-            <div class="mentor-avatar">
-              <i class="pi pi-user" />
-            </div>
-            <div class="mentor-details">
-              <h4 class="mentor-name">
-                {{ mentorData.name }}
-              </h4>
-              <div class="mentor-contact">
-                <div class="contact-item">
-                  <i class="pi pi-envelope" />
-                  <span>{{ mentorData.email }}</span>
-                </div>
-                <div class="contact-item">
-                  <i class="pi pi-phone" />
-                  <span>{{ mentorData.phone }}</span>
-                </div>
-                <div
-                  v-if="mentorData.telegram"
-                  class="contact-item"
-                >
-                  <i class="pi pi-send" />
-                  <span>{{ mentorData.telegram }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            v-else
-            class="empty-state"
-          >
-            <i class="pi pi-user-plus empty-icon" />
-            <p class="empty-text">
-              Наставник не назначен
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Достижения -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-trophy" />
-            Достижения
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="empty-state">
-            <i class="pi pi-clock empty-icon" />
-            <p class="empty-text">
-              Раздел в разработке
-            </p>
-            <small class="empty-subtitle">Скоро здесь будут отображаться достижения вашего ребенка</small>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Button from "primevue/button";
+import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "ParentDashboardHome",
@@ -210,52 +151,16 @@ export default {
   },
   data() {
     return {
-      parentData: {
-        fullName: "Иванова Анна Петровна",
-        phone: "+7 (999) 123-45-67",
-        email: "anna.ivanova@email.com",
-      },
-      childData: {
-        fullName: "Иванов Петр Антонович",
-        birthDate: "15.03.2010",
-        grade: "8 класс",
-      },
-      mentorData: {
-        name: "Смирнов Алексей Владимирович",
-        email: "a.smirnov@mentor.ru",
-        phone: "+7 (999) 987-65-43",
-        telegram: "@alex_mentor",
-      },
-      selectedCompetenciesCount: 2,
-      hasSelectedCompetencies: true,
-      selectedCompetencies: [
-        {
-          id: 1,
-          name: "Веб-дизайн и разработка",
-          icon: "pi pi-desktop",
-          status: "Участник",
-        },
-        {
-          id: 2,
-          name: "3D-моделирование",
-          icon: "pi pi-box",
-          status: "Призер",
-        },
-      ],
+      userStore: useUserStore()
     };
   },
   computed: {
-    parentName() {
-      return this.parentData.fullName.split(" ")[1] || "Родитель";
+    user() {
+      return this.userStore.user
     },
   },
-  methods: {
-    goToCompetencies() {
-      this.$router.push("/parent/competencies");
-    },
-    goToMyCompetencies() {
-      this.$router.push("/parent/my-competencies");
-    },
+  async beforeMount() {
+
   },
 };
 </script>
