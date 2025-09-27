@@ -37,17 +37,6 @@
               Данные ребенка
             </div>
           </div>
-          <div
-            class="step"
-            :class="{ active: currentStep >= 3, completed: currentStep > 3 }"
-          >
-            <div class="step-number">
-              3
-            </div>
-            <div class="step-label">
-              Выбор наставника
-            </div>
-          </div>
         </div>
 
         <div class="divider" />
@@ -134,7 +123,7 @@
                 class="field-label"
               >Ссылка на Telegram *</label>
               <InputText
-                id="relationship"
+                id="telegramLink"
                 v-model="parentForm.telegramLink"
                 placeholder="Например, @telegram_username"
                 class="w-full"
@@ -193,6 +182,71 @@
             </div>
 
             <div class="field">
+              <label
+                for="password"
+                class="field-label"
+              >Пароль *</label>
+              <Password
+                id="password"
+                v-model="parentForm.password"
+                placeholder="Введите пароль"
+                class="w-full"
+                :class="{ 'p-invalid': errors.password }"
+                :feedback="true"
+                toggle-mask
+                weak-label="Слабый"
+                medium-label="Средний"
+                strong-label="Надежный"
+                prompt-label="Введите пароль"
+                @blur="validatePassword"
+              />
+              <small
+                v-if="errors.password"
+                class="p-error"
+              >{{
+                errors.password
+              }}</small>
+            </div>
+
+            <div class="field">
+              <label
+                for="confirmPassword"
+                class="field-label"
+              >Подтверждение пароля *</label>
+              <Password
+                id="confirmPassword"
+                v-model="parentForm.confirmPassword"
+                placeholder="Подтвердите пароль"
+                class="w-full"
+                :class="{ 'p-invalid': errors.confirmPassword }"
+                :feedback="false"
+                toggle-mask
+              />
+              <small
+                v-if="errors.confirmPassword"
+                class="p-error"
+              >{{
+                errors.confirmPassword
+              }}</small>
+            </div>
+
+            <div class="field">
+              <div class="flex align-items-center">
+                <Checkbox
+                  id="isParentMentor"
+                  v-model="parentForm.isParentMentor"
+                  :binary="true"
+                />
+                <label
+                  for="isParentMentor"
+                  class="ml-2 agreement-label"
+                >
+                  Я (родитель) являюсь наставником
+                </label>
+              </div>
+            </div>
+
+            <div class="field">
               <div class="flex align-items-center">
                 <Checkbox
                   v-model="parentForm.consent"
@@ -219,6 +273,34 @@
                 class="p-error"
               >{{
                 errors.consent
+              }}</small>
+            </div>
+
+            <div class="field">
+              <div class="flex align-items-center">
+                <Checkbox
+                  v-model="parentForm.agreement"
+                  input-id="agreement"
+                  :binary="true"
+                  :class="{ 'p-invalid': errors.agreement }"
+                />
+                <label
+                  for="agreement"
+                  class="ml-2 agreement-label"
+                >
+                  Я согласен с
+                  <a
+                    href="#"
+                    class="link"
+                    @click.prevent="showPolitics"
+                  >политикой использования сервиса</a>
+                </label>
+              </div>
+              <small
+                v-if="errors.agreement"
+                class="p-error"
+              >{{
+                errors.agreement
               }}</small>
             </div>
           </div>
@@ -461,135 +543,6 @@
             </div>
           </div>
 
-          <!-- Шаг 3: Выбор наставника -->
-          <div
-            v-if="currentStep === 3"
-            class="step-content"
-          >
-            <h3 class="step-title">
-              Выбор наставника
-            </h3>
-
-            <div class="field">
-              <label
-                for="mentor"
-                class="field-label"
-              >Выберите наставника *</label>
-              <Dropdown
-                id="mentor"
-                v-model="mentorForm.mentor"
-                :options="mentorOptions"
-                placeholder="Выберите наставника"
-                class="w-full"
-                :class="{ 'p-invalid': errors.mentor }"
-                option-label="name"
-                option-value="id"
-                :disabled="mentorForm.isParentMentor"
-              />
-              <small
-                v-if="errors.mentor"
-                class="p-error"
-              >{{
-                errors.mentor
-              }}</small>
-            </div>
-
-            <div class="field">
-              <div class="flex align-items-center">
-                <Checkbox
-                  id="isParentMentor"
-                  v-model="mentorForm.isParentMentor"
-                  :binary="true"
-                  class="mr-2"
-                  @change="onParentMentorChange"
-                />
-                <label
-                  for="isParentMentor"
-                  class="agreement-label"
-                >
-                  Я (родитель) являюсь наставником
-                </label>
-              </div>
-            </div>
-
-            <div class="field">
-              <label
-                for="password"
-                class="field-label"
-              >Пароль *</label>
-              <Password
-                id="password"
-                v-model="mentorForm.password"
-                placeholder="Введите пароль"
-                class="w-full"
-                :class="{ 'p-invalid': errors.password }"
-                :feedback="true"
-                toggle-mask
-                weak-label="Слабый"
-                medium-label="Средний"
-                strong-label="Надежный"
-                prompt-label="Введите пароль"
-                @blur="validatePassword"
-              />
-              <small
-                v-if="errors.password"
-                class="p-error"
-              >{{
-                errors.password
-              }}</small>
-            </div>
-
-            <div class="field">
-              <label
-                for="confirmPassword"
-                class="field-label"
-              >Подтверждение пароля *</label>
-              <Password
-                id="confirmPassword"
-                v-model="mentorForm.confirmPassword"
-                placeholder="Подтвердите пароль"
-                class="w-full"
-                :class="{ 'p-invalid': errors.confirmPassword }"
-                :feedback="false"
-                toggle-mask
-              />
-              <small
-                v-if="errors.confirmPassword"
-                class="p-error"
-              >{{
-                errors.confirmPassword
-              }}</small>
-            </div>
-
-            <div class="field">
-              <div class="flex align-items-center">
-                <Checkbox
-                  v-model="parentForm.agreement"
-                  input-id="agreement"
-                  :binary="true"
-                  :class="{ 'p-invalid': errors.agreement }"
-                />
-                <label
-                  for="agreement"
-                  class="ml-2 agreement-label"
-                >
-                  Я согласен с
-                  <a
-                    href="#"
-                    class="link"
-                    @click.prevent="showPolitics"
-                  >политикой использования сервиса</a>
-                </label>
-              </div>
-              <small
-                v-if="errors.agreement"
-                class="p-error"
-              >{{
-                errors.agreement
-              }}</small>
-            </div>
-          </div>
-
           <!-- Кнопки навигации -->
           <div class="step-navigation">
             <Button
@@ -600,14 +553,14 @@
               @click="previousStep"
             />
             <Button
-              v-if="currentStep < 3"
+              v-if="currentStep < 2"
               type="button"
               label="Далее"
               class="p-button-primary"
               @click="nextStep"
             />
             <Button
-              v-if="currentStep === 3"
+              v-if="currentStep === 2"
               type="submit"
               label="Зарегистрироваться"
               class="p-button-primary"
@@ -774,8 +727,11 @@ export default {
         telegramLink: "",
         phone: "",
         email: "",
+        password: "",
+        confirmPassword: "",
+        isParentMentor: false,
         consent: false,
-        agreement: "",
+        agreement: false,
         childConsentFile: new File(["Содержимое файла"], "myfile.txt", {
           type: "text/plain",
         }),
@@ -792,14 +748,6 @@ export default {
         platform: null as string | null,
         schoolCertificate: null as null | File,
         platformCertificate: null as null | File,
-      },
-
-      mentorForm: {
-        mentor: null,
-        password: "",
-        confirmPassword: "",
-        agreement: false,
-        isParentMentor: false,
       },
 
       errors: {
@@ -850,12 +798,6 @@ export default {
         { label: "Площадка 2", value: "platform2" },
         { label: "Площадка 3", value: "platform3" },
       ],
-
-      mentorOptions: [
-        { id: 1, name: "Иванов Иван Иванович" },
-        { id: 2, name: "Петрова Мария Сергеевна" },
-        { id: 3, name: "Сидоров Алексей Петрович" },
-      ],
     };
   },
   computed: {
@@ -881,14 +823,14 @@ export default {
       }
     },
     validatePassword() {
-      if (!this.mentorForm.password) {
+      if (!this.parentForm.password) {
         this.errors.password = "Пароль обязателен";
         return;
-      } else if (this.mentorForm.password.length < 8) {
+      } else if (this.parentForm.password.length < 8) {
         this.errors.password = "Пароль должен содержать минимум 8 символов";
         return;
       } else if (
-        !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.mentorForm.password)
+        !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(this.parentForm.password)
       ) {
         this.errors.password =
           "Пароль должен содержать заглавные и строчные буквы, а также цифры";
@@ -982,6 +924,31 @@ export default {
           isValid = false;
         }
 
+        if (!this.parentForm.password) {
+          this.errors.password = "Пароль обязателен";
+          isValid = false;
+        } else if (this.parentForm.password.length < 8) {
+          this.errors.password = "Пароль должен содержать минимум 8 символов";
+          isValid = false;
+        }
+
+        if (!this.parentForm.confirmPassword) {
+          this.errors.confirmPassword = "Подтверждение пароля обязательно";
+          isValid = false;
+        } else if (
+          this.parentForm.password !== this.parentForm.confirmPassword
+        ) {
+          this.errors.confirmPassword = "Пароли не совпадают";
+          isValid = false;
+        }
+
+        // Проверка согласия с условиями использования
+        if (!this.parentForm.agreement) {
+          this.errors.agreement =
+            "Необходимо согласиться с политикой использования сервиса";
+          isValid = false;
+        }
+
         // Проверка согласия на обработку данных
         if (!this.parentForm.consent) {
           this.errors.consent =
@@ -1044,40 +1011,6 @@ export default {
         if (!this.childForm.platformCertificate) {
           this.errors.platformCertificate =
             "Необходимо загрузить справку из площадки подготовки";
-          isValid = false;
-        }
-      }
-
-      if (step === 3) {
-        // Валидация выбора наставника и пароля
-        if (!this.mentorForm.isParentMentor && !this.mentorForm.mentor) {
-          this.errors.mentor =
-            "Выберите наставника или отметьте, что вы являетесь наставником";
-          isValid = false;
-        }
-
-        if (!this.mentorForm.password) {
-          this.errors.password = "Пароль обязателен";
-          isValid = false;
-        } else if (this.mentorForm.password.length < 8) {
-          this.errors.password = "Пароль должен содержать минимум 8 символов";
-          isValid = false;
-        }
-
-        if (!this.mentorForm.confirmPassword) {
-          this.errors.confirmPassword = "Подтверждение пароля обязательно";
-          isValid = false;
-        } else if (
-          this.mentorForm.password !== this.mentorForm.confirmPassword
-        ) {
-          this.errors.confirmPassword = "Пароли не совпадают";
-          isValid = false;
-        }
-
-        // Проверка согласия с условиями использования
-        if (!this.parentForm.agreement) {
-          this.errors.agreement =
-            "Необходимо согласиться с политикой использования сервиса";
           isValid = false;
         }
       }
@@ -1209,15 +1142,15 @@ export default {
               dateOfBirth: this.formatBirthDate(this.parentForm.birthDate),
               email: this.parentForm.email.toLowerCase(),
               mobileNumber: this.mobileNumberFormatted,
-              password: this.mentorForm.password,
+              password: this.parentForm.password,
               role: Roles.USER,
               uuid: "",
-              mentorEqualsUser: this.mentorForm.isParentMentor,
+              mentorEqualsUser: this.parentForm.isParentMentor,
               childLastName: this.childForm.fullName.split(" ")[0],
               childFirstName: this.childForm.fullName.split(" ")[1],
               childPatronymic: this.childForm.fullName.split(" ")[2],
               childDateOfBirth: this.formatBirthDate(this.childForm.birthDate),
-              mentorId: this.mentorForm.isParentMentor ? null : 0,
+              mentorId: null
             },
             extra: {
               snilsNumber: this.snilsFormatted,
@@ -1269,14 +1202,6 @@ export default {
 
     showPolitics() {
       this.showPoliticsDialog = true;
-    },
-
-    onParentMentorChange() {
-      // Если родитель является наставником, очищаем выбор наставника
-      if (this.mentorForm.isParentMentor) {
-        this.mentorForm.mentor = null;
-        this.errors.mentor = "";
-      }
     },
   },
 };

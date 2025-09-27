@@ -147,6 +147,7 @@ import { v4 as generateUuidV4 } from "uuid";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { useAuthStore } from '@/stores/authStore.ts';
 import router from '@/router';
+import { Roles } from '@/state/UserState.types.ts';
 
 export default {
   name: "LoginView",
@@ -232,7 +233,8 @@ export default {
         authStore.getTokens()
         const userData = await authStore.loadByTokens();
         if (userData !== null)
-          await router.push(`/${userData.role.toLowerCase()}/dashboard`)
+          if (userData.role === Roles.USER) await router.push(`/parent/dashboard`)
+          else await router.push(`/${userData.role.toLowerCase()}/dashboard`)
       }
       this.isLoading = false;
     },
