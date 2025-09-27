@@ -160,13 +160,13 @@
                 mask="+7 (999) 999-99-99"
                 placeholder="+7 (___) ___-__-__"
                 class="w-full"
-                :class="{ 'p-invalid': errors.phone }"
+                :class="{ 'p-invalid': errors.parentPhone }"
               />
               <small
-                v-if="errors.phone"
+                v-if="errors.parentPhone"
                 class="p-error"
               >{{
-                errors.phone
+                errors.parentPhone
               }}</small>
             </div>
 
@@ -181,14 +181,14 @@
                 type="email"
                 placeholder="example@email.com"
                 class="w-full"
-                :class="{ 'p-invalid': errors.email }"
+                :class="{ 'p-invalid': errors.parentEmail }"
                 @blur="validateEmail"
               />
               <small
-                v-if="errors.email"
+                v-if="errors.parentEmail"
                 class="p-error"
               >{{
-                errors.email
+                errors.parentEmail
               }}</small>
             </div>
 

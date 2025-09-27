@@ -65,7 +65,6 @@ const routes = [
     path: "/register/parent",
     name: "parent-register",
     component: ParentRegisterView,
-    meta: { blocked: true },
   },
   {
     path: "/register/tutor",
@@ -81,7 +80,6 @@ const routes = [
     path: "/parent",
     component: DashboardWrapper,
     meta: {
-      blocked: true,
       allowedRole: Roles.USER
     },
     children: [
