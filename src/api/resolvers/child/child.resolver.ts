@@ -30,4 +30,16 @@ export class ChildResolver {
       this.token ? this.token : undefined,
     )
   }
+
+  public async deleteById(id: number) {
+    return this.apiResolver.request<
+      null,
+      CommonOutputDto<string>
+    >(
+      id.toString(),
+      "DELETE",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
 }

@@ -56,10 +56,7 @@ export const useUserStore = defineStore("user", {
         })
         if (response.status === 200) localStorage.removeItem("telegramLink");
       }
-      if (userData.children.length === 0) {
-        const response = await new ChildResolver().getByUserId(this.user.id);
-        if (response.status === 200 && typeof response.message !== "string") this.user.children = response.message
-      }
+      if (userData.children.length === 0) await this.fillChildren()
     },
     async fillDocuments(docsToVerifyStr: string) {
       const fileManager = new FileManager()
@@ -168,5 +165,11 @@ export const useUserStore = defineStore("user", {
         }
       }
     },
+    async fillChildren() {
+      if (this.user !== null) {
+        const response = await new ChildResolver().getByUserId(this.user.id);
+        if (response.status === 200 && typeof response.message !== "string") this.user.children = response.message
+      }
+    }
   }
 })

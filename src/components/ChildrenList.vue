@@ -5,6 +5,8 @@
   import Button from 'primevue/button';
   import Dialog from 'primevue/dialog';
   import { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
+  import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
+  import { useGradeOptions } from '../shared/UseGradeOptions.ts';
 
   export default {
     name: 'ChildrenList',
@@ -18,15 +20,24 @@
         required: true,
       }
     },
+    emits: ['update:children-list'],
     data() {
       return {
-        ageGroups: useAgeGroups
+        childResolver: new ChildResolver(),
+        ageGroups: useAgeGroups,
+        gradeOptions: useGradeOptions
       }
     },
     methods: {
+      calculateGrade(child: ChildOutputDto) {
+        return this.gradeOptions.find(grade => grade.value === child.childDocuments?.learningClass)?.label
+      },
       formatDateOfBirth(birthDate: string) {
         const parts = birthDate.split("-");
         return `${parts[2]}.${parts[1]}.${parts[0]}`;
+      },
+      formatSnils(snils: string) {
+        return `${snils.substring(0, 3)}-${snils.substring(3, 6)}-${snils.substring(6, 9)} ${snils.substring(9, 11)}`;
       },
       calculateAge(birthDate: string) {
         const birth = new Date(birthDate.substring(0, 10));
@@ -50,13 +61,21 @@
             ? group.label
             : "-"
         }
-        this.ageGroups.forEach(group => {
+        const group = this.ageGroups.find(group => {
           const edges = group.label.split(" ")[0].split("-")
           const min = parseInt(edges[0]);
           const max = parseInt(edges[1]);
-          if (min <= age && age <= max) return group.label
+          if (min <= age && age <= max) {
+            return group.label
+          }
         })
-        return "-"
+        return group ? group.label : "-"
+      },
+      async removeChild(child: ChildOutputDto) {
+        if (confirm(`Удалить ребёнка "${child.firstName}"`)) {
+          const response = await this.childResolver.deleteById(child.id)
+          if (response.status === 200) this.$emit('update:children-list');
+        }
       }
     }
   };
@@ -102,6 +121,7 @@
             icon="pi pi-trash"
             style="background: white"
             class="p-button-text p-button-sm p-button-danger"
+            @click="removeChild(child)"
           />
         </div>
       </div>
@@ -113,9 +133,31 @@
             <span class="detail-value">{{ formatDateOfBirth(child.dateOfBirth) }}</span>
           </div>
           <div class="detail-item">
+            <span class="detail-label">СНИЛС:</span>
+            <span class="detail-value">{{ formatSnils(child.childDocuments?.snilsNumber) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Класс обучения:</span>
+            <span class="detail-value">
+              {{ calculateGrade(child) }}
+            </span>
+          </div>
+          <div class="detail-item">
             <span class="detail-label">Возрастная группа:</span>
             <span class="detail-value">
-              {{ getAgeGroupByAge(calculateAge(child.dateOfBirth), child.childDocuments.learningClass) }}
+              {{ getAgeGroupByAge(calculateAge(child.dateOfBirth), child.childDocuments?.learningClass) }}
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Образовательное учреждение:</span>
+            <span class="detail-value">
+              {{ child.childDocuments?.studyingPlace }}
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Площадка подготовки:</span>
+            <span class="detail-value">
+              {{ child.childDocuments?.trainingGround }}
             </span>
           </div>
         </div>
@@ -164,7 +206,7 @@
 
 <style scoped>
   .children-grid-header {
-    margin: 2rem 0;
+    margin: 2rem 0 1rem 0;
   }
 
   .children-grid-title {

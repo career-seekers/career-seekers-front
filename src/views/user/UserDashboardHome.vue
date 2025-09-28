@@ -73,7 +73,10 @@
         </div>
       </div>
     </div>
-    <ChildrenList :children="user.children" />
+    <ChildrenList
+      :children="user.children"
+      @update:children-list="userStore.fillChildren"
+    />
     <Dialog
       v-model:visible="showAddChildDialog"
       :header="
@@ -84,7 +87,7 @@
     >
       <form
         class="child-form"
-        @submit.prevent=""
+        @submit.prevent="addChild"
       >
         <AddChildForm
           :model-child-form="childForm"
@@ -92,7 +95,6 @@
           @update:model-child-form="(form) => childForm = form"
           @update:model-child-form-errors="(formErrors) => errors = formErrors"
         />
-
         <Button
           label="Добавить ребёнка"
           icon="pi pi-plus"
@@ -110,6 +112,8 @@ import { useUserStore } from '@/stores/userStore.ts';
 import ChildrenList from '@/components/ChildrenList.vue';
 import Dialog from 'primevue/dialog';
 import AddChildForm, { type ChildFormErrors, type ChildFormFields } from '@/components/AddChildForm.vue';
+import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-documents.resolver.ts';
+import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
 
 export default {
   name: "UserDashboardHome",
@@ -121,6 +125,8 @@ export default {
   },
   data() {
     return {
+      childResolver: new ChildResolver(),
+      childDocumentsResolver: new ChildDocumentsResolver(),
       userStore: useUserStore(),
       showAddChildDialog: false,
       isEditing: false,
@@ -158,10 +164,13 @@ export default {
       return this.userStore.user
     },
   },
-  async beforeMount() {
-
-  },
   methods: {
+    formatBirthDate(birthDate: string) {
+      const [day, month, year] = birthDate.split('.').map(Number);
+      const date = new Date(Date.UTC(year, month - 1, day));
+
+      return date.toISOString();
+    },
     formatMobileNumber(number: string) {
       return `${number.substring(0, 2)}
               (${number.substring(2, 5)})
@@ -169,6 +178,114 @@ export default {
               ${number.substring(8, 10)}
               -${number.substring(10, 12)}`;
     },
+    formatSnils(number: string) {
+      return [
+        number.substring(0, 3),
+        number.substring(4, 7),
+        number.substring(8, 11),
+        number.substring(12, 14)
+      ].join('')
+    },
+    validateForm() {
+      let isValid = true
+      // Валидация данных ребенка
+      if (!this.childForm.fullName.trim()) {
+        this.errors.fullName = "ФИО ребенка обязательно";
+        isValid = false;
+      }
+
+      if (!this.childForm.birthDate) {
+        this.errors.birthDate = "Дата рождения обязательна";
+        isValid = false;
+      } else if (!/^\d{2}\.\d{2}\.\d{4}$/.test(this.childForm.birthDate)) {
+        this.errors.birthDate = "Введите дату в формате дд.мм.гггг";
+        isValid = false;
+      }
+
+      if (!this.childForm.birthCertificate) {
+        this.errors.birthCertificate =
+          "Необходимо загрузить скан свидетельства о рождении";
+        isValid = false;
+      }
+
+      if (!this.childForm.snilsNumber) {
+        this.errors.snilsNumber = "Номер СНИЛС обязателен";
+        isValid = false;
+      }
+
+      if (!this.childForm.snilsScan) {
+        this.errors.snilsScan = "Необходимо загрузить скан СНИЛС";
+        isValid = false;
+      }
+
+      if (!this.childForm.schoolName) {
+        this.errors.schoolName = "Название учреждения обязательно";
+        isValid = false;
+      }
+
+      if (this.childForm.grade === null) {
+        this.errors.grade = "Класс обучения обязателен";
+        isValid = false;
+      }
+
+      if (!this.childForm.platform) {
+        this.errors.platform = "Выберите площадку подготовки";
+        isValid = false;
+      }
+
+      if (!this.childForm.schoolCertificate) {
+        this.errors.schoolCertificate = "Необходимо загрузить справку из ОУ";
+        isValid = false;
+      }
+
+      if (!this.childForm.platformCertificate) {
+        this.errors.platformCertificate =
+          "Необходимо загрузить справку из площадки подготовки";
+        isValid = false;
+      }
+
+      if (!this.childForm.childConsentFile) {
+        this.errors.childConsentFile =
+          "Необходимо загрузить согласие на обработку персональных данных";
+        isValid = false;
+      }
+      
+      return isValid
+    },
+    async addChild() {
+      if (this.user === null || !this.validateForm()) return
+      const childResponse = await this.childResolver.create({
+        userId: this.user.id,
+        lastName: this.childForm.fullName.split(" ")[0],
+        firstName: this.childForm.fullName.split(" ")[1],
+        patronymic: this.childForm.fullName.split(" ")[2],
+        dateOfBirth: this.formatBirthDate(this.childForm.birthDate),
+      })
+      if (childResponse.status !== 200 || typeof childResponse.message === "string")
+        return
+      if (this.childForm.childConsentFile === null
+        || this.childForm.schoolCertificate === null
+        || this.childForm.birthCertificate === null
+        || this.childForm.platformCertificate === null
+        || this.childForm.snilsScan === null
+        || this.childForm.grade === null) return
+      const childDocsResponse = await this.childDocumentsResolver.create({
+        childId: childResponse.message.id,
+        additionalStudyingCertificateFile: this.childForm.platformCertificate,
+        birthCertificateFile: this.childForm.birthCertificate,
+        consentToChildPdpFile: this.childForm.childConsentFile,
+        learningClass: this.childForm.grade,
+        parentRole: this.user.children[0].childDocuments.parentRole,
+        snilsFile: this.childForm.snilsScan,
+        snilsNumber: this.formatSnils(this.childForm.snilsNumber),
+        studyingCertificateFile: this.childForm.schoolCertificate,
+        studyingPlace: this.childForm.schoolName,
+        trainingGround: this.childForm.platform
+      })
+      if (childDocsResponse.status !== 200 || typeof childDocsResponse.message === "string") return
+      await this.userStore.fillChildren()
+      this.showAddChildDialog = false
+    }
   }
 };
 </script>
@@ -303,28 +420,6 @@ export default {
   text-align: right;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 2rem 1rem;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  color: #dee2e6;
-  margin-bottom: 1rem;
-}
-
-.empty-text {
-  color: #6c757d;
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-}
-
-.empty-subtitle {
-  color: #adb5bd;
-  margin: 0;
-}
-
 .competencies-preview {
   text-align: center;
 }
@@ -339,49 +434,6 @@ export default {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-}
-
-.mentor-avatar {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #ff9800, #f57c00);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.mentor-details {
-  flex: 1;
-}
-
-.mentor-name {
-  color: #2c3e50;
-  margin: 0 0 0.75rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.mentor-contact {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.contact-item i {
-  margin-right: 0.5rem;
-  color: #ff9800;
-  width: 16px;
 }
 
 /* Стили для выбранных компетенций */
