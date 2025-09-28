@@ -350,7 +350,9 @@ export default {
             birthCertificateFile: this.childForm.birthCertificate,
             consentToChildPdpFile: this.childForm.childConsentFile,
             learningClass: this.childForm.grade,
-            parentRole: this.user.children[0].childDocuments.parentRole,
+            parentRole: this.user.children.length > 0
+              ? this.user.children[0].childDocuments.parentRole
+              : "Не указано",
             snilsFile: this.childForm.snilsScan,
             snilsNumber: this.formatSnils(this.childForm.snilsNumber),
             studyingCertificateFile: this.childForm.schoolCertificate,
