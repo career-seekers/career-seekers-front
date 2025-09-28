@@ -69,7 +69,7 @@
             <div class="detail-item">
               <span class="detail-label">Телефон:</span>
               <span class="detail-value">{{
-                reformatPhone(user.mobileNumber)
+                FormatManager.formatMobileNumberFromDTO(user.mobileNumber)
               }}</span>
             </div>
             <div class="detail-item">
@@ -384,8 +384,8 @@
         this.userForm = {
           fullName: `${user.lastName} ${user.firstName} ${user.patronymic}`,
           email: user.email,
-          phone: this.reformatPhone(user.mobileNumber),
-          birthDate: this.reformatDateOfBirth(user.dateOfBirth),
+          phone: FormatManager.formatMobileNumberFromDTO(user.mobileNumber),
+          birthDate: FormatManager.formatBirthDateFromDTO(user.dateOfBirth),
           isMentor: user.isMentor
         };
         this.oldMail = user.email;
@@ -394,13 +394,6 @@
       showChildDocs(child: ChildOutputDto) {
         this.selectedChild = child;
         this.showChildDocsDialog = true;
-      },
-      reformatDateOfBirth(date: string) {
-        const [year, month, day] = date.substring(0, 10).split("-");
-        return `${day}.${month}.${year}`;
-      },
-      reformatPhone(phone: string) {
-        return `${phone.substring(0, 2)} (${phone.substring(2, 5)}) ${phone.substring(5, 8)}-${phone.substring(8, 10)}-${phone.substring(10, 12)}`;
       },
       async saveUser() {
         if (!this.validateForm()) {
