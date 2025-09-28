@@ -70,6 +70,12 @@
             :loading="isLoading"
           />
 
+          <div class="forgot-password-link">
+            <router-link to="/forgot-password" class="forgot-link">
+              Забыли пароль?
+            </router-link>
+          </div>
+
           <div class="register-section">
             <div
               class="register-toggle"
@@ -495,6 +501,24 @@ export default {
 }
 
 .link:hover {
+  text-decoration: underline;
+}
+
+.forgot-password-link {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.forgot-link {
+  color: #6c757d;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.forgot-link:hover {
+  color: #ff9800;
   text-decoration: underline;
 }
 

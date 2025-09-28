@@ -7,6 +7,7 @@ import MentorRegisterView from "@/views/auth/MentorRegisterView.vue";
 import ParentRegisterView from "@/views/auth/ParentRegisterView.vue";
 import TutorRegisterView from "@/views/auth/TutorRegisterView.vue";
 import EmailConfirmationView from "@/views/auth/EmailConfirmationView.vue";
+import ForgotPasswordView from "@/views/auth/ForgotPasswordView.vue";
 
 // Parent views
 import ParentDashboardHome from "@/views/parent/ParentDashboardHome.vue";
@@ -76,6 +77,11 @@ const routes = [
     path: "/email-confirmation",
     name: "email-confirmation",
     component: EmailConfirmationView,
+  },
+  {
+    path: "/forgot-password",
+    name: "forgot-password",
+    component: ForgotPasswordView,
   },
   {
     path: "/parent",

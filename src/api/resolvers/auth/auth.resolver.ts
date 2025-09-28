@@ -8,6 +8,7 @@ import type { JWTMessageOutputDto } from '@/api/resolvers/auth/dto/output/jwt-me
 import type { PreRegisterInputDto } from '@/api/resolvers/auth/dto/input/pre-register-input.dto.ts';
 import type { LoginInputDto } from '@/api/resolvers/auth/dto/input/login-input.dto.ts';
 import type { TokensInputDto } from '@/api/resolvers/auth/dto/input/tokens-input.dto.ts';
+import type { ForgotPasswordInputDto, VerifyCodeInputDto, ResetPasswordInputDto } from '@/api/resolvers/auth/dto/input/forgot-password-input.dto.ts';
 
 
 export class AuthResolver {
@@ -41,5 +42,26 @@ export class AuthResolver {
       TokensInputDto,
       CommonOutputDto<JWTMessageOutputDto | string>
     >("updateTokens", "POST", data, undefined);
+  }
+
+  public async forgotPassword(data: ForgotPasswordInputDto) {
+    return await this.apiResolver.request<
+      ForgotPasswordInputDto,
+      CommonOutputDto<string>
+    >("forgotPassword", "POST", data, undefined);
+  }
+
+  public async verifyCode(data: VerifyCodeInputDto) {
+    return await this.apiResolver.request<
+      VerifyCodeInputDto,
+      CommonOutputDto<string>
+    >("verifyCode", "POST", data, undefined);
+  }
+
+  public async resetPassword(data: ResetPasswordInputDto) {
+    return await this.apiResolver.request<
+      ResetPasswordInputDto,
+      CommonOutputDto<string>
+    >("resetPassword", "POST", data, undefined);
   }
 }

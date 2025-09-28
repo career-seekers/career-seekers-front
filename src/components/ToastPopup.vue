@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from "primevue/button";
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted, onUnmounted } from "vue";
 
 const props = defineProps<{
   content: {
@@ -11,12 +11,67 @@ const props = defineProps<{
 
 const propCopy = computed(() => ({ ...props.content }));
 const showToast = ref(true);
-const closeToast = () => (showToast.value = false);
+const isClosing = ref(false);
+const progressWidth = ref(100);
+let progressInterval: NodeJS.Timeout | null = null;
+let closeTimeout: NodeJS.Timeout | null = null;
+
+const closeToast = () => {
+  isClosing.value = true;
+  clearProgress();
+  // Даем время для анимации fade out
+  setTimeout(() => {
+    showToast.value = false;
+  }, 300);
+};
+
+const startProgress = () => {
+  progressWidth.value = 100;
+  isClosing.value = false;
+  
+  // Очищаем предыдущие таймеры
+  if (progressInterval) clearInterval(progressInterval);
+  if (closeTimeout) clearTimeout(closeTimeout);
+  
+  // Запускаем анимацию прогресса
+  progressInterval = setInterval(() => {
+    progressWidth.value -= 2; // 100% / 50 интервалов = 2% за интервал
+  }, 100); // Обновляем каждые 100мс, итого 5 секунд
+  
+  // Закрытие через 5 секунд
+  closeTimeout = setTimeout(() => {
+    closeToast();
+  }, 5000);
+};
+
+const clearProgress = () => {
+  if (progressInterval) {
+    clearInterval(progressInterval);
+    progressInterval = null;
+  }
+  if (closeTimeout) {
+    clearTimeout(closeTimeout);
+    closeTimeout = null;
+  }
+};
 
 watch(
   () => propCopy.value,
-  () => (showToast.value = true),
+  () => {
+    showToast.value = true;
+    startProgress();
+  },
 );
+
+onMounted(() => {
+  if (showToast.value) {
+    startProgress();
+  }
+});
+
+onUnmounted(() => {
+  clearProgress();
+});
 </script>
 
 <template>
@@ -30,6 +85,7 @@ watch(
         content.message !== ''
     "
     class="toast"
+    :class="{ 'toast-closing': isClosing }"
   >
     <div class="toast-content">
       <div class="toast-icon">
@@ -50,6 +106,12 @@ watch(
         <i class="pi pi-times" />
       </Button>
     </div>
+    <div class="toast-progress">
+      <div 
+        class="toast-progress-bar"
+        :style="{ width: progressWidth + '%' }"
+      ></div>
+    </div>
   </div>
 </template>
 
@@ -61,6 +123,11 @@ watch(
   z-index: 10000;
   max-width: 400px;
   animation: slideInRight 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.toast-closing {
+  animation: fadeOut 0.3s ease-out forwards;
 }
 
 .toast-content {
@@ -69,7 +136,7 @@ watch(
   gap: 0.75rem;
   padding: 1rem;
   background: white;
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-left: 4px solid #ff9800;
 }
@@ -125,6 +192,17 @@ watch(
   }
 }
 
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
 @media screen and (max-width: 768px) {
   .toast {
     top: 0.75rem;
@@ -164,5 +242,19 @@ watch(
   .toast-message {
     font-size: 0.7rem;
   }
+}
+
+.toast-progress {
+  height: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+
+.toast-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff9800, #f57c00);
+  transition: width 0.1s linear;
+  border-radius: 0 0 8px 8px;
 }
 </style>
