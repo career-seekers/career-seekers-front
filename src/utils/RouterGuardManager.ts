@@ -21,7 +21,7 @@ export const RouterGuardManager = {
           if (competence.userId !== userStore.user.id) return "/tutor"
           break
         }
-        case Roles.USER: return "/parent"
+        case Roles.USER: return "/user"
         case Roles.ADMIN: return null
         default: return "/not-found"
       }

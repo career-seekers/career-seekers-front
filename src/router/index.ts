@@ -4,14 +4,14 @@ import { titleManager } from "@/utils/titleManager.ts";
 // Auth views
 import LoginView from '@/views/auth/LoginView.vue';
 import MentorRegisterView from "@/views/auth/MentorRegisterView.vue";
-import ParentRegisterView from "@/views/auth/ParentRegisterView.vue";
+import ParentRegisterView from "@/views/auth/UserRegisterView.vue";
 import TutorRegisterView from "@/views/auth/TutorRegisterView.vue";
 import EmailConfirmationView from "@/views/auth/EmailConfirmationView.vue";
 import ForgotPasswordView from "@/views/auth/ForgotPasswordView.vue";
 
-// Parent views
-import ParentDashboardHome from "@/views/parent/ParentDashboardHome.vue";
-import ParentCompetenciesSelection from "@/views/parent/ParentCompetenciesSelection.vue";
+// user views
+import UserDashboardHome from "@/views/user/UserDashboardHome.vue";
+import UserCompetencies from '@/views/user/UserCompetencies.vue';
 
 //expert views
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
@@ -63,10 +63,9 @@ const routes = [
     meta: { blocked: true },
   },
   {
-    path: "/register/parent",
-    name: "parent-register",
+    path: "/register/user",
+    name: "user-register",
     component: ParentRegisterView,
-    meta: { blocked: true },
   },
   {
     path: "/register/tutor",
@@ -84,21 +83,20 @@ const routes = [
     component: ForgotPasswordView,
   },
   {
-    path: "/parent",
+    path: "/user",
     component: DashboardWrapper,
     meta: {
-      blocked: true,
       allowedRole: Roles.USER
     },
     children: [
       {
         path: "",
-        redirect: "/parent/dashboard",
+        redirect: "/user/dashboard",
       },
       {
         path: "dashboard",
-        name: "parent-dashboard",
-        component: ParentDashboardHome,
+        name: "user-dashboard",
+        component: UserDashboardHome,
         meta: {
           title: "Главная",
           icon: "pi pi-home"
@@ -106,8 +104,8 @@ const routes = [
       },
       {
         path: "competencies",
-        name: "parent-competencies",
-        component: ParentCompetenciesSelection,
+        name: "user-competencies",
+        component: UserCompetencies,
         meta: {
           title: "Компетенции",
           icon: "pi pi-briefcase"

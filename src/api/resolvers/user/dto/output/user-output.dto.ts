@@ -1,6 +1,7 @@
 import { Roles } from "@/state/UserState.types";
 import type { UserOutputTutorDocsDto } from "@/api/resolvers/user/dto/output/user-output-tutor-docs.dto.ts";
 import type { UserOutputExpertDocsDto } from "@/api/resolvers/user/dto/output/user-output-expert-docs.dto.ts";
+import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
 
 export interface UserOutputDto {
   id: number;
@@ -16,12 +17,11 @@ export interface UserOutputDto {
   verified: boolean;
   isMentor: boolean;
   tutorId: number | null;
-  userDocuments: null;
   expertDocuments: UserOutputExpertDocsDto | null;
   tutorDocuments: UserOutputTutorDocsDto | null;
   mentorDocuments: null;
-  menteeChildren: [];
-  children: [];
+  menteeChildren: ChildOutputDto[];
+  children: ChildOutputDto[];
   telegramLink: {
     id: number;
     tgLink: string;

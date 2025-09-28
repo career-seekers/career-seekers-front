@@ -34,7 +34,7 @@ export class FileResolver {
   }
 
   public async viewById(id: number) {
-    return await this.apiResolver.request<null, Blob>(
+    return await this.apiResolver.request<null, Blob | CommonOutputDto<string>>(
       `view/${id.toString()}`,
       "GET",
       null,

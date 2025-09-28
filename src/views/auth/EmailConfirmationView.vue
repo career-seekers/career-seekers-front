@@ -94,7 +94,6 @@ import type {
 } from '@/state/UserState.types';
 import router, { historyStack } from '@/router';
 import { useAuthStore } from '@/stores/authStore.ts';
-import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "EmailConfirmationView",
@@ -185,11 +184,9 @@ export default {
             localStorage.setItem("refresh_token", response.message.refreshToken);
             localStorage.setItem("uuid", this.registrationData.uuid);
             const authStore = useAuthStore();
-            const userStore = useUserStore();
             authStore.getTokens()
             const userData = await authStore.loadByTokens();
             if (userData !== null) {
-              await userStore.fillUser(userData)
               await router.push(`/${userData.role.toLowerCase()}/dashboard`)
             }
           }

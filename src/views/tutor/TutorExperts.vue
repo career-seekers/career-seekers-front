@@ -556,7 +556,7 @@ export default {
       if (this.user !== null) {
         const response = await this.platformsResolver.getByUserId(this.user.id);
 
-        if (response.status === 200) {
+        if (response.status === 200 && typeof response.message !== "string") {
           this.currentPlatform = response.message;
         } else {
           if (response.status === 404) {

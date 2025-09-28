@@ -1,5 +1,5 @@
-export interface UserDocsInputDto {
-  userId: number;
+export interface ChildDocumentsInputDto {
+  childId: number;
   snilsNumber: string;
   snilsFile: File;
   studyingPlace: string;

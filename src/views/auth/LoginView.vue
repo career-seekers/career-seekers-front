@@ -105,13 +105,21 @@
               <!--                  <div class="option-desc">Для специалистов</div>-->
               <!--                </div>-->
               <!--              </router-link>-->
-              <!--            <router-link to="/register/parent" class="register-option" @click="closeRegisterOptions">-->
-              <!--              <i class="pi pi-users"></i>-->
-              <!--              <div class="option-text">-->
-              <!--                <div class="option-title">Родитель</div>-->
-              <!--                <div class="option-desc">Для родителей с детьми</div>-->
-              <!--              </div>-->
-              <!--            </router-link>-->
+              <router-link
+                to="/register/user"
+                class="register-option"
+                @click="closeRegisterOptions"
+              >
+                <i class="pi pi-users" />
+                <div class="option-text">
+                  <div class="option-title">
+                    Родитель
+                  </div>
+                  <div class="option-desc">
+                    Для родителей с детьми
+                  </div>
+                </div>
+              </router-link>
               <router-link
                 to="/register/tutor"
                 class="register-option"

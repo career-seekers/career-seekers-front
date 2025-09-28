@@ -491,7 +491,7 @@ export default {
     async loadPlatform() {
       if (this.user !== null) {
         const response = await this.platformResolver.getByUserId(this.user.id);
-        if (response.status === 200) {
+        if (response.status === 200 && typeof response.message !== "string") {
           this.venueData = response.message;
         }
       }

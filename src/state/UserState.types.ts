@@ -1,7 +1,7 @@
-import type { UserDocsOutputDto } from '@/api/resolvers/userDocuments/dto/output/user-docs-output.dto.ts';
 import type { ExpertDocsOutputDto } from '@/api/resolvers/expertDocuments/dto/output/expert-docs.output.dto.ts';
 import type { TutorDocsOutputDto } from '@/api/resolvers/tutorDocuments/dto/output/tutor-docs-output.dto.ts';
 import type { MentorDocsOutputDto } from '@/api/resolvers/mentorDocuments/dto/output/mentor-docs-output.dto.ts';
+import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
 
 export interface UserStateInterface {
     id: number;
@@ -17,10 +17,11 @@ export interface UserStateInterface {
     verified: boolean;
     isMentor: boolean;
     telegramLink: string | null;
-    userDocuments: UserDocsOutputDto[];
     expertDocuments: ExpertDocsOutputDto[];
     tutorDocuments: TutorDocsOutputDto[];
     mentorDocuments: MentorDocsOutputDto[];
+    children: ChildOutputDto[],
+    menteeChildren: ChildOutputDto[],
 }
 
 

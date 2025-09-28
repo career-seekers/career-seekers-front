@@ -327,7 +327,7 @@ export default {
   },
   methods: {
     goToSelection() {
-      this.$router.push("/parent/competencies");
+      this.$router.push("/user/competencies");
     },
 
     showCompetenceDetails(competence) {
@@ -337,7 +337,7 @@ export default {
 
     editCompetence() {
       // Переходим к странице выбора компетенций для редактирования
-      this.$router.push("/parent/competencies");
+      this.$router.push("/user/competencies");
     },
 
     getEventIcon(status) {
