@@ -55,7 +55,7 @@
               icon="pi pi-trash"
               class="p-button-text p-button-sm p-button-danger"
               style="background: white"
-              @click="deleteTutor(user)"
+              @click="deleteUser(user)"
             />
           </div>
         </div>
@@ -100,7 +100,7 @@
     </div>
     <Dialog
       v-model:visible="showEditUserDialog"
-      header="Редактировать эксперта"
+      header="Редактировать родителя"
       :modal="true"
       :style="{ width: '600px' }"
     >
@@ -215,7 +215,7 @@
           @click="cancelEdit"
         />
         <Button
-          :label="isEditing ? 'Сохранить' : 'Добавить'"
+          label="Сохранить"
           icon="pi pi-check"
           class="p-button-primary"
           @click="saveUser"
@@ -329,7 +329,6 @@
         userResolver: new UserResolver(),
 
         users: [] as UserOutputDto[],
-        isEditing: false,
         editingUserId: null as null | number,
         oldMail: null as null | string,
 
@@ -381,7 +380,6 @@
     async beforeMount() { await this.loadUsers(); },
     methods: {
       editUser(user: UserOutputDto) {
-        this.isEditing = true;
         this.editingUserId = user.id;
         this.userForm = {
           fullName: `${user.lastName} ${user.firstName} ${user.patronymic}`,
@@ -409,46 +407,43 @@
           return;
         }
 
-        if (this.isEditing) {
-          const user = this.users.find(
-            (user: UserOutputDto) => user.id === this.editingUserId,
-          );
-          if (user) {
-            const editedUser: UpdateUserInputDto = {
-              avatarId: user.avatarId,
-              dateOfBirth: FormatManager.formatBirthDateToDTO(this.userForm.birthDate),
-              email: this.userForm.email,
-              firstName: this.userForm.fullName.split(" ")[1],
-              lastName: this.userForm.fullName.split(" ")[0],
-              mobileNumber: FormatManager.formatMobileNumberToDTO(this.userForm.phone),
-              password: user.password,
-              patronymic: this.userForm.fullName.split(" ")[2],
-              role: Roles.TUTOR,
-              id: this.editingUserId!,
-              tutorId: null
-            };
+        const user = this.users.find(
+          (user: UserOutputDto) => user.id === this.editingUserId,
+        );
+        if (user) {
+          const editedUser: UpdateUserInputDto = {
+            avatarId: user.avatarId,
+            dateOfBirth: FormatManager.formatBirthDateToDTO(this.userForm.birthDate),
+            email: this.userForm.email,
+            firstName: this.userForm.fullName.split(" ")[1],
+            lastName: this.userForm.fullName.split(" ")[0],
+            mobileNumber: FormatManager.formatMobileNumberToDTO(this.userForm.phone),
+            password: user.password,
+            patronymic: this.userForm.fullName.split(" ")[2],
+            role: Roles.TUTOR,
+            id: this.editingUserId!,
+            tutorId: null
+          };
 
-            const response = await this.userResolver.update({
-              ...editedUser,
-              email:
-                editedUser.email === this.oldMail
-                  ? null
-                  : editedUser.email,
-            });
-            if (response.status === 200) {
-              this.cancelEdit();
-            } else {
-              this.errors.toastPopup = {
-                title: response.status.toString(),
-                message: response.message,
-              };
-            }
+          const response = await this.userResolver.update({
+            ...editedUser,
+            email:
+              editedUser.email === this.oldMail
+                ? null
+                : editedUser.email,
+          });
+          if (response.status === 200) {
+            this.cancelEdit();
+          } else {
+            this.errors.toastPopup = {
+              title: response.status.toString(),
+              message: response.message,
+            };
           }
         }
         await this.loadUsers();
       },
       cancelEdit() {
-        this.isEditing = false;
         this.editingUserId = null;
         this.userForm = {
           fullName: "",
@@ -490,9 +485,9 @@
           this.users = response.message
         }
       },
-      async deleteTutor(user: UserOutputDto) {
+      async deleteUser(user: UserOutputDto) {
         if (
-          confirm(`Вы уверены, что хотите удалить куратора ${user.firstName}?`)
+          confirm(`Вы уверены, что хотите удалить родителя ${user.firstName}?`)
         ) {
           const response = await this.userResolver.delete(user.id);
           if (response.status === 200) {
