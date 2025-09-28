@@ -88,16 +88,11 @@
               :key="child.id"
               class="detail-item"
             >
-              <a
-                :href="`admin/children/${child.id}`"
-                class="detail-value"
-              >{{
-                child.lastName +
-                  " " +
-                  child.firstName +
-                  " " +
-                  child.patronymic
-              }}</a>
+              <Button
+                :label="`${child.lastName} ${child.firstName} ${child.patronymic}`"
+                class="p-button-outlined detail-label"
+                @click="showChildDocs(child)"
+              />
             </div>
           </div>
         </div>
@@ -228,6 +223,79 @@
       </template>
     </Dialog>
 
+    <Dialog
+      v-if="selectedChild !== null"
+      v-model:visible="showChildDocsDialog"
+      header="Данные о ребенке"
+      :modal="true"
+      :style="{ width: '800px' }"
+    >
+      <div class="child-card">
+        <div class="child-header">
+          <div class="child-icon">
+            <i class="pi pi-user" />
+          </div>
+          <div class="child-info">
+            <h3 class="child-name">
+              {{ `${selectedChild.lastName} ${selectedChild.firstName} ${selectedChild.patronymic}` }}
+            </h3>
+          </div>
+        </div>
+
+        <div class="child-content">
+          <div class="child-details">
+            <div class="detail-item">
+              <span class="detail-label">Дата рождения:</span>
+              <span class="detail-value">{{ FormatManager.formatBirthDateFromDTO(selectedChild.dateOfBirth) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">СНИЛС:</span>
+              <span class="detail-value">{{ FormatManager.formatSnilsFromDTO(selectedChild.childDocuments?.snilsNumber) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Класс обучения:</span>
+              <span class="detail-value">
+                {{ FormatManager.calculateGrade(selectedChild) }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Возрастная группа:</span>
+              <span class="detail-value">{{
+                FormatManager.getAgeGroupByAge(
+                  FormatManager.calculateAge(selectedChild.dateOfBirth),
+                  selectedChild.childDocuments?.learningClass
+                )?.label
+              }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Образовательное учреждение:</span>
+              <span class="detail-value">
+                {{ selectedChild.childDocuments?.studyingPlace }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Площадка подготовки:</span>
+              <span class="detail-value">
+                {{ selectedChild.childDocuments?.trainingGround }}
+              </span>
+            </div>
+          </div>
+
+          <div
+            v-if="selectedChild.mentor !== null"
+            class="mentor-info"
+          >
+            <h4 class="mentor-title">
+              Наставник:
+            </h4>
+            <p class="mentor-name">
+              {{ `${selectedChild.mentor.lastName} ${selectedChild.mentor.firstName} ${selectedChild.mentor.patronymic}` }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </Dialog>
+
     <ToastPopup :content="errors.toastPopup" />
   </div>
 </template>
@@ -243,6 +311,8 @@
   import InputMask from 'primevue/inputmask';
   import Checkbox from 'primevue/checkbox';
   import Dialog from 'primevue/dialog';
+  import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
+  import { FormatManager } from '@/utils/FormatManager.ts';
 
   export default {
     name: 'AdminUsers',
@@ -260,7 +330,7 @@
 
         users: [] as UserOutputDto[],
         isEditing: false,
-        editingTutorId: null as null | number,
+        editingUserId: null as null | number,
         oldMail: null as null | string,
 
         searchQuery: "",
@@ -284,10 +354,15 @@
           email: "",
         },
 
+        selectedChild: null as ChildOutputDto | null,
         showEditUserDialog: false,
+        showChildDocsDialog: false,
       }
     },
     computed: {
+      FormatManager() {
+        return FormatManager
+      },
       filteredUsers(): UserOutputDto[] {
         let filtered = this.users
         if (this.searchQuery) {
@@ -302,24 +377,12 @@
         }
         return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
       },
-
-      dateOfBirthFormatted() {
-        const [day, month, year] = this.userForm.birthDate.split(".");
-        const date = new Date(
-          Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)),
-        );
-        return date.toISOString();
-      },
-
-      mobileNumberFormatted() {
-        return this.userForm.phone.replaceAll(/\s|-|\(|\)/g, "");
-      },
     },
     async beforeMount() { await this.loadUsers(); },
     methods: {
       editUser(user: UserOutputDto) {
         this.isEditing = true;
-        this.editingTutorId = user.id;
+        this.editingUserId = user.id;
         this.userForm = {
           fullName: `${user.lastName} ${user.firstName} ${user.patronymic}`,
           email: user.email,
@@ -329,6 +392,10 @@
         };
         this.oldMail = user.email;
         this.showEditUserDialog = true;
+      },
+      showChildDocs(child: ChildOutputDto) {
+        this.selectedChild = child;
+        this.showChildDocsDialog = true;
       },
       reformatDateOfBirth(date: string) {
         const [year, month, day] = date.substring(0, 10).split("-");
@@ -344,20 +411,20 @@
 
         if (this.isEditing) {
           const user = this.users.find(
-            (user: UserOutputDto) => user.id === this.editingTutorId,
+            (user: UserOutputDto) => user.id === this.editingUserId,
           );
           if (user) {
             const editedUser: UpdateUserInputDto = {
               avatarId: user.avatarId,
-              dateOfBirth: this.dateOfBirthFormatted,
+              dateOfBirth: FormatManager.formatBirthDateToDTO(this.userForm.birthDate),
               email: this.userForm.email,
               firstName: this.userForm.fullName.split(" ")[1],
               lastName: this.userForm.fullName.split(" ")[0],
-              mobileNumber: this.mobileNumberFormatted,
+              mobileNumber: FormatManager.formatMobileNumberToDTO(this.userForm.phone),
               password: user.password,
               patronymic: this.userForm.fullName.split(" ")[2],
               role: Roles.TUTOR,
-              id: this.editingTutorId!,
+              id: this.editingUserId!,
               tutorId: null
             };
 
@@ -382,7 +449,7 @@
       },
       cancelEdit() {
         this.isEditing = false;
-        this.editingTutorId = null;
+        this.editingUserId = null;
         this.userForm = {
           fullName: "",
           email: "",
@@ -601,6 +668,104 @@
     font-weight: 500;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
+  }
+
+  .children-grid-header {
+    margin: 2rem 0 1rem 0;
+  }
+
+  .children-grid-title {
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+    font-family: "BIPS", sans-serif;
+  }
+
+  .children-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    margin-bottom: 4rem;
+  }
+
+  .child-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition:
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
+  }
+
+  .child-header {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .child-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .child-info {
+    flex: 1;
+  }
+
+  .child-name {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .child-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .child-content {
+    padding: 1.5rem;
+  }
+
+  .child-details {
+    margin-bottom: 1.5rem;
+  }
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f3f4;
+  }
+
+  .detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    color: #6c757d;
+    font-weight: 500;
+    min-width: 100px;
+  }
+
+  .detail-value {
+    color: #2c3e50;
+    font-weight: 500;
+    text-align: right;
   }
 
   /* Мобильные стили */
