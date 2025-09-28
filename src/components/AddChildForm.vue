@@ -469,7 +469,6 @@
     },
     computed: {
       filteredGrades() {
-        console.log(this.childForm.birthDate.length);
         if (this.childForm.birthDate.length !== 10) return this.gradeOptions
         const age = this.calculateAge(this.formatBirthDate(this.childForm.birthDate))
         return this.gradeOptions.filter(option => {

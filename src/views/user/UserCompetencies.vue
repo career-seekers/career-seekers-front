@@ -241,12 +241,13 @@
               : group.value === AgeCategories.PRESCHOOL
             )
         }
-        this.ageGroups.forEach(group => {
-          const edges = group.label.split(" ")[0].split("-")
+        const group = this.ageGroups.find(group => {
+          const edges = group.label.split(" ")[0].split("-");
           const min = parseInt(edges[0]);
           const max = parseInt(edges[1]);
-          if (min <= age && age <= max) return group.label
-        })
+          return min <= age && age <= max;
+        });
+        return group ? group : undefined;
       },
       async assignToCompetencies() {
 

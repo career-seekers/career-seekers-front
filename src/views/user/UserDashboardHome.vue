@@ -311,7 +311,7 @@ export default {
         })
         if (this.addBirthFile || this.addSnilsFile
           || this.addSchoolFile || this.addPlatformFile
-          || this.addPlatformFile) {
+          || this.addConsentFile) {
           await this.childDocumentsResolver.update({
             id: this.selectedChild.childDocuments.id,
             additionalStudyingCertificateFile: this.childForm.platformCertificate,

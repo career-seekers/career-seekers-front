@@ -124,7 +124,6 @@ export const useUserStore = defineStore("user", {
               userId: this.user.id,
               mentorId: this.user.isMentor ? this.user.id : null
             })
-            console.log(childResponse)
             if (childResponse.status === 200 && typeof childResponse.message !== "string") {
               const childDocsResponse = await childDocumentsResolver.create({
                 childId: childResponse.message.id,
