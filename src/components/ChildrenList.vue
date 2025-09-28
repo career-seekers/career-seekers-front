@@ -20,12 +20,21 @@
         required: true,
       }
     },
-    emits: ['update:children-list'],
+    emits: [
+      'update:children-list',
+      'open:child-form'
+    ],
     data() {
       return {
         childResolver: new ChildResolver(),
         ageGroups: useAgeGroups,
-        gradeOptions: useGradeOptions
+        gradeOptions: useGradeOptions,
+      }
+    },
+    computed: {
+      sortedChildren() {
+        const children = this.children
+        return children.sort((a, b) => a.id - b.id)
       }
     },
     methods: {
@@ -96,7 +105,7 @@
     class="children-grid"
   >
     <div
-      v-for="child in children"
+      v-for="child in sortedChildren"
       :key="child.id"
       class="child-card"
     >
@@ -111,10 +120,11 @@
         </div>
         <div class="child-actions">
           <Button
-            v-tooltip="'Просмотреть'"
-            icon="pi pi-eye"
+            v-tooltip="'Редактировать'"
+            icon="pi pi-pencil"
             style="background: white;"
             class="p-button-text p-button-sm"
+            @click="$emit('open:child-form', child)"
           />
           <Button
             v-tooltip="'Удалить'"

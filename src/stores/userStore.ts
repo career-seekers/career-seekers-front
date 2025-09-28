@@ -122,6 +122,7 @@ export const useUserStore = defineStore("user", {
               patronymic: cachedData.dto.childPatronymic,
               dateOfBirth: cachedData.dto.childDateOfBirth,
               userId: this.user.id,
+              mentorId: this.user.isMentor ? this.user.id : null
             })
             console.log(childResponse)
             if (childResponse.status === 200 && typeof childResponse.message !== "string") {

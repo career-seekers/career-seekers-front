@@ -40,7 +40,30 @@
     }}</small>
   </div>
 
-  <div class="field">
+  <div 
+    v-if="isEditing"
+    class="field"
+  >
+    <div class="flex align-items-center">
+      <Checkbox
+        v-model="addBirthFile"
+        input-id="add-birth-file"
+        :binary="true"
+        @change="$emit('update:birth-file', addBirthFile)"
+      />
+      <label
+        for="add-birth-file"
+        class="ml-2 agreement-label"
+      >
+        Добавить новый файл с датой рождения
+      </label>
+    </div>
+  </div>
+  
+  <div 
+    v-if="!isEditing || addBirthFile"
+    class="field"
+  >
     <label
       for="birthCertificate"
       class="field-label"
@@ -65,7 +88,30 @@
     <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
   </div>
 
-  <div class="field">
+  <div
+    v-if="isEditing"
+    class="field"
+  >
+    <div class="flex align-items-center">
+      <Checkbox
+        v-model="addSnilsFile"
+        input-id="add-snils-file"
+        :binary="true"
+        @change="$emit('update:snils-file', addSnilsFile)"
+      />
+      <label
+        for="add-snils-file"
+        class="ml-2 agreement-label"
+      >
+        Изменить данные СНИЛС
+      </label>
+    </div>
+  </div>
+
+  <div
+    v-if="!isEditing || addSnilsFile"
+    class="field"
+  >
     <label
       for="snilsNumber"
       class="field-label"
@@ -86,7 +132,10 @@
     }}</small>
   </div>
 
-  <div class="field">
+  <div
+    v-if="!isEditing || addSnilsFile"
+    class="field"
+  >
     <label
       for="snilsScan"
       class="field-label"
@@ -111,7 +160,30 @@
     <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
   </div>
 
-  <div class="field">
+  <div
+    v-if="isEditing"
+    class="field"
+  >
+    <div class="flex align-items-center">
+      <Checkbox
+        v-model="addSchoolFile"
+        input-id="add-school-file"
+        :binary="true"
+        @change="$emit('update:school-file', addSchoolFile)"
+      />
+      <label
+        for="add-school-file"
+        class="ml-2 agreement-label"
+      >
+        Изменить данные об ОУ
+      </label>
+    </div>
+  </div>
+
+  <div
+    v-if="!isEditing || addSchoolFile"
+    class="field"
+  >
     <label
       for="schoolName"
       class="field-label"
@@ -131,7 +203,10 @@
     }}</small>
   </div>
 
-  <div class="field">
+  <div
+    v-if="!isEditing || addSchoolFile"
+    class="field"
+  >
     <label
       for="grade"
       class="field-label"
@@ -139,7 +214,7 @@
     <Dropdown
       id="grade"
       v-model="childForm.grade"
-      :options="gradeOptions"
+      :options="filteredGrades"
       placeholder="Выберите класс"
       class="w-full"
       :class="{ 'p-invalid': errors.grade }"
@@ -154,7 +229,10 @@
     }}</small>
   </div>
 
-  <div class="field">
+  <div
+    v-if="!isEditing || addSchoolFile"
+    class="field"
+  >
     <label
       for="schoolCertificate"
       class="field-label"
@@ -179,7 +257,30 @@
     <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
   </div>
 
-  <div class="field">
+  <div
+    v-if="isEditing"
+    class="field"
+  >
+    <div class="flex align-items-center">
+      <Checkbox
+        v-model="addPlatformFile"
+        input-id="add-platform-file"
+        :binary="true"
+        @change="$emit('update:platform-file', addPlatformFile)"
+      />
+      <label
+        for="add-platform-file"
+        class="ml-2 agreement-label"
+      >
+        Изменить информацию о площадке
+      </label>
+    </div>
+  </div>
+
+  <div
+    v-if="!isEditing || addPlatformFile"
+    class="field"
+  >
     <label
       for="platform"
       class="field-label"
@@ -199,7 +300,10 @@
     }}</small>
   </div>
 
-  <div class="field">
+  <div
+    v-if="!isEditing || addPlatformFile"
+    class="field"
+  >
     <label
       for="platformCertificate"
       class="field-label"
@@ -223,7 +327,30 @@
     }}</small>
     <small class="p-text-secondary">Поддерживаемые форматы: PDF, JPG, PNG (максимум 10 МБ)</small>
   </div>
-  <div class="field">
+
+  <div
+    v-if="isEditing"
+    class="field"
+  >
+    <div class="flex align-items-center">
+      <Checkbox
+        v-model="addConsentFile"
+        input-id="add-consent-file"
+        :binary="true"
+        @change="$emit('update:consent-file', addConsentFile)"
+      />
+      <label
+        for="add-consent-file"
+        class="ml-2 agreement-label"
+      >
+        Добавить новый файл согласия на ОПД
+      </label>
+    </div>
+  </div>
+  <div
+    v-if="!isEditing || addConsentFile"
+    class="field"
+  >
     <label
       for="schoolCertificate"
       class="field-label"
@@ -256,6 +383,7 @@
   import Dropdown from "primevue/dropdown";
   import type { PropType } from 'vue';
   import { useGradeOptions } from '@/shared/UseGradeOptions.ts';
+  import Checkbox from 'primevue/checkbox';
 
   export type ChildFormFields = {
     fullName: string,
@@ -292,8 +420,13 @@
       InputMask,
       FileUpload,
       Dropdown,
+      Checkbox
     },
     props: {
+      isEditing: {
+        type: Boolean,
+        default: false
+      },
       modelChildForm: {
         type: Object as PropType<ChildFormFields>,
         required: true,
@@ -305,11 +438,15 @@
     },
     emits: [
       'update:model-child-form',
-      'update:model-child-form-errors'
+      'update:model-child-form-errors',
+      'update:birth-file',
+      'update:snils-file',
+      'update:school-file',
+      'update:platform-file',
+      'update:consent-file',
     ],
     data() {
       return {
-        isLoading: false,
         showAgreementDialog: false,
         showPoliticsDialog: false,
         gradeOptions: useGradeOptions,
@@ -317,12 +454,30 @@
         childForm: { ...this.modelChildForm },
         errors: { ... this.modelChildFormErrors },
 
+        addBirthFile: false,
+        addSnilsFile: false,
+        addConsentFile: false,
+        addSchoolFile: false,
+        addPlatformFile: false,
+
         platformOptions: [
           { label: "Площадка 1", value: "platform1" },
           { label: "Площадка 2", value: "platform2" },
           { label: "Площадка 3", value: "platform3" },
         ],
       };
+    },
+    computed: {
+      filteredGrades() {
+        console.log(this.childForm.birthDate.length);
+        if (this.childForm.birthDate.length !== 10) return this.gradeOptions
+        const age = this.calculateAge(this.formatBirthDate(this.childForm.birthDate))
+        return this.gradeOptions.filter(option => {
+          const difference = age - option.value
+          if (age < 7 && option.value === 0) return true
+          return 5 <= difference && difference <= 9
+        })
+      }
     },
     watch: {
       modelChildFormErrors: {
@@ -347,6 +502,23 @@
       }
     },
     methods: {
+      calculateAge(birthDate: string) {
+        const birth = new Date(birthDate.substring(0, 10));
+        const onDate = new Date(2026, 1, 14)
+
+        let age = onDate.getFullYear() - birth.getFullYear();
+        let monthDiff = onDate.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && onDate.getDate() < birth.getDate())) {
+          age--;
+        }
+        return age;
+      },
+      formatBirthDate(birthDate: string) {
+        const [day, month, year] = birthDate.split('.').map(Number);
+        const date = new Date(Date.UTC(year, month - 1, day));
+
+        return date.toISOString();
+      },
       onBirthCertificateSelect(event: FileUploadSelectEvent) {
         this.handleFileSelect(event, "birthCertificate");
       },

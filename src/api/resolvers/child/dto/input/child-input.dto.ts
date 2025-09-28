@@ -4,4 +4,5 @@ export interface ChildInputDto {
   patronymic: string;
   dateOfBirth: string;
   userId: number;
+  mentorId: number | null;
 }

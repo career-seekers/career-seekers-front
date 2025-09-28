@@ -2,6 +2,7 @@ import ApiResolver from '@/utils/ApiResolver.ts';
 import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
 import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
 import type { ChildInputDto } from '@/api/resolvers/child/dto/input/child-input.dto.ts';
+import type { ChildUpdateInputDto } from '@/api/resolvers/child/dto/input/child-update-input.dto.ts';
 
 export class ChildResolver {
   private apiResolver = new ApiResolver("users-service/v1/children");
@@ -14,6 +15,18 @@ export class ChildResolver {
     >(
       "",
       "POST",
+      data,
+      this.token ? this.token : undefined,
+    )
+  }
+
+  public async update(data: ChildUpdateInputDto){
+    return this.apiResolver.request<
+      ChildUpdateInputDto,
+      CommonOutputDto<string>
+    >(
+      "",
+      "PATCH",
       data,
       this.token ? this.token : undefined,
     )

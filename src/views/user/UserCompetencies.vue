@@ -37,6 +37,7 @@
           v-model="selectedChild"
           :options="children"
           class="filter-dropdown"
+          @change="loadCompetencies"
         >
           <template #option="slotProps">
             {{ slotProps.option.lastName }} {{ slotProps.option.firstName }}
@@ -155,20 +156,21 @@
       }
     },
     async beforeMount() {
+      if (this.userStore.user === null) return
+      this.selectedChild = this.userStore.user.children[0]
+      this.children = this.userStore.user.children
+      this.children?.forEach(child => {
+        this.selectedCompetencies.push({
+          childId: child.id,
+          competencies: []
+        });
+      })
       await this.loadCompetencies()
-      if (this.userStore.user !== null)
-        this.children = this.userStore.user.children
-        this.children?.forEach(child => {
-          this.selectedCompetencies.push({
-            childId: child.id,
-            competencies: []
-          });
-        })
     },
     methods: {
       async loadCompetencies() {
-        if (this.userStore.user === null) return
-        this.selectedChild = this.userStore.user.children[0]
+        this.competencies = []
+        if (this.selectedChild === null) return
         const ageCategory = this.getAgeGroupByAge(
           this.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild?.childDocuments.learningClass
         )

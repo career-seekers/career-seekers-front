@@ -76,6 +76,7 @@
     <ChildrenList
       :children="user.children"
       @update:children-list="userStore.fillChildren"
+      @open:child-form="(child) => editChild(child)"
     />
     <Dialog
       v-model:visible="showAddChildDialog"
@@ -90,14 +91,21 @@
         @submit.prevent="addChild"
       >
         <AddChildForm
+          :is-editing="isEditing"
           :model-child-form="childForm"
           :model-child-form-errors="errors"
           @update:model-child-form="(form) => childForm = form"
           @update:model-child-form-errors="(formErrors) => errors = formErrors"
+          @update:birth-file="(val) => addBirthFile = val"
+          @update:snils-file="(val) => addSnilsFile = val"
+          @update:school-file="(val) => addSchoolFile = val"
+          @update:platform-file="(val) => addPlatformFile = val"
+          @update:consent-file="(val) => addConsentFile = val"
         />
         <Button
-          label="Добавить ребёнка"
+          :label="isEditing ? 'Обновить данные о ребенке' : 'Добавить нового ребёнка'"
           icon="pi pi-plus"
+          style="width: 100%"
           class="p-button-primary"
           type="submit"
         />
@@ -114,6 +122,8 @@ import Dialog from 'primevue/dialog';
 import AddChildForm, { type ChildFormErrors, type ChildFormFields } from '@/components/AddChildForm.vue';
 import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-documents.resolver.ts';
 import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
+import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
+import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
 
 export default {
   name: "UserDashboardHome",
@@ -125,11 +135,19 @@ export default {
   },
   data() {
     return {
+      fileResolver: new FileResolver(),
       childResolver: new ChildResolver(),
       childDocumentsResolver: new ChildDocumentsResolver(),
       userStore: useUserStore(),
       showAddChildDialog: false,
       isEditing: false,
+      selectedChild: null as ChildOutputDto | null,
+
+      addBirthFile: false,
+      addSnilsFile: false,
+      addConsentFile: false,
+      addSchoolFile: false,
+      addPlatformFile: false,
 
       childForm: {
         fullName: "",
@@ -164,7 +182,28 @@ export default {
       return this.userStore.user
     },
   },
+  watch: {
+    showAddChildDialog() {
+      this.errors = {
+        birthCertificate: '',
+        birthDate: '',
+        childConsentFile: '',
+        fullName: '',
+        grade: '',
+        platform: '',
+        platformCertificate: '',
+        schoolCertificate: '',
+        schoolName: '',
+        snilsNumber: '',
+        snilsScan: ''
+      }
+    }
+  },
   methods: {
+    reformatBirthDate(birthDate: string) {
+      const parts = birthDate.split("-");
+      return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    },
     formatBirthDate(birthDate: string) {
       const [day, month, year] = birthDate.split('.').map(Number);
       const date = new Date(Date.UTC(year, month - 1, day));
@@ -202,49 +241,49 @@ export default {
         isValid = false;
       }
 
-      if (!this.childForm.birthCertificate) {
+      if (!this.childForm.birthCertificate &&  (!this.isEditing || this.addBirthFile)) {
         this.errors.birthCertificate =
           "Необходимо загрузить скан свидетельства о рождении";
         isValid = false;
       }
 
-      if (!this.childForm.snilsNumber) {
+      if (!this.childForm.snilsNumber && (!this.isEditing || this.addSnilsFile)) {
         this.errors.snilsNumber = "Номер СНИЛС обязателен";
         isValid = false;
       }
 
-      if (!this.childForm.snilsScan) {
+      if (!this.childForm.snilsScan && (!this.isEditing || this.addSnilsFile)) {
         this.errors.snilsScan = "Необходимо загрузить скан СНИЛС";
         isValid = false;
       }
 
-      if (!this.childForm.schoolName) {
+      if (!this.childForm.schoolName && (!this.isEditing || this.addSchoolFile)) {
         this.errors.schoolName = "Название учреждения обязательно";
         isValid = false;
       }
 
-      if (this.childForm.grade === null) {
+      if (this.childForm.grade === null && (!this.isEditing || this.addSchoolFile)) {
         this.errors.grade = "Класс обучения обязателен";
         isValid = false;
       }
 
-      if (!this.childForm.platform) {
+      if (!this.childForm.platform && (!this.isEditing || this.addPlatformFile)) {
         this.errors.platform = "Выберите площадку подготовки";
         isValid = false;
       }
 
-      if (!this.childForm.schoolCertificate) {
+      if (!this.childForm.schoolCertificate && (!this.isEditing || this.addSchoolFile)) {
         this.errors.schoolCertificate = "Необходимо загрузить справку из ОУ";
         isValid = false;
       }
 
-      if (!this.childForm.platformCertificate) {
+      if (!this.childForm.platformCertificate && (!this.isEditing || this.addPlatformFile)) {
         this.errors.platformCertificate =
           "Необходимо загрузить справку из площадки подготовки";
         isValid = false;
       }
 
-      if (!this.childForm.childConsentFile) {
+      if (!this.childForm.childConsentFile && (!this.isEditing || this.addConsentFile)) {
         this.errors.childConsentFile =
           "Необходимо загрузить согласие на обработку персональных данных";
         isValid = false;
@@ -252,37 +291,74 @@ export default {
       
       return isValid
     },
+    async editChild(child: ChildOutputDto) {
+      this.isEditing = true
+      this.showAddChildDialog = true
+      this.childForm.fullName = `${child.lastName} ${child.firstName} ${child.patronymic}`
+      this.childForm.birthDate = this.reformatBirthDate(child.dateOfBirth)
+      this.selectedChild = child
+    },
     async addChild() {
       if (this.user === null || !this.validateForm()) return
-      const childResponse = await this.childResolver.create({
-        userId: this.user.id,
-        lastName: this.childForm.fullName.split(" ")[0],
-        firstName: this.childForm.fullName.split(" ")[1],
-        patronymic: this.childForm.fullName.split(" ")[2],
-        dateOfBirth: this.formatBirthDate(this.childForm.birthDate),
-      })
-      if (childResponse.status !== 200 || typeof childResponse.message === "string")
-        return
-      if (this.childForm.childConsentFile === null
-        || this.childForm.schoolCertificate === null
-        || this.childForm.birthCertificate === null
-        || this.childForm.platformCertificate === null
-        || this.childForm.snilsScan === null
-        || this.childForm.grade === null) return
-      const childDocsResponse = await this.childDocumentsResolver.create({
-        childId: childResponse.message.id,
-        additionalStudyingCertificateFile: this.childForm.platformCertificate,
-        birthCertificateFile: this.childForm.birthCertificate,
-        consentToChildPdpFile: this.childForm.childConsentFile,
-        learningClass: this.childForm.grade,
-        parentRole: this.user.children[0].childDocuments.parentRole,
-        snilsFile: this.childForm.snilsScan,
-        snilsNumber: this.formatSnils(this.childForm.snilsNumber),
-        studyingCertificateFile: this.childForm.schoolCertificate,
-        studyingPlace: this.childForm.schoolName,
-        trainingGround: this.childForm.platform
-      })
-      if (childDocsResponse.status !== 200 || typeof childDocsResponse.message === "string") return
+      if (this.isEditing && this.selectedChild !== null) {
+        await this.childResolver.update({
+          id: this.selectedChild.id,
+          lastName: this.childForm.fullName.split(" ")[0],
+          firstName: this.childForm.fullName.split(" ")[1],
+          patronymic: this.childForm.fullName.split(" ")[2],
+          dateOfBirth: this.formatBirthDate(this.childForm.birthDate),
+          mentorId: null
+        })
+        if (this.addBirthFile || this.addSnilsFile
+          || this.addSchoolFile || this.addPlatformFile
+          || this.addPlatformFile) {
+          await this.childDocumentsResolver.update({
+            id: this.selectedChild.childDocuments.id,
+            additionalStudyingCertificateFile: this.childForm.platformCertificate,
+            birthCertificateFile: this.childForm.birthCertificate,
+            consentToChildPdpFile: this.childForm.childConsentFile,
+            learningClass: this.childForm.grade ?? this.selectedChild.childDocuments.learningClass,
+            parentRole: this.selectedChild.childDocuments.parentRole,
+            snilsFile: this.childForm.snilsScan,
+            snilsNumber: this.childForm.snilsNumber
+              ? this.formatSnils(this.childForm.snilsNumber)
+              : this.selectedChild.childDocuments.snilsNumber,
+            studyingCertificateFile: this.childForm.schoolCertificate,
+            studyingPlace: this.childForm.schoolName ?? this.selectedChild.childDocuments.studyingPlace,
+            trainingGround: this.childForm.platform ?? this.selectedChild.childDocuments.trainingGround,
+          })
+        }
+      } else {
+        const childResponse = await this.childResolver.create({
+          userId: this.user.id,
+          lastName: this.childForm.fullName.split(" ")[0],
+          firstName: this.childForm.fullName.split(" ")[1],
+          patronymic: this.childForm.fullName.split(" ")[2],
+          dateOfBirth: this.formatBirthDate(this.childForm.birthDate),
+          mentorId: null
+        })
+        if (this.childForm.childConsentFile !== null
+          && this.childForm.schoolCertificate !== null
+          && this.childForm.birthCertificate !== null
+          && this.childForm.platformCertificate !== null
+          && this.childForm.snilsScan !== null
+          && this.childForm.grade !== null
+          && typeof childResponse.message !== "string") {
+          await this.childDocumentsResolver.create({
+            childId: childResponse.message.id,
+            additionalStudyingCertificateFile: this.childForm.platformCertificate,
+            birthCertificateFile: this.childForm.birthCertificate,
+            consentToChildPdpFile: this.childForm.childConsentFile,
+            learningClass: this.childForm.grade,
+            parentRole: this.user.children[0].childDocuments.parentRole,
+            snilsFile: this.childForm.snilsScan,
+            snilsNumber: this.formatSnils(this.childForm.snilsNumber),
+            studyingCertificateFile: this.childForm.schoolCertificate,
+            studyingPlace: this.childForm.schoolName,
+            trainingGround: this.childForm.platform
+          })
+        }
+      }
       await this.userStore.fillChildren()
       this.showAddChildDialog = false
     }
