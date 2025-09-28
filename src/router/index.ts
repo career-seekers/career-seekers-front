@@ -40,6 +40,7 @@ import AdminVenues from '@/views/admin/AdminVenues.vue';
 //shared views
 import CompetenceDocuments from '@/views/shared/CompetenceDocuments.vue';
 import DashboardWrapper from '@/views/shared/DashboardWrapper.vue';
+import MentorLinkConfirmation from '@/views/shared/MentorLinkConfirmation.vue';
 
 import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
 import { Roles } from '@/state/UserState.types.ts';
@@ -81,6 +82,11 @@ const routes = [
     path: "/forgot-password",
     name: "forgot-password",
     component: ForgotPasswordView,
+  },
+  {
+    path: "/link/:id",
+    name: "mentor-link-confirmation",
+    component: MentorLinkConfirmation,
   },
   {
     path: "/user",
@@ -327,18 +333,49 @@ const router = createRouter({
 export const historyStack: string[] = []
 
 router.beforeEach(async (to, _, next) => {
+  console.log('Router: Navigating to', to.path);
   const authStore = useAuthStore();
   const userStore = useUserStore();
   if (authStore.access_token !== null) {
     const userData = await authStore.loadByTokens()
     if (userData !== null) await userStore.fillUser(userData)
   }
+  console.log('Router: User role after auth check:', userStore.user?.role);
+
+  // Проверяем, есть ли сохраненная ссылка для возврата после авторизации
+  if (to.path === "/login" && userStore.user !== null) {
+    const returnPath = localStorage.getItem('returnAfterLogin');
+    if (returnPath) {
+      localStorage.removeItem('returnAfterLogin');
+      next({ path: returnPath });
+      return;
+    }
+  }
 
   if (userStore.user === null && to.meta.allowedRole) {
     next({ path: "/login" })
     return
   }
+  // Проверяем, есть ли сохраненная ссылка для возврата (приоритет над обычными редиректами)
+  if (userStore.user !== null) {
+    const returnPath = localStorage.getItem('returnAfterLogin');
+    if (returnPath) {
+      console.log('Found return path, redirecting to:', returnPath);
+      localStorage.removeItem('returnAfterLogin');
+      next({ path: returnPath });
+      return;
+    }
+  }
+
+  // Специальная обработка для страницы подтверждения наставника
+  if (to.path.startsWith('/link/') && userStore.user?.role === 'USER') {
+    console.log('Allowing access to mentor link confirmation page');
+    next();
+    return;
+  }
+
   if (userStore.user !== null && (to.path === "/login" || to.meta.allowedRole !== userStore.user.role)) {
+    console.log('No return path, redirecting to dashboard');
     next({ path: `/${userStore.user.role.toLowerCase()}/dashboard` })
     return
   }

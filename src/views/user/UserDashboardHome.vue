@@ -77,6 +77,7 @@
       :children="user.children"
       @update:children-list="userStore.fillChildren"
       @open:child-form="(child) => editChild(child)"
+      ref="childrenList"
     />
     <Dialog
       v-model:visible="showAddChildDialog"
@@ -363,7 +364,23 @@ export default {
       }
       await this.userStore.fillChildren()
       this.showAddChildDialog = false
+    },
+    checkForSavedMentor() {
+      const selectedMentorId = localStorage.getItem('selectedMentorId');
+      if (selectedMentorId) {
+        console.log('Found saved mentor ID in UserDashboardHome:', selectedMentorId);
+        // Обновляем список детей, чтобы показать доступного наставника
+        this.$nextTick(() => {
+          if (this.$refs.childrenList) {
+            this.$refs.childrenList.loadAvailableMentor();
+          }
+        });
+      }
     }
+  },
+  mounted() {
+    // Проверяем, есть ли сохраненный наставник после перехода по ссылке
+    this.checkForSavedMentor();
   }
 };
 </script>

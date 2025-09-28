@@ -150,6 +150,12 @@
               class="p-button-outlined"
               @click="viewCertificates"
             />
+            <Button
+              label="Сгенерировать ссылку для родителей"
+              icon="pi pi-link"
+              class="p-button-success"
+              @click="generateParentLink"
+            />
           </div>
         </div>
       </div>
@@ -185,19 +191,57 @@
         </div>
       </div>
     </div>
+
+    <!-- Диалог для отображения ссылки -->
+    <Dialog
+      v-model:visible="showLinkDialog"
+      header="Ссылка для родителей"
+      :modal="true"
+      :style="{ width: '500px' }"
+    >
+      <div class="link-dialog-content">
+        <p class="link-description">
+          Поделитесь этой ссылкой с родителями, чтобы они могли выбрать вас в качестве наставника для своего ребенка:
+        </p>
+        <div class="link-container">
+          <InputText
+            v-model="generatedLink"
+            readonly
+            class="link-input"
+          />
+          <Button
+            icon="pi pi-copy"
+            class="p-button-outlined p-button-sm"
+            @click="copyLink"
+          />
+        </div>
+        <p class="link-note">
+          <i class="pi pi-info-circle" />
+          Родители смогут выбрать вас в качестве наставника для своих детей после перехода по ссылке
+        </p>
+      </div>
+    </Dialog>
   </div>
 </template>
 
 <script lang="ts">
 import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import { useUserStore } from '@/stores/userStore.ts';
 
 export default {
   name: "MentorDashboardHome",
   components: {
     Button,
+    Dialog,
+    InputText,
   },
   data() {
     return {
+      userStore: useUserStore(),
+      showLinkDialog: false,
+      generatedLink: "",
       MentorData: {
         fullName: "Смирнов Алексей Владимирович",
         email: "a.smirnov@mentor.ru",
@@ -264,6 +308,25 @@ export default {
     },
     viewCertificates() {
       this.$router.push("/mentor/my-certificates");
+    },
+    generateParentLink() {
+      if (this.userStore.user) {
+        // Генерируем зашифрованный ID наставника
+        const mentorId = this.userStore.user.id;
+        const encryptedId = btoa(mentorId.toString()); 
+        this.generatedLink = `${window.location.origin}/link/${encryptedId}`;
+        this.showLinkDialog = true;
+      }
+    },
+    async copyLink() {
+      try {
+        await navigator.clipboard.writeText(this.generatedLink);
+        // Показываем уведомление об успешном копировании
+        alert('Ссылка скопирована в буфер обмена');
+      } catch (err) {
+        console.error('Ошибка при копировании ссылки:', err);
+        alert('Не удалось скопировать ссылку');
+      }
     },
   },
 };
@@ -647,5 +710,46 @@ export default {
   .update-time {
     font-size: 0.7rem;
   }
+}
+
+/* Стили для диалога ссылки */
+.link-dialog-content {
+  padding: 1rem 0;
+}
+
+.link-description {
+  color: #2c3e50;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.link-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.link-input {
+  flex: 1;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.link-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #ff9800;
+}
+
+.link-note i {
+  color: #ff9800;
+  font-size: 1rem;
 }
 </style>
