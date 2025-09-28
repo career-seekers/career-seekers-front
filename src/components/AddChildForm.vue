@@ -384,6 +384,7 @@
   import type { PropType } from 'vue';
   import { useGradeOptions } from '@/shared/UseGradeOptions.ts';
   import Checkbox from 'primevue/checkbox';
+  import { FormatManager } from '@/utils/FormatManager.ts';
 
   export type ChildFormFields = {
     fullName: string,
@@ -470,7 +471,7 @@
     computed: {
       filteredGrades() {
         if (this.childForm.birthDate.length !== 10) return this.gradeOptions
-        const age = this.calculateAge(this.formatBirthDate(this.childForm.birthDate))
+        const age = FormatManager.calculateAge(FormatManager.formatBirthDateToDTO(this.childForm.birthDate))
         return this.gradeOptions.filter(option => {
           const difference = age - option.value
           if (age < 7 && option.value === 0) return true
@@ -501,23 +502,6 @@
       }
     },
     methods: {
-      calculateAge(birthDate: string) {
-        const birth = new Date(birthDate.substring(0, 10));
-        const onDate = new Date(2026, 1, 14)
-
-        let age = onDate.getFullYear() - birth.getFullYear();
-        let monthDiff = onDate.getMonth() - birth.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && onDate.getDate() < birth.getDate())) {
-          age--;
-        }
-        return age;
-      },
-      formatBirthDate(birthDate: string) {
-        const [day, month, year] = birthDate.split('.').map(Number);
-        const date = new Date(Date.UTC(year, month - 1, day));
-
-        return date.toISOString();
-      },
       onBirthCertificateSelect(event: FileUploadSelectEvent) {
         this.handleFileSelect(event, "birthCertificate");
       },

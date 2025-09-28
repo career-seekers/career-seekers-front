@@ -4,9 +4,9 @@
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import Button from 'primevue/button';
   import Dialog from 'primevue/dialog';
-  import { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import { useGradeOptions } from '../shared/UseGradeOptions.ts';
+  import { FormatManager } from '../utils/FormatManager.ts';
 
   export default {
     name: 'ChildrenList',
@@ -32,54 +32,15 @@
       }
     },
     computed: {
+      FormatManager() {
+        return FormatManager
+      },
       sortedChildren() {
         const children = this.children
         return children.sort((a, b) => a.id - b.id)
       }
     },
     methods: {
-      calculateGrade(child: ChildOutputDto) {
-        return this.gradeOptions.find(grade => grade.value === child.childDocuments?.learningClass)?.label
-      },
-      formatDateOfBirth(birthDate: string) {
-        const parts = birthDate.split("-");
-        return `${parts[2]}.${parts[1]}.${parts[0]}`;
-      },
-      formatSnils(snils: string) {
-        return `${snils.substring(0, 3)}-${snils.substring(3, 6)}-${snils.substring(6, 9)} ${snils.substring(9, 11)}`;
-      },
-      calculateAge(birthDate: string) {
-        const birth = new Date(birthDate.substring(0, 10));
-        const onDate = new Date(2026, 1, 14)
-
-        let age = onDate.getFullYear() - birth.getFullYear();
-        let monthDiff = onDate.getMonth() - birth.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && onDate.getDate() < birth.getDate())) {
-          age--;
-        }
-        return age;
-      },
-      getAgeGroupByAge(age: number, learningClass: number) {
-        if (age === 7) {
-          const group = this.ageGroups
-            .find(group => learningClass > 0
-              ? group.value === AgeCategories.EARLY_SCHOOL
-              : group.value === AgeCategories.PRESCHOOL
-            )
-          return group
-            ? group.label
-            : "-"
-        }
-        const group = this.ageGroups.find(group => {
-          const edges = group.label.split(" ")[0].split("-")
-          const min = parseInt(edges[0]);
-          const max = parseInt(edges[1]);
-          if (min <= age && age <= max) {
-            return group.label
-          }
-        })
-        return group ? group.label : "-"
-      },
       async removeChild(child: ChildOutputDto) {
         if (confirm(`Удалить ребёнка "${child.firstName}"`)) {
           const response = await this.childResolver.deleteById(child.id)
@@ -140,23 +101,26 @@
         <div class="child-details">
           <div class="detail-item">
             <span class="detail-label">Дата рождения:</span>
-            <span class="detail-value">{{ formatDateOfBirth(child.dateOfBirth) }}</span>
+            <span class="detail-value">{{ FormatManager.formatBirthDateFromDTO(child.dateOfBirth) }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">СНИЛС:</span>
-            <span class="detail-value">{{ formatSnils(child.childDocuments?.snilsNumber) }}</span>
+            <span class="detail-value">{{ FormatManager.formatSnilsFromDTO(child.childDocuments?.snilsNumber) }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Класс обучения:</span>
             <span class="detail-value">
-              {{ calculateGrade(child) }}
+              {{ FormatManager.calculateGrade(child) }}
             </span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Возрастная группа:</span>
-            <span class="detail-value">
-              {{ getAgeGroupByAge(calculateAge(child.dateOfBirth), child.childDocuments?.learningClass) }}
-            </span>
+            <span class="detail-value">{{
+              FormatManager.getAgeGroupByAge(
+                FormatManager.calculateAge(child.dateOfBirth),
+                child.childDocuments?.learningClass
+              )?.label
+            }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Образовательное учреждение:</span>

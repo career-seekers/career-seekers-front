@@ -110,7 +110,7 @@ onUnmounted(() => {
       <div 
         class="toast-progress-bar"
         :style="{ width: progressWidth + '%' }"
-      ></div>
+      />
     </div>
   </div>
 </template>

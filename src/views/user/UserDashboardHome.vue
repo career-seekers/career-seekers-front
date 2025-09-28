@@ -34,7 +34,7 @@
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ formatMobileNumber(user.mobileNumber) }}</span>
+              <span class="data-value">{{ FormatManager.formatMobileNumberFromDTO(user.mobileNumber) }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
@@ -124,6 +124,7 @@ import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-doc
 import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
 import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
 import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
+import { FormatManager } from '@/utils/FormatManager.ts';
 
 export default {
   name: "UserDashboardHome",
@@ -178,6 +179,9 @@ export default {
     };
   },
   computed: {
+    FormatManager() {
+      return FormatManager
+    },
     user() {
       return this.userStore.user
     },
@@ -200,31 +204,6 @@ export default {
     }
   },
   methods: {
-    reformatBirthDate(birthDate: string) {
-      const parts = birthDate.split("-");
-      return `${parts[2]}.${parts[1]}.${parts[0]}`;
-    },
-    formatBirthDate(birthDate: string) {
-      const [day, month, year] = birthDate.split('.').map(Number);
-      const date = new Date(Date.UTC(year, month - 1, day));
-
-      return date.toISOString();
-    },
-    formatMobileNumber(number: string) {
-      return `${number.substring(0, 2)}
-              (${number.substring(2, 5)})
-              ${number.substring(5, 8)}
-              ${number.substring(8, 10)}
-              -${number.substring(10, 12)}`;
-    },
-    formatSnils(number: string) {
-      return [
-        number.substring(0, 3),
-        number.substring(4, 7),
-        number.substring(8, 11),
-        number.substring(12, 14)
-      ].join('')
-    },
     validateForm() {
       let isValid = true
       // Валидация данных ребенка
@@ -295,7 +274,7 @@ export default {
       this.isEditing = true
       this.showAddChildDialog = true
       this.childForm.fullName = `${child.lastName} ${child.firstName} ${child.patronymic}`
-      this.childForm.birthDate = this.reformatBirthDate(child.dateOfBirth)
+      this.childForm.birthDate = FormatManager.formatBirthDateFromDTO(child.dateOfBirth)
       this.selectedChild = child
     },
     async addChild() {
@@ -306,7 +285,7 @@ export default {
           lastName: this.childForm.fullName.split(" ")[0],
           firstName: this.childForm.fullName.split(" ")[1],
           patronymic: this.childForm.fullName.split(" ")[2],
-          dateOfBirth: this.formatBirthDate(this.childForm.birthDate),
+          dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null
         })
         if (this.addBirthFile || this.addSnilsFile
@@ -321,7 +300,7 @@ export default {
             parentRole: this.selectedChild.childDocuments.parentRole,
             snilsFile: this.childForm.snilsScan,
             snilsNumber: this.childForm.snilsNumber
-              ? this.formatSnils(this.childForm.snilsNumber)
+              ? FormatManager.formatSnilsToDTO(this.childForm.snilsNumber)
               : this.selectedChild.childDocuments.snilsNumber,
             studyingCertificateFile: this.childForm.schoolCertificate,
             studyingPlace: this.childForm.schoolName ?? this.selectedChild.childDocuments.studyingPlace,
@@ -334,7 +313,7 @@ export default {
           lastName: this.childForm.fullName.split(" ")[0],
           firstName: this.childForm.fullName.split(" ")[1],
           patronymic: this.childForm.fullName.split(" ")[2],
-          dateOfBirth: this.formatBirthDate(this.childForm.birthDate),
+          dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null
         })
         if (this.childForm.childConsentFile !== null
@@ -354,7 +333,7 @@ export default {
               ? this.user.children[0].childDocuments.parentRole
               : "Не указано",
             snilsFile: this.childForm.snilsScan,
-            snilsNumber: this.formatSnils(this.childForm.snilsNumber),
+            snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
             studyingCertificateFile: this.childForm.schoolCertificate,
             studyingPlace: this.childForm.schoolName,
             trainingGround: this.childForm.platform
