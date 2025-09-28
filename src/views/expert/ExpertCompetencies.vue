@@ -33,6 +33,7 @@
       </div>
     </div>
 
+
     <!-- Список компетенций -->
     <div class="competencies-grid">
       <div
@@ -428,6 +429,7 @@ export default {
         }, 0);
         return totalPlaces > 0 ? totalPlaces : '-';
       },
+
   },
 };
 </script>
@@ -777,6 +779,7 @@ export default {
     flex: 1 1 calc(50% - 0.125rem);
     min-width: 0;
   }
+
 }
 
 /* Промежуточные экраны */
@@ -829,6 +832,7 @@ export default {
     grid-template-columns: 1fr;
   }
 }
+
 
 /* Стили для диалога управления местами */
 .places-management {

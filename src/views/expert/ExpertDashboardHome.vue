@@ -162,6 +162,7 @@
       <!--        </div>-->
       <!--      </div>-->
 
+
       <!-- Быстрые действия -->
       <div class="info-card">
         <div class="card-header">
@@ -360,6 +361,12 @@
         />
       </template>
     </Dialog>
+
+    <!-- Toast уведомление -->
+    <ToastPopup
+      v-if="errors.toastPopup.title && errors.toastPopup.message"
+      :content="errors.toastPopup"
+    />
   </div>
 </template>
 
@@ -380,6 +387,7 @@ import {UserResolver} from "@/api/resolvers/user/user.resolver.ts";
 import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+import ToastPopup from '@/components/ToastPopup.vue';
 
 export default {
   name: "ExpertDashboardHome",
@@ -388,6 +396,7 @@ export default {
     Dropdown,
     Dialog,
     Button,
+    ToastPopup,
   },
   data() {
     return {
@@ -423,11 +432,32 @@ export default {
       const response = await competenceResolver.getAllByExpertId(this.user.id);
       if (response.status === 200 && typeof response.message !== "string") {
         this.competencies = response.message;
+        // Загружаем количество документов для каждой компетенции
+        await this.loadDocumentsCount();
       }
     }
   },
 
   methods: {
+    async loadDocumentsCount() {
+      if (this.user !== null) {
+        try {
+          const competenceDocumentsResolver = new CompetenceDocumentsResolver();
+          const response = await competenceDocumentsResolver.getByUserId(this.user.id);
+          if (response.status === 200 && typeof response.message !== "string") {
+            const allDocuments = response.message;
+            // Обновляем количество документов для каждой компетенции
+            this.competencies.forEach(competence => {
+              const documentsCount = allDocuments.filter(doc => doc.direction.id === competence.id).length;
+              competence.documentsCount = documentsCount;
+            });
+          }
+        } catch (error) {
+          console.error("Ошибка при загрузке количества документов:", error);
+        }
+      }
+    },
+
     async getCurrentExpert() {
       if (this.user !== null) {
         const res = await this.usersResolver.getById(this.user.id)
@@ -487,13 +517,43 @@ export default {
             title: response.status.toString(),
             message: response.message.toString(),
           };
-        } else this.cancelLoad();
+        } else {
+          // Обновляем количество документов после успешной загрузки
+          await this.loadDocumentsCount();
+          // Показываем уведомление об успешной загрузке
+          this.errors.toastPopup = {
+            title: "Успешно!",
+            message: "Документ был успешно загружен"
+          };
+          console.log("Toast показан:", this.errors.toastPopup);
+          // Закрываем модальное окно, но не очищаем уведомление сразу
+          this.showCompetenceDocModal = false;
+          // Очищаем уведомление через 6 секунд (после того, как тост исчезнет)
+          setTimeout(() => {
+            this.errors.toastPopup = {
+              title: "",
+              message: "",
+            };
+          }, 6000);
+        }
       }
     },
     cancelLoad() {
       this.showCompetenceDocModal = false;
+      // Очищаем уведомление при закрытии модального окна только если оно пустое
+      if (!this.errors.toastPopup.title && !this.errors.toastPopup.message) {
+        this.errors.toastPopup = {
+          title: "",
+          message: "",
+        };
+      }
     },
     addDocument() {
+      // Очищаем предыдущие уведомления при открытии модального окна
+      this.errors.toastPopup = {
+        title: "",
+        message: "",
+      };
       this.showCompetenceDocModal = true;
     },
     manageCompetencies() {
@@ -512,6 +572,7 @@ export default {
         return total + (ageCategory.maxPlaces || 0);
       }, 0);
     },
+
   },
 };
 </script>
@@ -840,6 +901,7 @@ export default {
   margin-top: 1rem;
 }
 
+
 /* Быстрые действия */
 .quick-actions {
   display: flex;
@@ -980,6 +1042,7 @@ export default {
   .quick-actions {
     gap: 0.5rem;
   }
+
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);

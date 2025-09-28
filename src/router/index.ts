@@ -18,6 +18,7 @@ import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
 import ExpertCompetencies from "@/views/expert/ExpertCompetencies.vue";
 import ExpertParticipants from "@/views/expert/ExpertParticipants.vue";
 import ExpertEvents from "@/views/expert/ExpertEvents.vue";
+import ExpertDocuments from "@/views/expert/ExpertDocuments.vue";
 
 // mentor views
 import MentorDashboardHome from "@/views/mentor/MentorDashboardHome.vue";
@@ -175,6 +176,15 @@ const routes = [
         path: "events",
         name: "expert-events",
         component: ExpertEvents,
+      },
+      {
+        path: "documents",
+        name: "expert-documents",
+        component: ExpertDocuments,
+        meta: {
+          title: "Документы",
+          icon: "pi pi-folder"
+        }
       },
       {
         path: "participants/:competenceId",

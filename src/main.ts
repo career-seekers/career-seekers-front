@@ -3,6 +3,7 @@ import App from "./App.vue";
 import router from "./router/index.js";
 import PrimeVue from "primevue/config";
 import Tooltip from "primevue/tooltip";
+import ConfirmationService from "primevue/confirmationservice";
 import "primevue/resources/themes/lara-light-amber/theme.css";
 import "primevue/resources/primevue.min.css";
 import "primeicons/primeicons.css";
@@ -67,6 +68,7 @@ const ruLocale = {
 
 app.use(pinia)
 app.use(router);
+app.use(ConfirmationService);
 app.use(PrimeVue, {
   locale: {
     ru: ruLocale,
