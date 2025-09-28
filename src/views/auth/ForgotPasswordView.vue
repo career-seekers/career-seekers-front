@@ -159,13 +159,6 @@
             @click="goToLogin"
           />
         </div>
-
-        <div class="back-to-login">
-          <router-link to="/login" class="back-link">
-            <i class="pi pi-arrow-left"></i>
-            Вернуться к входу
-          </router-link>
-        </div>
       </div>
     </div>
     <ToastPopup :content="errors.toastPopup" />
@@ -190,6 +183,7 @@ export default {
   },
   data() {
     return {
+      authResolver: new AuthResolver(),
       currentStep: 1,
       isLoading: false,
       emailForm: {
@@ -283,19 +277,23 @@ export default {
         message: '',
       };
 
-      const authResolver = new AuthResolver();
       try {
-        const response = await authResolver.forgotPassword({
+        const response = await this.authResolver.forgotPassword({
           email: this.emailForm.email.toLowerCase(),
         });
 
-        if (typeof response.message === 'string') {
+        if (response.status === 200) {
+          this.currentStep = 2;
+
+          this.errors.toastPopup = {
+            title: `#${response.status}`,
+            message: response.message,
+          };
+        } else {
           this.errors.toastPopup = {
             title: `Ошибка #${response.status}`,
             message: response.message,
           };
-        } else {
-          this.currentStep = 2;
         }
       } catch (error) {
         this.errors.toastPopup = {
@@ -315,20 +313,24 @@ export default {
         message: '',
       };
 
-      const authResolver = new AuthResolver();
       try {
-        const response = await authResolver.verifyCode({
+        const response = await this.authResolver.verifyCode({
           email: this.emailForm.email.toLowerCase(),
           code: this.codeForm.code,
         });
 
-        if (typeof response.message === 'string') {
+        if (response.status === 200) {
+          this.currentStep = 3;
+
+          this.errors.toastPopup = {
+            title: `#${response.status}`,
+            message: response.message,
+          };
+        } else {
           this.errors.toastPopup = {
             title: `Ошибка #${response.status}`,
             message: response.message,
           };
-        } else {
-          this.currentStep = 3;
         }
       } catch (error) {
         this.errors.toastPopup = {
@@ -348,22 +350,26 @@ export default {
         message: '',
       };
 
-      const authResolver = new AuthResolver();
       try {
-        const response = await authResolver.resetPassword({
+        const response = await this.authResolver.resetPassword({
           email: this.emailForm.email.toLowerCase(),
           code: this.codeForm.code,
           newPassword: this.passwordForm.newPassword,
           confirmPassword: this.passwordForm.confirmPassword,
         });
 
-        if (typeof response.message === 'string') {
+        if (response.status === 200) {
+          this.currentStep = 4;
+
+          this.errors.toastPopup = {
+            title: `#${response.status}`,
+            message: response.message,
+          };
+        } else {
           this.errors.toastPopup = {
             title: `Ошибка #${response.status}`,
             message: response.message,
           };
-        } else {
-          this.currentStep = 4;
         }
       } catch (error) {
         this.errors.toastPopup = {
