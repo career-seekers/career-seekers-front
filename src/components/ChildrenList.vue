@@ -44,6 +44,7 @@
         gradeOptions: useGradeOptions,
         availableMentor: null as { id: number; name: string } | null,
         mentorOptions: [] as Array<{label: string; value: string | number}>,
+        mentorAssignments: new Map<number, number>(), // mentorId -> количество назначений
         toastContent: {
           title: '',
           message: ''
@@ -120,7 +121,8 @@
         const selectedMentorId = localStorage.getItem('selectedMentorId');
         console.log('Loading available mentor from localStorage ID:', selectedMentorId);
         
-        // Создаем список опций наставников
+        // Полностью очищаем и пересоздаем список опций наставников
+        this.mentorOptions = [];
         const parentName = this.userStore.user ? `${this.userStore.user.lastName} ${this.userStore.user.firstName} ${this.userStore.user.patronymic}` : 'Родитель';
         this.mentorOptions = [
           {
@@ -128,6 +130,8 @@
             value: 'parent'
           }
         ];
+        
+        console.log('Initial mentorOptions:', this.mentorOptions);
         
         if (selectedMentorId) {
           try {
@@ -149,14 +153,26 @@
                   name: mentorName
                 };
                 
-                // Добавляем внешнего наставника в список опций
-                this.mentorOptions.push({
-                  label: mentorName,
-                  value: mentorId
-                });
+                // Добавляем внешнего наставника в список опций (проверяем на дублирование)
+                const existingMentor = this.mentorOptions.find(option => option.value === mentorId);
+                if (!existingMentor) {
+                  this.mentorOptions.push({
+                    label: mentorName,
+                    value: mentorId
+                  });
+                  console.log('Added mentor to options:', mentorName);
+                } else {
+                  console.log('Mentor already exists in options:', existingMentor);
+                }
                 
                 console.log('Set availableMentor:', this.availableMentor);
                 console.log('Mentor options:', this.mentorOptions);
+                
+                // Инициализируем счетчик назначений для наставника (если еще не установлен)
+                if (!this.mentorAssignments.has(mentorId)) {
+                  this.mentorAssignments.set(mentorId, 0);
+                  console.log('Initialized mentor assignments counter:', mentorId);
+                }
               } else {
                 console.log('API returned invalid data, using fallback');
                 this.setFallbackMentor(mentorId);
@@ -182,12 +198,31 @@
           name: fallbackName
         };
         
-        this.mentorOptions.push({
-          label: fallbackName,
-          value: mentorId
-        });
+        // Проверяем на дублирование перед добавлением
+        const existingMentor = this.mentorOptions.find(option => option.value === mentorId);
+        if (!existingMentor) {
+          this.mentorOptions.push({
+            label: fallbackName,
+            value: mentorId
+          });
+          console.log('Added fallback mentor to options:', fallbackName);
+        } else {
+          console.log('Fallback mentor already exists in options:', existingMentor);
+        }
         
         console.log('Set fallback mentor:', this.availableMentor);
+        
+        // Инициализируем счетчик назначений для fallback наставника
+        if (!this.mentorAssignments.has(mentorId)) {
+          this.mentorAssignments.set(mentorId, 0);
+          console.log('Initialized fallback mentor assignments counter:', mentorId);
+        }
+      },
+      
+      removeMentorFromList(mentorId: number) {
+        // Удаляем наставника из списка опций
+        this.mentorOptions = this.mentorOptions.filter(option => option.value !== mentorId);
+        console.log('Removed mentor from options list:', mentorId);
       },
       
       // Временный метод для тестирования API
@@ -295,17 +330,19 @@
           if (updateResponse.status === 200) {
             console.log('Update successful, clearing form...');
             
-            // Очищаем localStorage если был выбран внешний наставник
-            if (child.selectedMentor !== 'parent') {
-              localStorage.removeItem('selectedMentorId');
-              this.availableMentor = null;
-              const parentName = this.userStore.user ? `${this.userStore.user.lastName} ${this.userStore.user.firstName} ${this.userStore.user.patronymic}` : 'Родитель';
-              this.mentorOptions = [
-                {
-                  label: `Родитель является наставником (${parentName})`,
-                  value: 'parent'
-                }
-              ];
+            // Обновляем счетчик назначений наставника
+            if (child.selectedMentor !== 'parent' && typeof mentorId === 'number') {
+              const currentAssignments = this.mentorAssignments.get(mentorId) || 0;
+              this.mentorAssignments.set(mentorId, currentAssignments + 1);
+              console.log(`Mentor ${mentorId} assignments: ${currentAssignments + 1}/3`);
+              
+              // Проверяем, достигнут ли лимит (3 ребенка)
+              if (currentAssignments + 1 >= 3) {
+                console.log('Mentor reached maximum assignments (3), removing from list');
+                this.removeMentorFromList(mentorId);
+                localStorage.removeItem('selectedMentorId');
+                this.availableMentor = null;
+              }
             }
             
             // Сбрасываем выбор
@@ -322,9 +359,15 @@
             });
             
             // Показываем уведомление об успехе через toast
+            let message = `Наставник "${mentorName}" назначен для ${child.firstName}`;
+            if (child.selectedMentor !== 'parent' && typeof mentorId === 'number') {
+              const assignments = this.mentorAssignments.get(mentorId) || 0;
+              message += ` (${assignments}/3 назначений)`;
+            }
+            
             this.toastContent = {
               title: 'Успешно!',
-              message: `Наставник "${mentorName}" назначен для ${child.firstName}`
+              message: message
             };
           } else {
             console.error('Update failed with status:', updateResponse.status);
