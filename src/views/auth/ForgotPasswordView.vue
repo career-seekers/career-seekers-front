@@ -17,18 +17,29 @@
 
       <div class="forgot-password-content">
         <!-- Этап 1: Ввод email -->
-        <div v-if="currentStep === 1" class="step-container">
+        <div
+          v-if="currentStep === 1"
+          class="step-container"
+        >
           <div class="step-info">
-            <div class="step-number">1</div>
+            <div class="step-number">
+              1
+            </div>
             <div class="step-text">
               <h3>Введите email</h3>
               <p>Укажите email, который использовался при регистрации</p>
             </div>
           </div>
           
-          <form @submit.prevent="handleEmailSubmit" class="forgot-password-form">
+          <form
+            class="forgot-password-form"
+            @submit.prevent="handleEmailSubmit"
+          >
             <div class="field">
-              <label for="email" class="field-label">Email</label>
+              <label
+                for="email"
+                class="field-label"
+              >Email</label>
               <InputText
                 id="email"
                 v-model="emailForm.email"
@@ -37,7 +48,10 @@
                 class="w-full"
                 :class="{ 'p-invalid': errors.email }"
               />
-              <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
+              <small
+                v-if="errors.email"
+                class="p-error"
+              >{{ errors.email }}</small>
             </div>
 
             <Button
@@ -50,18 +64,29 @@
         </div>
 
         <!-- Этап 2: Ввод кода подтверждения -->
-        <div v-if="currentStep === 2" class="step-container">
+        <div
+          v-if="currentStep === 2"
+          class="step-container"
+        >
           <div class="step-info">
-            <div class="step-number">2</div>
+            <div class="step-number">
+              2
+            </div>
             <div class="step-text">
               <h3>Введите код подтверждения</h3>
               <p>Мы отправили код на {{ emailForm.email }}</p>
             </div>
           </div>
           
-          <form @submit.prevent="handleCodeSubmit" class="forgot-password-form">
+          <form
+            class="forgot-password-form"
+            @submit.prevent="handleCodeSubmit"
+          >
             <div class="field">
-              <label for="code" class="field-label">Код подтверждения</label>
+              <label
+                for="code"
+                class="field-label"
+              >Код подтверждения</label>
               <InputText
                 id="code"
                 v-model="codeForm.code"
@@ -70,7 +95,10 @@
                 :class="{ 'p-invalid': errors.code }"
                 maxlength="6"
               />
-              <small v-if="errors.code" class="p-error">{{ errors.code }}</small>
+              <small
+                v-if="errors.code"
+                class="p-error"
+              >{{ errors.code }}</small>
             </div>
 
             <div class="button-group">
@@ -91,18 +119,29 @@
         </div>
 
         <!-- Этап 3: Новый пароль -->
-        <div v-if="currentStep === 3" class="step-container">
+        <div
+          v-if="currentStep === 3"
+          class="step-container"
+        >
           <div class="step-info">
-            <div class="step-number">3</div>
+            <div class="step-number">
+              3
+            </div>
             <div class="step-text">
               <h3>Создайте новый пароль</h3>
               <p>Придумайте надежный пароль для вашего аккаунта</p>
             </div>
           </div>
           
-          <form @submit.prevent="handlePasswordSubmit" class="forgot-password-form">
+          <form
+            class="forgot-password-form"
+            @submit.prevent="handlePasswordSubmit"
+          >
             <div class="field">
-              <label for="newPassword" class="field-label">Новый пароль</label>
+              <label
+                for="newPassword"
+                class="field-label"
+              >Новый пароль</label>
               <Password
                 id="newPassword"
                 v-model="passwordForm.newPassword"
@@ -112,11 +151,17 @@
                 :feedback="true"
                 toggle-mask
               />
-              <small v-if="errors.newPassword" class="p-error">{{ errors.newPassword }}</small>
+              <small
+                v-if="errors.newPassword"
+                class="p-error"
+              >{{ errors.newPassword }}</small>
             </div>
 
             <div class="field">
-              <label for="confirmPassword" class="field-label">Подтвердите пароль</label>
+              <label
+                for="confirmPassword"
+                class="field-label"
+              >Подтвердите пароль</label>
               <Password
                 id="confirmPassword"
                 v-model="passwordForm.confirmPassword"
@@ -126,7 +171,10 @@
                 :feedback="false"
                 toggle-mask
               />
-              <small v-if="errors.confirmPassword" class="p-error">{{ errors.confirmPassword }}</small>
+              <small
+                v-if="errors.confirmPassword"
+                class="p-error"
+              >{{ errors.confirmPassword }}</small>
             </div>
 
             <div class="button-group">
@@ -147,12 +195,19 @@
         </div>
 
         <!-- Этап 4: Успех -->
-        <div v-if="currentStep === 4" class="step-container success-container">
+        <div
+          v-if="currentStep === 4"
+          class="step-container success-container"
+        >
           <div class="success-icon">
-            <i class="pi pi-check-circle"></i>
+            <i class="pi pi-check-circle" />
           </div>
-          <h3 class="success-title">Пароль успешно изменен!</h3>
-          <p class="success-message">Теперь вы можете войти в систему с новым паролем</p>
+          <h3 class="success-title">
+            Пароль успешно изменен!
+          </h3>
+          <p class="success-message">
+            Теперь вы можете войти в систему с новым паролем
+          </p>
           <Button
             label="Войти в систему"
             class="w-full submit-button"

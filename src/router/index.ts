@@ -33,6 +33,7 @@ import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
 import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
 import AdminTutors from '@/views/admin/AdminTutors.vue';
 import AdminExperts from '@/views/admin/AdminExperts.vue';
+import AdminUsers from '@/views/admin/AdminUsers.vue';
 import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
 import AdminDocuments from '@/views/admin/AdminDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
@@ -283,6 +284,14 @@ const routes = [
         }
       },
       {
+        path: "users",
+        component: AdminUsers,
+        meta: {
+          title: "Родители",
+          icon: "pi pi-users",
+        }
+      },
+      {
         path: "competencies",
         component: AdminCompetencies,
         meta: {
@@ -294,7 +303,7 @@ const routes = [
         path: "documents",
         component: AdminDocuments,
         meta: {
-          title: "Документы",
+          title: "Документы компетенций",
           icon: "pi pi-file",
         }
       },
