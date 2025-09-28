@@ -120,7 +120,7 @@
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
-  import type { ChildOutputDto } from '@/api/resolvers/user/dto/output/child-output.dto.ts';
+  import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
   import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
 
@@ -170,7 +170,7 @@
         if (this.userStore.user === null) return
         this.selectedChild = this.userStore.user.children[0]
         const ageCategory = this.getAgeGroupByAge(
-          this.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild?.learningClass
+          this.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild?.childDocuments.learningClass
         )
         if (!ageCategory) return
         const response = await this.competenceResolver.getByAgeCategory(ageCategory.value)

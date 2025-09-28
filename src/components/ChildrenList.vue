@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PropType } from 'vue';
-  import type { ChildOutputDto } from '@/api/resolvers/user/dto/output/child-output.dto.ts';
+  import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import Button from 'primevue/button';
   import Dialog from 'primevue/dialog';
@@ -115,7 +115,7 @@
           <div class="detail-item">
             <span class="detail-label">Возрастная группа:</span>
             <span class="detail-value">
-              {{ getAgeGroupByAge(calculateAge(child.dateOfBirth), child.learningClass) }}
+              {{ getAgeGroupByAge(calculateAge(child.dateOfBirth), child.childDocuments.learningClass) }}
             </span>
           </div>
         </div>
@@ -265,11 +265,5 @@
     color: #2c3e50;
     font-weight: 500;
     text-align: right;
-  }
-
-  .verify {
-    display: flex;
-    gap: 1.5rem;
-    justify-content: flex-end;
   }
 </style>

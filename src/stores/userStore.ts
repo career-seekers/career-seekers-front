@@ -14,8 +14,9 @@ import type {
   UserWithChildRegistrationDto,
 } from '@/api/resolvers/auth/dto/input/register-input.dto.ts';
 import { MentorDocumentsResolver } from '@/api/resolvers/mentorDocuments/mentor-documents.resolver.ts';
-import { UserDocumentsResolver } from '@/api/resolvers/userDocuments/user-documents.resolver.ts';
 import { TelegramLinkResolver } from '@/api/resolvers/telegramLink/telegram-link.resolver.ts';
+import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-documents.resolver.ts';
+import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
 
 export const useUserStore = defineStore("user", {
   state: (): { user: UserStateInterface | null } => ({
@@ -37,7 +38,6 @@ export const useUserStore = defineStore("user", {
         verified: userData.verified,
         isMentor: userData.isMentor,
         telegramLink: userData.telegramLink?.tgLink ?? null,
-        userDocuments: [],
         expertDocuments: [],
         tutorDocuments: [],
         mentorDocuments: [],
@@ -55,6 +55,10 @@ export const useUserStore = defineStore("user", {
           tgLink: telegramLink,
         })
         if (response.status === 200) localStorage.removeItem("telegramLink");
+      }
+      if (userData.children.length === 0) {
+        const response = await new ChildResolver().getByUserId(this.user.id);
+        if (response.status === 200 && typeof response.message !== "string") this.user.children = response.message
       }
     },
     async fillDocuments(docsToVerifyStr: string) {
@@ -111,37 +115,46 @@ export const useUserStore = defineStore("user", {
           }
 
           case Roles.USER: {
-            const userDocsResolver = new UserDocumentsResolver()
+            const childResolver = new ChildResolver()
+            const childDocumentsResolver = new ChildDocumentsResolver()
             const cachedData = JSON.parse(docsToVerifyStr) as
               RegistrationData<UserWithChildRegistrationDto, UserCachedData>
-
-            const response = await userDocsResolver.create({
+            const childResponse = await childResolver.create({
+              lastName: cachedData.dto.childLastName,
+              firstName: cachedData.dto.childFirstName,
+              patronymic: cachedData.dto.childPatronymic,
+              dateOfBirth: cachedData.dto.childDateOfBirth,
               userId: this.user.id,
-              snilsNumber: cachedData.extra.snilsNumber,
-              snilsFile: await fileManager.loadFileFromCache(
-                cachedData.extra.snilsFileName
-              ),
-              studyingPlace: cachedData.extra.studyingPlace,
-              studyingCertificateFile: await fileManager.loadFileFromCache(
-                cachedData.extra.studyingCertificateFileName
-              ),
-              learningClass: cachedData.extra.learningClass,
-              trainingGround: cachedData.extra.trainingGround,
-              additionalStudyingCertificateFile: await fileManager.loadFileFromCache(
-                cachedData.extra.additionalStudyingCertificateFileName
-              ),
-              consentToChildPdpFile: await fileManager.loadFileFromCache(
-                cachedData.extra.consentToChildPdpFilename
-              ),
-              parentRole: cachedData.extra.parentRole,
-              birthCertificateFile: await fileManager.loadFileFromCache(
-                cachedData.extra.birthCertificateFilename
-              )
             })
+            console.log(childResponse)
+            if (childResponse.status === 200 && typeof childResponse.message !== "string") {
+              const childDocsResponse = await childDocumentsResolver.create({
+                childId: childResponse.message.id,
+                snilsNumber: cachedData.extra.snilsNumber,
+                snilsFile: await fileManager.loadFileFromCache(
+                  cachedData.extra.snilsFileName
+                ),
+                studyingPlace: cachedData.extra.studyingPlace,
+                studyingCertificateFile: await fileManager.loadFileFromCache(
+                  cachedData.extra.studyingCertificateFileName
+                ),
+                learningClass: cachedData.extra.learningClass,
+                trainingGround: cachedData.extra.trainingGround,
+                additionalStudyingCertificateFile: await fileManager.loadFileFromCache(
+                  cachedData.extra.additionalStudyingCertificateFileName
+                ),
+                consentToChildPdpFile: await fileManager.loadFileFromCache(
+                  cachedData.extra.consentToChildPdpFilename
+                ),
+                parentRole: cachedData.extra.parentRole,
+                birthCertificateFile: await fileManager.loadFileFromCache(
+                  cachedData.extra.birthCertificateFilename
+                )
+              })
 
-            if (response.status === 200 && typeof response.message !== "string") {
-              this.user.userDocuments.push(response.message)
-              localStorage.removeItem("dataToVerify");
+              if (childDocsResponse.status === 200 && typeof childDocsResponse.message !== "string") {
+                localStorage.removeItem("dataToVerify");
+              }
             }
 
             await fileManager.removeFileFromCache(cachedData.extra.snilsFileName);
