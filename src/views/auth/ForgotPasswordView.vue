@@ -476,7 +476,7 @@ export default {
 .step-container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
   padding-top: 1rem;
 }
 
@@ -561,7 +561,6 @@ export default {
 }
 
 .submit-button {
-  margin-top: 0.5rem;
   height: 3rem;
   font-size: 1rem;
   font-weight: 500;
@@ -600,9 +599,13 @@ export default {
 }
 
 .success-icon {
-  font-size: 4rem;
   color: #28a745;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.success-icon i {
+  font-size: 6rem !important;
+  line-height: 1;
 }
 
 .success-title {
