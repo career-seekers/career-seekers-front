@@ -33,6 +33,7 @@ export const useAuthStore = defineStore("auth", {
         await this.updateTokens()
         return null
       }
+      await this.setExpirationTimeout(jwtData.exp)
       return response.message
     },
     async updateTokens() {
@@ -70,6 +71,22 @@ export const useAuthStore = defineStore("auth", {
       this.uuid = null
 
       await router.push("/login")
+    },
+    async setExpirationTimeout(exp: number): Promise<void> {
+      const expTime = exp * 1000
+      const now = Date.now();
+      const delay = expTime - now;
+      if (delay > 0) {
+        setTimeout( () => {
+          this.updateTokens()
+            .then(() => {})
+            .catch(async () => {
+              await this.logout()
+            })
+        }, delay);
+      } else {
+        await this.logout()
+      }
     }
-  }
+  },
 })
