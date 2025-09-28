@@ -88,6 +88,18 @@
                     }}</span>
                     <span class="stat-label">Участников</span>
                   </div>
+                  <div class="stat-item">
+                    <span class="stat-number">{{
+                      getTotalPlaces(competence)
+                    }}</span>
+                    <span class="stat-label">Мест</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number">{{
+                      competence.documentsCount || 0
+                    }}</span>
+                    <span class="stat-label">Документов</span>
+                  </div>
                 </div>
                 <div class="competence-actions">
                   <!--                  <Button-->
@@ -99,7 +111,7 @@
                   <Button
                     label="Документы"
                     icon="pi pi-file-text"
-                    class="p-button-sm p-button-outlined"
+                    class="p-button-sm p-button-outlined w-full"
                     @click.stop="goToDocuments(competence.id)"
                   />
                 </div>
@@ -494,6 +506,12 @@ export default {
       this.selectedDocument = null;
       this.errors.selectedDocument = "";
     },
+    getTotalPlaces(competence) {
+      if (!competence.ageCategories) return 0;
+      return competence.ageCategories.reduce((total, ageCategory) => {
+        return total + (ageCategory.maxPlaces || 0);
+      }, 0);
+    },
   },
 };
 </script>
@@ -729,7 +747,8 @@ export default {
 
 .competence-stats {
   display: flex;
-  gap: 1rem;
+  justify-content: space-between;
+  gap: 0.25rem;
   margin-bottom: 1rem;
   flex-shrink: 0;
 }
@@ -741,16 +760,17 @@ export default {
 
 .stat-number {
   display: block;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #ff9800;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
 }
 
 .stat-label {
   font-size: 0.8rem;
   color: #6c757d;
   font-weight: 500;
+  line-height: 1;
 }
 
 .competence-content {
@@ -803,7 +823,7 @@ export default {
 }
 
 .stat-number {
-  font-size: 2rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #ff9800;
   margin-bottom: 0.5rem;
@@ -811,7 +831,7 @@ export default {
 
 .stat-label {
   color: #6c757d;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
@@ -939,6 +959,16 @@ export default {
     flex-direction: column;
   }
 
+  .competence-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .stat-item {
+    flex: none;
+    width: 100%;
+  }
+
   .competence-card {
     height: 250px;
   }
@@ -957,7 +987,7 @@ export default {
   }
 
   .stat-number {
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 }
 
@@ -1006,7 +1036,7 @@ export default {
   }
 
   .stat-number {
-    font-size: 1.25rem;
+    font-size: 1rem;
   }
 }
 </style>

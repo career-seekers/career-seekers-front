@@ -53,6 +53,9 @@
                 class="competence-age"
               >
                 {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
+                <span v-if="item.maxPlaces !== undefined" class="places-count">
+                  ({{ item.maxPlaces }} мест)
+                </span>
               </span>
             </div>
             <div class="competence-description">
@@ -78,6 +81,14 @@
           </div>
           <div class="stat-item">
             <div class="stat-number">
+              {{ getTotalPlaces(competence) }}
+            </div>
+            <div class="stat-label">
+              Мест
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">
               -
             </div>
             <div class="stat-label">
@@ -93,6 +104,12 @@
           <!--            class="p-button-outlined"-->
           <!--            @click="goToParticipants(competence.id)"-->
           <!--          />-->
+          <Button
+            label="Места"
+            icon="pi pi-users"
+            class="p-button-outlined"
+            @click="managePlaces(competence)"
+          />
           <Button
             label="Документы"
             icon="pi pi-file-text"
@@ -328,6 +345,74 @@
         <!--        />-->
       </template>
     </Dialog>
+
+    <!-- Диалог управления местами -->
+    <Dialog
+      v-model:visible="showPlacesDialog"
+      :header="`Управление местами: ${selectedCompetence?.name || ''}`"
+      :modal="true"
+      :closable="true"
+      class="places-dialog"
+      :style="{ width: '600px' }"
+    >
+      <div v-if="selectedCompetence" class="places-management">
+        <div class="places-info">
+          <p class="places-description">
+            Установите максимальное количество мест для каждого возрастного периода компетенции.
+          </p>
+        </div>
+
+        <div class="places-list">
+          <div
+            v-for="ageCategory in selectedCompetence.ageCategories"
+            :key="ageCategory.id"
+            class="place-item"
+          >
+            <div class="place-age-info">
+              <div class="age-label">
+                {{ ageGroups.find(group => group.value === ageCategory.ageCategory)?.label }}
+              </div>
+              <div class="current-places">
+                Текущее: {{ ageCategory.maxPlaces || 'Не установлено' }}
+              </div>
+            </div>
+            <div class="place-input-group">
+              <InputNumber
+                v-model="placesForm[ageCategory.ageCategory]"
+                :min="0"
+                :max="1000"
+                placeholder="Максимум мест"
+                class="place-input"
+              />
+              <Button
+                icon="pi pi-check"
+                class="p-button-sm"
+                :disabled="!placesForm[ageCategory.ageCategory] || placesForm[ageCategory.ageCategory] <= 0"
+                @click="savePlaceForAge(ageCategory.ageCategory)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="places-actions">
+          <Button
+            label="Сохранить все"
+            icon="pi pi-save"
+            class="p-button-primary"
+            @click="saveAllPlaces"
+          />
+        </div>
+      </div>
+
+      <template #footer>
+        <Button
+          label="Закрыть"
+          icon="pi pi-times"
+          class="p-button-text"
+          @click="closePlacesDialog"
+        />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -335,6 +420,7 @@
   import Button from "primevue/button";
   import Dialog from "primevue/dialog";
   import Dropdown from "primevue/dropdown";
+  import InputNumber from "primevue/inputnumber";
   import MultiSelect from 'primevue/multiselect';
   import type {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
   import {UserResolver} from "@/api/resolvers/user/user.resolver";
@@ -359,6 +445,7 @@
       Textarea,
       Dropdown,
       MultiSelect,
+      InputNumber,
     },
     data() {
       return {
@@ -369,6 +456,7 @@
         showDetailsDialog: false,
         selectedCompetence: undefined as undefined | CompetenceOutputDto,
         showAddCompetenceDialog: false,
+        showPlacesDialog: false,
         isEditing: false,
         editingCompetenceId: null as null | number,
         errors: {
@@ -388,6 +476,7 @@
           ageCategory: [] as AgeCategories[],
           expert: undefined as UserOutputDto | undefined,
         },
+        placesForm: {} as Record<AgeCategories, number>,
         ageGroups: useAgeGroups,
         competencies: [] as CompetenceOutputDto[],
       };
@@ -534,6 +623,102 @@
           };
         }
       },
+
+      // Методы для управления местами
+      managePlaces(competence: CompetenceOutputDto) {
+        this.selectedCompetence = competence;
+        this.placesForm = {};
+        // Инициализируем форму текущими значениями
+        competence.ageCategories.forEach(ageCategory => {
+          this.placesForm[ageCategory.ageCategory] = ageCategory.maxPlaces || 0;
+        });
+        this.showPlacesDialog = true;
+      },
+
+      closePlacesDialog() {
+        this.showPlacesDialog = false;
+        this.selectedCompetence = undefined;
+        this.placesForm = {};
+      },
+
+      async savePlaceForAge(ageCategory: AgeCategories) {
+        if (!this.selectedCompetence || !this.placesForm[ageCategory]) return;
+
+        try {
+          const response = await this.competenceResolver.setCompetencePlace({
+            competenceId: this.selectedCompetence.id,
+            ageCategory: ageCategory,
+            maxPlaces: this.placesForm[ageCategory]
+          });
+
+          if (response.status === 200) {
+            this.errors.toastPopup = {
+              title: "Успех",
+              message: "Количество мест успешно обновлено",
+            };
+            // Обновляем данные в selectedCompetence
+            const ageCategoryObj = this.selectedCompetence.ageCategories.find(ac => ac.ageCategory === ageCategory);
+            if (ageCategoryObj) {
+              ageCategoryObj.maxPlaces = this.placesForm[ageCategory];
+            }
+          } else {
+            this.errors.toastPopup = {
+              title: `Ошибка #${response.status}`,
+              message: response.message as string,
+            };
+          }
+        } catch (error) {
+          this.errors.toastPopup = {
+            title: "Ошибка",
+            message: "Произошла ошибка при сохранении мест",
+          };
+        }
+      },
+
+      async saveAllPlaces() {
+        if (!this.selectedCompetence) return;
+
+        try {
+          const ageCategoriesPlaces = Object.entries(this.placesForm)
+            .filter(([_, maxPlaces]) => maxPlaces > 0)
+            .map(([ageCategory, maxPlaces]) => ({
+              ageCategory: ageCategory as AgeCategories,
+              maxPlaces: maxPlaces
+            }));
+
+          const response = await this.competenceResolver.updateCompetencePlaces({
+            competenceId: this.selectedCompetence.id,
+            ageCategoriesPlaces: ageCategoriesPlaces
+          });
+
+          if (response.status === 200) {
+            this.errors.toastPopup = {
+              title: "Успех",
+              message: "Все места успешно обновлены",
+            };
+            // Обновляем данные
+            await this.loadCompetencies();
+            this.closePlacesDialog();
+          } else {
+            this.errors.toastPopup = {
+              title: `Ошибка #${response.status}`,
+              message: response.message as string,
+            };
+          }
+        } catch (error) {
+          this.errors.toastPopup = {
+            title: "Ошибка",
+            message: "Произошла ошибка при сохранении мест",
+          };
+        }
+      },
+
+      getTotalPlaces(competence: CompetenceOutputDto) {
+        const totalPlaces = competence.ageCategories.reduce((sum, ageCategory) => {
+          return sum + (ageCategory.maxPlaces || 0);
+        }, 0);
+        return totalPlaces > 0 ? totalPlaces : '-';
+      },
     },
   };
 </script>
@@ -675,6 +860,12 @@
     margin-bottom: 0.5rem;
   }
 
+  .places-count {
+    color: #ff9800;
+    font-weight: 600;
+    margin-left: 0.25rem;
+  }
+
   .competence-description {
     font-size: 0.9rem;
     opacity: 0.9;
@@ -712,8 +903,8 @@
   }
 
   .competence-stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    justify-content: space-between;
     gap: 1rem;
     padding: 1.5rem;
     background: #f8f9fa;
@@ -820,10 +1011,144 @@
     line-height: 1.4;
   }
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+  /* Стили для диалога управления местами */
+  .places-management {
+    padding: 1rem 0;
+  }
+
+  .places-info {
+    margin-bottom: 1.5rem;
+  }
+
+  .places-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .places-list {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .place-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+
+  .place-age-info {
+    flex: 1;
+  }
+
+  .age-label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .current-places {
+    color: #6c757d;
+    font-size: 0.85rem;
+  }
+
+  .place-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .place-input {
+    width: 80px !important;
+    flex-shrink: 0;
+    max-width: 80px !important;
+  }
+
+  .place-input :deep(.p-inputnumber-input) {
+    width: 80px !important;
+    max-width: 80px !important;
+  }
+
+  .place-input-group .p-button {
+    flex-shrink: 0;
+    white-space: nowrap;
+    min-width: 40px;
+    max-width: 40px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .places-actions {
+    display: flex;
+    justify-content: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+  }
+
+  @media (max-width: 768px) {
+    .place-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .place-input-group {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .place-input {
+      width: 70px !important;
+      flex-shrink: 0;
+      max-width: 70px !important;
+    }
+
+    .place-input :deep(.p-inputnumber-input) {
+      width: 70px !important;
+      max-width: 70px !important;
+    }
+
+    .place-input-group .p-button {
+      min-width: 35px;
+      max-width: 35px;
+      width: 35px;
+      height: 35px;
+      padding: 0;
+    }
+  }
+
+  .stats-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .stat-item {
+    flex: 1;
+    text-align: center;
+    min-width: 0;
+  }
+
+  .stat-number {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: #6c757d;
   }
 
   /* Мобильные стили */
@@ -858,7 +1183,7 @@
     }
 
     .competence-stats {
-      grid-template-columns: repeat(2, 1fr);
+      flex-direction: column;
       gap: 0.75rem;
       padding: 1rem;
     }
@@ -869,7 +1194,26 @@
     }
 
     .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .stat-item {
+      flex: 1 1 calc(50% - 0.125rem);
+      min-width: 0;
+    }
+  }
+
+  /* Промежуточные экраны */
+  @media (max-width: 500px) {
+    .stats-grid {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .stat-item {
+      flex: none;
+      width: 100%;
     }
   }
 
@@ -898,7 +1242,7 @@
     }
 
     .competence-stats {
-      grid-template-columns: 1fr;
+      flex-direction: column;
       gap: 0.5rem;
     }
 

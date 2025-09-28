@@ -3,4 +3,5 @@ import type {AgeCategories} from "@/api/resolvers/competence/competence.resolver
 export interface AgeCategoryOutputDto {
   id: number;
   ageCategory: AgeCategories;
+  maxPlaces?: number;
 }
