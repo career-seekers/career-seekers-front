@@ -1,5 +1,9 @@
 <template>
-  <ConfirmDialog />
+  <ConfirmDialog 
+    ref="confirmDialog"
+    @accept="onAccept"
+    @reject="onReject"
+  />
 </template>
 
 <script lang="ts">
@@ -9,6 +13,12 @@ export default {
   name: "ConfirmationModal",
   components: {
     ConfirmDialog,
+  },
+  data() {
+    return {
+      currentAcceptCallback: null as (() => void | Promise<void>) | null,
+      currentRejectCallback: null as (() => void) | null,
+    };
   },
   methods: {
     /**
@@ -30,14 +40,15 @@ export default {
       onAccept: () => void | Promise<void>,
       onReject?: () => void
     ) {
-      this.$confirm.require({
+      this.currentAcceptCallback = onAccept;
+      this.currentRejectCallback = onReject || null;
+      
+      (this.$refs.confirmDialog as any).require({
         message,
         header,
         icon,
         acceptLabel,
-        rejectLabel,
-        accept: onAccept,
-        reject: onReject
+        rejectLabel
       });
     },
 
@@ -48,7 +59,7 @@ export default {
      * @param onConfirm - функция обратного вызова при подтверждении удаления
      */
     showDeleteConfirmation(
-      document: any, 
+      _document: any, 
       documentTypeLabel: string, 
       onConfirm: () => Promise<void>
     ) {
@@ -60,6 +71,22 @@ export default {
         'Отмена',
         onConfirm
       );
+    },
+
+    onAccept() {
+      if (this.currentAcceptCallback) {
+        this.currentAcceptCallback();
+      }
+      this.currentAcceptCallback = null;
+      this.currentRejectCallback = null;
+    },
+
+    onReject() {
+      if (this.currentRejectCallback) {
+        this.currentRejectCallback();
+      }
+      this.currentAcceptCallback = null;
+      this.currentRejectCallback = null;
     }
   }
 };
