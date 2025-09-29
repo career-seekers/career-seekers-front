@@ -81,12 +81,21 @@
     </div>
     <TabView class="documents-tabs">
       <TabPanel header="Проверены">
-        <div v-if="acceptedDocuments.length === 0" class="empty-state">
-          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+        <div
+          v-if="acceptedDocuments.length === 0"
+          class="empty-state"
+        >
+          <i
+            class="pi pi-file-o"
+            style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"
+          />
           <h3>Нет проверенных документов</h3>
           <p>Документы, которые прошли проверку</p>
         </div>
-        <div v-else class="documents-grid">
+        <div
+          v-else
+          class="documents-grid"
+        >
           <div
             v-for="document in acceptedDocuments"
             :key="document.id"
@@ -97,7 +106,9 @@
                 <i class="pi pi-file" />
               </div>
               <div class="document-info">
-                <h4 class="document-name">{{ getDocumentTypeLabel(document.documentType) }}</h4>
+                <h4 class="document-name">
+                  {{ getDocumentTypeLabel(document.documentType) }}
+                </h4>
                 <div class="document-meta">
                   <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
                   <span class="document-date">{{ formatDate(document.createdAt) }}</span>
@@ -106,15 +117,15 @@
             </div>
             <div class="document-actions">
               <Button
+                v-tooltip="'Просмотреть'"
                 icon="pi pi-eye"
                 class="p-button-text p-button-sm"
-                v-tooltip="'Просмотреть'"
                 @click="viewDocument(document.documentId)"
               />
               <Button
+                v-tooltip="'Скачать'"
                 icon="pi pi-download"
                 class="p-button-text p-button-sm"
-                v-tooltip="'Скачать'"
                 @click="downloadDocument(document.documentId)"
               />
             </div>
@@ -123,12 +134,21 @@
       </TabPanel>
       
       <TabPanel header="На проверке">
-        <div v-if="uncheckedDocuments.length === 0" class="empty-state">
-          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+        <div
+          v-if="uncheckedDocuments.length === 0"
+          class="empty-state"
+        >
+          <i
+            class="pi pi-file-o"
+            style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"
+          />
           <h3>Нет документов на проверке</h3>
           <p>Документы, ожидающие проверки</p>
         </div>
-        <div v-else class="documents-grid">
+        <div
+          v-else
+          class="documents-grid"
+        >
           <div
             v-for="document in uncheckedDocuments"
             :key="document.id"
@@ -139,7 +159,9 @@
                 <i class="pi pi-file" />
               </div>
               <div class="document-info">
-                <h4 class="document-name">{{ getDocumentTypeLabel(document.documentType) }}</h4>
+                <h4 class="document-name">
+                  {{ getDocumentTypeLabel(document.documentType) }}
+                </h4>
                 <div class="document-meta">
                   <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
                   <span class="document-date">{{ formatDate(document.createdAt) }}</span>
@@ -148,15 +170,15 @@
             </div>
             <div class="document-actions">
               <Button
+                v-tooltip="'Просмотреть'"
                 icon="pi pi-eye"
                 class="p-button-text p-button-sm"
-                v-tooltip="'Просмотреть'"
                 @click="viewDocument(document.documentId)"
               />
               <Button
+                v-tooltip="'Скачать'"
                 icon="pi pi-download"
                 class="p-button-text p-button-sm"
-                v-tooltip="'Скачать'"
                 @click="downloadDocument(document.documentId)"
               />
             </div>
@@ -165,12 +187,21 @@
       </TabPanel>
       
       <TabPanel header="Отклоненные">
-        <div v-if="rejectedDocuments.length === 0" class="empty-state">
-          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+        <div
+          v-if="rejectedDocuments.length === 0"
+          class="empty-state"
+        >
+          <i
+            class="pi pi-file-o"
+            style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"
+          />
           <h3>Нет отклоненных документов</h3>
           <p>Документы, которые были отклонены</p>
         </div>
-        <div v-else class="documents-grid">
+        <div
+          v-else
+          class="documents-grid"
+        >
           <div
             v-for="document in rejectedDocuments"
             :key="document.id"
@@ -181,7 +212,9 @@
                 <i class="pi pi-file" />
               </div>
               <div class="document-info">
-                <h4 class="document-name">{{ getDocumentTypeLabel(document.documentType) }}</h4>
+                <h4 class="document-name">
+                  {{ getDocumentTypeLabel(document.documentType) }}
+                </h4>
                 <div class="document-meta">
                   <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
                   <span class="document-date">{{ formatDate(document.createdAt) }}</span>
@@ -190,15 +223,15 @@
             </div>
             <div class="document-actions">
               <Button
+                v-tooltip="'Просмотреть'"
                 icon="pi pi-eye"
                 class="p-button-text p-button-sm"
-                v-tooltip="'Просмотреть'"
                 @click="viewDocument(document.documentId)"
               />
               <Button
+                v-tooltip="'Скачать'"
                 icon="pi pi-download"
                 class="p-button-text p-button-sm"
-                v-tooltip="'Скачать'"
                 @click="downloadDocument(document.documentId)"
               />
             </div>

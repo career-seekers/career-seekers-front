@@ -166,7 +166,10 @@
             </div>
           </div>
         </div>
-        <div v-else class="empty-state">
+        <div
+          v-else
+          class="empty-state"
+        >
           <p>Нет принятых документов</p>
         </div>
       </TabPanel>
@@ -267,7 +270,10 @@
             </div>
           </div>
         </div>
-        <div v-else class="empty-state">
+        <div
+          v-else
+          class="empty-state"
+        >
           <p>Нет необработанных документов</p>
         </div>
       </TabPanel>
@@ -368,7 +374,10 @@
             </div>
           </div>
         </div>
-        <div v-else class="empty-state">
+        <div
+          v-else
+          class="empty-state"
+        >
           <p>Нет отклоненных документов</p>
         </div>
       </TabPanel>

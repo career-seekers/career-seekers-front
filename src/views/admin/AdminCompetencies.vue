@@ -27,9 +27,9 @@
       <div class="filter-group">
         <label for="ageFilter">Поиск компетенции</label>
         <InputText
-            id="competence"
-            v-model="filterCompetenceName"
-            placeholder="Введите название"
+          id="competence"
+          v-model="filterCompetenceName"
+          placeholder="Введите название"
         />
       </div>
       <div class="filter-group">
@@ -168,7 +168,9 @@
         template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
         @page="onPageChange"
       />
-      <p v-else> Компетенции не найдены </p>
+      <p v-else>
+        Компетенции не найдены
+      </p>
     </div>
 
 
@@ -465,7 +467,6 @@
     CompetenceResolver,
   } from "@/api/resolvers/competence/competence.resolver";
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
-  import AutoComplete from "primevue/autocomplete";
 
   export default {
     name: "AdminCompetencies",
@@ -479,7 +480,6 @@
       MultiSelect,
       InputNumber,
       Paginator,
-      AutoComplete,
     },
     data() {
       return {
