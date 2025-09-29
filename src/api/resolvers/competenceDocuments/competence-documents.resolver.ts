@@ -56,4 +56,16 @@ export class CompetenceDocumentsResolver {
       CommonOutputDto<string>
     >(`verify/${id.toString()}/${status.toString()}`, "PATCH", null, this.token ? this.token : undefined);
   }
+
+  public async getByUserId(userId: number) {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<CompetenceDocumentsOutputDto[] | string>
+    >(
+      `getByUserId/${userId.toString()}`,
+      "GET",
+      null,
+      this.token ? this.token : undefined
+    );
+  }
 }

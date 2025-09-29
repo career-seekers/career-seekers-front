@@ -10,7 +10,7 @@
     </div>
 
     <!-- Кнопка добавления эксперта -->
-    <div class="filters-section">
+    <div class="filters-section sticky-filters">
       <div class="search-group">
         <InputText
           v-model="searchQuery"
@@ -30,7 +30,7 @@
     <!-- Список экспертов -->
     <div class="experts-grid">
       <div
-        v-for="expert in filteredExperts"
+        v-for="expert in paginatedExperts"
         :key="expert.id"
         class="expert-card"
       >
@@ -126,6 +126,19 @@
         </div>
       </div>
     </div>
+
+    <!-- Обычная пагинация -->
+    <div class="pagination-container">
+      <Paginator
+        :first="currentPage * itemsPerPage"
+        :rows="itemsPerPage"
+        :total-records="totalRecords"
+        :rows-per-page-options="[8, 16, 24, 32]"
+        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+        @page="onPageChange"
+      />
+    </div>
+
 
     <!-- Диалог добавления/редактирования эксперта -->
     <Dialog
@@ -294,6 +307,7 @@
   import Dialog from "primevue/dialog";
   import InputText from "primevue/inputtext";
   import InputMask from "primevue/inputmask";
+  import Paginator from "primevue/paginator";
   import { UserResolver } from "@/api/resolvers/user/user.resolver.js";
   import ToastPopup from "@/components/ToastPopup.vue";
   import type { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto.ts";
@@ -314,7 +328,8 @@
       Dialog,
       InputText,
       InputMask,
-      Dropdown
+      Dropdown,
+      Paginator
     },
     data() {
       return {
@@ -355,6 +370,9 @@
         competenceResolver: new CompetenceResolver(),
         platformsResolver: new PlatformResolver(),
         expertDocsResolver: new ExpertDocumentsResolver(),
+        // Пагинация
+        currentPage: 0,
+        itemsPerPage: 8,
       };
     },
     computed: {
@@ -372,6 +390,16 @@
           })
         }
         return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
+      },
+
+      paginatedExperts(): UserOutputDto[] {
+        const start = this.currentPage * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return this.filteredExperts.slice(start, end);
+      },
+
+      totalRecords(): number {
+        return this.filteredExperts.length;
       },
 
       dateOfBirthFormatted() {
@@ -647,6 +675,19 @@
           };
         }
       },
+
+      onPageChange(event: any) {
+        this.currentPage = event.page;
+        this.itemsPerPage = event.rows;
+        // Плавная прокрутка к началу списка
+        this.$nextTick(() => {
+          const grid = this.$el.querySelector('.experts-grid');
+          if (grid) {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      },
+
     },
   };
 </script>
@@ -801,6 +842,19 @@
     background: #f8f9fa;
     border-radius: 8px;
     flex-wrap: wrap;
+  }
+
+  /* Sticky фильтры */
+  .sticky-filters {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .sticky-filters:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .search-group {
@@ -999,9 +1053,31 @@
       padding: 0.75rem;
     }
 
-    .competence-tag {
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
-    }
+  .competence-tag {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
   }
+}
+
+/* Стили для пагинации */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  transition: opacity 0.3s ease;
+}
+
+
+
+/* Простые анимации для карточек */
+.expert-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.expert-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 </style>

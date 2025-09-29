@@ -88,6 +88,18 @@
                     }}</span>
                     <span class="stat-label">Участников</span>
                   </div>
+                  <div class="stat-item">
+                    <span class="stat-number">{{
+                      getTotalPlaces(competence)
+                    }}</span>
+                    <span class="stat-label">Мест</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number">{{
+                      competence.documentsCount || 0
+                    }}</span>
+                    <span class="stat-label">Документов</span>
+                  </div>
                 </div>
                 <div class="competence-actions">
                   <!--                  <Button-->
@@ -99,7 +111,7 @@
                   <Button
                     label="Документы"
                     icon="pi pi-file-text"
-                    class="p-button-sm p-button-outlined"
+                    class="p-button-sm p-button-outlined w-full"
                     @click.stop="goToDocuments(competence.id)"
                   />
                 </div>
@@ -149,6 +161,7 @@
       <!--          </div>-->
       <!--        </div>-->
       <!--      </div>-->
+
 
       <!-- Быстрые действия -->
       <div class="info-card">
@@ -348,6 +361,12 @@
         />
       </template>
     </Dialog>
+
+    <!-- Toast уведомление -->
+    <ToastPopup
+      v-if="errors.toastPopup.title && errors.toastPopup.message"
+      :content="errors.toastPopup"
+    />
   </div>
 </template>
 
@@ -368,6 +387,7 @@ import {UserResolver} from "@/api/resolvers/user/user.resolver.ts";
 import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+import ToastPopup from '@/components/ToastPopup.vue';
 
 export default {
   name: "ExpertDashboardHome",
@@ -376,6 +396,7 @@ export default {
     Dropdown,
     Dialog,
     Button,
+    ToastPopup,
   },
   data() {
     return {
@@ -411,11 +432,32 @@ export default {
       const response = await competenceResolver.getAllByExpertId(this.user.id);
       if (response.status === 200 && typeof response.message !== "string") {
         this.competencies = response.message;
+        // Загружаем количество документов для каждой компетенции
+        await this.loadDocumentsCount();
       }
     }
   },
 
   methods: {
+    async loadDocumentsCount() {
+      if (this.user !== null) {
+        try {
+          const competenceDocumentsResolver = new CompetenceDocumentsResolver();
+          const response = await competenceDocumentsResolver.getByUserId(this.user.id);
+          if (response.status === 200 && typeof response.message !== "string") {
+            const allDocuments = response.message;
+            // Обновляем количество документов для каждой компетенции
+            this.competencies.forEach(competence => {
+              const documentsCount = allDocuments.filter(doc => doc.direction.id === competence.id).length;
+              competence.documentsCount = documentsCount;
+            });
+          }
+        } catch (error) {
+          console.error("Ошибка при загрузке количества документов:", error);
+        }
+      }
+    },
+
     async getCurrentExpert() {
       if (this.user !== null) {
         const res = await this.usersResolver.getById(this.user.id)
@@ -475,13 +517,43 @@ export default {
             title: response.status.toString(),
             message: response.message.toString(),
           };
-        } else this.cancelLoad();
+        } else {
+          // Обновляем количество документов после успешной загрузки
+          await this.loadDocumentsCount();
+          // Показываем уведомление об успешной загрузке
+          this.errors.toastPopup = {
+            title: "Успешно!",
+            message: "Документ был успешно загружен"
+          };
+          console.log("Toast показан:", this.errors.toastPopup);
+          // Закрываем модальное окно, но не очищаем уведомление сразу
+          this.showCompetenceDocModal = false;
+          // Очищаем уведомление через 6 секунд (после того, как тост исчезнет)
+          setTimeout(() => {
+            this.errors.toastPopup = {
+              title: "",
+              message: "",
+            };
+          }, 6000);
+        }
       }
     },
     cancelLoad() {
       this.showCompetenceDocModal = false;
+      // Очищаем уведомление при закрытии модального окна только если оно пустое
+      if (!this.errors.toastPopup.title && !this.errors.toastPopup.message) {
+        this.errors.toastPopup = {
+          title: "",
+          message: "",
+        };
+      }
     },
     addDocument() {
+      // Очищаем предыдущие уведомления при открытии модального окна
+      this.errors.toastPopup = {
+        title: "",
+        message: "",
+      };
       this.showCompetenceDocModal = true;
     },
     manageCompetencies() {
@@ -494,6 +566,13 @@ export default {
       this.selectedDocument = null;
       this.errors.selectedDocument = "";
     },
+    getTotalPlaces(competence) {
+      if (!competence.ageCategories) return 0;
+      return competence.ageCategories.reduce((total, ageCategory) => {
+        return total + (ageCategory.maxPlaces || 0);
+      }, 0);
+    },
+
   },
 };
 </script>
@@ -729,7 +808,8 @@ export default {
 
 .competence-stats {
   display: flex;
-  gap: 1rem;
+  justify-content: space-between;
+  gap: 0.25rem;
   margin-bottom: 1rem;
   flex-shrink: 0;
 }
@@ -741,16 +821,17 @@ export default {
 
 .stat-number {
   display: block;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #ff9800;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
 }
 
 .stat-label {
   font-size: 0.8rem;
   color: #6c757d;
   font-weight: 500;
+  line-height: 1;
 }
 
 .competence-content {
@@ -803,7 +884,7 @@ export default {
 }
 
 .stat-number {
-  font-size: 2rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #ff9800;
   margin-bottom: 0.5rem;
@@ -811,7 +892,7 @@ export default {
 
 .stat-label {
   color: #6c757d;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
@@ -819,6 +900,7 @@ export default {
   text-align: center;
   margin-top: 1rem;
 }
+
 
 /* Быстрые действия */
 .quick-actions {
@@ -939,6 +1021,16 @@ export default {
     flex-direction: column;
   }
 
+  .competence-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .stat-item {
+    flex: none;
+    width: 100%;
+  }
+
   .competence-card {
     height: 250px;
   }
@@ -951,13 +1043,14 @@ export default {
     gap: 0.5rem;
   }
 
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
   }
 
   .stat-number {
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 }
 
@@ -1006,7 +1099,7 @@ export default {
   }
 
   .stat-number {
-    font-size: 1.25rem;
+    font-size: 1rem;
   }
 }
 </style>

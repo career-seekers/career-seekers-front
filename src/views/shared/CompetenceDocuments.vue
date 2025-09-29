@@ -72,7 +72,7 @@
 
     <div class="docs">
       <!--    Шаблоны документов-->
-      <DocumentsTemplates />
+      <DocumentsTemplates :expanded="true" />
 
       <!-- Загрузка документов -->
       <div class="upload-section">
@@ -131,6 +131,15 @@
       </div>
     </div>
 
+    <!-- Toast уведомление -->
+    <ToastPopup
+      v-if="toastContent.title && toastContent.message"
+      :content="toastContent"
+    />
+
+    <!-- Диалог подтверждения -->
+    <ConfirmationModal ref="confirmationModal" />
+
     <div
       v-if="availableAges.length > 0"
       class="settings-section"
@@ -186,9 +195,6 @@
             <h3 class="document-name">
               {{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}
             </h3>
-            <p class="document-type">
-              {{ DocumentTypes.find(docType => docType.value === document.documentType)?.value }}
-            </p>
             <div class="document-meta">
               <span class="document-size">#{{ document.documentId }}</span>
               <span class="document-date">{{ document.createdAt.substring(0, 10) }}</span>
@@ -242,6 +248,8 @@
   import { useUserStore } from '@/stores/userStore.ts';
   import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+  import ToastPopup from '@/components/ToastPopup.vue';
+  import ConfirmationModal from '@/components/ConfirmationModal.vue';
 
   export default {
     name: "CompetenceDocuments",
@@ -250,6 +258,8 @@
       Button,
       FileUpload,
       Dropdown,
+      ToastPopup,
+      ConfirmationModal,
     },
     props: {
       competenceId: {
@@ -274,6 +284,10 @@
         selectedAge: null as AgeCategories | null,
         ageGroups: useAgeGroups,
         documents: [] as CompetenceDocumentsOutputDto[],
+        toastContent: {
+          title: "",
+          message: "",
+        },
       };
     },
     computed: {
@@ -317,7 +331,10 @@
       },
       async uploadDocument() {
         if (!this.uploadingDocument || !this.uploadingType || this.user === null) {
-          alert("Пожалуйста, выберите документ, тип документа и убедитесь, что вы авторизованы.");
+          this.toastContent = {
+            title: "Ошибка",
+            message: "Пожалуйста, выберите документ, тип документа и убедитесь, что вы авторизованы."
+          };
           return;
         }
         const response = await this.competenceDocumentsResolver.create({
@@ -333,6 +350,18 @@
           this.uploadKey++
           this.uploadingAge = null
           await this.loadDocuments()
+          // Показываем уведомление об успешной загрузке
+          this.toastContent = {
+            title: "Успешно!",
+            message: "Документ был успешно загружен"
+          };
+          console.log("Toast показан:", this.toastContent);
+        } else {
+          // Показываем уведомление об ошибке
+          this.toastContent = {
+            title: "Ошибка",
+            message: response.message
+          };
         }
       },
       onDocumentSelect(event: FileUploadSelectEvent) {
@@ -355,11 +384,39 @@
         a.click()
         document.body.removeChild(a);
       },
-      async deleteDocument(document: DocumentsOutputDto) {
-        const response = await this.competenceDocumentsResolver.delete(document.id)
-        if (response.status === 200) {
-          await this.loadDocuments()
-        }
+      deleteDocument(document: DocumentsOutputDto) {
+        const documentTypeLabel = this.DocumentTypes.find(docType => docType.value === document.documentType)?.label || 'документ';
+        
+        this.$refs.confirmationModal.showDeleteConfirmation(
+          document,
+          documentTypeLabel,
+          async () => {
+            try {
+              const response = await this.competenceDocumentsResolver.delete(document.id);
+              if (response.status === 200) {
+                await this.loadDocuments();
+                // Показываем уведомление об успешном удалении
+                this.toastContent = {
+                  title: "Успешно!",
+                  message: "Документ был успешно удален"
+                };
+                console.log("Toast показан:", this.toastContent);
+              } else {
+                // Показываем уведомление об ошибке
+                this.toastContent = {
+                  title: "Ошибка",
+                  message: "Не удалось удалить документ"
+                };
+              }
+            } catch (error) {
+              console.error("Ошибка при удалении документа:", error);
+              this.toastContent = {
+                title: "Ошибка",
+                message: "Произошла ошибка при удалении документа"
+              };
+            }
+          }
+        );
       },
       resetFilters() {
         this.selectedType = null;
@@ -674,15 +731,15 @@
   .document-header {
     background: linear-gradient(135deg, #ff9800, #f57c00);
     color: white;
-    padding: 1.5rem;
+    padding: 1rem;
     display: flex;
     align-items: center;
     gap: 1rem;
   }
 
   .document-icon {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     display: flex;

@@ -12,6 +12,13 @@
         <h1 class="login-title">
           Вход в систему
         </h1>
+        <div 
+          v-if="hasReturnPath"
+          class="return-notice"
+        >
+          <i class="pi pi-info-circle" />
+          <span>После авторизации в систему под аккаунтом родителя, вы будете перенаправлены на нужную страницу</span>
+        </div>
         <div class="divider" />
       </div>
 
@@ -182,6 +189,11 @@ export default {
         },
       },
     };
+  },
+  computed: {
+    hasReturnPath() {
+      return localStorage.getItem('returnAfterLogin') !== null;
+    }
   },
   methods: {
     validateForm() {
@@ -608,5 +620,24 @@ export default {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* Стили для уведомления о возврате */
+.return-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 6px;
+  color: #1976d2;
+  font-size: 0.9rem;
+  margin: 1rem 0;
+}
+
+.return-notice i {
+  color: #2196f3;
+  font-size: 1rem;
 }
 </style>

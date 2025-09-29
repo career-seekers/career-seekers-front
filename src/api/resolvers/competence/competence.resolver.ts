@@ -2,6 +2,7 @@ import ApiResolver from "@/utils/ApiResolver";
 import type { CommonOutputDto } from "@/api/dto/common-output.dto.ts";
 import type { CompetenceInputDto } from "@/api/resolvers/competence/dto/input/competence-input.dto.ts";
 import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
+import type { CompetencePlacesInputDto, UpdateCompetencePlacesInputDto } from "@/api/resolvers/competence/dto/input/competence-places-input.dto.ts";
 
 export enum AgeCategories {
   EARLY_PRESCHOOL = "PRESCHOOL_1",
@@ -76,5 +77,19 @@ export class CompetenceResolver {
       null,
       this.token ? this.token : undefined,
     );
+  }
+
+  public async updateCompetencePlaces(data: UpdateCompetencePlacesInputDto) {
+    return await this.apiResolver.request<
+      UpdateCompetencePlacesInputDto,
+      CommonOutputDto<string>
+    >("places", "PUT", data, this.token ? this.token : undefined);
+  }
+
+  public async setCompetencePlace(data: CompetencePlacesInputDto) {
+    return await this.apiResolver.request<
+      CompetencePlacesInputDto,
+      CommonOutputDto<string>
+    >("place", "POST", data, this.token ? this.token : undefined);
   }
 }

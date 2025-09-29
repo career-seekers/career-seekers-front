@@ -2,10 +2,10 @@
   <div class="mentors-page">
     <div class="page-header">
       <h1 class="page-title">
-        Кураторы
+        Наставники
       </h1>
       <p class="page-subtitle">
-        Управление кураторами
+        Управление наставниками
       </p>
     </div>
 
@@ -13,18 +13,18 @@
       <div class="search-group">
         <InputText
           v-model="searchQuery"
-          placeholder="Поиск по ФИО куратора, образовательному учреждению, номеру телефона или электронной почте..."
+          placeholder="Поиск по ФИО наставника, образовательному учреждению, номеру телефона или электронной почте..."
           class="search-input"
         />
         <i class="pi pi-search search-icon" />
       </div>
     </div>
 
-    <!-- Список экспертов -->
+    <!-- Список наставников -->
     <div class="experts-grid">
       <div
-        v-for="tutor in paginatedTutors"
-        :key="tutor.id"
+        v-for="mentor in paginatedMentors"
+        :key="mentor.id"
         class="expert-card"
       >
         <div class="expert-header">
@@ -34,15 +34,15 @@
           <div class="expert-info">
             <h3 class="expert-name">
               {{
-                tutor.lastName +
+                mentor.lastName +
                   " " +
-                  tutor.firstName +
+                  mentor.firstName +
                   " " +
-                  tutor.patronymic
+                  mentor.patronymic
               }}
             </h3>
             <p class="expert-position">
-              {{ tutor.tutorDocuments !== null ? 'Подтверждено' : 'Не подтверждено' }}
+              {{ mentor.mentorDocuments !== null ? 'Подтверждено' : 'Не подтверждено' }}
             </p>
           </div>
           <div class="expert-actions">
@@ -51,14 +51,14 @@
               icon="pi pi-pencil"
               class="p-button-text p-button-sm"
               style="background: white"
-              @click="editTutor(tutor)"
+              @click="editMentor(mentor)"
             />
             <Button
               v-tooltip="'Удалить'"
               icon="pi pi-trash"
               class="p-button-text p-button-sm p-button-danger"
               style="background: white"
-              @click="deleteTutor(tutor)"
+              @click="deleteMentor(mentor)"
             />
           </div>
         </div>
@@ -67,27 +67,27 @@
           <div class="expert-details">
             <div class="detail-item">
               <span class="detail-label">Email:</span>
-              <span class="detail-value">{{ tutor.email }}</span>
+              <span class="detail-value">{{ mentor.email }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Телефон:</span>
               <span class="detail-value">{{
-                reformatPhone(tutor.mobileNumber)
+                reformatPhone(mentor.mobileNumber)
               }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Должность:</span>
               <span class="detail-value">{{
-                tutor.tutorDocuments 
-                  ? tutor.tutorDocuments.post
+                mentor.mentorDocuments 
+                  ? mentor.mentorDocuments.post
                   : "Не указано"
               }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Образовательное учреждение:</span>
               <span class="detail-value">{{
-                tutor.tutorDocuments
-                  ? tutor.tutorDocuments.institution
+                mentor.mentorDocuments
+                  ? mentor.mentorDocuments.institution
                   : "Не указано"
               }}</span>
             </div>
@@ -109,11 +109,11 @@
     </div>
 
 
-    <!-- Диалог редактирования куратора -->
+    <!-- Диалог редактирования наставника -->
     <Dialog
-      v-model:visible="showEditTutorDialog"
+      v-model:visible="showEditMentorDialog"
       :header="
-        isEditing ? 'Редактировать эксперта' : 'Добавить главного эксперта'
+        isEditing ? 'Редактировать наставника' : 'Добавить наставника'
       "
       :modal="true"
       :style="{ width: '600px' }"
@@ -123,9 +123,9 @@
           <label for="fullName">ФИО *</label>
           <InputText
             id="fullName"
-            v-model="tutorForm.fullName"
-            placeholder="Введите ФИО эксперта"
-            :class="{ 'p-invalid': !tutorForm.fullName }"
+            v-model="mentorForm.fullName"
+            placeholder="Введите ФИО наставника"
+            :class="{ 'p-invalid': !mentorForm.fullName }"
           />
           <small
             v-if="errors.fullName"
@@ -139,11 +139,11 @@
           <label for="birthDate">Дата рождения *</label>
           <InputMask
             id="birthDate"
-            v-model="tutorForm.birthDate"
+            v-model="mentorForm.birthDate"
             mask="99.99.9999"
             class="w-full"
             placeholder="дд.мм.гггг"
-            :class="{ 'p-invalid': !tutorForm.birthDate }"
+            :class="{ 'p-invalid': !mentorForm.birthDate }"
           />
           <small
             v-if="errors.birthDate"
@@ -157,10 +157,10 @@
           <label for="email">Email *</label>
           <InputText
             id="email"
-            v-model="tutorForm.email"
+            v-model="mentorForm.email"
             type="email"
             placeholder="Введите email"
-            :class="{ 'p-invalid': !tutorForm.email }"
+            :class="{ 'p-invalid': !mentorForm.email }"
           />
           <small
             v-if="errors.email"
@@ -175,11 +175,11 @@
           >Контактный телефон *</label>
           <InputMask
             id="parentPhone"
-            v-model="tutorForm.phone"
+            v-model="mentorForm.phone"
             mask="+7 (999) 999-99-99"
             placeholder="+7 (___) ___-__-__"
             class="w-full"
-            :class="{ 'p-invalid': !tutorForm.phone }"
+            :class="{ 'p-invalid': !mentorForm.phone }"
           />
           <small
             v-if="errors.phone"
@@ -191,9 +191,9 @@
           <label for="institution">Место работы *</label>
           <InputText
             id="institution"
-            v-model="tutorForm.institution"
+            v-model="mentorForm.institution"
             placeholder="Введите место работы"
-            :class="{ 'p-invalid': !tutorForm.institution }"
+            :class="{ 'p-invalid': !mentorForm.institution }"
           />
           <small
             v-if="errors.institution"
@@ -207,9 +207,9 @@
           <label for="post">Должность *</label>
           <InputText
             id="post"
-            v-model="tutorForm.post"
+            v-model="mentorForm.post"
             placeholder="Введите должность"
-            :class="{ 'p-invalid': !tutorForm.post}"
+            :class="{ 'p-invalid': !mentorForm.post}"
           />
           <small
             v-if="errors.post"
@@ -229,7 +229,7 @@
           :label="isEditing ? 'Сохранить' : 'Добавить'"
           icon="pi pi-check"
           class="p-button-primary"
-          @click="saveTutor"
+          @click="saveMentor"
         />
       </template>
     </Dialog>
@@ -249,10 +249,10 @@
   import InputText from 'primevue/inputtext';
   import InputMask from 'primevue/inputmask';
   import Paginator from 'primevue/paginator';
-  import { TutorDocumentsResolver } from '@/api/resolvers/tutorDocuments/tutor-documents.resolver.ts';
+  import { MentorDocumentsResolver } from '@/api/resolvers/mentorDocuments/mentor-documents.resolver.ts';
 
   export default {
-    name: 'AdminTutors',
+    name: 'AdminMentors',
     components: {
       ToastPopup,
       Button,
@@ -264,16 +264,16 @@
     data() {
       return {
         userResolver: new UserResolver(),
-        tutorDocumentsResolver: new TutorDocumentsResolver(),
+        mentorDocumentsResolver: new MentorDocumentsResolver(),
         
-        tutors: [] as UserOutputDto[],
+        mentors: [] as UserOutputDto[],
         isEditing: false,
-        editingTutorId: null as null | number,
+        editingMentorId: null as null | number,
         oldMail: null as null | string,
 
         searchQuery: "",
 
-        tutorForm: {
+        mentorForm: {
           fullName: "",
           birthDate: "",
           phone: "",
@@ -295,41 +295,41 @@
           institution: "",
         },
         
-        showEditTutorDialog: false,
+        showEditMentorDialog: false,
         // Пагинация
         currentPage: 0,
         itemsPerPage: 8,
       }
     },
     computed: {
-      filteredTutors(): UserOutputDto[] {
-        let filtered = this.tutors
+      filteredMentors(): UserOutputDto[] {
+        let filtered = this.mentors
         if (this.searchQuery) {
           const query = this.searchQuery.toLowerCase()
-          filtered = filtered.filter(tutor => {
-            return tutor.lastName.toLowerCase().includes(query) ||
-                tutor.firstName.toLowerCase().includes(query) ||
-                tutor.patronymic.toLowerCase().includes(query) ||
-                tutor.tutorDocuments?.institution.toLowerCase().includes(query) ||
-                tutor.email.toLowerCase().includes(query) ||
-                tutor.mobileNumber.toLowerCase().includes(query)
+          filtered = filtered.filter(mentor => {
+            return mentor.lastName.toLowerCase().includes(query) ||
+                mentor.firstName.toLowerCase().includes(query) ||
+                mentor.patronymic.toLowerCase().includes(query) ||
+                mentor.mentorDocuments?.institution.toLowerCase().includes(query) ||
+                mentor.email.toLowerCase().includes(query) ||
+                mentor.mobileNumber.toLowerCase().includes(query)
           })
         }
         return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
       },
 
-      paginatedTutors(): UserOutputDto[] {
+      paginatedMentors(): UserOutputDto[] {
         const start = this.currentPage * this.itemsPerPage;
         const end = start + this.itemsPerPage;
-        return this.filteredTutors.slice(start, end);
+        return this.filteredMentors.slice(start, end);
       },
 
       totalRecords(): number {
-        return this.filteredTutors.length;
+        return this.filteredMentors.length;
       },
 
       dateOfBirthFormatted() {
-        const [day, month, year] = this.tutorForm.birthDate.split(".");
+        const [day, month, year] = this.mentorForm.birthDate.split(".");
         const date = new Date(
           Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)),
         );
@@ -337,24 +337,24 @@
       },
 
       mobileNumberFormatted() {
-        return this.tutorForm.phone.replaceAll(/\s|-|\(|\)/g, "");
+        return this.mentorForm.phone.replaceAll(/\s|-|\(|\)/g, "");
       },
     },
-    async beforeMount() { await this.loadTutors(); },
+    async beforeMount() { await this.loadMentors(); },
     methods: {
-      editTutor(tutor: UserOutputDto) {
+      editMentor(mentor: UserOutputDto) {
         this.isEditing = true;
-        this.editingTutorId = tutor.id;
-        this.tutorForm = {
-          fullName: `${tutor.lastName} ${tutor.firstName} ${tutor.patronymic}`,
-          email: tutor.email,
-          phone: this.reformatPhone(tutor.mobileNumber),
-          birthDate: this.reformatDateOfBirth(tutor.dateOfBirth),
-          post: tutor.tutorDocuments?.post ?? "",
-          institution: tutor.tutorDocuments?.institution ?? "",
+        this.editingMentorId = mentor.id;
+        this.mentorForm = {
+          fullName: `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}`,
+          email: mentor.email,
+          phone: this.reformatPhone(mentor.mobileNumber),
+          birthDate: this.reformatDateOfBirth(mentor.dateOfBirth),
+          post: mentor.mentorDocuments?.post ?? "",
+          institution: mentor.mentorDocuments?.institution ?? "",
         };
-        this.oldMail = tutor.email;
-        this.showEditTutorDialog = true;
+        this.oldMail = mentor.email;
+        this.showEditMentorDialog = true;
       },
       reformatDateOfBirth(date: string) {
         const [year, month, day] = date.substring(0, 10).split("-");
@@ -363,35 +363,35 @@
       reformatPhone(phone: string) {
         return `${phone.substring(0, 2)} (${phone.substring(2, 5)}) ${phone.substring(5, 8)}-${phone.substring(8, 10)}-${phone.substring(10, 12)}`;
       },
-      async saveTutor() {
+      async saveMentor() {
         if (!this.validateForm()) {
           return;
         }
 
         if (this.isEditing) {
-          const tutor = this.tutors.find(
-            (tutor: UserOutputDto) => tutor.id === this.editingTutorId,
+          const mentor = this.mentors.find(
+            (mentor: UserOutputDto) => mentor.id === this.editingMentorId,
           );
-          if (tutor) {
-            const editedTutor: UpdateUserInputDto = {
-              avatarId: tutor.avatarId,
+          if (mentor) {
+            const editedMentor: UpdateUserInputDto = {
+              avatarId: mentor.avatarId,
               dateOfBirth: this.dateOfBirthFormatted,
-              email: this.tutorForm.email,
-              firstName: this.tutorForm.fullName.split(" ")[1],
-              lastName: this.tutorForm.fullName.split(" ")[0],
+              email: this.mentorForm.email,
+              firstName: this.mentorForm.fullName.split(" ")[1],
+              lastName: this.mentorForm.fullName.split(" ")[0],
               mobileNumber: this.mobileNumberFormatted,
-              password: tutor.password,
-              patronymic: this.tutorForm.fullName.split(" ")[2],
-              role: Roles.TUTOR,
-              id: this.editingTutorId!,
+              password: mentor.password,
+              patronymic: this.mentorForm.fullName.split(" ")[2],
+              role: Roles.MENTOR,
+              id: this.editingMentorId!,
               tutorId: null,
             };
 
-            if (tutor.tutorDocuments != null) {
-              const response = await this.tutorDocumentsResolver.update({
-                id: tutor.tutorDocuments.id,
-                post: this.tutorForm.post,
-                institution: this.tutorForm.institution,
+            if (mentor.mentorDocuments != null) {
+              const response = await this.mentorDocumentsResolver.update({
+                id: mentor.mentorDocuments.id,
+                post: this.mentorForm.post,
+                institution: this.mentorForm.institution,
               })
               if (response.status !== 200) {
                 this.errors.toastPopup = {
@@ -402,11 +402,11 @@
             }
 
             const response = await this.userResolver.update({
-              ...editedTutor,
+              ...editedMentor,
               email:
-                editedTutor.email === this.oldMail
+                editedMentor.email === this.oldMail
                   ? null
-                  : editedTutor.email,
+                  : editedMentor.email,
             });
             if (response.status === 200) {
               this.cancelEdit();
@@ -418,12 +418,12 @@
             }
           }
         }
-        await this.loadTutors();
+        await this.loadMentors();
       },
       cancelEdit() {
         this.isEditing = false;
-        this.editingTutorId = null;
-        this.tutorForm = {
+        this.editingMentorId = null;
+        this.mentorForm = {
           fullName: "",
           email: "",
           phone: "",
@@ -431,56 +431,56 @@
           post: "",
           institution: ""
         };
-        this.showEditTutorDialog = false;
+        this.showEditMentorDialog = false;
       },
       validateForm() {
         let isValid = true;
 
-        if (!this.tutorForm.fullName.trim()) {
+        if (!this.mentorForm.fullName.trim()) {
           this.errors.fullName = "ФИО обязательно";
           isValid = false;
         }
 
-        if (!this.tutorForm.email.trim()) {
+        if (!this.mentorForm.email.trim()) {
           this.errors.email = "email обязателен";
           isValid = false;
         }
 
-        if (!this.tutorForm.phone.trim()) {
+        if (!this.mentorForm.phone.trim()) {
           this.errors.phone = "Номер телефона обязателен";
           isValid = false;
         }
 
-        if (!this.tutorForm.birthDate.trim()) {
+        if (!this.mentorForm.birthDate.trim()) {
           this.errors.birthDate = "Дата рождения обязательна";
           isValid = false;
         }
 
-        if (!this.tutorForm.post.trim()) {
+        if (!this.mentorForm.post.trim()) {
           this.errors.post = "Должность обязательна";
           isValid = false;
         }
 
-        if (!this.tutorForm.institution.trim()) {
+        if (!this.mentorForm.institution.trim()) {
           this.errors.institution = "Образовательное учреждение обязательно";
           isValid = false;
         }
 
         return isValid;
       },
-      async loadTutors() {
-        const response = await this.userResolver.getAllByRole(Roles.TUTOR)
+      async loadMentors() {
+        const response = await this.userResolver.getAllByRole(Roles.MENTOR)
         if (typeof response.message !== "string") {
-          this.tutors = response.message
+          this.mentors = response.message
         }
       },
-      async deleteTutor(tutor: UserOutputDto) {
+      async deleteMentor(mentor: UserOutputDto) {
         if (
-          confirm(`Вы уверены, что хотите удалить куратора ${tutor.firstName}?`)
+          confirm(`Вы уверены, что хотите удалить наставника ${mentor.firstName}?`)
         ) {
-          const response = await this.userResolver.delete(tutor.id);
+          const response = await this.userResolver.delete(mentor.id);
           if (response.status === 200) {
-            await this.loadTutors();
+            await this.loadMentors();
           } else {
             this.errors.toastPopup = {
               title: response.status.toString(),

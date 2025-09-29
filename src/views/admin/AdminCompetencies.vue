@@ -1,6 +1,6 @@
 <template>
-  <ToastPopup :content="errors.toastPopup" />
   <div class="competencies-page">
+    <ToastPopup :content="errors.toastPopup" />
     <div class="page-header">
       <h1 class="page-title">
         Компетенции
@@ -11,7 +11,7 @@
     </div>
 
     <!-- Фильтры -->
-    <div class="filters-section">
+    <div class="filters-section sticky-filters">
       <div class="filter-group">
         <label for="ageFilter">Возрастная группа:</label>
         <MultiSelect
@@ -37,7 +37,7 @@
     <!-- Список компетенций -->
     <div class="competencies-grid">
       <div
-        v-for="competence in filteredCompetencies"
+        v-for="competence in paginatedCompetencies"
         :key="competence.id"
         class="competence-card"
       >
@@ -53,6 +53,9 @@
                 class="competence-age"
               >
                 {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
+                <span v-if="item.maxPlaces !== undefined" class="places-count">
+                  ({{ item.maxPlaces }} мест)
+                </span>
               </span>
             </div>
             <div class="competence-description">
@@ -78,6 +81,14 @@
           </div>
           <div class="stat-item">
             <div class="stat-number">
+              {{ getTotalPlaces(competence) }}
+            </div>
+            <div class="stat-label">
+              Мест
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">
               -
             </div>
             <div class="stat-label">
@@ -93,6 +104,12 @@
           <!--            class="p-button-outlined"-->
           <!--            @click="goToParticipants(competence.id)"-->
           <!--          />-->
+          <Button
+            label="Места"
+            icon="pi pi-users"
+            class="p-button-outlined"
+            @click="managePlaces(competence)"
+          />
           <Button
             label="Документы"
             icon="pi pi-file-text"
@@ -129,6 +146,20 @@
       </div>
     </div>
 
+    <!-- Обычная пагинация (скрывается при скролле) -->
+    <div class="pagination-container" :class="{ 'hidden': showFloatingPagination }">
+      <Paginator
+        :first="currentPage * itemsPerPage"
+        :rows="itemsPerPage"
+        :total-records="totalRecords"
+        :rows-per-page-options="[8, 16, 24, 32]"
+        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+        @page="onPageChange"
+      />
+    </div>
+
+
+    <!-- Диалоги -->
     <!-- Диалог редактирования компетенции -->
     <Dialog
       v-if="selectedCompetence"
@@ -328,6 +359,74 @@
         <!--        />-->
       </template>
     </Dialog>
+
+    <!-- Диалог управления местами -->
+    <Dialog
+      v-model:visible="showPlacesDialog"
+      :header="`Управление местами: ${selectedCompetence?.name || ''}`"
+      :modal="true"
+      :closable="true"
+      class="places-dialog"
+      :style="{ width: '600px' }"
+    >
+      <div v-if="selectedCompetence" class="places-management">
+        <div class="places-info">
+          <p class="places-description">
+            Установите максимальное количество мест для каждого возрастного периода компетенции.
+          </p>
+        </div>
+
+        <div class="places-list">
+          <div
+            v-for="ageCategory in selectedCompetence.ageCategories"
+            :key="ageCategory.id"
+            class="place-item"
+          >
+            <div class="place-age-info">
+              <div class="age-label">
+                {{ ageGroups.find(group => group.value === ageCategory.ageCategory)?.label }}
+              </div>
+              <div class="current-places">
+                Текущее: {{ ageCategory.maxPlaces || 'Не установлено' }}
+              </div>
+            </div>
+            <div class="place-input-group">
+              <InputNumber
+                v-model="placesForm[ageCategory.ageCategory]"
+                :min="0"
+                :max="1000"
+                placeholder="Максимум мест"
+                class="place-input"
+              />
+              <Button
+                icon="pi pi-check"
+                class="p-button-sm"
+                :disabled="!placesForm[ageCategory.ageCategory] || placesForm[ageCategory.ageCategory] <= 0"
+                @click="savePlaceForAge(ageCategory.ageCategory)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="places-actions">
+          <Button
+            label="Сохранить все"
+            icon="pi pi-save"
+            class="p-button-primary"
+            @click="saveAllPlaces"
+          />
+        </div>
+      </div>
+
+      <template #footer>
+        <Button
+          label="Закрыть"
+          icon="pi pi-times"
+          class="p-button-text"
+          @click="closePlacesDialog"
+        />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -335,7 +434,9 @@
   import Button from "primevue/button";
   import Dialog from "primevue/dialog";
   import Dropdown from "primevue/dropdown";
+  import InputNumber from "primevue/inputnumber";
   import MultiSelect from 'primevue/multiselect';
+  import Paginator from "primevue/paginator";
   import type {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
   import {UserResolver} from "@/api/resolvers/user/user.resolver";
   import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
@@ -359,6 +460,8 @@
       Textarea,
       Dropdown,
       MultiSelect,
+      InputNumber,
+      Paginator,
     },
     data() {
       return {
@@ -369,6 +472,7 @@
         showDetailsDialog: false,
         selectedCompetence: undefined as undefined | CompetenceOutputDto,
         showAddCompetenceDialog: false,
+        showPlacesDialog: false,
         isEditing: false,
         editingCompetenceId: null as null | number,
         errors: {
@@ -388,8 +492,12 @@
           ageCategory: [] as AgeCategories[],
           expert: undefined as UserOutputDto | undefined,
         },
+        placesForm: {} as Record<AgeCategories, number>,
         ageGroups: useAgeGroups,
         competencies: [] as CompetenceOutputDto[],
+        // Пагинация
+        currentPage: 0,
+        itemsPerPage: 8,
       };
     },
     computed: {
@@ -406,9 +514,32 @@
 
         return filtered;
       },
+
+      paginatedCompetencies() {
+        const start = this.currentPage * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        const result = this.filteredCompetencies.slice(start, end);
+        console.log('Paginated competencies:', result);
+        console.log('Total competencies:', this.competencies.length);
+        console.log('Filtered competencies:', this.filteredCompetencies.length);
+        return result;
+      },
+
+      totalRecords() {
+        return this.filteredCompetencies.length;
+      },
     },
     async mounted() {
-      await this.loadCompetencies();
+      console.log('AdminCompetencies mounted');
+      console.log('CompetenceResolver:', this.competenceResolver);
+      console.log('UserResolver:', this.userResolver);
+      console.log('About to call loadCompetencies...');
+      try {
+        await this.loadCompetencies();
+        console.log('loadCompetencies completed successfully');
+      } catch (error) {
+        console.error('Error in loadCompetencies:', error);
+      }
     },
     methods: {
       filteredExperts(competence: CompetenceOutputDto) {
@@ -514,19 +645,43 @@
       },
 
       async loadCompetencies() {
-        const competenceResponse = await this.competenceResolver.getAll();
-        if (competenceResponse.status === 200 && typeof competenceResponse.message !== "string") {
-          this.competencies = competenceResponse.message;
-        } else {
+        try {
+          console.log('Loading competencies...');
+          console.log('CompetenceResolver endpoint:', this.competenceResolver);
+          console.log('Access token:', localStorage.getItem("access_token"));
+          console.log('API endpoint:', 'https://api.career-seekers.ru/events-service/v1/directions');
+          console.log('About to make API call...');
+          const competenceResponse = await this.competenceResolver.getAll();
+          console.log('API call completed');
+          console.log('Competence response:', competenceResponse);
+          console.log('Competence response status:', competenceResponse.status);
+          console.log('Competence response message:', competenceResponse.message);
+          console.log('Competence response message type:', typeof competenceResponse.message);
+          if (competenceResponse.status === 200 && typeof competenceResponse.message !== "string") {
+            this.competencies = competenceResponse.message;
+            console.log('Competencies loaded:', this.competencies);
+          } else {
+            console.error('Failed to load competencies:', competenceResponse);
+            this.errors.toastPopup = {
+              title: competenceResponse.status.toString(),
+              message: competenceResponse.message.toString(),
+            };
+          }
+        } catch (error) {
+          console.error('Error loading competencies:', error);
           this.errors.toastPopup = {
-            title: competenceResponse.status.toString(),
-            message: competenceResponse.message.toString(),
+            title: "Ошибка",
+            message: "Не удалось загрузить компетенции",
           };
         }
 
+        console.log('Loading experts...');
         const expertResponse = await this.userResolver.getAll();
+        console.log('Expert response:', expertResponse);
+        console.log('Expert response status:', expertResponse.status);
         if (expertResponse.status == 200 && typeof expertResponse.message !== "string") {
           this.experts = expertResponse.message;
+          console.log('Experts loaded:', this.experts);
         } else {
           this.errors.toastPopup = {
             title: expertResponse.status.toString(),
@@ -534,6 +689,115 @@
           };
         }
       },
+
+      // Методы для управления местами
+      managePlaces(competence: CompetenceOutputDto) {
+        this.selectedCompetence = competence;
+        this.placesForm = {};
+        // Инициализируем форму текущими значениями
+        competence.ageCategories.forEach(ageCategory => {
+          this.placesForm[ageCategory.ageCategory] = ageCategory.maxPlaces || 0;
+        });
+        this.showPlacesDialog = true;
+      },
+
+      closePlacesDialog() {
+        this.showPlacesDialog = false;
+        this.selectedCompetence = undefined;
+        this.placesForm = {};
+      },
+
+      async savePlaceForAge(ageCategory: AgeCategories) {
+        if (!this.selectedCompetence || !this.placesForm[ageCategory]) return;
+
+        try {
+          const response = await this.competenceResolver.setCompetencePlace({
+            competenceId: this.selectedCompetence.id,
+            ageCategory: ageCategory,
+            maxPlaces: this.placesForm[ageCategory]
+          });
+
+          if (response.status === 200) {
+            this.errors.toastPopup = {
+              title: "Успех",
+              message: "Количество мест успешно обновлено",
+            };
+            // Обновляем данные в selectedCompetence
+            const ageCategoryObj = this.selectedCompetence.ageCategories.find(ac => ac.ageCategory === ageCategory);
+            if (ageCategoryObj) {
+              ageCategoryObj.maxPlaces = this.placesForm[ageCategory];
+            }
+          } else {
+            this.errors.toastPopup = {
+              title: `Ошибка #${response.status}`,
+              message: response.message as string,
+            };
+          }
+        } catch (error) {
+          this.errors.toastPopup = {
+            title: "Ошибка",
+            message: "Произошла ошибка при сохранении мест",
+          };
+        }
+      },
+
+      async saveAllPlaces() {
+        if (!this.selectedCompetence) return;
+
+        try {
+          const ageCategoriesPlaces = Object.entries(this.placesForm)
+            .filter(([_, maxPlaces]) => maxPlaces > 0)
+            .map(([ageCategory, maxPlaces]) => ({
+              ageCategory: ageCategory as AgeCategories,
+              maxPlaces: maxPlaces
+            }));
+
+          const response = await this.competenceResolver.updateCompetencePlaces({
+            competenceId: this.selectedCompetence.id,
+            ageCategoriesPlaces: ageCategoriesPlaces
+          });
+
+          if (response.status === 200) {
+            this.errors.toastPopup = {
+              title: "Успех",
+              message: "Все места успешно обновлены",
+            };
+            // Обновляем данные
+            await this.loadCompetencies();
+            this.closePlacesDialog();
+          } else {
+            this.errors.toastPopup = {
+              title: `Ошибка #${response.status}`,
+              message: response.message as string,
+            };
+          }
+        } catch (error) {
+          this.errors.toastPopup = {
+            title: "Ошибка",
+            message: "Произошла ошибка при сохранении мест",
+          };
+        }
+      },
+
+      getTotalPlaces(competence: CompetenceOutputDto) {
+        const totalPlaces = competence.ageCategories.reduce((sum, ageCategory) => {
+          return sum + (ageCategory.maxPlaces || 0);
+        }, 0);
+        return totalPlaces > 0 ? totalPlaces : '-';
+      },
+
+      onPageChange(event: any) {
+        this.currentPage = event.page;
+        this.itemsPerPage = event.rows;
+        // Плавная прокрутка к началу списка
+        this.$nextTick(() => {
+          const grid = this.$el.querySelector('.competencies-grid');
+          if (grid) {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      },
+
     },
   };
 </script>
@@ -598,6 +862,19 @@
     background: #f8f9fa;
     border-radius: 8px;
     flex-wrap: wrap;
+  }
+
+  /* Sticky фильтры */
+  .sticky-filters {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .sticky-filters:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .filter-group {
@@ -675,6 +952,12 @@
     margin-bottom: 0.5rem;
   }
 
+  .places-count {
+    color: #ff9800;
+    font-weight: 600;
+    margin-left: 0.25rem;
+  }
+
   .competence-description {
     font-size: 0.9rem;
     opacity: 0.9;
@@ -712,8 +995,8 @@
   }
 
   .competence-stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    justify-content: space-between;
     gap: 1rem;
     padding: 1.5rem;
     background: #f8f9fa;
@@ -820,10 +1103,144 @@
     line-height: 1.4;
   }
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+  /* Стили для диалога управления местами */
+  .places-management {
+    padding: 1rem 0;
+  }
+
+  .places-info {
+    margin-bottom: 1.5rem;
+  }
+
+  .places-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .places-list {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .place-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+
+  .place-age-info {
+    flex: 1;
+  }
+
+  .age-label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .current-places {
+    color: #6c757d;
+    font-size: 0.85rem;
+  }
+
+  .place-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .place-input {
+    width: 80px !important;
+    flex-shrink: 0;
+    max-width: 80px !important;
+  }
+
+  .place-input :deep(.p-inputnumber-input) {
+    width: 80px !important;
+    max-width: 80px !important;
+  }
+
+  .place-input-group .p-button {
+    flex-shrink: 0;
+    white-space: nowrap;
+    min-width: 40px;
+    max-width: 40px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .places-actions {
+    display: flex;
+    justify-content: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+  }
+
+  @media (max-width: 768px) {
+    .place-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .place-input-group {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .place-input {
+      width: 70px !important;
+      flex-shrink: 0;
+      max-width: 70px !important;
+    }
+
+    .place-input :deep(.p-inputnumber-input) {
+      width: 70px !important;
+      max-width: 70px !important;
+    }
+
+    .place-input-group .p-button {
+      min-width: 35px;
+      max-width: 35px;
+      width: 35px;
+      height: 35px;
+      padding: 0;
+    }
+  }
+
+  .stats-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .stat-item {
+    flex: 1;
+    text-align: center;
+    min-width: 0;
+  }
+
+  .stat-number {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: #6c757d;
   }
 
   /* Мобильные стили */
@@ -858,7 +1275,7 @@
     }
 
     .competence-stats {
-      grid-template-columns: repeat(2, 1fr);
+      flex-direction: column;
       gap: 0.75rem;
       padding: 1rem;
     }
@@ -869,7 +1286,26 @@
     }
 
     .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .stat-item {
+      flex: 1 1 calc(50% - 0.125rem);
+      min-width: 0;
+    }
+  }
+
+  /* Промежуточные экраны */
+  @media (max-width: 500px) {
+    .stats-grid {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .stat-item {
+      flex: none;
+      width: 100%;
     }
   }
 
@@ -898,7 +1334,7 @@
     }
 
     .competence-stats {
-      grid-template-columns: 1fr;
+      flex-direction: column;
       gap: 0.5rem;
     }
 
@@ -909,5 +1345,27 @@
     .stats-grid {
       grid-template-columns: 1fr;
     }
+  }
+
+/* Стили для пагинации */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  transition: opacity 0.3s ease;
+}
+
+
+
+  /* Простые анимации для карточек */
+  .competence-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .competence-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 </style>
