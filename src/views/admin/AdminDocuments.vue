@@ -9,7 +9,7 @@
       </p>
     </div>
 
-    <DocumentsTemplates :expanded="false"/>
+    <DocumentsTemplates :expanded="false" />
 
     <!-- Фильтры -->
     <div class="filters-section sticky-filters">
@@ -27,26 +27,18 @@
       </div>
       <div class="filter-group">
         <label for="statusFilter">Компетенция:</label>
-        <Dropdown
-            id="statusFilter"
+        <AutoComplete
             v-model="selectedCompetence"
-            :options="competencies"
-            :disabled="competencies.length === 0"
+            :suggestions="filteredCompetencies"
+            @complete="filterCompetencies"
+            dropdown
+            field="name"
             placeholder="Все компетенции"
             class="filter-dropdown"
-        >
-          <template #option="slotProps">
-            {{ slotProps ? slotProps.option.name : "Не выбран" }}
-          </template>
-          <template #value="{ value }">
-            {{ value ? value.name : "Все компетенции" }}
-          </template>
-        </Dropdown>
+            :disabled="competencies.length === 0"
+        />
       </div>
-      <div
-          v-if="availableAges.length > 0"
-          class="filter-group"
-      >
+      <div class="filter-group" v-if="availableAges.length > 0">
         <label>Возрастные группы:</label>
         <div class="age-buttons">
           <Button
@@ -54,64 +46,32 @@
               :key="age"
               :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
               :label="ageGroups.find(group => group.value === age)?.label"
-              size="small"
               @click="selectedAge = age"
+              size="small"
           />
-        </div>
-        <div class="filter-group">
-          <label for="statusFilter">Компетенция:</label>
-          <AutoComplete
-              v-model="selectedCompetence"
-              :suggestions="filteredCompetencies"
-              @complete="filterCompetencies"
-              dropdown
-              field="name"
-              placeholder="Все компетенции"
-              class="filter-dropdown"
-              :disabled="competencies.length === 0"
-          />
-        </div>
-        <div class="filter-group" v-if="availableAges.length > 0">
-          <label>Возрастные группы:</label>
-          <div class="age-buttons">
-            <Button
-                v-for="age in availableAges"
-                :key="age"
-                :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
-                :label="ageGroups.find(group => group.value === age)?.label"
-                @click="selectedAge = age"
-                size="small"
-            />
-            <Button
-                label="Сбросить возраст"
-                icon="pi pi-refresh"
-                class="p-button-text p-button-sm"
-                @click="resetAge"
-            />
-          </div>
-        </div>
-        <div class="filter-group">
           <Button
-              label="Сбросить фильтры"
+              label="Сбросить возраст"
               icon="pi pi-refresh"
               class="p-button-text p-button-sm"
-              @click="resetFilters"
+              @click="resetAge"
           />
         </div>
+      </div>
+      <div class="filter-group">
+        <Button
+            label="Сбросить фильтры"
+            icon="pi pi-refresh"
+            class="p-button-text p-button-sm"
+            @click="resetFilters"
+        />
       </div>
     </div>
   </div>
 
   <!-- Кастомный sticky контейнер для табов -->
-  <div
-      class="custom-sticky-container"
-      :class="{ 'sticky': isSticky }"
-  >
+  <div class="custom-sticky-container" :class="{ 'sticky': isSticky }">
     <!-- Табы для документов -->
-    <TabView
-        v-model:active-index="activeTab"
-        class="documents-tabs"
-    >
+    <TabView v-model:activeIndex="activeTab" class="documents-tabs">
       <TabPanel header="Необработанные">
         <DocsToVerifyList
             :documents="filterDocs(uncheckedDocuments)"
@@ -138,7 +98,7 @@
       </TabPanel>
     </TabView>
 
-    <ToastPopup :content="errors.toastPopup"/>
+    <ToastPopup :content="errors.toastPopup" />
   </div>
 </template>
 
