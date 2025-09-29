@@ -50,6 +50,7 @@ import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
 import { Roles } from '@/state/UserState.types.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAuthStore } from '@/stores/authStore.ts';
+import MentorCompetencies from '@/views/mentor/MentorCompetencies.vue';
 
 const routes = [
   {
@@ -127,7 +128,6 @@ const routes = [
     path: "/mentor",
     component: DashboardWrapper,
     meta: {
-      blocked: true,
       allowedRole: Roles.MENTOR
     },
     children: [
@@ -142,6 +142,15 @@ const routes = [
         meta: {
           title: "Главная",
           icon: "pi pi-home"
+        }
+      },
+      {
+        path: "competencies",
+        name: "mentor-competencies",
+        component: MentorCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase"
         }
       },
     ],

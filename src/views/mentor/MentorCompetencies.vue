@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="selectedChildCompetencies && children !== null"
+    v-if="selectedChildCompetencies && menteeChildren !== null"
     class="competencies-selection"
   >
     <div class="page-header">
@@ -35,7 +35,7 @@
         <Dropdown
           id="ageFilter"
           v-model="selectedChild"
-          :options="children"
+          :options="menteeChildren"
           class="filter-dropdown"
           @change="loadCompetencies"
         >
@@ -132,7 +132,7 @@
   import router from '@/router';
 
   export default {
-    name: "UserCompetencies",
+    name: "MentorCompetencies",
     components: {
       CompetenceDialog,
       Button,
@@ -156,7 +156,7 @@
         ageGroups: useAgeGroups,
         userStore: useUserStore(),
 
-        children: null as ChildOutputDto[] | null,
+        menteeChildren: null as ChildOutputDto[] | null,
         childCompetenciesResolver: new ChildCompetenciesResolver(),
 
         needToSave: false,
@@ -180,13 +180,13 @@
     },
     async beforeMount() {
       if (this.userStore.user === null) return
-      if (this.userStore.user.children.length === 0) {
+      if (this.userStore.user.menteeChildren.length === 0) {
         await router.push("/")
         return
       }
-      this.selectedChild = this.userStore.user.children[0]
-      this.children = this.userStore.user.children
-      this.children?.forEach(child => {
+      this.selectedChild = this.userStore.user.menteeChildren[0]
+      this.menteeChildren = this.userStore.user.menteeChildren
+      this.menteeChildren?.forEach(child => {
         this.selectedCompetencies.push({
           child: child,
           competencies: []
