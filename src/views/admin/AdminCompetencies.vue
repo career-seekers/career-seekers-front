@@ -359,20 +359,6 @@
           </div>
         </div>
       </div>
-      <template #footer>
-        <Button
-          label="Закрыть"
-          icon="pi pi-times"
-          class="p-button-text"
-          @click="closeDetails"
-        />
-        <!--        <Button -->
-        <!--          label="Участники" -->
-        <!--          icon="pi pi-users" -->
-        <!--          class="p-button-primary"-->
-        <!--          @click="goToParticipants(selectedCompetence?.id)"-->
-        <!--        />-->
-      </template>
     </Dialog>
 
     <!-- Диалог управления местами -->
@@ -426,15 +412,6 @@
           </div>
         </div>
       </div>
-
-      <template #footer>
-        <Button
-          label="Закрыть"
-          icon="pi pi-times"
-          class="p-button-text"
-          @click="closePlacesDialog"
-        />
-      </template>
     </Dialog>
   </div>
 </template>
@@ -458,7 +435,6 @@
     CompetenceResolver,
   } from "@/api/resolvers/competence/competence.resolver";
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
-  import AutoComplete from "primevue/autocomplete";
   import type {
     UpdateCompetencePlacesInputDto
   } from "@/api/resolvers/competence/dto/input/competence-places-input.dto.ts";
