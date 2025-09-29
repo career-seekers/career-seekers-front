@@ -62,10 +62,10 @@
               >
                 {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
                 <span
-                  v-if="item.maxPlaces !== undefined"
+                  v-if="item.maxParticipantsCount !== undefined"
                   class="places-count"
                 >
-                  ({{ item.maxPlaces }} мест)
+                  ({{ item.maxParticipantsCount }} мест)
                 </span>
               </span>
             </div>
@@ -403,7 +403,7 @@
                 {{ ageGroups.find(group => group.value === ageCategory.ageCategory)?.label }}
               </div>
               <div class="current-places">
-                Текущее: {{ ageCategory.maxPlaces || 'Не установлено' }}
+                Текущее: {{ ageCategory.maxParticipantsCount || 'Не установлено' }}
               </div>
             </div>
             <div class="place-input-group">
@@ -417,20 +417,11 @@
               <Button
                 icon="pi pi-check"
                 class="p-button-sm"
-                :disabled="!placesForm[ageCategory.ageCategory] || placesForm[ageCategory.ageCategory] <= 0"
+                :disabled="placesForm[ageCategory.ageCategory] == null || placesForm[ageCategory.ageCategory] < 0"
                 @click="savePlaceForAge(ageCategory.ageCategory)"
               />
             </div>
           </div>
-        </div>
-
-        <div class="places-actions">
-          <Button
-            label="Сохранить все"
-            icon="pi pi-save"
-            class="p-button-primary"
-            @click="saveAllPlaces"
-          />
         </div>
       </div>
 
@@ -466,6 +457,9 @@
   } from "@/api/resolvers/competence/competence.resolver";
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import AutoComplete from "primevue/autocomplete";
+  import type {
+    UpdateCompetencePlacesInputDto
+  } from "@/api/resolvers/competence/dto/input/competence-places-input.dto.ts";
 
   export default {
     name: "AdminCompetencies",
@@ -722,10 +716,10 @@
       // Методы для управления местами
       managePlaces(competence: CompetenceOutputDto) {
         this.selectedCompetence = competence;
-        this.placesForm = {};
+        this.placesForm = {} as Record<AgeCategories, number>;
         // Инициализируем форму текущими значениями
         competence.ageCategories.forEach(ageCategory => {
-          this.placesForm[ageCategory.ageCategory] = ageCategory.maxPlaces || 0;
+          this.placesForm[ageCategory.ageCategory] = ageCategory.maxParticipantsCount || 0;
         });
         this.showPlacesDialog = true;
       },
@@ -733,18 +727,19 @@
       closePlacesDialog() {
         this.showPlacesDialog = false;
         this.selectedCompetence = undefined;
-        this.placesForm = {};
+        this.placesForm = {} as Record<AgeCategories, number>;
       },
 
       async savePlaceForAge(ageCategory: AgeCategories) {
         if (!this.selectedCompetence || !this.placesForm[ageCategory]) return;
 
         try {
-          const response = await this.competenceResolver.setCompetencePlace({
-            competenceId: this.selectedCompetence.id,
-            ageCategory: ageCategory,
-            maxPlaces: this.placesForm[ageCategory]
-          });
+          const response = await this.competenceResolver.updateCompetencePlaces({
+            id: this.selectedCompetence.ageCategories.find(
+                item => item.ageCategory === ageCategory
+            )?.id,
+            maxParticipantsCount: this.placesForm[ageCategory],
+          } as UpdateCompetencePlacesInputDto);
 
           if (response.status === 200) {
             this.errors.toastPopup = {
@@ -754,46 +749,8 @@
             // Обновляем данные в selectedCompetence
             const ageCategoryObj = this.selectedCompetence.ageCategories.find(ac => ac.ageCategory === ageCategory);
             if (ageCategoryObj) {
-              ageCategoryObj.maxPlaces = this.placesForm[ageCategory];
+              ageCategoryObj.maxParticipantsCount = this.placesForm[ageCategory];
             }
-          } else {
-            this.errors.toastPopup = {
-              title: `Ошибка #${response.status}`,
-              message: response.message as string,
-            };
-          }
-        } catch (error) {
-          this.errors.toastPopup = {
-            title: "Ошибка",
-            message: "Произошла ошибка при сохранении мест",
-          };
-        }
-      },
-
-      async saveAllPlaces() {
-        if (!this.selectedCompetence) return;
-
-        try {
-          const ageCategoriesPlaces = Object.entries(this.placesForm)
-            .filter(([_, maxPlaces]) => maxPlaces > 0)
-            .map(([ageCategory, maxPlaces]) => ({
-              ageCategory: ageCategory as AgeCategories,
-              maxPlaces: maxPlaces
-            }));
-
-          const response = await this.competenceResolver.updateCompetencePlaces({
-            competenceId: this.selectedCompetence.id,
-            ageCategoriesPlaces: ageCategoriesPlaces
-          });
-
-          if (response.status === 200) {
-            this.errors.toastPopup = {
-              title: "Успех",
-              message: "Все места успешно обновлены",
-            };
-            // Обновляем данные
-            await this.loadCompetencies();
-            this.closePlacesDialog();
           } else {
             this.errors.toastPopup = {
               title: `Ошибка #${response.status}`,
@@ -810,7 +767,7 @@
 
       getTotalPlaces(competence: CompetenceOutputDto) {
         const totalPlaces = competence.ageCategories.reduce((sum, ageCategory) => {
-          return sum + (ageCategory.maxPlaces || 0);
+          return sum + (ageCategory.maxParticipantsCount || 0);
         }, 0);
         return totalPlaces > 0 ? totalPlaces : '-';
       },
