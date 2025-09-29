@@ -1,24 +1,19 @@
 <template>
-  <ConfirmDialog 
-    ref="confirmDialog"
-    @accept="onAccept"
-    @reject="onReject"
-  />
+  <ConfirmDialog />
 </template>
 
 <script lang="ts">
 import ConfirmDialog from 'primevue/confirmdialog';
+import { useConfirm } from 'primevue/useconfirm';
 
 export default {
   name: "ConfirmationModal",
   components: {
     ConfirmDialog,
   },
-  data() {
-    return {
-      currentAcceptCallback: null as (() => void | Promise<void>) | null,
-      currentRejectCallback: null as (() => void) | null,
-    };
+  setup() {
+    const confirm = useConfirm();
+    return { confirm };
   },
   methods: {
     /**
@@ -40,15 +35,14 @@ export default {
       onAccept: () => void | Promise<void>,
       onReject?: () => void
     ) {
-      this.currentAcceptCallback = onAccept;
-      this.currentRejectCallback = onReject || null;
-      
-      (this.$refs.confirmDialog as any).require({
+      this.confirm.require({
         message,
         header,
         icon,
         acceptLabel,
-        rejectLabel
+        rejectLabel,
+        accept: onAccept,
+        reject: onReject
       });
     },
 
@@ -71,22 +65,6 @@ export default {
         'Отмена',
         onConfirm
       );
-    },
-
-    onAccept() {
-      if (this.currentAcceptCallback) {
-        this.currentAcceptCallback();
-      }
-      this.currentAcceptCallback = null;
-      this.currentRejectCallback = null;
-    },
-
-    onReject() {
-      if (this.currentRejectCallback) {
-        this.currentRejectCallback();
-      }
-      this.currentAcceptCallback = null;
-      this.currentRejectCallback = null;
     }
   }
 };
