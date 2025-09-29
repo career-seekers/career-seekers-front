@@ -36,10 +36,10 @@
           class="filter-dropdown"
         >
           <template #option="slotProps">
-            {{ slotProps ? slotProps.option.name : "Не выбран" }}
+            {{ slotProps ? formatCompetenceName(slotProps.option) : "Не выбран" }}
           </template>
           <template #value="{ value }">
-            {{ value ? value.name : "Все компетенции" }}
+            {{ value ? formatCompetenceName(value) : "Все компетенции" }}
           </template>
         </Dropdown>
       </div>
@@ -180,15 +180,8 @@ export default {
     },
     computed: {
       sortedCompetencies() {
-        return this.competencies.map(competence => {
-          const expert = this.experts.find(expert => expert.id === competence.expertId)
-          return {
-            ...competence,
-            name: expert
-              ? `${competence.name} (${expert?.lastName} ${expert?.firstName.substring(0, 1)}.${expert?.patronymic.substring(0, 1)}.)`
-              : competence.name
-          }
-        }).sort((a, b) => a.name.localeCompare(b.name))
+        const competencies = this.competencies
+        return competencies.sort((a, b) => a.name.localeCompare(b.name))
       },
       rejectedDocuments() {
         return this.documents
@@ -233,6 +226,12 @@ export default {
       }
     },
     methods: {
+      formatCompetenceName(competence: CompetenceOutputDto) {
+        const expert = this.experts.find(expert => expert.id === competence.expertId)
+        return expert
+          ? `${competence.name} (${expert?.lastName} ${expert?.firstName.substring(0, 1)}.${expert?.patronymic.substring(0, 1)}.)`
+          : competence.name
+      },
       documentCompetence(document: DocumentsOutputDto): CompetenceOutputDto | undefined {
         return this.competencies.find((competence: CompetenceOutputDto) =>
           competence.documents.some((doc) => doc.id === document.id),
