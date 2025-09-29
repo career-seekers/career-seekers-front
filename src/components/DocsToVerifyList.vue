@@ -132,7 +132,7 @@
         </div>
         <div class="document-info">
           <h3 class="document-name">
-            Документ №{{ document.id }}
+            Документ №{{ document.documentId }}
           </h3>
         </div>
         <div class="document-actions">

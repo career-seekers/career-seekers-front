@@ -44,16 +44,16 @@
           <Dropdown
             id="statusFilter"
             v-model="selectedCompetence"
-            :options="competencies"
+            :options="sortedCompetencies"
             :disabled="competencies.length === 0"
             placeholder="Все компетенции"
             class="filter-dropdown"
           >
             <template #option="slotProps">
-              {{ slotProps ? slotProps.option.name : "Не выбран" }}
+              {{ slotProps ? formatCompetenceName(slotProps.option) : "Не выбран" }}
             </template>
             <template #value="{ value }">
-              {{ value ? value.name : "Все компетенции" }}
+              {{ value ? formatCompetenceName(value) : "Все компетенции" }}
             </template>
           </Dropdown>
         </div>
@@ -166,7 +166,10 @@
             </div>
           </div>
         </div>
-        <div v-else class="empty-state">
+        <div
+          v-else
+          class="empty-state"
+        >
           <p>Нет принятых документов</p>
         </div>
       </TabPanel>
@@ -267,7 +270,10 @@
             </div>
           </div>
         </div>
-        <div v-else class="empty-state">
+        <div
+          v-else
+          class="empty-state"
+        >
           <p>Нет необработанных документов</p>
         </div>
       </TabPanel>
@@ -368,7 +374,10 @@
             </div>
           </div>
         </div>
-        <div v-else class="empty-state">
+        <div
+          v-else
+          class="empty-state"
+        >
           <p>Нет отклоненных документов</p>
         </div>
       </TabPanel>
@@ -445,8 +454,8 @@ export default {
       selectedDocument: null as CompetenceDocumentsOutputDto | null,
       selectedType: null as null | FileType,
       selectedCompetence: localStorage.getItem("selectedCompetence")
-        ? JSON.parse(localStorage.getItem("selectedCompetence") as string)
-        : (null as CompetenceOutputDto | null),
+        ? JSON.parse(localStorage.getItem("selectedCompetence") as string) as CompetenceOutputDto
+        : null,
       documents: [] as CompetenceDocumentsOutputDto[],
       competencies: [] as CompetenceOutputDto[],
       experts: [] as UserOutputDto[],
@@ -471,6 +480,9 @@ export default {
     };
   },
   computed: {
+    sortedCompetencies() {
+      return [...this.competencies].sort((a, b) => a.name.localeCompare(b.name))
+    },
     filteredDocuments() {
       let filtered = this.documents;
 
@@ -485,7 +497,6 @@ export default {
           (doc) => this.selectedCompetence === this.documentCompetence(doc),
         );
       }
-
       if (this.selectedAge) {
         filtered = filtered.filter((d) => d.ageCategory === this.selectedAge);
       }
@@ -518,6 +529,12 @@ export default {
     await this.loadCompetencies();
   },
   methods: {
+    formatCompetenceName(competence: CompetenceOutputDto) {
+      const expert = this.experts.find(expert => expert.id === competence.expertId)
+      return expert
+        ? `${competence.name} (${expert?.lastName} ${expert?.firstName.substring(0, 1)}.${expert?.patronymic.substring(0, 1)}.)`
+        : competence.name
+    },
     documentCompetence(document: DocumentsOutputDto): CompetenceOutputDto | undefined {
       const competence = this.competencies.find((competence: CompetenceOutputDto) =>
         competence.documents.some((doc) => doc.id === document.id),
