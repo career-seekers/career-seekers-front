@@ -25,7 +25,7 @@
           class="p-button save-btn"
           label="Сохранить"
           icon="pi pi-save"
-          :disabled="selectedChildCompetencies.competencies.length === 0"
+          :disabled="!needToSave || selectedChildAssignedCompetenciesTemp.length > 0"
           @click="assignToCompetencies"
         />
       </div>
@@ -125,6 +125,10 @@
   import { useUserStore } from '@/stores/userStore.ts';
   import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
   import { FormatManager } from '@/utils/FormatManager.ts';
+  import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+  import type {
+    ChildCompetenciesOutputDto
+  } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
 
   export default {
     name: "ParentCompetenciesSelection",
@@ -137,11 +141,14 @@
       return {
         showDetailsDialog: false,
         selectedCompetencies: [] as {
-          childId: number,
-          competencies: number[]
+          child: ChildOutputDto,
+          competencies: CompetenceOutputDto[]
         }[],
         selectedCompetence: null as CompetenceOutputDto | null,
         selectedChild: null as ChildOutputDto | null,
+
+        selectedChildAssignedCompetenciesTemp: [] as ChildCompetenciesOutputDto[],
+        selectedChildAssignedCompetencies: [] as ChildCompetenciesOutputDto[],
 
         competencies: [] as CompetenceOutputDto[],
         competenceResolver: new CompetenceResolver(),
@@ -149,11 +156,25 @@
         userStore: useUserStore(),
 
         children: null as ChildOutputDto[] | null,
+        childCompetenciesResolver: new ChildCompetenciesResolver(),
+
+        needToSave: false,
       };
     },
     computed: {
       selectedChildCompetencies() {
-        return this.selectedCompetencies.find(row => row.childId === this.selectedChild?.id)
+        return this.selectedCompetencies.find(row => row.child.id === this.selectedChild?.id)
+      },
+    },
+    watch: {
+      selectedChild() {
+        this.loadCompetenciesByChild()
+      },
+      selectedChildCompetencies(newVal, oldVal) {
+        console.log(JSON.stringify(newVal) != JSON.stringify(oldVal) && oldVal !== undefined);
+        if (JSON.stringify(newVal) != JSON.stringify(oldVal) && oldVal !== undefined) {
+          this.needToSave = true
+        }
       }
     },
     async beforeMount() {
@@ -162,7 +183,7 @@
       this.children = this.userStore.user.children
       this.children?.forEach(child => {
         this.selectedCompetencies.push({
-          childId: child.id,
+          child: child,
           competencies: []
         });
       })
@@ -180,32 +201,42 @@
         if (typeof response.message === 'string' || response.status !== 200) return
         this.competencies = response.message
       },
+      async loadCompetenciesByChild() {
+        if (this.selectedChild === null) return
+        const response = await this.childCompetenciesResolver.getByChildId(this.selectedChild.id)
+        if (typeof response.message === "string" || response.status !== 200) return
+        this.selectedChildAssignedCompetencies = response.message
+        this.selectedChildAssignedCompetenciesTemp = response.message
+      },
       isSelected(competenceId: number) {
         return this.selectedCompetencies
-          .find(row => row.childId === this.selectedChild?.id)?.competencies
-          .some(compId => compId === competenceId)
+          .find(row => row.child.id === this.selectedChild?.id)?.competencies
+          .some(competence => competence.id === competenceId)
+          || this.selectedChildAssignedCompetencies.some(competence => competence.direction.id === competenceId)
       },
       toggleCompetence(competence: CompetenceOutputDto) {
         if (this.selectedChild === null) return
         const childId = this.selectedChild.id
-        const selectedChildRow = this.selectedCompetencies.find(row => row.childId === childId)
+        const selectedChildRow = this.selectedCompetencies.find(row => row.child.id === childId)
         const noSelectedChildCompetencies = [...this.selectedCompetencies
-          .filter(row => row.childId !== childId)]
+          .filter(row => row.child.id !== childId)]
         if (!this.isSelected(competence.id) && selectedChildRow && selectedChildRow.competencies.length < 3) {
           const competencies = selectedChildRow
               ? selectedChildRow.competencies : []
           noSelectedChildCompetencies.push({
-            childId: this.selectedChild.id,
+            child: this.selectedChild,
             competencies: [
               ...competencies,
-              competence.id
+              competence
             ]
           })
         } else {
+          this.selectedChildAssignedCompetencies = [...this.selectedChildAssignedCompetencies
+            .filter(comp => comp.direction.id !== competence.id)]
           noSelectedChildCompetencies.push({
-            childId: this.selectedChild.id,
+            child: this.selectedChild,
             competencies: selectedChildRow
-              ? selectedChildRow.competencies.filter(competenceId => competenceId !== competence.id)
+              ? selectedChildRow.competencies.filter(comp => comp.id !== competence.id)
               : []
           })
         }
@@ -224,7 +255,24 @@
         }).join(", ")
       },
       async assignToCompetencies() {
-
+        this.selectedCompetencies.map(async childCompetencies => {
+          if (this.selectedChild === null) return
+          const ageCategory = FormatManager.getAgeGroupByAge(
+            FormatManager.calculateAge(childCompetencies.child.dateOfBirth),
+            this.selectedChild.childDocuments.learningClass
+          )
+          for (const competence of childCompetencies.competencies) {
+            const ageCategoryId = competence.ageCategories
+              .find(category => category.ageCategory === ageCategory?.value)?.id
+            if (!ageCategoryId) return
+            const response = await this.childCompetenciesResolver.create({
+              childId: childCompetencies.child.id,
+              directionId: competence.id,
+              directionAgeCategoryId: ageCategoryId
+            })
+            if (response.status !== 200) console.log(response.message)
+          }
+        })
       }
     },
 };

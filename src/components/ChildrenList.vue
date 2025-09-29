@@ -16,6 +16,10 @@
   import { useGradeOptions } from '../shared/UseGradeOptions.ts';
   import ToastPopup from './ToastPopup.vue';
   import { FormatManager } from '../utils/FormatManager.ts';
+  import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+  import type {
+    ChildCompetenciesOutputDto
+  } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
 
   export default {
     name: 'ChildrenList',
@@ -41,6 +45,7 @@
     ],
     data() {
       return {
+        childCompetenciesResolver: new ChildCompetenciesResolver(),
         childResolver: new ChildResolver(),
         userResolver: new UserResolver(),
         userStore: useUserStore(),
@@ -53,6 +58,10 @@
           title: '',
           message: ''
         },
+        childCompetencies: [] as {
+          child: ChildOutputDto,
+          competencies: ChildCompetenciesOutputDto[]
+        }[]
       }
     },
     computed: {
@@ -79,8 +88,23 @@
     },
     mounted() {
       this.loadAvailableMentor();
+      this.children.forEach(child => {
+        this.loadCompetenciesByChild(child)
+      })
     },
     methods: {
+      getCompetenciesByChildId(childId: number) {
+        const competencies = this.childCompetencies.find(row => row.child.id === childId)?.competencies
+        return competencies ? competencies : []
+      },
+      async loadCompetenciesByChild(child: ChildOutputDto) {
+        const response = await this.childCompetenciesResolver.getByChildId(child.id)
+        if (typeof response.message === "string" || response.status !== 200) return
+        this.childCompetencies.push({
+          child: child,
+          competencies: response.message
+        })
+      },
       async removeChild(child: ChildOutputDto) {
         if (confirm(`Удалить ребёнка "${child.firstName}"`)) {
           const response = await this.childResolver.deleteById(child.id)
@@ -429,6 +453,24 @@
         </div>
 
         <div
+          v-if="getCompetenciesByChildId(child.id).length > 0"
+          class="competencies-section"
+        >
+          <h4 class="competencies-title">
+            Компетенции:
+          </h4>
+          <div class="competencies-list">
+            <span
+              v-for="competence in getCompetenciesByChildId(child.id)"
+              :key="competence.id"
+              class="competence-tag"
+            >
+              {{ competence.direction.name }}
+            </span>
+          </div>
+        </div>
+
+        <div
           v-if="child.mentor !== null"
           class="mentor-info"
         >
@@ -608,6 +650,35 @@
     color: #2c3e50;
     font-weight: 500;
     text-align: right;
+  }
+
+  .competencies-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .competencies-title {
+    color: #2c3e50;
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #ff9800;
+    padding-bottom: 0.25rem;
+  }
+
+  .competencies-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .competence-tag {
+    background: #f8f9fa;
+    color: #2c3e50;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid #e9ecef;
   }
 
   .mentor-selection {
