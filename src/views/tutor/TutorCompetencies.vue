@@ -99,6 +99,12 @@
           <!--            @click="goToParticipants(competence.id)"-->
           <!--          />-->
           <Button
+              label="Места"
+              icon="pi pi-users"
+              class="p-button-outlined"
+              @click="managePlaces(competence)"
+          />
+          <Button
             label="Документы"
             icon="pi pi-file-text"
             class="p-button-outlined"
@@ -332,6 +338,60 @@
         <!--        />-->
       </template>
     </Dialog>
+
+    <!-- Диалог управления местами -->
+    <Dialog
+        v-model:visible="showPlacesDialog"
+        :header="`Управление местами: ${selectedCompetence?.name || ''}`"
+        :modal="true"
+        :closable="true"
+        class="places-dialog"
+        :style="{ width: '600px' }"
+        @update:visible="closePlacesDialog()"
+    >
+      <div
+          v-if="selectedCompetence"
+          class="places-management"
+      >
+        <div class="places-info">
+          <p class="places-description">
+            Установите максимальное количество мест для каждого возрастного периода компетенции.
+          </p>
+        </div>
+
+        <div class="places-list">
+          <div
+              v-for="ageCategory in selectedCompetence.ageCategories"
+              :key="ageCategory.id"
+              class="place-item"
+          >
+            <div class="place-age-info">
+              <div class="age-label">
+                {{ ageGroups.find(group => group.value === ageCategory.ageCategory)?.label }}
+              </div>
+              <div class="current-places">
+                Текущее: {{ ageCategory.maxParticipantsCount || 'Не установлено' }}
+              </div>
+            </div>
+            <div class="place-input-group">
+              <InputNumber
+                  v-model="placesForm[ageCategory.ageCategory]"
+                  :min="0"
+                  :max="1000"
+                  placeholder="Максимум мест"
+                  class="place-input"
+              />
+              <Button
+                  icon="pi pi-check"
+                  class="p-button-sm"
+                  :disabled="placesForm[ageCategory.ageCategory] == null || placesForm[ageCategory.ageCategory] < 0"
+                  @click="savePlaceForAge(ageCategory.ageCategory)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Dialog>
   </div>
 </template>
 
@@ -353,6 +413,8 @@ import {
 } from "@/api/resolvers/competence/competence.resolver";
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+import type {UpdateCompetencePlacesInputDto} from "@/api/resolvers/competence/dto/input/competence-places-input.dto.ts";
+import InputNumber from "primevue/inputnumber";
 
 export default {
   name: "ExpertCompetencies",
@@ -364,6 +426,7 @@ export default {
     Textarea,
     Dropdown,
     MultiSelect,
+    InputNumber,
   },
   data() {
     return {
@@ -373,6 +436,7 @@ export default {
       experts: [] as UserOutputDto[],
       selectedAge: [] as AgeCategories[],
       showDetailsDialog: false,
+      showPlacesDialog: false,
       selectedCompetence: undefined as undefined | CompetenceOutputDto,
       showAddCompetenceDialog: false,
       isEditing: false,
@@ -387,6 +451,7 @@ export default {
         ageCategory: "",
         expert: "",
       },
+      placesForm: {} as Record<AgeCategories, number>,
       competenceForm: {
         id: null as number | null,
         name: "",
@@ -417,6 +482,65 @@ export default {
     await this.loadCompetencies();
   },
   methods: {
+    // Методы для управления местами
+    managePlaces(competence: CompetenceOutputDto) {
+      this.selectedCompetence = competence;
+      this.placesForm = {} as Record<AgeCategories, number>;
+      // Инициализируем форму текущими значениями
+      competence.ageCategories.forEach(ageCategory => {
+        this.placesForm[ageCategory.ageCategory] = ageCategory.maxParticipantsCount || 0;
+      });
+      this.showPlacesDialog = true;
+    },
+
+    closePlacesDialog() {
+      this.showPlacesDialog = false;
+      this.selectedCompetence = undefined;
+      this.placesForm = {} as Record<AgeCategories, number>;
+    },
+
+    async savePlaceForAge(ageCategory: AgeCategories) {
+      if (!this.selectedCompetence || this.placesForm[ageCategory] < 0) return;
+
+      try {
+        const response = await this.competenceResolver.updateCompetencePlaces({
+          id: this.selectedCompetence.ageCategories.find(
+              item => item.ageCategory === ageCategory
+          )?.id,
+          maxParticipantsCount: this.placesForm[ageCategory],
+        } as UpdateCompetencePlacesInputDto);
+
+        if (response.status === 200) {
+          this.errors.toastPopup = {
+            title: "Успех",
+            message: "Количество мест успешно обновлено",
+          };
+          // Обновляем данные в selectedCompetence
+          const ageCategoryObj = this.selectedCompetence.ageCategories.find(ac => ac.ageCategory === ageCategory);
+          if (ageCategoryObj) {
+            ageCategoryObj.maxParticipantsCount = this.placesForm[ageCategory];
+          }
+        } else {
+          this.errors.toastPopup = {
+            title: `Ошибка #${response.status}`,
+            message: response.message as string,
+          };
+        }
+      } catch (error) {
+        this.errors.toastPopup = {
+          title: "Ошибка",
+          message: "Произошла ошибка при сохранении мест",
+        };
+      }
+    },
+
+    getTotalPlaces(competence: CompetenceOutputDto) {
+      const totalPlaces = competence.ageCategories.reduce((sum, ageCategory) => {
+        return sum + (ageCategory.maxParticipantsCount || 0);
+      }, 0);
+      return totalPlaces > 0 ? totalPlaces : '-';
+    },
+
     competenceExpert(selectedCompetence: CompetenceOutputDto) {
       return this.experts.find(
           (expert: UserOutputDto) => expert.id === selectedCompetence.expertId,
@@ -846,6 +970,146 @@ export default {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
+}
+
+/* Стили для диалога управления местами */
+.places-management {
+  padding: 1rem 0;
+}
+
+.places-info {
+  margin-bottom: 1.5rem;
+}
+
+.places-description {
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.places-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.place-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.place-age-info {
+  flex: 1;
+}
+
+.age-label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.current-places {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.place-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.place-input {
+  width: 80px !important;
+  flex-shrink: 0;
+  max-width: 80px !important;
+}
+
+.place-input :deep(.p-inputnumber-input) {
+  width: 80px !important;
+  max-width: 80px !important;
+}
+
+.place-input-group .p-button {
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-width: 40px;
+  max-width: 40px;
+  width: 40px;
+  height: 40px;
+}
+
+.places-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+@media (max-width: 768px) {
+  .place-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .place-input-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .place-input {
+    width: 70px !important;
+    flex-shrink: 0;
+    max-width: 70px !important;
+  }
+
+  .place-input :deep(.p-inputnumber-input) {
+    width: 70px !important;
+    max-width: 70px !important;
+  }
+
+  .place-input-group .p-button {
+    min-width: 35px;
+    max-width: 35px;
+    width: 35px;
+    height: 35px;
+    padding: 0;
+  }
+}
+
+.stats-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.stat-number {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #6c757d;
 }
 
 /* Мобильные стили */

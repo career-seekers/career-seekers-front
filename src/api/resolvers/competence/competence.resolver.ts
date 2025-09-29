@@ -83,7 +83,7 @@ export class CompetenceResolver {
     return await this.apiResolver.request<
       UpdateCompetencePlacesInputDto,
       CommonOutputDto<string>
-    >("places", "PUT", data, this.token ? this.token : undefined);
+    >("updateAgeCategory", "PATCH", data, this.token ? this.token : undefined);
   }
 
   public async setCompetencePlace(data: CompetencePlacesInputDto) {
