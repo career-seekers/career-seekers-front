@@ -25,6 +25,14 @@
         />
       </div>
       <div class="filter-group">
+        <label for="ageFilter">Поиск компетенции</label>
+        <InputText
+            id="competence"
+            v-model="filterCompetenceName"
+            placeholder="Введите название"
+        />
+      </div>
+      <div class="filter-group">
         <Button
           label="Сбросить фильтр"
           icon="pi pi-refresh"
@@ -150,11 +158,9 @@
     </div>
 
     <!-- Обычная пагинация (скрывается при скролле) -->
-    <div
-      class="pagination-container"
-      :class="{ 'hidden': showFloatingPagination }"
-    >
+    <div class="pagination-container">
       <Paginator
+        v-if="filteredCompetencies.length > 0"
         :first="currentPage * itemsPerPage"
         :rows="itemsPerPage"
         :total-records="totalRecords"
@@ -162,6 +168,7 @@
         template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
         @page="onPageChange"
       />
+      <p v-else> Компетенции не найдены </p>
     </div>
 
 
@@ -458,6 +465,7 @@
     CompetenceResolver,
   } from "@/api/resolvers/competence/competence.resolver";
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+  import AutoComplete from "primevue/autocomplete";
 
   export default {
     name: "AdminCompetencies",
@@ -471,6 +479,7 @@
       MultiSelect,
       InputNumber,
       Paginator,
+      AutoComplete,
     },
     data() {
       return {
@@ -504,6 +513,7 @@
         placesForm: {} as Record<AgeCategories, number>,
         ageGroups: useAgeGroups,
         competencies: [] as CompetenceOutputDto[],
+        filterCompetenceName: null as string | null,
         // Пагинация
         currentPage: 0,
         itemsPerPage: 8,
@@ -514,14 +524,23 @@
         let filtered = this.competencies;
 
         if (this.selectedAge && this.selectedAge.length > 0) {
-          filtered = filtered.filter((competence: CompetenceOutputDto) =>
-            competence.ageCategories.some(ageDto =>
-              this.selectedAge.includes(ageDto.ageCategory)
-            )
-          ).toSorted((a, b) => b.id - a.id);
+          filtered = filtered.filter(competence =>
+              competence.ageCategories.some(ageDto =>
+                  this.selectedAge.includes(ageDto.ageCategory)
+              )
+          );
         }
 
-        return filtered;
+        if (this.filterCompetenceName && this.filterCompetenceName.length > 0) {
+          const loweredFilter = this.filterCompetenceName.toLowerCase();
+          filtered = filtered.filter(competence =>
+              competence.name.toLowerCase().includes(loweredFilter)
+          );
+        }
+
+        console.log(filtered);
+
+        return filtered.toSorted((a, b) => b.id - a.id);
       },
 
       paginatedCompetencies() {
@@ -559,6 +578,7 @@
           return expert.tutorId === competence.userId
         })
       },
+
       competenceExpert(selectedCompetence: CompetenceOutputDto) {
         return this.experts.find(
           (expert: UserOutputDto) => expert.id === selectedCompetence.expertId,
