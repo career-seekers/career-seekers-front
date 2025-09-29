@@ -33,7 +33,7 @@
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ user?.mobileNumber ? formatMobileNumber(user.mobileNumber) : 'Загрузка...' }}</span>
+              <span class="data-value">{{ user?.mobileNumber ? FormatManager.formatMobileNumberFromDTO(user.mobileNumber) : 'Загрузка...' }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Статус:</span>
@@ -56,7 +56,10 @@
             <p class="preview-text">
               Всего участников: {{ user?.menteeChildren?.length || 0 }}
             </p>
-            <div v-if="user?.menteeChildren && user.menteeChildren.length > 0" class="participants-list">
+            <div
+              v-if="user?.menteeChildren && user.menteeChildren.length > 0"
+              class="participants-list"
+            >
               <div 
                 v-for="child in user.menteeChildren" 
                 :key="child.id"
@@ -68,7 +71,7 @@
                   </div>
                   <div class="participant-details">
                     <span class="participant-age">
-                      Возраст: {{ calculateAge(child.dateOfBirth) }} лет
+                      Возраст: {{ FormatManager.calculateAge(child.dateOfBirth) }} лет
                     </span>
                     <span class="participant-school">
                       {{ child.childDocuments?.studyingPlace || 'Школа не указана' }}
@@ -82,17 +85,27 @@
                 </div>
               </div>
             </div>
-            <div v-else class="empty-state">
+            <div
+              v-else
+              class="empty-state"
+            >
               <i class="pi pi-users empty-icon" />
-              <p class="empty-text">У вас пока нет участников</p>
-              <p class="empty-subtitle">Поделитесь ссылкой с родителями для привлечения участников</p>
+              <p class="empty-text">
+                У вас пока нет участников
+              </p>
+              <p class="empty-subtitle">
+                Поделитесь ссылкой с родителями для привлечения участников
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Компетенции участников -->
-      <div class="info-card" v-if="user?.menteeChildren && user.menteeChildren.length > 0">
+      <div
+        v-if="user?.menteeChildren && user.menteeChildren.length > 0"
+        class="info-card"
+      >
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-star" />
@@ -109,26 +122,37 @@
               <h4 class="child-name">
                 {{ `${child.lastName} ${child.firstName} ${child.patronymic}` }}
               </h4>
-              <div v-if="getChildCompetencies(child.id).length > 0" class="competencies-list">
+              <div
+                v-if="getCompetenciesByChildId(child.id).length > 0"
+                class="competencies-list"
+              >
                 <div 
-                  v-for="competence in getChildCompetencies(child.id)" 
+                  v-for="competence in getCompetenciesByChildId(child.id)"
                   :key="competence.id"
                   class="competence-item"
+                  @click="openCompetenceDialog(competence.direction.id)"
                 >
                   <div class="competence-icon">
                     <i class="pi pi-star" />
                   </div>
                   <div class="competence-info">
-                    <div class="competence-name">{{ competence.name }}</div>
-                    <div class="competence-description">{{ competence.description }}</div>
+                    <div class="competence-name">
+                      {{ competence.direction.name }}
+                    </div>
+                    <div class="competence-description">
+                      {{ competence.direction.description }}
+                    </div>
                     <div class="competence-expert">
                       <i class="pi pi-user" />
-                      Главный эксперт: ID {{ competence.expertId }}
+                      Главный эксперт: ID {{ competence.direction.expertId }}
                     </div>
                   </div>
                 </div>
               </div>
-              <div v-else class="no-competencies">
+              <div
+                v-else
+                class="no-competencies"
+              >
                 <i class="pi pi-info-circle" />
                 <span>Участник пока не зарегистрирован ни на одну компетенцию</span>
               </div>
@@ -157,6 +181,13 @@
         </div>
       </div>
     </div>
+
+    <CompetenceDialog
+      v-if="selectedCompetence !== null"
+      :selected-competence-prop="selectedCompetence"
+      :show-details-dialog-prop="showDetailsDialog"
+      @update:show-details-dialog="(show) => showDetailsDialog = show"
+    />
 
     <!-- Диалог для отображения ссылки -->
     <Dialog
@@ -195,12 +226,20 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import { useUserStore } from '@/stores/userStore.ts';
-import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+import { FormatManager } from '@/utils/FormatManager.ts';
+import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
+import type {
+  ChildCompetenciesOutputDto
+} from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
+import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
 
 export default {
   name: "MentorDashboardHome",
   components: {
+    CompetenceDialog,
     Button,
     Dialog,
     InputText,
@@ -208,64 +247,77 @@ export default {
   data() {
     return {
       userStore: useUserStore(),
+      childCompetenciesResolver: new ChildCompetenciesResolver(),
       competenceResolver: new CompetenceResolver(),
       showLinkDialog: false,
       generatedLink: "",
-      childrenCompetencies: {} as Record<number, CompetenceOutputDto[]>,
       loading: false,
+      showDetailsDialog: false,
+      selectedCompetence: null as CompetenceOutputDto | null,
+      childCompetencies: [] as {
+        child: ChildOutputDto,
+        competencies: ChildCompetenciesOutputDto[]
+      }[]
     };
   },
   computed: {
+    FormatManager() {
+      return FormatManager
+    },
     user() {
       return this.userStore.user;
     },
     MentorName() {
       return this.user?.firstName || "Наставник";
     },
+    menteeChildren() {
+      return this.user?.menteeChildren
+    }
+  },
+  watch: {
+    menteeChildren: {
+      handler() {
+        // Перезагружаем компетенции при изменении списка детей
+        this.loadAllChildrenCompetencies();
+      },
+      deep: true
+    }
+  },
+  async mounted() {
+    // Загружаем компетенции для всех детей при монтировании компонента
+    await this.loadAllChildrenCompetencies();
   },
   methods: {
-    formatMobileNumber(number: string) {
-      return `${number.substring(0, 2)}
-              (${number.substring(2, 5)})
-              ${number.substring(5, 8)}
-              ${number.substring(8, 10)}
-              -${number.substring(10, 12)}`;
-    },
-    calculateAge(birthDate: string) {
-      const today = new Date();
-      const birth = new Date(birthDate);
-      let age = today.getFullYear() - birth.getFullYear();
-      const monthDiff = today.getMonth() - birth.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-        age--;
+    async openCompetenceDialog(competenceId: number) {
+      if (this.selectedCompetence === null || this.selectedCompetence.id !== competenceId) {
+        const response = await this.competenceResolver.getById(competenceId)
+        if (typeof response.message === "string" || response.status !== 200) return
+        this.selectedCompetence = response.message
       }
-      return age;
+      this.showDetailsDialog = true
     },
-    getChildCompetencies(childId: number): CompetenceOutputDto[] {
-      return this.childrenCompetencies[childId] || [];
+    getCompetenciesByChildId(childId: number) {
+      const competencies = this.childCompetencies.find(row => row.child.id === childId)?.competencies
+      return competencies ? competencies : []
+    },
+    async loadCompetenciesByChild(child: ChildOutputDto) {
+      const response = await this.childCompetenciesResolver.getByChildId(child.id)
+      if (typeof response.message === "string" || response.status !== 200) return
+      this.childCompetencies.push({
+        child: child,
+        competencies: response.message
+      })
     },
     getChildCompetenciesCount(childId: number): number {
-      return this.getChildCompetencies(childId).length;
-    },
-    async loadChildCompetencies(childId: number) {
-      try {
-        const response = await this.competenceResolver.getAllByUserId(childId);
-        if (response.message && Array.isArray(response.message)) {
-          this.childrenCompetencies[childId] = response.message;
-        }
-      } catch (error) {
-        console.error('Ошибка при загрузке компетенций для ребенка:', error);
-        this.childrenCompetencies[childId] = [];
-      }
+      return this.getCompetenciesByChildId(childId).length;
     },
     async loadAllChildrenCompetencies() {
       if (!this.user?.menteeChildren) return;
-      
+
       this.loading = true;
       try {
-        const promises = this.user.menteeChildren.map(child => 
-          this.loadChildCompetencies(child.id)
-        );
+        const promises = this.user.menteeChildren.map(child =>
+          this.loadCompetenciesByChild(child));
         await Promise.all(promises);
       } catch (error) {
         console.error('Ошибка при загрузке компетенций:', error);
@@ -277,7 +329,7 @@ export default {
       if (this.userStore.user) {
         // Генерируем зашифрованный ID наставника
         const mentorId = this.userStore.user.id;
-        const encryptedId = btoa(mentorId.toString()); 
+        const encryptedId = btoa(mentorId.toString());
         this.generatedLink = `${window.location.origin}/link/${encryptedId}`;
         this.showLinkDialog = true;
       }
@@ -292,19 +344,6 @@ export default {
         alert('Не удалось скопировать ссылку');
       }
     },
-  },
-  async mounted() {
-    // Загружаем компетенции для всех детей при монтировании компонента
-    await this.loadAllChildrenCompetencies();
-  },
-  watch: {
-    'user.menteeChildren': {
-      handler() {
-        // Перезагружаем компетенции при изменении списка детей
-        this.loadAllChildrenCompetencies();
-      },
-      deep: true
-    }
   },
 };
 </script>

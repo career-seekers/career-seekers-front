@@ -1,0 +1,13 @@
+export enum ParticipantStatus {
+  NOT_STATED = "NOT_STATED",
+  PARTICIPANT = "PARTICIPANT",
+  FINALIST= "FINALIST",
+  PRIZEWINNER = "PRIZEWINNER",
+  WINNER = "WINNER"
+}
+
+export enum QueueStatus {
+  IN_QUEUE = "IN_QUEUE",
+  PARTICIPATES = "PARTICIPATES",
+
+}

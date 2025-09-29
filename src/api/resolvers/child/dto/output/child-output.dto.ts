@@ -6,7 +6,7 @@ export interface ChildOutputDto {
   firstName: string;
   patronymic: string;
   dateOfBirth: string;
-  childDocuments: ChildDocumentsOutputDto;
+  childDocuments: ChildDocumentsOutputDto | null;
   user: {
     id: number;
     firstName: string;

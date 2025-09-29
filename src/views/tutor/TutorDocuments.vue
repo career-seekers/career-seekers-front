@@ -68,217 +68,311 @@
       </div>
     </div>
 
-    <div
-      v-if="filteredDocuments.filter((doc) => doc.verified !== false).length > 0"
-      class="documents-grid-header"
-    >
-      <h1 class="documents-grid-title">
-        Принятые / необработанные
-      </h1>
-    </div>
-
-    <!-- Список документов -->
-    <div
-      v-if="filteredDocuments.filter((doc) => doc.verified !== false).length > 0"
-      class="documents-grid"
-    >
-      <div
-        v-for="document in filteredDocuments.filter((doc) => doc.verified !== false)"
-        :key="document.id"
-        class="document-card"
-      >
-        <div class="document-header">
-          <div class="document-icon">
-            <i class="pi pi-file" />
-          </div>
-          <div class="document-info">
-            <h3 class="document-name">
-              Документ №{{ document.id }}
-            </h3>
-          </div>
-          <div class="document-actions">
-            <Button
-              v-tooltip="'Просмотреть'"
-              icon="pi pi-eye"
-              style="background: white;"
-              class="p-button-text p-button-sm"
-              @click="viewDocument(document)"
-            />
-            <Button
-              v-tooltip="'Скачать'"
-              icon="pi pi-download"
-              style="background: white"
-              class="p-button-text p-button-sm"
-              @click="downloadDocument(document)"
-            />
-            <Button
-              v-tooltip="'Удалить'"
-              icon="pi pi-trash"
-              style="background: white"
-              class="p-button-text p-button-sm p-button-danger"
-              @click="deleteDocument(document)"
-            />
-          </div>
-        </div>
-
-        <div class="document-content">
-          <div class="document-details">
-            <div class="detail-item">
-              <span class="detail-label">Тип:</span>
-              <span class="detail-value">{{
-                DocumentTypes.find((type) => type.value === document.documentType)?.label
-              }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Возрастная группа:</span>
-              <span class="detail-value">
-                {{
-                  ageGroups.find(group => document.ageCategory === group.value)?.label
-                }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Дата загрузки:</span>
-              <span class="detail-value">{{
-                document.createdAt.substring(0, 10)
-              }}</span>
-            </div>
-            <div
-              v-if="document"
-              class="detail-item"
-            >
-              <span class="detail-label">Компетенция:</span>
-              <span class="detail-value">{{
-                documentCompetence(document)?.name
-              }}</span>
-            </div>
-          </div>
-
+    <!-- Табы для документов -->
+    <TabView class="documents-tabs">
+      <TabPanel header="Принятые">
+        <div
+          v-if="acceptedDocuments.length > 0"
+          class="documents-grid"
+        >
           <div
-            v-if="documentExpert(document)"
-            class="mentor-info"
+            v-for="document in acceptedDocuments"
+            :key="document.id"
+            class="document-card"
           >
-            <h4 class="mentor-title">
-              Связанный эксперт:
-            </h4>
-            <p class="mentor-name">
-              {{
-                documentExpert(document)?.lastName +
-                  " " +
-                  documentExpert(document)?.firstName +
-                  " " +
-                  documentExpert(document)?.patronymic
-              }}
-            </p>
+            <div class="document-header">
+              <div class="document-icon">
+                <i class="pi pi-file" />
+              </div>
+              <div class="document-info">
+                <h3 class="document-name">
+                  Документ №{{ document.id }}
+                </h3>
+              </div>
+              <div class="document-actions">
+                <Button
+                  v-tooltip="'Просмотреть'"
+                  icon="pi pi-eye"
+                  style="background: white;"
+                  class="p-button-text p-button-sm"
+                  @click="viewDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Скачать'"
+                  icon="pi pi-download"
+                  style="background: white"
+                  class="p-button-text p-button-sm"
+                  @click="downloadDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Удалить'"
+                  icon="pi pi-trash"
+                  style="background: white"
+                  class="p-button-text p-button-sm p-button-danger"
+                  @click="deleteDocument(document)"
+                />
+              </div>
+            </div>
+
+            <div class="document-content">
+              <div class="document-details">
+                <div class="detail-item">
+                  <span class="detail-label">Тип:</span>
+                  <span class="detail-value">{{
+                    DocumentTypes.find((type) => type.value === document.documentType)?.label
+                  }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Возрастная группа:</span>
+                  <span class="detail-value">
+                    {{
+                      ageGroups.find(group => document.ageCategory === group.value)?.label
+                    }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Дата загрузки:</span>
+                  <span class="detail-value">{{
+                    document.createdAt.substring(0, 10)
+                  }}</span>
+                </div>
+                <div
+                  v-if="document"
+                  class="detail-item"
+                >
+                  <span class="detail-label">Компетенция:</span>
+                  <span class="detail-value">{{
+                    documentCompetence(document)?.name
+                  }}</span>
+                </div>
+              </div>
+
+              <div
+                v-if="documentExpert(document)"
+                class="mentor-info"
+              >
+                <h4 class="mentor-title">
+                  Связанный эксперт:
+                </h4>
+                <p class="mentor-name">
+                  {{
+                    documentExpert(document)?.lastName +
+                      " " +
+                      documentExpert(document)?.firstName +
+                      " " +
+                      documentExpert(document)?.patronymic
+                  }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div
-      v-if="filteredDocuments.filter((doc) => doc.verified === false).length > 0"
-      class="documents-grid-header"
-    >
-      <h1 class="documents-grid-title">
-        Отклоненные
-      </h1>
-    </div>
-
-    <!-- Список документов -->
-    <div
-      v-if="filteredDocuments.filter((doc) => doc.verified === false).length > 0"
-      class="documents-grid"
-    >
-      <div
-        v-for="document in filteredDocuments.filter((doc) => doc.verified === false)"
-        :key="document.id"
-        class="document-card"
-      >
-        <div class="document-header">
-          <div class="document-icon">
-            <i class="pi pi-file" />
-          </div>
-          <div class="document-info">
-            <h3 class="document-name">
-              Документ №{{ document.id }}
-            </h3>
-          </div>
-          <div class="document-actions">
-            <Button
-              v-tooltip="'Просмотреть'"
-              icon="pi pi-eye"
-              style="background: white;"
-              class="p-button-text p-button-sm"
-              @click="viewDocument(document)"
-            />
-            <Button
-              v-tooltip="'Скачать'"
-              icon="pi pi-download"
-              style="background: white"
-              class="p-button-text p-button-sm"
-              @click="downloadDocument(document)"
-            />
-            <Button
-              v-tooltip="'Удалить'"
-              icon="pi pi-trash"
-              style="background: white"
-              class="p-button-text p-button-sm p-button-danger"
-              @click="deleteDocument(document)"
-            />
-          </div>
+        <div v-else class="empty-state">
+          <p>Нет принятых документов</p>
         </div>
-
-        <div class="document-content">
-          <div class="document-details">
-            <div class="detail-item">
-              <span class="detail-label">Тип:</span>
-              <span class="detail-value">{{
-                DocumentTypes.find((type) => type.value === document.documentType)?.label
-              }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Возрастная группа:</span>
-              <span class="detail-value">
-                {{
-                  ageGroups.find(group => document.ageCategory === group.value)?.label
-                }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Дата загрузки:</span>
-              <span class="detail-value">{{
-                document.createdAt.substring(0, 10)
-              }}</span>
-            </div>
-            <div
-              v-if="document"
-              class="detail-item"
-            >
-              <span class="detail-label">Компетенция:</span>
-              <span class="detail-value">{{
-                documentCompetence(document)?.name
-              }}</span>
-            </div>
-          </div>
-
+      </TabPanel>
+      
+      <TabPanel header="Необработанные">
+        <div
+          v-if="uncheckedDocuments.length > 0"
+          class="documents-grid"
+        >
           <div
-            v-if="documentExpert(document)"
-            class="mentor-info"
+            v-for="document in uncheckedDocuments"
+            :key="document.id"
+            class="document-card"
           >
-            <h4 class="mentor-title">
-              Связанный эксперт:
-            </h4>
-            <p class="mentor-name">
-              {{
-                documentExpert(document)?.lastName +
-                  " " +
-                  documentExpert(document)?.firstName +
-                  " " +
-                  documentExpert(document)?.patronymic
-              }}
-            </p>
+            <div class="document-header">
+              <div class="document-icon">
+                <i class="pi pi-file" />
+              </div>
+              <div class="document-info">
+                <h3 class="document-name">
+                  Документ №{{ document.id }}
+                </h3>
+              </div>
+              <div class="document-actions">
+                <Button
+                  v-tooltip="'Просмотреть'"
+                  icon="pi pi-eye"
+                  style="background: white;"
+                  class="p-button-text p-button-sm"
+                  @click="viewDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Скачать'"
+                  icon="pi pi-download"
+                  style="background: white"
+                  class="p-button-text p-button-sm"
+                  @click="downloadDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Удалить'"
+                  icon="pi pi-trash"
+                  style="background: white"
+                  class="p-button-text p-button-sm p-button-danger"
+                  @click="deleteDocument(document)"
+                />
+              </div>
+            </div>
+
+            <div class="document-content">
+              <div class="document-details">
+                <div class="detail-item">
+                  <span class="detail-label">Тип:</span>
+                  <span class="detail-value">{{
+                    DocumentTypes.find((type) => type.value === document.documentType)?.label
+                  }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Возрастная группа:</span>
+                  <span class="detail-value">
+                    {{
+                      ageGroups.find(group => document.ageCategory === group.value)?.label
+                    }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Дата загрузки:</span>
+                  <span class="detail-value">{{
+                    document.createdAt.substring(0, 10)
+                  }}</span>
+                </div>
+                <div
+                  v-if="document"
+                  class="detail-item"
+                >
+                  <span class="detail-label">Компетенция:</span>
+                  <span class="detail-value">{{
+                    documentCompetence(document)?.name
+                  }}</span>
+                </div>
+              </div>
+
+              <div
+                v-if="documentExpert(document)"
+                class="mentor-info"
+              >
+                <h4 class="mentor-title">
+                  Связанный эксперт:
+                </h4>
+                <p class="mentor-name">
+                  {{
+                    documentExpert(document)?.lastName +
+                      " " +
+                      documentExpert(document)?.firstName +
+                      " " +
+                      documentExpert(document)?.patronymic
+                  }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+        <div v-else class="empty-state">
+          <p>Нет необработанных документов</p>
+        </div>
+      </TabPanel>
+      
+      <TabPanel header="Отклоненные">
+        <div
+          v-if="rejectedDocuments.length > 0"
+          class="documents-grid"
+        >
+          <div
+            v-for="document in rejectedDocuments"
+            :key="document.id"
+            class="document-card"
+          >
+            <div class="document-header">
+              <div class="document-icon">
+                <i class="pi pi-file" />
+              </div>
+              <div class="document-info">
+                <h3 class="document-name">
+                  Документ №{{ document.id }}
+                </h3>
+              </div>
+              <div class="document-actions">
+                <Button
+                  v-tooltip="'Просмотреть'"
+                  icon="pi pi-eye"
+                  style="background: white;"
+                  class="p-button-text p-button-sm"
+                  @click="viewDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Скачать'"
+                  icon="pi pi-download"
+                  style="background: white"
+                  class="p-button-text p-button-sm"
+                  @click="downloadDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Удалить'"
+                  icon="pi pi-trash"
+                  style="background: white"
+                  class="p-button-text p-button-sm p-button-danger"
+                  @click="deleteDocument(document)"
+                />
+              </div>
+            </div>
+
+            <div class="document-content">
+              <div class="document-details">
+                <div class="detail-item">
+                  <span class="detail-label">Тип:</span>
+                  <span class="detail-value">{{
+                    DocumentTypes.find((type) => type.value === document.documentType)?.label
+                  }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Возрастная группа:</span>
+                  <span class="detail-value">
+                    {{
+                      ageGroups.find(group => document.ageCategory === group.value)?.label
+                    }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Дата загрузки:</span>
+                  <span class="detail-value">{{
+                    document.createdAt.substring(0, 10)
+                  }}</span>
+                </div>
+                <div
+                  v-if="document"
+                  class="detail-item"
+                >
+                  <span class="detail-label">Компетенция:</span>
+                  <span class="detail-value">{{
+                    documentCompetence(document)?.name
+                  }}</span>
+                </div>
+              </div>
+
+              <div
+                v-if="documentExpert(document)"
+                class="mentor-info"
+              >
+                <h4 class="mentor-title">
+                  Связанный эксперт:
+                </h4>
+                <p class="mentor-name">
+                  {{
+                    documentExpert(document)?.lastName +
+                      " " +
+                      documentExpert(document)?.firstName +
+                      " " +
+                      documentExpert(document)?.patronymic
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="empty-state">
+          <p>Нет отклоненных документов</p>
+        </div>
+      </TabPanel>
+    </TabView>
 
     <Dialog
       v-if="selectedDocument"
@@ -311,6 +405,8 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import Dropdown from "primevue/dropdown";
+import TabView from "primevue/tabview";
+import TabPanel from "primevue/tabpanel";
 import { FileResolver, FileType } from "@/api/resolvers/files/file.resolver";
 import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
 import ToastPopup from "@/components/ToastPopup.vue";
@@ -334,6 +430,8 @@ export default {
     Button,
     Dialog,
     Dropdown,
+    TabView,
+    TabPanel,
   },
   data: function () {
     return {
@@ -399,6 +497,21 @@ export default {
       return [...new Set(this.documents.map(doc => doc.ageCategory))].toSorted((a, b) => {
         return ageOrder.get(a)!! - ageOrder.get(b)!!;
       });
+    },
+    acceptedDocuments() {
+      return this.filteredDocuments
+        .filter(doc => doc.verified === true)
+        .sort((a, b) => b.id - a.id);
+    },
+    uncheckedDocuments() {
+      return this.filteredDocuments
+        .filter(doc => doc.verified === null)
+        .sort((a, b) => b.id - a.id);
+    },
+    rejectedDocuments() {
+      return this.filteredDocuments
+        .filter(doc => doc.verified === false)
+        .sort((a, b) => b.id - a.id);
     }
   },
   async mounted() {
@@ -830,5 +943,51 @@ export default {
   .expert-info {
     padding: 0.75rem;
   }
+}
+
+/* Стили для табов документов */
+.documents-tabs {
+  margin-top: 2rem;
+}
+
+.documents-tabs :deep(.p-tabview-nav) {
+  background: transparent;
+  border-radius: 0;
+  padding: 0.5rem 0;
+}
+
+.documents-tabs :deep(.p-tabview-nav li) {
+  margin-right: 0.5rem;
+}
+
+.documents-tabs :deep(.p-tabview-nav li .p-tabview-nav-link) {
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.documents-tabs :deep(.p-tabview-nav li.p-highlight .p-tabview-nav-link) {
+  background: #ff9800;
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+}
+
+.documents-tabs :deep(.p-tabview-panels) {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+.empty-state p {
+  margin: 0;
 }
 </style>

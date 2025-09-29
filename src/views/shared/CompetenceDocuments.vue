@@ -224,6 +224,27 @@
             />
           </div>
         </div>
+        
+        <div class="document-content">
+          <div class="document-details">
+            <div class="detail-item">
+              <span class="detail-label">Тип документа:</span>
+              <span class="detail-value">{{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Возрастная группа:</span>
+              <span class="detail-value">{{ ageGroups.find(group => document.ageCategory === group.value)?.label }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Дата загрузки:</span>
+              <span class="detail-value">{{ document.createdAt.substring(0, 10) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">ID документа:</span>
+              <span class="detail-value">#{{ document.documentId }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -721,6 +742,9 @@
     transition:
       box-shadow 0.3s ease,
       border-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 
   .document-card:hover {
@@ -779,6 +803,37 @@
 
   .document-content {
     padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .document-details {
+    flex: 1;
+  }
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f3f4;
+  }
+
+  .detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    color: #6c757d;
+    font-weight: 500;
+    min-width: 100px;
+  }
+
+  .detail-value {
+    color: #2c3e50;
+    font-weight: 500;
+    text-align: right;
   }
 
   .document-description {

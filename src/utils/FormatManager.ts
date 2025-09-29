@@ -8,7 +8,7 @@ export const FormatManager = {
   gradeOptions: useGradeOptions,
 
   formatBirthDateFromDTO(birthDate: string) {
-    const parts = birthDate.split("-");
+    const parts = birthDate.substring(0, 10).split("-");
     return `${parts[2]}.${parts[1]}.${parts[0]}`;
   },
   formatBirthDateToDTO(birthDate: string) {
@@ -65,6 +65,6 @@ export const FormatManager = {
     return group ? group : undefined;
   },
   calculateGrade(child: ChildOutputDto) {
-    return this.gradeOptions.find(grade => grade.value === child.childDocuments.learningClass)?.label
+    return this.gradeOptions.find(grade => grade.value === child.childDocuments?.learningClass)?.label
   },
 }

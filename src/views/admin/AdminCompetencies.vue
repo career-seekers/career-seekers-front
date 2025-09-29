@@ -61,7 +61,10 @@
                 class="competence-age"
               >
                 {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
-                <span v-if="item.maxPlaces !== undefined" class="places-count">
+                <span
+                  v-if="item.maxPlaces !== undefined"
+                  class="places-count"
+                >
                   ({{ item.maxPlaces }} мест)
                 </span>
               </span>
@@ -379,7 +382,10 @@
       class="places-dialog"
       :style="{ width: '600px' }"
     >
-      <div v-if="selectedCompetence" class="places-management">
+      <div
+        v-if="selectedCompetence"
+        class="places-management"
+      >
         <div class="places-info">
           <p class="places-description">
             Установите максимальное количество мест для каждого возрастного периода компетенции.
