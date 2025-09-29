@@ -67,17 +67,17 @@
               label="Добавить ребёнка"
               icon="pi pi-plus"
               class="p-button-primary"
-              @click="showAddChildDialog = true"
+              @click="fillNewChild"
             />
           </div>
         </div>
       </div>
     </div>
     <ChildrenList
+      :selected-mentor-id="selectedMentorId"
       :children="user.children"
       @update:children-list="userStore.fillChildren"
       @open:child-form="(child) => editChild(child)"
-      ref="childrenList"
     />
     <Dialog
       v-model:visible="showAddChildDialog"
@@ -109,9 +109,11 @@
           style="width: 100%"
           class="p-button-primary"
           type="submit"
+          :loading="isLoading"
         />
       </form>
     </Dialog>
+    <ToastPopup :content="toastPopup" />
   </div>
 </template>
 
@@ -126,10 +128,12 @@ import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
 import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
 import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
 import { FormatManager } from '@/utils/FormatManager.ts';
+import ToastPopup from '@/components/ToastPopup.vue';
 
 export default {
   name: "UserDashboardHome",
   components: {
+    ToastPopup,
     AddChildForm,
     ChildrenList,
     Button,
@@ -144,12 +148,19 @@ export default {
       showAddChildDialog: false,
       isEditing: false,
       selectedChild: null as ChildOutputDto | null,
+      selectedMentorId: null as null | number,
 
+      isLoading: false,
       addBirthFile: false,
       addSnilsFile: false,
       addConsentFile: false,
       addSchoolFile: false,
       addPlatformFile: false,
+
+      toastPopup: {
+        title: "",
+        message: ""
+      },
 
       childForm: {
         fullName: "",
@@ -203,6 +214,10 @@ export default {
         snilsScan: ''
       }
     }
+  },
+  mounted() {
+    // Проверяем, есть ли сохраненный наставник после перехода по ссылке
+    this.checkForSavedMentor();
   },
   methods: {
     validateForm() {
@@ -271,8 +286,31 @@ export default {
       
       return isValid
     },
-    async editChild(child: ChildOutputDto) {
-      this.isEditing = true
+    clearChildForm() {
+      this.childForm = {
+        birthCertificate: null,
+        birthDate: '',
+        childConsentFile: null,
+        fullName: '',
+        grade: null,
+        platform: '',
+        platformCertificate: null,
+        schoolCertificate: null,
+        schoolName: '',
+        snilsNumber: '',
+        snilsScan: null
+
+      }
+    },
+    fillNewChild() {
+      this.selectedChild = null
+      this.clearChildForm()
+      this.isEditing = false
+      this.showAddChildDialog = true;
+    },
+    editChild(child: ChildOutputDto) {
+      this.clearChildForm()
+      this.isEditing = child.childDocuments !== null
       this.showAddChildDialog = true
       this.childForm.fullName = `${child.lastName} ${child.firstName} ${child.patronymic}`
       this.childForm.birthDate = FormatManager.formatBirthDateFromDTO(child.dateOfBirth)
@@ -280,7 +318,8 @@ export default {
     },
     async addChild() {
       if (this.user === null || !this.validateForm()) return
-      if (this.isEditing && this.selectedChild !== null) {
+      this.isLoading = true;
+      if (this.selectedChild !== null && (this.isEditing || this.selectedChild.childDocuments === null)) {
         await this.childResolver.update({
           id: this.selectedChild.id,
           lastName: this.childForm.fullName.split(" ")[0],
@@ -289,25 +328,7 @@ export default {
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null
         })
-        if (this.addBirthFile || this.addSnilsFile
-          || this.addSchoolFile || this.addPlatformFile
-          || this.addConsentFile) {
-          await this.childDocumentsResolver.update({
-            id: this.selectedChild.childDocuments.id,
-            additionalStudyingCertificateFile: this.childForm.platformCertificate,
-            birthCertificateFile: this.childForm.birthCertificate,
-            consentToChildPdpFile: this.childForm.childConsentFile,
-            learningClass: this.childForm.grade ?? this.selectedChild.childDocuments.learningClass,
-            parentRole: this.selectedChild.childDocuments.parentRole,
-            snilsFile: this.childForm.snilsScan,
-            snilsNumber: this.childForm.snilsNumber
-              ? FormatManager.formatSnilsToDTO(this.childForm.snilsNumber)
-              : this.selectedChild.childDocuments.snilsNumber,
-            studyingCertificateFile: this.childForm.schoolCertificate,
-            studyingPlace: this.childForm.schoolName ?? this.selectedChild.childDocuments.studyingPlace,
-            trainingGround: this.childForm.platform ?? this.selectedChild.childDocuments.trainingGround,
-          })
-        }
+        await this.addChildDocs(this.selectedChild)
       } else {
         const childResponse = await this.childResolver.create({
           userId: this.user.id,
@@ -317,21 +338,30 @@ export default {
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null
         })
+        await this.addChildDocs(childResponse.message)
+      }
+      await this.userStore.fillChildren()
+      this.isLoading = false
+      this.showAddChildDialog = false
+    },
+    async addChildDocs(child: ChildOutputDto | string) {
+      if (this.selectedChild === null || this.selectedChild.childDocuments === null) {
         if (this.childForm.childConsentFile !== null
           && this.childForm.schoolCertificate !== null
           && this.childForm.birthCertificate !== null
           && this.childForm.platformCertificate !== null
           && this.childForm.snilsScan !== null
           && this.childForm.grade !== null
-          && typeof childResponse.message !== "string") {
-          await this.childDocumentsResolver.create({
-            childId: childResponse.message.id,
+          && this.user !== null
+          && typeof child !== "string") {
+          const response = await this.childDocumentsResolver.create({
+            childId: child.id,
             additionalStudyingCertificateFile: this.childForm.platformCertificate,
             birthCertificateFile: this.childForm.birthCertificate,
             consentToChildPdpFile: this.childForm.childConsentFile,
             learningClass: this.childForm.grade,
             parentRole: this.user.children.length > 0
-              ? this.user.children[0].childDocuments.parentRole
+              ? this.user.children[0].childDocuments!.parentRole
               : "Не указано",
             snilsFile: this.childForm.snilsScan,
             snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
@@ -339,27 +369,39 @@ export default {
             studyingPlace: this.childForm.schoolName,
             trainingGround: this.childForm.platform
           })
+          if (typeof response.message === "string") {
+            this.toastPopup = {
+              title: `Ошибка ${response.status.toString()} при загрузке документов`,
+              message: response.message
+            }
+          }
         }
+      } else if (this.addBirthFile || this.addSnilsFile
+        || this.addSchoolFile || this.addPlatformFile
+        || this.addConsentFile) {
+        await this.childDocumentsResolver.update({
+          id: this.selectedChild!.childDocuments!.id,
+          additionalStudyingCertificateFile: this.childForm.platformCertificate,
+          birthCertificateFile: this.childForm.birthCertificate,
+          consentToChildPdpFile: this.childForm.childConsentFile,
+          learningClass: this.childForm.grade ?? this.selectedChild!.childDocuments!.learningClass,
+          parentRole: this.selectedChild!.childDocuments!.parentRole,
+          snilsFile: this.childForm.snilsScan,
+          snilsNumber: this.childForm.snilsNumber
+            ? FormatManager.formatSnilsToDTO(this.childForm.snilsNumber)
+            : this.selectedChild!.childDocuments!.snilsNumber,
+          studyingCertificateFile: this.childForm.schoolCertificate,
+          studyingPlace: this.childForm.schoolName ?? this.selectedChild!.childDocuments!.studyingPlace,
+          trainingGround: this.childForm.platform ?? this.selectedChild!.childDocuments!.trainingGround,
+        })
       }
-      await this.userStore.fillChildren()
-      this.showAddChildDialog = false
     },
     checkForSavedMentor() {
-      const selectedMentorId = localStorage.getItem('selectedMentorId');
-      if (selectedMentorId) {
-        console.log('Found saved mentor ID in UserDashboardHome:', selectedMentorId);
-        // Обновляем список детей, чтобы показать доступного наставника
-        this.$nextTick(() => {
-          if (this.$refs.childrenList) {
-            this.$refs.childrenList.loadAvailableMentor();
-          }
-        });
-      }
+      const mentorId = localStorage.getItem('selectedMentorId')
+      this.selectedMentorId = mentorId
+        ? parseInt(mentorId)
+        : null
     }
-  },
-  mounted() {
-    // Проверяем, есть ли сохраненный наставник после перехода по ссылке
-    this.checkForSavedMentor();
   }
 };
 </script>

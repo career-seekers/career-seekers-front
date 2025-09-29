@@ -14,14 +14,14 @@
         isCollapsed: !this.expanded
       }
     },
-    mounted() {
-      // Инициализируем состояние на основе пропса
-      this.isCollapsed = !this.expanded;
-    },
     watch: {
       expanded(newVal) {
         this.isCollapsed = !newVal;
       }
+    },
+    mounted() {
+      // Инициализируем состояние на основе пропса
+      this.isCollapsed = !this.expanded;
     },
     methods: {
       DocumentTemplates() {
@@ -35,16 +35,31 @@
 </script>
 
 <template>
-  <div class="upload-section" :class="{ 'collapsed': isCollapsed }">
-    <div class="upload-card" :class="{ 'collapsed': isCollapsed }">
-      <div class="upload-header" @click="toggleCollapse">
+  <div
+    class="upload-section"
+    :class="{ 'collapsed': isCollapsed }"
+  >
+    <div
+      class="upload-card"
+      :class="{ 'collapsed': isCollapsed }"
+    >
+      <div
+        class="upload-header"
+        @click="toggleCollapse"
+      >
         <h3 class="upload-title">
           <i class="pi pi-file-edit" />
           Шаблоны документов
-          <i class="pi pi-chevron-down collapse-icon" :class="{ 'rotated': isCollapsed }" />
+          <i
+            class="pi pi-chevron-down collapse-icon"
+            :class="{ 'rotated': isCollapsed }"
+          />
         </h3>
       </div>
-      <div class="download-content" :class="{ 'collapsed': isCollapsed }">
+      <div
+        class="download-content"
+        :class="{ 'collapsed': isCollapsed }"
+      >
         <div class="download-list">
           <div
             v-for="template in DocumentTemplates()"

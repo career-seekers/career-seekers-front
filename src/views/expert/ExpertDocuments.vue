@@ -53,8 +53,12 @@
           class="competence-item"
         >
           <div class="competence-info">
-            <h4 class="competence-name">{{ competence.name }}</h4>
-            <p class="competence-description">{{ competence.description }}</p>
+            <h4 class="competence-name">
+              {{ competence.name }}
+            </h4>
+            <p class="competence-description">
+              {{ competence.description }}
+            </p>
             <div class="competence-meta">
               <span class="competence-ages">
                 <i class="pi pi-users" />
@@ -75,8 +79,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Табы для документов -->
     <TabView class="documents-tabs">
       <TabPanel header="Проверены">
         <div v-if="acceptedDocuments.length === 0" class="empty-state">
