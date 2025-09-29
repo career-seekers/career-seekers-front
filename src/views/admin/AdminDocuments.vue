@@ -185,10 +185,6 @@ export default {
     };
   },
   computed: {
-    sortedCompetencies() {
-        const competencies = this.competencies
-        return competencies.sort((a, b) => a.name.localeCompare(b.name))
-    },
     rejectedDocuments() {
       return this.documents
           .filter(doc => doc.verified === false)
@@ -238,7 +234,7 @@ export default {
       if (!query.length) {
         filtered = [...this.competencies];
       } else {
-        filtered = this.competencies.filter(competence =>
+        filtered = [...this.competencies].filter(competence =>
           this.formatCompetenceName(competence).toLowerCase().includes(query))
       }
 
@@ -249,7 +245,8 @@ export default {
         }
       });
 
-      this.filteredCompetencies = [...uniqueByName.values()].sort((a, b) => a.name.localeCompare(b.name));
+      this.filteredCompetencies = [...uniqueByName.values()]
+        .sort((a, b) => a.name.localeCompare(b.name));
     },
     formatCompetenceName(competence: CompetenceOutputDto) {
         const expert = this.experts.find(expert => expert.id === competence.expertId)

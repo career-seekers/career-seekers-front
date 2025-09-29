@@ -544,8 +544,7 @@
       paginatedCompetencies() {
         const start = this.currentPage * this.itemsPerPage;
         const end = start + this.itemsPerPage;
-        const competencies = this.filteredCompetencies
-        const result = [...competencies]
+        const result = [...this.filteredCompetencies]
           .sort((a, b) => a.name.localeCompare(b.name))
           .slice(start, end);
         console.log('Paginated competencies:', result);

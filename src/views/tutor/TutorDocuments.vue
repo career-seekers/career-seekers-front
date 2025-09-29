@@ -481,8 +481,7 @@ export default {
   },
   computed: {
     sortedCompetencies() {
-      const competencies = this.competencies
-      return competencies.sort((a, b) => a.name.localeCompare(b.name))
+      return [...this.competencies].sort((a, b) => a.name.localeCompare(b.name))
     },
     filteredDocuments() {
       let filtered = this.documents;
