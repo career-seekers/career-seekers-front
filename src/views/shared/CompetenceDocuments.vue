@@ -72,7 +72,7 @@
 
     <div class="docs">
       <!--    Шаблоны документов-->
-      <DocumentsTemplates />
+      <DocumentsTemplates :expanded="true" />
 
       <!-- Загрузка документов -->
       <div class="upload-section">
@@ -137,8 +137,8 @@
       :content="toastContent"
     />
 
-    <!-- Диалог подтверждения удаления -->
-    <ConfirmDialog />
+    <!-- Диалог подтверждения -->
+    <ConfirmationModal ref="confirmationModal" />
 
     <div
       v-if="availableAges.length > 0"
@@ -249,7 +249,7 @@
   import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import ToastPopup from '@/components/ToastPopup.vue';
-  import ConfirmDialog from 'primevue/confirmdialog';
+  import ConfirmationModal from '@/components/ConfirmationModal.vue';
 
   export default {
     name: "CompetenceDocuments",
@@ -259,7 +259,7 @@
       FileUpload,
       Dropdown,
       ToastPopup,
-      ConfirmDialog,
+      ConfirmationModal,
     },
     props: {
       competenceId: {
@@ -385,13 +385,12 @@
         document.body.removeChild(a);
       },
       deleteDocument(document: DocumentsOutputDto) {
-        this.$confirm.require({
-          message: `Вы уверены, что хотите удалить документ "${this.DocumentTypes.find(docType => docType.value === document.documentType)?.label}"?`,
-          header: 'Подтверждение удаления',
-          icon: 'pi pi-exclamation-triangle',
-          rejectLabel: 'Отмена',
-          acceptLabel: 'Удалить',
-          accept: async () => {
+        const documentTypeLabel = this.DocumentTypes.find(docType => docType.value === document.documentType)?.label || 'документ';
+        
+        this.$refs.confirmationModal.showDeleteConfirmation(
+          document,
+          documentTypeLabel,
+          async () => {
             try {
               const response = await this.competenceDocumentsResolver.delete(document.id);
               if (response.status === 200) {
@@ -417,7 +416,7 @@
               };
             }
           }
-        });
+        );
       },
       resetFilters() {
         this.selectedType = null;

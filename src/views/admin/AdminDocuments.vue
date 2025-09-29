@@ -9,7 +9,7 @@
       </p>
     </div>
 
-    <DocumentsTemplates />
+    <DocumentsTemplates :expanded="false" />
 
     <!-- Фильтры -->
     <div class="filters-section sticky-filters">

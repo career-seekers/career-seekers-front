@@ -9,7 +9,7 @@
       </p>
     </div>
 
-    <DocumentsTemplates />
+    <DocumentsTemplates :expanded="true" />
 
     <div
       v-if="availableAges.length > 0"

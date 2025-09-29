@@ -3,9 +3,24 @@
 
   export default {
     name: 'DocumentsTemplates',
+    props: {
+      expanded: {
+        type: Boolean,
+        default: false
+      }
+    },
     data() {
       return {
-        isCollapsed: true
+        isCollapsed: !this.expanded
+      }
+    },
+    mounted() {
+      // Инициализируем состояние на основе пропса
+      this.isCollapsed = !this.expanded;
+    },
+    watch: {
+      expanded(newVal) {
+        this.isCollapsed = !newVal;
       }
     },
     methods: {
