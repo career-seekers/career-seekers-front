@@ -92,6 +92,44 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
+            <i class="pi pi-users" />
+            Информация о наставниках
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-number">
+                {{ mentors.length }}
+              </div>
+              <div class="stat-label">
+                Всего наставников
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">
+                {{ mentors.filter(mentor => mentor.verified).length }}
+              </div>
+              <div class="stat-label">
+                Верифицированных
+              </div>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <Button
+              label="Управление наставниками"
+              icon="pi pi-cog"
+              class="p-button-outlined"
+              @click="router().push('/admin/mentors')"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-header">
+          <h3 class="card-title">
             <i class="pi pi-building" />
             Информация о площадках
           </h3>
@@ -277,6 +315,7 @@
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
 
         tutors: [] as UserOutputDto[],
+        mentors: [] as UserOutputDto[],
         competencies: [] as CompetenceOutputDto[],
         experts: [] as UserOutputDto[],
         documents: [] as CompetenceDocumentsOutputDto[],
@@ -296,6 +335,10 @@
       response = await this.userResolver.getAllByRole(Roles.TUTOR)
       if (typeof response.message !== 'string') {
         this.tutors = response.message
+      }
+      response = await this.userResolver.getAllByRole(Roles.MENTOR)
+      if (typeof response.message !== 'string') {
+        this.mentors = response.message
       }
       response = await this.competenceResolver.getAll()
       if (typeof response.message !== 'string') {

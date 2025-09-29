@@ -148,24 +148,6 @@
         <div class="card-content">
           <div class="quick-actions">
             <Button
-              label="Управление участниками"
-              icon="pi pi-cog"
-              class="p-button-primary"
-              @click="goToParticipants"
-            />
-            <Button
-              label="Связаться с родителями"
-              icon="pi pi-envelope"
-              class="p-button-outlined"
-              @click="contactParents"
-            />
-            <Button
-              label="Просмотреть сертификаты"
-              icon="pi pi-certificate"
-              class="p-button-outlined"
-              @click="viewCertificates"
-            />
-            <Button
               label="Сгенерировать ссылку для родителей"
               icon="pi pi-link"
               class="p-button-success"
@@ -290,16 +272,6 @@ export default {
       } finally {
         this.loading = false;
       }
-    },
-    goToParticipants() {
-      this.$router.push("/mentor/participants");
-    },
-    contactParents() {
-      // Логика связи с родителями
-      console.log("Связь с родителями");
-    },
-    viewCertificates() {
-      this.$router.push("/mentor/my-certificates");
     },
     generateParentLink() {
       if (this.userStore.user) {
