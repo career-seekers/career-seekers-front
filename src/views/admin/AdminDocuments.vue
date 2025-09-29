@@ -95,6 +95,8 @@
           :experts="experts"
           verify-status="UNCHECKED"
           @update="loadCompetencies"
+          @delete="handleDeleteDocument"
+          @verify="handleVerifyDocument"
         />
       </TabPanel>
       <TabPanel header="Принятые">
@@ -103,6 +105,8 @@
           :experts="experts"
           verify-status="ACCEPTED"
           @update="loadCompetencies"
+          @delete="handleDeleteDocument"
+          @verify="handleVerifyDocument"
         />
       </TabPanel>
       <TabPanel header="Отклоненные">
@@ -111,11 +115,16 @@
           :experts="experts"
           verify-status="REJECTED"
           @update="loadCompetencies"
+          @delete="handleDeleteDocument"
+          @verify="handleVerifyDocument"
         />
       </TabPanel>
     </TabView>
 
     <ToastPopup :content="errors.toastPopup" />
+    
+    <!-- Диалог подтверждения удаления -->
+    <ConfirmDialog />
   </div>
 </template>
 
@@ -142,6 +151,8 @@ import DocsToVerifyList from '@/components/DocsToVerifyList.vue';
 import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import {Roles} from "@/state/UserState.types.ts";
 import AutoComplete from "primevue/autocomplete";
+import ConfirmDialog from "primevue/confirmdialog";
+import { useConfirm } from "primevue/useconfirm";
 
 export default {
   name: "AdminDocuments",
@@ -154,6 +165,7 @@ export default {
     TabView,
     TabPanel,
     AutoComplete,
+    ConfirmDialog,
   },
   data() {
     return {
@@ -182,6 +194,8 @@ export default {
       // Активный таб
       activeTab: 0,
       isSticky: false,
+      // Confirm dialog
+      confirm: useConfirm(),
     };
   },
   computed: {
@@ -249,6 +263,7 @@ export default {
         .sort((a, b) => a.name.localeCompare(b.name));
     },
     formatCompetenceName(competence: CompetenceOutputDto) {
+        if (!competence) return '';
         const expert = this.experts.find(expert => expert.id === competence.expertId)
         return expert
           ? `${competence.name} (${expert?.lastName} ${expert?.firstName.substring(0, 1)}.${expert?.patronymic.substring(0, 1)}.)`
@@ -351,6 +366,142 @@ export default {
       }
     },
 
+    handleDeleteDocument(document: CompetenceDocumentsOutputDto) {
+      this.confirm.require({
+        message: `Вы уверены, что хотите удалить документ №${document.documentId}?`,
+        header: 'Подтверждение удаления',
+        icon: 'pi pi-exclamation-triangle',
+        rejectLabel: 'Отмена',
+        acceptLabel: 'Удалить',
+        acceptClass: 'p-button-danger',
+        rejectClass: 'p-button-text',
+        accept: async () => {
+          try {
+            const response = await this.competenceDocumentsResolver.delete(
+              document.id,
+            );
+            if (response.status === 200) {
+              // Локально удаляем документ из списка без полной перезагрузки
+              const documentIndex = this.documents.findIndex(doc => doc.id === document.id);
+              if (documentIndex !== -1) {
+                this.documents.splice(documentIndex, 1);
+              }
+              
+              // Также удаляем документ из компетенций
+              this.competencies.forEach(competence => {
+                const docIndex = competence.documents.findIndex(doc => doc.id === document.id);
+                if (docIndex !== -1) {
+                  competence.documents.splice(docIndex, 1);
+                }
+              });
+              
+              // Удаляем компетенции без документов
+              this.competencies = this.competencies.filter(competence => competence.documents.length > 0);
+              
+              // Показываем уведомление об успешном удалении
+              this.errors.toastPopup = {
+                title: "Успешно",
+                message: "Документ удален успешно",
+              };
+            }
+          } catch (error) {
+            console.error('Ошибка при удалении документа:', error);
+            this.errors.toastPopup = {
+              title: "Ошибка",
+              message: "Не удалось удалить документ",
+            };
+          }
+        }
+      });
+    },
+
+    handleVerifyDocument(data: { 
+      document: CompetenceDocumentsOutputDto, 
+      status: boolean, 
+      success?: boolean,
+      action?: string,
+      actionPast?: string,
+      showConfirm?: boolean 
+    }) {
+      if (data.showConfirm) {
+        // Показываем диалог подтверждения
+        this.confirm.require({
+          message: `Вы уверены, что хотите ${data.action} документ №${data.document.documentId}?`,
+          header: `Подтверждение ${data.action === 'принять' ? 'принятия' : 'отклонения'}`,
+          icon: data.status ? 'pi pi-check-circle' : 'pi pi-times-circle',
+          rejectLabel: 'Отмена',
+          acceptLabel: data.action,
+          acceptClass: data.status ? 'p-button-success' : 'p-button-danger',
+          rejectClass: 'p-button-text',
+          accept: async () => {
+            try {
+              const response = await this.competenceDocumentsResolver.verify(data.document.id, data.status);
+              if (response.status === 200) {
+                // Локально обновляем статус документа в основном массиве
+                const documentIndex = this.documents.findIndex(doc => doc.id === data.document.id);
+                if (documentIndex !== -1) {
+                  this.documents[documentIndex].verified = data.status;
+                }
+                
+                // Также обновляем статус в компетенциях
+                this.competencies.forEach(competence => {
+                  const docIndex = competence.documents.findIndex(doc => doc.id === data.document.id);
+                  if (docIndex !== -1) {
+                    competence.documents[docIndex].verified = data.status;
+                  }
+                });
+                
+                // Показываем уведомление об успешной верификации
+                this.errors.toastPopup = {
+                  title: "Успешно",
+                  message: `Документ ${data.actionPast} успешно`,
+                };
+              } else {
+                // Показываем уведомление об ошибке
+                this.errors.toastPopup = {
+                  title: "Ошибка",
+                  message: "Не удалось обновить статус документа",
+                };
+              }
+            } catch (error) {
+              console.error('Ошибка при верификации документа:', error);
+              this.errors.toastPopup = {
+                title: "Ошибка",
+                message: "Не удалось обновить статус документа",
+              };
+            }
+          }
+        });
+      } else if (data.success) {
+        // Локально обновляем статус документа в основном массиве
+        const documentIndex = this.documents.findIndex(doc => doc.id === data.document.id);
+        if (documentIndex !== -1) {
+          this.documents[documentIndex].verified = data.status;
+        }
+        
+        // Также обновляем статус в компетенциях
+        this.competencies.forEach(competence => {
+          const docIndex = competence.documents.findIndex(doc => doc.id === data.document.id);
+          if (docIndex !== -1) {
+            competence.documents[docIndex].verified = data.status;
+          }
+        });
+        
+        // Показываем уведомление об успешной верификации
+        const action = data.status ? 'принят' : 'отклонен';
+        this.errors.toastPopup = {
+          title: "Успешно",
+          message: `Документ ${action} успешно`,
+        };
+      } else {
+        // Показываем уведомление об ошибке
+        this.errors.toastPopup = {
+          title: "Ошибка",
+          message: "Не удалось обновить статус документа",
+        };
+      }
+    },
+
   },
 
 };
@@ -412,11 +563,8 @@ export default {
   flex-wrap: wrap;
 }
 
-/* Sticky фильтры */
+/* Обычные фильтры */
 .sticky-filters {
-  position: sticky;
-  top: 0;
-  z-index: 100;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
 }
@@ -561,26 +709,11 @@ export default {
   padding: 0;
 }
 
-/* Кастомный sticky контейнер для табов */
+/* Обычный контейнер для табов */
 .custom-sticky-container {
   position: relative;
-  z-index: 98;
   background: white;
   transition: all 0.3s ease;
-}
-
-.custom-sticky-container.sticky {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 0 0 8px 8px;
-}
-
-.custom-sticky-container.sticky:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Очень маленькие экраны */
@@ -624,6 +757,76 @@ export default {
   .expert-info {
     padding: 0.75rem;
   }
+}
+
+/* Стили для диалога подтверждения */
+:deep(.p-confirm-dialog) {
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+:deep(.p-confirm-dialog .p-dialog-header) {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
+}
+
+:deep(.p-confirm-dialog .p-dialog-title) {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+:deep(.p-confirm-dialog .p-dialog-content) {
+  padding: 2rem 1.5rem;
+  background: #f8f9fa;
+}
+
+:deep(.p-confirm-dialog .p-dialog-message) {
+  color: #2c3e50;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+:deep(.p-confirm-dialog .p-dialog-footer) {
+  padding: 1rem 1.5rem 1.5rem;
+  background: white;
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+:deep(.p-confirm-dialog .p-button) {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+:deep(.p-confirm-dialog .p-button-danger) {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+:deep(.p-confirm-dialog .p-button-danger:hover) {
+  background: #c82333;
+  border-color: #bd2130;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+:deep(.p-confirm-dialog .p-button-text) {
+  color: #6c757d;
+  background: transparent;
+  border: 1px solid #dee2e6;
+}
+
+:deep(.p-confirm-dialog .p-button-text:hover) {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+  color: #495057;
 }
 
 

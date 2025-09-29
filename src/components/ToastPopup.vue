@@ -120,7 +120,7 @@ onUnmounted(() => {
   position: fixed;
   top: 1rem;
   right: 1rem;
-  z-index: 10000;
+  z-index: 99999;
   max-width: 400px;
   animation: slideInRight 0.3s ease-out;
   transition: all 0.3s ease-out;
