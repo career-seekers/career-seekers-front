@@ -294,6 +294,7 @@
       :header="selectedCompetence?.name || 'Компетенция'"
       :modal="true"
       :style="{ width: '800px' }"
+      @update:visible="closeDetails()"
     >
       <div
         class="competence-details"
@@ -369,6 +370,7 @@
       :closable="true"
       class="places-dialog"
       :style="{ width: '600px' }"
+      @update:visible="closePlacesDialog()"
     >
       <div
         v-if="selectedCompetence"
