@@ -78,7 +78,10 @@
           />
 
           <div class="forgot-password-link">
-            <router-link to="/forgot-password" class="forgot-link">
+            <router-link
+              to="/forgot-password"
+              class="forgot-link"
+            >
               Забыли пароль?
             </router-link>
           </div>

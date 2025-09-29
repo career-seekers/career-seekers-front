@@ -16,6 +16,7 @@
   import { useUserStore } from '@/stores/userStore.ts';
   import { useGradeOptions } from '../shared/UseGradeOptions.ts';
   import ToastPopup from './ToastPopup.vue';
+  import { FormatManager } from '../utils/FormatManager.ts';
 
   export default {
     name: 'ChildrenList',
@@ -438,23 +439,26 @@
         <div class="child-details">
           <div class="detail-item">
             <span class="detail-label">Дата рождения:</span>
-            <span class="detail-value">{{ formatDateOfBirth(child.dateOfBirth) }}</span>
+            <span class="detail-value">{{ FormatManager.formatBirthDateFromDTO(child.dateOfBirth) }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">СНИЛС:</span>
-            <span class="detail-value">{{ formatSnils(child.childDocuments?.snilsNumber) }}</span>
+            <span class="detail-value">{{ FormatManager.formatSnilsFromDTO(child.childDocuments?.snilsNumber) }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Класс обучения:</span>
             <span class="detail-value">
-              {{ calculateGrade(child) }}
+              {{ FormatManager.calculateGrade(child) }}
             </span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Возрастная группа:</span>
-            <span class="detail-value">
-              {{ getAgeGroupByAge(calculateAge(child.dateOfBirth), child.childDocuments?.learningClass) }}
-            </span>
+            <span class="detail-value">{{
+              FormatManager.getAgeGroupByAge(
+                FormatManager.calculateAge(child.dateOfBirth),
+                child.childDocuments?.learningClass
+              )?.label
+            }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Образовательное учреждение:</span>

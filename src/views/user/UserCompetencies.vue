@@ -119,11 +119,12 @@
   import Button from 'primevue/button';
   import Dropdown from 'primevue/dropdown';
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
-  import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
   import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
+  import { FormatManager } from '@/utils/FormatManager.ts';
 
   export default {
     name: "ParentCompetenciesSelection",
@@ -171,8 +172,8 @@
       async loadCompetencies() {
         this.competencies = []
         if (this.selectedChild === null) return
-        const ageCategory = this.getAgeGroupByAge(
-          this.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild?.childDocuments.learningClass
+        const ageCategory = FormatManager.getAgeGroupByAge(
+          FormatManager.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild?.childDocuments.learningClass
         )
         if (!ageCategory) return
         const response = await this.competenceResolver.getByAgeCategory(ageCategory.value)
@@ -221,33 +222,6 @@
         return competence.ageCategories.map(category => {
           return this.ageGroups.find(group => group.value === category.ageCategory)?.label
         }).join(", ")
-      },
-      calculateAge(birthDate: string) {
-        const birth = new Date(birthDate.substring(0, 10));
-        const onDate = new Date(2026, 1, 14)
-
-        let age = onDate.getFullYear() - birth.getFullYear();
-        let monthDiff = onDate.getMonth() - birth.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && onDate.getDate() < birth.getDate())) {
-          age--;
-        }
-        return age;
-      },
-      getAgeGroupByAge(age: number, learningClass: number) {
-        if (age === 7) {
-          return this.ageGroups
-            .find(group => learningClass > 0
-              ? group.value === AgeCategories.EARLY_SCHOOL
-              : group.value === AgeCategories.PRESCHOOL
-            )
-        }
-        const group = this.ageGroups.find(group => {
-          const edges = group.label.split(" ")[0].split("-");
-          const min = parseInt(edges[0]);
-          const max = parseInt(edges[1]);
-          return min <= age && age <= max;
-        });
-        return group ? group : undefined;
       },
       async assignToCompetencies() {
 
