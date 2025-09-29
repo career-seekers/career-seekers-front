@@ -30,7 +30,7 @@
         <Dropdown
           id="statusFilter"
           v-model="selectedCompetence"
-          :options="competencies"
+          :options="sortedCompetencies"
           :disabled="competencies.length === 0"
           placeholder="Все компетенции"
           class="filter-dropdown"
@@ -179,6 +179,17 @@ export default {
       };
     },
     computed: {
+      sortedCompetencies() {
+        return this.competencies.map(competence => {
+          const expert = this.experts.find(expert => expert.id === competence.expertId)
+          return {
+            ...competence,
+            name: expert
+              ? `${competence.name} (${expert?.lastName} ${expert?.firstName.substring(0, 1)}.${expert?.patronymic.substring(0, 1)}.)`
+              : competence.name
+          }
+        }).sort((a, b) => a.name.localeCompare(b.name))
+      },
       rejectedDocuments() {
         return this.documents
           .filter(doc => doc.verified === false)
@@ -256,18 +267,6 @@ export default {
 
       resetAge() {
         this.selectedAge = null
-      },
-
-
-      handleScroll() {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const stickyContainer = this.$el.querySelector('.custom-sticky-container');
-        
-        if (stickyContainer) {
-          const containerRect = stickyContainer.getBoundingClientRect();
-          // Активируем sticky когда контейнер достигает верха экрана
-          this.isSticky = containerRect.top <= 0;
-        }
       },
 
       async loadCompetencies() {
