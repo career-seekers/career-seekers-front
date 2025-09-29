@@ -183,12 +183,21 @@
     <!-- Табы для документов -->
     <TabView class="documents-tabs">
       <TabPanel header="Проверены">
-        <div v-if="acceptedDocuments.length === 0" class="empty-state">
-          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+        <div
+          v-if="acceptedDocuments.length === 0"
+          class="empty-state"
+        >
+          <i
+            class="pi pi-file-o"
+            style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"
+          />
           <h3>Нет проверенных документов</h3>
           <p>Документы, которые прошли проверку</p>
         </div>
-        <div v-else class="documents-grid">
+        <div
+          v-else
+          class="documents-grid"
+        >
           <div
             v-for="document in acceptedDocuments"
             :key="document.id"
@@ -257,12 +266,21 @@
       </TabPanel>
       
       <TabPanel header="На проверке">
-        <div v-if="uncheckedDocuments.length === 0" class="empty-state">
-          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+        <div
+          v-if="uncheckedDocuments.length === 0"
+          class="empty-state"
+        >
+          <i
+            class="pi pi-file-o"
+            style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"
+          />
           <h3>Нет документов на проверке</h3>
           <p>Документы, ожидающие проверки</p>
         </div>
-        <div v-else class="documents-grid">
+        <div
+          v-else
+          class="documents-grid"
+        >
           <div
             v-for="document in uncheckedDocuments"
             :key="document.id"
@@ -331,12 +349,21 @@
       </TabPanel>
       
       <TabPanel header="Отклоненные">
-        <div v-if="rejectedDocuments.length === 0" class="empty-state">
-          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+        <div
+          v-if="rejectedDocuments.length === 0"
+          class="empty-state"
+        >
+          <i
+            class="pi pi-file-o"
+            style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"
+          />
           <h3>Нет отклоненных документов</h3>
           <p>Документы, которые были отклонены</p>
         </div>
-        <div v-else class="documents-grid">
+        <div
+          v-else
+          class="documents-grid"
+        >
           <div
             v-for="document in rejectedDocuments"
             :key="document.id"

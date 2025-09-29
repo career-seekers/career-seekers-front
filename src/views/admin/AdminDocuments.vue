@@ -16,84 +16,101 @@
       <div class="filter-group">
         <label for="typeFilter">Тип документа:</label>
         <Dropdown
-            id="typeFilter"
-            v-model="selectedType"
-            :options="DocumentTypes"
-            option-label="label"
-            option-value="value"
-            placeholder="Все типы"
-            class="filter-dropdown"
+          id="typeFilter"
+          v-model="selectedType"
+          :options="DocumentTypes"
+          option-label="label"
+          option-value="value"
+          placeholder="Все типы"
+          class="filter-dropdown"
         />
       </div>
       <div class="filter-group">
         <label for="statusFilter">Компетенция:</label>
         <AutoComplete
-            v-model="selectedCompetence"
-            :suggestions="filteredCompetencies"
-            @complete="filterCompetencies"
-            dropdown
-            field="name"
-            placeholder="Все компетенции"
-            class="filter-dropdown"
-            :disabled="competencies.length === 0"
-        />
+          id="statusFilter"
+          v-model="selectedCompetence"
+          :suggestions="filteredCompetencies"
+          dropdown
+          field="name"
+          placeholder="Все компетенции"
+          class="filter-dropdown"
+          :disabled="competencies.length === 0"
+          @complete="filterCompetencies"
+        >
+          <template #item="slotProps">
+            {{ slotProps ? formatCompetenceName(slotProps.item) : "Не выбран" }}
+          </template>
+          <template #option="slotProps">
+            {{ slotProps ? formatCompetenceName(slotProps.option) : "Не выбран" }}
+          </template>
+        </AutoComplete>
       </div>
-      <div class="filter-group" v-if="availableAges.length > 0">
+      <div
+        v-if="availableAges.length > 0"
+        class="filter-group"
+      >
         <label>Возрастные группы:</label>
         <div class="age-buttons">
           <Button
-              v-for="age in availableAges"
-              :key="age"
-              :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
-              :label="ageGroups.find(group => group.value === age)?.label"
-              @click="selectedAge = age"
-              size="small"
+            v-for="age in availableAges"
+            :key="age"
+            :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
+            :label="ageGroups.find(group => group.value === age)?.label"
+            size="small"
+            @click="selectedAge = age"
           />
           <Button
-              label="Сбросить возраст"
-              icon="pi pi-refresh"
-              class="p-button-text p-button-sm"
-              @click="resetAge"
+            label="Сбросить возраст"
+            icon="pi pi-refresh"
+            class="p-button-text p-button-sm"
+            @click="resetAge"
           />
         </div>
       </div>
       <div class="filter-group">
         <Button
-            label="Сбросить фильтры"
-            icon="pi pi-refresh"
-            class="p-button-text p-button-sm"
-            @click="resetFilters"
+          label="Сбросить фильтры"
+          icon="pi pi-refresh"
+          class="p-button-text p-button-sm"
+          @click="resetFilters"
         />
       </div>
     </div>
   </div>
 
   <!-- Кастомный sticky контейнер для табов -->
-  <div class="custom-sticky-container" :class="{ 'sticky': isSticky }">
+  <div
+    class="custom-sticky-container"
+    :class="{ 'sticky': isSticky }"
+  >
     <!-- Табы для документов -->
-    <TabView v-model:activeIndex="activeTab" class="documents-tabs">
+    <TabView
+      v-model:active-index="activeTab"
+      class="documents-tabs"
+    >
       <TabPanel header="Необработанные">
         <DocsToVerifyList
-            :documents="filterDocs(uncheckedDocuments)"
-            :experts="experts"
-            verify-status="UNCHECKED"
-            @update="loadCompetencies"
+          :documents="filterDocs(uncheckedDocuments)"
+          :experts="experts"
+          verify-status="UNCHECKED"
+          @update="loadCompetencies"
         />
       </TabPanel>
       <TabPanel header="Принятые">
         <DocsToVerifyList
-            :documents="filterDocs(acceptedDocuments)"
-            :experts="experts"
-            verify-status="ACCEPTED"
-            @update="loadCompetencies"
+          :documents="filterDocs(acceptedDocuments)"
+          :experts="experts"
+          verify-status="ACCEPTED"
+          @update="loadCompetencies"
         />
       </TabPanel>
       <TabPanel header="Отклоненные">
         <DocsToVerifyList
-            :documents="filterDocs(rejectedDocuments)"
-            :experts="experts"
-            verify-status="REJECTED"
-            @update="loadCompetencies"
+          :documents="filterDocs(rejectedDocuments)"
+          :experts="experts"
+          verify-status="REJECTED"
+          @update="loadCompetencies"
         />
       </TabPanel>
     </TabView>
@@ -217,27 +234,31 @@ export default {
       if (!query.length) {
         filtered = [...this.competencies];
       } else {
-        filtered = this.competencies.filter(c =>
-            c.name.toLowerCase().includes(query)
-        );
+        filtered = [...this.competencies].filter(competence =>
+          this.formatCompetenceName(competence).toLowerCase().includes(query))
       }
 
       const uniqueByName = new Map();
       filtered.forEach(item => {
-        if (!uniqueByName.has(item.name)) {
-          uniqueByName.set(item.name, item);
+        if (!uniqueByName.has(item.id)) {
+          uniqueByName.set(item.id, item);
         }
       });
 
-      this.filteredCompetencies = [...uniqueByName.values()];
+      this.filteredCompetencies = [...uniqueByName.values()]
+        .sort((a, b) => a.name.localeCompare(b.name));
     },
-
+    formatCompetenceName(competence: CompetenceOutputDto) {
+        const expert = this.experts.find(expert => expert.id === competence.expertId)
+        return expert
+          ? `${competence.name} (${expert?.lastName} ${expert?.firstName.substring(0, 1)}.${expert?.patronymic.substring(0, 1)}.)`
+          : competence.name
+      },
     documentCompetence(document: DocumentsOutputDto): CompetenceOutputDto | undefined {
       return this.competencies.find((competence: CompetenceOutputDto) =>
           competence.documents.some((doc) => doc.id === document.id),
       );
     },
-
     filterDocs(docs: CompetenceDocumentsOutputDto[]) {
       if (this.selectedType) {
         docs = docs.filter(
@@ -267,28 +288,15 @@ export default {
     resetAge() {
       this.selectedAge = null
     },
-
-
-    handleScroll() {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const stickyContainer = this.$el.querySelector('.custom-sticky-container');
-
-      if (stickyContainer) {
-        const containerRect = stickyContainer.getBoundingClientRect();
-        // Активируем sticky когда контейнер достигает верха экрана
-        this.isSticky = containerRect.top <= 0;
-      }
-    },
-
     async loadCompetencies() {
-      try {
-        console.log('Loading competencies in AdminDocuments...');
-        console.log('Access token in AdminDocuments:', localStorage.getItem("access_token"));
-        const response = await this.competenceResolver.getAll();
-        console.log('Competence response in AdminDocuments:', response);
-        console.log('Competence response status in AdminDocuments:', response.status);
-        console.log('Competence response message in AdminDocuments:', response.message);
-        if (response.status === 200 && typeof response.message !== "string") {
+        try {
+          console.log('Loading competencies in AdminDocuments...');
+          console.log('Access token in AdminDocuments:', localStorage.getItem("access_token"));
+          const response = await this.competenceResolver.getAll();
+          console.log('Competence response in AdminDocuments:', response);
+          console.log('Competence response status in AdminDocuments:', response.status);
+          console.log('Competence response message in AdminDocuments:', response.message);
+          if (response.status === 200 && typeof response.message !== "string") {
           const docs = [] as CompetenceDocumentsOutputDto[];
           const competencies = [] as CompetenceOutputDto[]
           for (const competence of response.message) {

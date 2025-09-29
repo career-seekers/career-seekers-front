@@ -27,9 +27,9 @@
       <div class="filter-group">
         <label for="ageFilter">Поиск компетенции</label>
         <InputText
-            id="competence"
-            v-model="filterCompetenceName"
-            placeholder="Введите название"
+          id="competence"
+          v-model="filterCompetenceName"
+          placeholder="Введите название"
         />
       </div>
       <div class="filter-group">
@@ -168,7 +168,9 @@
         template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
         @page="onPageChange"
       />
-      <p v-else> Компетенции не найдены </p>
+      <p v-else>
+        Компетенции не найдены
+      </p>
     </div>
 
 
@@ -473,7 +475,6 @@
       MultiSelect,
       InputNumber,
       Paginator,
-      AutoComplete,
     },
     data() {
       return {
@@ -532,15 +533,15 @@
           );
         }
 
-        console.log(filtered);
-
         return filtered.toSorted((a, b) => b.id - a.id);
       },
 
       paginatedCompetencies() {
         const start = this.currentPage * this.itemsPerPage;
         const end = start + this.itemsPerPage;
-        const result = this.filteredCompetencies.slice(start, end);
+        const result = [...this.filteredCompetencies]
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .slice(start, end);
         console.log('Paginated competencies:', result);
         console.log('Total competencies:', this.competencies.length);
         console.log('Filtered competencies:', this.filteredCompetencies.length);
