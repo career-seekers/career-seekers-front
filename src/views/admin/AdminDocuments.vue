@@ -11,28 +11,8 @@
 
     <DocumentsTemplates />
 
-    <div
-      v-if="availableAges.length > 0"
-      class="settings-section"
-    >
-      <div class="filters-section flex column-gap-5">
-        <Button
-          v-for="age in availableAges"
-          :key="age"
-          :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
-          :label="ageGroups.find(group => group.value === age)?.label"
-          @click="selectedAge = age"
-        />
-        <Button
-          label="Сбросить"
-          icon="pi pi-refresh"
-          class="p-button-text p-button-sm"
-          @click="resetAge"
-        />
-      </div>
-
-      <!-- Фильтры -->
-      <div class="filters-section">
+    <!-- Фильтры -->
+    <div class="filters-section sticky-filters">
         <div class="filter-group">
           <label for="typeFilter">Тип документа:</label>
           <Dropdown
@@ -63,6 +43,25 @@
             </template>
           </Dropdown>
         </div>
+        <div class="filter-group" v-if="availableAges.length > 0">
+          <label>Возрастные группы:</label>
+          <div class="age-buttons">
+            <Button
+              v-for="age in availableAges"
+              :key="age"
+              :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
+              :label="ageGroups.find(group => group.value === age)?.label"
+              @click="selectedAge = age"
+              size="small"
+            />
+            <Button
+              label="Сбросить возраст"
+              icon="pi pi-refresh"
+              class="p-button-text p-button-sm"
+              @click="resetAge"
+            />
+          </div>
+        </div>
         <div class="filter-group">
           <Button
             label="Сбросить фильтры"
@@ -74,26 +73,35 @@
       </div>
     </div>
 
-    <DocsToVerifyList
-      :documents="filterDocs(uncheckedDocuments)"
-      :experts="experts"
-      verify-status="UNCHECKED"
-      @update="loadCompetencies"
-    />
-
-    <DocsToVerifyList
-      :documents="filterDocs(acceptedDocuments)"
-      :experts="experts"
-      verify-status="ACCEPTED"
-      @update="loadCompetencies"
-    />
-
-    <DocsToVerifyList
-      :documents="filterDocs(rejectedDocuments)"
-      :experts="experts"
-      verify-status="REJECTED"
-      @update="loadCompetencies"
-    />
+    <!-- Кастомный sticky контейнер для табов -->
+    <div class="custom-sticky-container" :class="{ 'sticky': isSticky }">
+      <!-- Табы для документов -->
+      <TabView v-model:activeIndex="activeTab" class="documents-tabs">
+      <TabPanel header="Необработанные">
+        <DocsToVerifyList
+          :documents="filterDocs(uncheckedDocuments)"
+          :experts="experts"
+          verify-status="UNCHECKED"
+          @update="loadCompetencies"
+        />
+      </TabPanel>
+      <TabPanel header="Принятые">
+        <DocsToVerifyList
+          :documents="filterDocs(acceptedDocuments)"
+          :experts="experts"
+          verify-status="ACCEPTED"
+          @update="loadCompetencies"
+        />
+      </TabPanel>
+      <TabPanel header="Отклоненные">
+        <DocsToVerifyList
+          :documents="filterDocs(rejectedDocuments)"
+          :experts="experts"
+          verify-status="REJECTED"
+          @update="loadCompetencies"
+        />
+      </TabPanel>
+    </TabView>
 
     <ToastPopup :content="errors.toastPopup" />
   </div>
@@ -102,6 +110,8 @@
 <script lang="ts">
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
+import TabView from "primevue/tabview";
+import TabPanel from "primevue/tabpanel";
 import {FileResolver, FileType} from "@/api/resolvers/files/file.resolver";
 import {AgeCategories, CompetenceResolver} from '@/api/resolvers/competence/competence.resolver';
 import ToastPopup from "@/components/ToastPopup.vue";
@@ -128,6 +138,8 @@ export default {
       ToastPopup,
       Button,
       Dropdown,
+      TabView,
+      TabPanel,
     },
     data() {
       return {
@@ -152,6 +164,9 @@ export default {
         competenceResolver: new CompetenceResolver(),
         userResolver: new UserResolver(),
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
+        // Активный таб
+        activeTab: 0,
+        isSticky: false,
       };
     },
     computed: {
@@ -166,9 +181,12 @@ export default {
           .sort((a, b) => b.id - a.id);
       },
       uncheckedDocuments() {
-        return this.documents
+        const result = this.documents
           .filter(doc => doc.verified === null)
           .sort((a, b) => b.id - a.id);
+        console.log('Unchecked documents:', result);
+        console.log('Total documents:', this.documents.length);
+        return result;
       },
       availableAges() {
         const ageOrder = new Map(this.ageGroups.map((group, index) => [group.value, index]));
@@ -178,8 +196,21 @@ export default {
       }
     },
     async mounted() {
-      await this.loadCompetencies();
-      await this.loadExperts();
+      console.log('AdminDocuments mounted');
+      console.log('CompetenceResolver:', this.competenceResolver);
+      console.log('UserResolver:', this.userResolver);
+      try {
+        await this.loadCompetencies();
+        console.log('loadCompetencies completed successfully in AdminDocuments');
+      } catch (error) {
+        console.error('Error in loadCompetencies in AdminDocuments:', error);
+      }
+      try {
+        await this.loadExperts();
+        console.log('loadExperts completed successfully in AdminDocuments');
+      } catch (error) {
+        console.error('Error in loadExperts in AdminDocuments:', error);
+      }
     },
     methods: {
       documentCompetence(document: DocumentsOutputDto): CompetenceOutputDto | undefined {
@@ -211,15 +242,34 @@ export default {
       resetFilters() {
         this.selectedType = null;
         this.selectedCompetence = null;
+        this.selectedAge = null;
       },
 
       resetAge() {
         this.selectedAge = null
       },
 
+
+      handleScroll() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const stickyContainer = this.$el.querySelector('.custom-sticky-container');
+        
+        if (stickyContainer) {
+          const containerRect = stickyContainer.getBoundingClientRect();
+          // Активируем sticky когда контейнер достигает верха экрана
+          this.isSticky = containerRect.top <= 0;
+        }
+      },
+
       async loadCompetencies() {
-        const response = await this.competenceResolver.getAll();
-        if (response.status === 200 && typeof response.message !== "string") {
+        try {
+          console.log('Loading competencies in AdminDocuments...');
+          console.log('Access token in AdminDocuments:', localStorage.getItem("access_token"));
+          const response = await this.competenceResolver.getAll();
+          console.log('Competence response in AdminDocuments:', response);
+          console.log('Competence response status in AdminDocuments:', response.status);
+          console.log('Competence response message in AdminDocuments:', response.message);
+          if (response.status === 200 && typeof response.message !== "string") {
           const docs = [] as CompetenceDocumentsOutputDto[];
           const competencies = [] as CompetenceOutputDto[]
           for (const competence of response.message) {
@@ -248,6 +298,17 @@ export default {
           }
           this.documents = docs
           this.competencies = competencies
+          console.log('Documents loaded:', this.documents);
+          console.log('Competencies loaded:', this.competencies);
+        } else {
+          console.error('Failed to load competencies in AdminDocuments:', response);
+        }
+        } catch (error) {
+          console.error('Error loading competencies in AdminDocuments:', error);
+          this.errors.toastPopup = {
+            title: "Ошибка",
+            message: "Не удалось загрузить компетенции",
+          };
         }
       },
 
@@ -261,8 +322,10 @@ export default {
         if (tutResponse.status === 200 && typeof tutResponse.message !== "string") {
           this.experts = this.experts.concat(tutResponse.message);
         }
-      }
+      },
+
     },
+
   };
 </script>
 
@@ -322,11 +385,31 @@ export default {
     flex-wrap: wrap;
   }
 
+  /* Sticky фильтры */
+  .sticky-filters {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .sticky-filters:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
   .filter-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     min-width: 150px;
+  }
+
+  .age-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
   }
 
   .filter-group label {
@@ -416,6 +499,63 @@ export default {
     }
   }
 
+  /* Стили для табов документов */
+  .documents-tabs {
+    margin-top: 2rem;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav) {
+    background: transparent;
+    border-radius: 0;
+    padding: 0.5rem 0;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li) {
+    margin-right: 0.5rem;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li .p-tabview-nav-link) {
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li.p-highlight .p-tabview-nav-link) {
+    background: #ff9800;
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+  }
+
+  .documents-tabs :deep(.p-tabview-panels) {
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  /* Кастомный sticky контейнер для табов */
+  .custom-sticky-container {
+    position: relative;
+    z-index: 98;
+    background: white;
+    transition: all 0.3s ease;
+  }
+
+  .custom-sticky-container.sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 8px 8px;
+  }
+
+  .custom-sticky-container.sticky:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
   /* Очень маленькие экраны */
   @media (max-width: 480px) {
     .documents-page {
@@ -458,4 +598,6 @@ export default {
       padding: 0.75rem;
     }
   }
+
+
 </style>

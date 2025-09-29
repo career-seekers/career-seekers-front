@@ -10,7 +10,7 @@
     </div>
 
     <!-- Кнопка добавления эксперта -->
-    <div class="filters-section">
+    <div class="filters-section sticky-filters">
       <div class="search-group">
         <InputText
           v-model="searchQuery"
@@ -24,7 +24,7 @@
     <!-- Список площадок -->
     <div class="venues-grid">
       <div
-        v-for="venue in filteredVenues"
+        v-for="venue in paginatedVenues"
         :key="venue.id"
         class="venue-card"
       >
@@ -104,12 +104,26 @@
         <ToastPopup :content="errors.toastPopup" />
       </div>
     </div>
+
+    <!-- Обычная пагинация (скрывается при скролле) -->
+    <div class="pagination-container" :class="{ 'hidden': showFloatingPagination }">
+      <Paginator
+        :first="currentPage * itemsPerPage"
+        :rows="itemsPerPage"
+        :total-records="totalRecords"
+        :rows-per-page-options="[8, 16, 24, 32]"
+        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+        @page="onPageChange"
+      />
+    </div>
+
   </div>
 </template>
 
 <script lang="ts">
   import Button from "primevue/button";
   import InputText from "primevue/inputtext";
+  import Paginator from "primevue/paginator";
   import ToastPopup from "@/components/ToastPopup.vue";
   import type { UserOutputDto } from "@/api/resolvers/user/dto/output/user-output.dto.ts";
   import { Roles } from "@/state/UserState.types";
@@ -123,6 +137,7 @@
       ToastPopup,
       Button,
       InputText,
+      Paginator,
     },
     data() {
       return {
@@ -146,6 +161,9 @@
         tutors: [] as UserOutputDto[],
         platformResolver: new PlatformResolver(),
         userResolver: new UserResolver(),
+        // Пагинация
+        currentPage: 0,
+        itemsPerPage: 8,
       };
     },
     computed: {
@@ -159,6 +177,16 @@
           })
         }
         return filtered
+      },
+
+      paginatedVenues(): PlatformOutputDto[] {
+        const start = this.currentPage * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return this.filteredVenues.slice(start, end);
+      },
+
+      totalRecords(): number {
+        return this.filteredVenues.length;
       },
     },
     watch: {
@@ -211,10 +239,19 @@
         }
       },
       async loadVenues() {
+        console.log('Loading venues...');
+        console.log('PlatformResolver:', this.platformResolver);
+        console.log('Access token for venues:', localStorage.getItem("access_token"));
+        console.log('API endpoint for venues:', 'https://api.career-seekers.ru/events-service/v1/platforms');
         const response = await this.platformResolver.getAll();
+        console.log('Venues response:', response);
+        console.log('Venues response status:', response.status);
+        console.log('Venues response message:', response.message);
         if (response.status === 200 && typeof response.message !== "string") {
           this.venues = response.message;
+          console.log('Venues loaded:', this.venues);
         } else {
+          console.error('Failed to load venues:', response);
           this.errors.toastPopup = {
             title: response.status.toString(),
             message: response.message.toString(),
@@ -231,7 +268,20 @@
             message: response.message.toString(),
           };
         }
-      }
+      },
+
+      onPageChange(event: any) {
+        this.currentPage = event.page;
+        this.itemsPerPage = event.rows;
+        // Плавная прокрутка к началу списка
+        this.$nextTick(() => {
+          const grid = this.$el.querySelector('.venues-grid');
+          if (grid) {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      },
+
     },
   };
 </script>
@@ -386,6 +436,19 @@
     background: #f8f9fa;
     border-radius: 8px;
     flex-wrap: wrap;
+  }
+
+  /* Sticky фильтры */
+  .sticky-filters {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .sticky-filters:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .search-group {
@@ -588,5 +651,27 @@
       font-size: 0.75rem;
       padding: 0.2rem 0.5rem;
     }
+  }
+
+  /* Стили для пагинации */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    transition: opacity 0.3s ease;
+  }
+
+
+
+  /* Простые анимации для карточек */
+  .venue-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .venue-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 </style>

@@ -10,12 +10,14 @@
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
   import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
   import Button from 'primevue/button';
+  import Paginator from 'primevue/paginator';
 
   export type VerifyStatus = "ACCEPTED" | "REJECTED" | "UNCHECKED";
   export default {
     name: 'DocsToVerifyList',
     components: {
       Button,
+      Paginator,
     },
     props: {
       verifyStatus: {
@@ -38,6 +40,9 @@
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
         documentTypes: useDocumentTypes,
         ageGroups: useAgeGroups,
+        // Пагинация
+        currentPage: 0,
+        itemsPerPage: 8,
       }
     },
     computed: {
@@ -47,6 +52,21 @@
           case 'REJECTED': return "Отклоненные"
           default: return "Необработанные"
         }
+      },
+
+      paginatedDocuments() {
+        const start = this.currentPage * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        const result = this.documents.slice(start, end);
+        console.log('DocsToVerifyList - paginatedDocuments:', result);
+        console.log('DocsToVerifyList - total documents:', this.documents.length);
+        console.log('DocsToVerifyList - currentPage:', this.currentPage);
+        console.log('DocsToVerifyList - itemsPerPage:', this.itemsPerPage);
+        return result;
+      },
+
+      totalRecords() {
+        return this.documents.length;
       }
     },
     methods: {
@@ -73,26 +93,36 @@
           if (response.status === 200) this.$emit('update');
         }
       },
+
+      onPageChange(event: any) {
+        this.currentPage = event.page;
+        this.itemsPerPage = event.rows;
+        // Плавная прокрутка к началу списка
+        this.$nextTick(() => {
+          const grid = this.$el.querySelector('.documents-grid');
+          if (grid) {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      },
+
+    },
+    mounted() {
+      console.log('DocsToVerifyList mounted with documents:', this.documents);
+      console.log('DocsToVerifyList props:', this.$props);
     }
   };
 </script>
 
 <template>
-  <div
-    v-if="documents.length > 0"
-    class="documents-grid-header"
-  >
-    <h1 class="documents-grid-title">
-      {{ statusTitle }}
-    </h1>
-  </div>
+  <!-- Заголовок убран, так как теперь используется в табах -->
 
   <div
     v-if="documents.length > 0"
     class="documents-grid"
   >
     <div
-      v-for="document in documents"
+      v-for="document in paginatedDocuments"
       :key="document.id"
       class="document-card"
     >
@@ -208,6 +238,22 @@
       </div>
     </div>
   </div>
+
+  <!-- Обычная пагинация (скрывается при скролле) -->
+  <div
+    v-if="documents.length > 0"
+    class="pagination-container"
+  >
+    <Paginator
+      :first="currentPage * itemsPerPage"
+      :rows="itemsPerPage"
+      :total-records="totalRecords"
+      :rows-per-page-options="[8, 16, 24, 32]"
+      template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+      @page="onPageChange"
+    />
+  </div>
+
 </template>
 
 <style scoped>
@@ -319,5 +365,27 @@
     display: flex;
     gap: 1.5rem;
     justify-content: flex-end;
+  }
+
+  /* Стили для пагинации */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    transition: opacity 0.3s ease;
+  }
+
+
+
+  /* Простые анимации для карточек */
+  .document-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .document-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 </style>

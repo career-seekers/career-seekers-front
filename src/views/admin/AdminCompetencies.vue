@@ -1,6 +1,6 @@
 <template>
-  <ToastPopup :content="errors.toastPopup" />
   <div class="competencies-page">
+    <ToastPopup :content="errors.toastPopup" />
     <div class="page-header">
       <h1 class="page-title">
         Компетенции
@@ -11,7 +11,7 @@
     </div>
 
     <!-- Фильтры -->
-    <div class="filters-section">
+    <div class="filters-section sticky-filters">
       <div class="filter-group">
         <label for="ageFilter">Возрастная группа:</label>
         <MultiSelect
@@ -37,7 +37,7 @@
     <!-- Список компетенций -->
     <div class="competencies-grid">
       <div
-        v-for="competence in filteredCompetencies"
+        v-for="competence in paginatedCompetencies"
         :key="competence.id"
         class="competence-card"
       >
@@ -146,6 +146,20 @@
       </div>
     </div>
 
+    <!-- Обычная пагинация (скрывается при скролле) -->
+    <div class="pagination-container" :class="{ 'hidden': showFloatingPagination }">
+      <Paginator
+        :first="currentPage * itemsPerPage"
+        :rows="itemsPerPage"
+        :total-records="totalRecords"
+        :rows-per-page-options="[8, 16, 24, 32]"
+        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+        @page="onPageChange"
+      />
+    </div>
+
+
+    <!-- Диалоги -->
     <!-- Диалог редактирования компетенции -->
     <Dialog
       v-if="selectedCompetence"
@@ -422,6 +436,7 @@
   import Dropdown from "primevue/dropdown";
   import InputNumber from "primevue/inputnumber";
   import MultiSelect from 'primevue/multiselect';
+  import Paginator from "primevue/paginator";
   import type {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
   import {UserResolver} from "@/api/resolvers/user/user.resolver";
   import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
@@ -446,6 +461,7 @@
       Dropdown,
       MultiSelect,
       InputNumber,
+      Paginator,
     },
     data() {
       return {
@@ -479,6 +495,9 @@
         placesForm: {} as Record<AgeCategories, number>,
         ageGroups: useAgeGroups,
         competencies: [] as CompetenceOutputDto[],
+        // Пагинация
+        currentPage: 0,
+        itemsPerPage: 8,
       };
     },
     computed: {
@@ -495,9 +514,32 @@
 
         return filtered;
       },
+
+      paginatedCompetencies() {
+        const start = this.currentPage * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        const result = this.filteredCompetencies.slice(start, end);
+        console.log('Paginated competencies:', result);
+        console.log('Total competencies:', this.competencies.length);
+        console.log('Filtered competencies:', this.filteredCompetencies.length);
+        return result;
+      },
+
+      totalRecords() {
+        return this.filteredCompetencies.length;
+      },
     },
     async mounted() {
-      await this.loadCompetencies();
+      console.log('AdminCompetencies mounted');
+      console.log('CompetenceResolver:', this.competenceResolver);
+      console.log('UserResolver:', this.userResolver);
+      console.log('About to call loadCompetencies...');
+      try {
+        await this.loadCompetencies();
+        console.log('loadCompetencies completed successfully');
+      } catch (error) {
+        console.error('Error in loadCompetencies:', error);
+      }
     },
     methods: {
       filteredExperts(competence: CompetenceOutputDto) {
@@ -603,19 +645,43 @@
       },
 
       async loadCompetencies() {
-        const competenceResponse = await this.competenceResolver.getAll();
-        if (competenceResponse.status === 200 && typeof competenceResponse.message !== "string") {
-          this.competencies = competenceResponse.message;
-        } else {
+        try {
+          console.log('Loading competencies...');
+          console.log('CompetenceResolver endpoint:', this.competenceResolver);
+          console.log('Access token:', localStorage.getItem("access_token"));
+          console.log('API endpoint:', 'https://api.career-seekers.ru/events-service/v1/directions');
+          console.log('About to make API call...');
+          const competenceResponse = await this.competenceResolver.getAll();
+          console.log('API call completed');
+          console.log('Competence response:', competenceResponse);
+          console.log('Competence response status:', competenceResponse.status);
+          console.log('Competence response message:', competenceResponse.message);
+          console.log('Competence response message type:', typeof competenceResponse.message);
+          if (competenceResponse.status === 200 && typeof competenceResponse.message !== "string") {
+            this.competencies = competenceResponse.message;
+            console.log('Competencies loaded:', this.competencies);
+          } else {
+            console.error('Failed to load competencies:', competenceResponse);
+            this.errors.toastPopup = {
+              title: competenceResponse.status.toString(),
+              message: competenceResponse.message.toString(),
+            };
+          }
+        } catch (error) {
+          console.error('Error loading competencies:', error);
           this.errors.toastPopup = {
-            title: competenceResponse.status.toString(),
-            message: competenceResponse.message.toString(),
+            title: "Ошибка",
+            message: "Не удалось загрузить компетенции",
           };
         }
 
+        console.log('Loading experts...');
         const expertResponse = await this.userResolver.getAll();
+        console.log('Expert response:', expertResponse);
+        console.log('Expert response status:', expertResponse.status);
         if (expertResponse.status == 200 && typeof expertResponse.message !== "string") {
           this.experts = expertResponse.message;
+          console.log('Experts loaded:', this.experts);
         } else {
           this.errors.toastPopup = {
             title: expertResponse.status.toString(),
@@ -719,6 +785,19 @@
         }, 0);
         return totalPlaces > 0 ? totalPlaces : '-';
       },
+
+      onPageChange(event: any) {
+        this.currentPage = event.page;
+        this.itemsPerPage = event.rows;
+        // Плавная прокрутка к началу списка
+        this.$nextTick(() => {
+          const grid = this.$el.querySelector('.competencies-grid');
+          if (grid) {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      },
+
     },
   };
 </script>
@@ -783,6 +862,19 @@
     background: #f8f9fa;
     border-radius: 8px;
     flex-wrap: wrap;
+  }
+
+  /* Sticky фильтры */
+  .sticky-filters {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .sticky-filters:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .filter-group {
@@ -1253,5 +1345,27 @@
     .stats-grid {
       grid-template-columns: 1fr;
     }
+  }
+
+/* Стили для пагинации */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  transition: opacity 0.3s ease;
+}
+
+
+
+  /* Простые анимации для карточек */
+  .competence-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .competence-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 </style>

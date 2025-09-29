@@ -25,93 +25,114 @@
             </h4>
             <div class="data-item">
               <span class="data-label">ФИО:</span>
-              <span class="data-value">{{ MentorData.fullName }}</span>
+              <span class="data-value">{{ user ? `${user.lastName} ${user.firstName} ${user.patronymic}` : 'Загрузка...' }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Email:</span>
-              <span class="data-value">{{ MentorData.email }}</span>
+              <span class="data-value">{{ user?.email || 'Загрузка...' }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ MentorData.phone }}</span>
-            </div>
-            <div class="data-item">
-              <span class="data-label">Telegram:</span>
-              <span class="data-value">{{ MentorData.telegram }}</span>
-            </div>
-          </div>
-
-          <div class="data-section">
-            <h4 class="section-title">
-              Профессиональная информация
-            </h4>
-            <div class="data-item">
-              <span class="data-label">Специализация:</span>
-              <span class="data-value">{{ MentorData.specialization }}</span>
-            </div>
-            <div class="data-item">
-              <span class="data-label">Опыт работы:</span>
-              <span class="data-value">{{ MentorData.experience }}</span>
+              <span class="data-value">{{ user?.mobileNumber ? formatMobileNumber(user.mobileNumber) : 'Загрузка...' }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Статус:</span>
-              <span class="data-value">{{ MentorData.status }}</span>
+              <span class="data-value">{{ user?.verified ? 'Подтверждён' : 'Не подтверждён' }}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Статистика участников -->
+      <!-- Список детей -->
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-users" />
-            Статистика участников
+            Мои участники
           </h3>
         </div>
         <div class="card-content">
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-number">
-                {{ participantsStats.total }}
-              </div>
-              <div class="stat-label">
-                Всего участников
+          <div class="participants-preview">
+            <p class="preview-text">
+              Всего участников: {{ user?.menteeChildren?.length || 0 }}
+            </p>
+            <div v-if="user?.menteeChildren && user.menteeChildren.length > 0" class="participants-list">
+              <div 
+                v-for="child in user.menteeChildren" 
+                :key="child.id"
+                class="participant-item"
+              >
+                <div class="participant-info">
+                  <div class="participant-name">
+                    {{ `${child.lastName} ${child.firstName} ${child.patronymic}` }}
+                  </div>
+                  <div class="participant-details">
+                    <span class="participant-age">
+                      Возраст: {{ calculateAge(child.dateOfBirth) }} лет
+                    </span>
+                    <span class="participant-school">
+                      {{ child.childDocuments?.studyingPlace || 'Школа не указана' }}
+                    </span>
+                  </div>
+                </div>
+                <div class="participant-competencies">
+                  <div class="competencies-count">
+                    Компетенций: {{ getChildCompetenciesCount(child.id) }}
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="stat-item">
-              <div class="stat-number">
-                {{ participantsStats.active }}
-              </div>
-              <div class="stat-label">
-                Активных
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">
-                {{ participantsStats.competencies }}
-              </div>
-              <div class="stat-label">
-                Компетенций
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">
-                {{ participantsStats.stage2 }}
-              </div>
-              <div class="stat-label">
-                Прошли во 2 этап
-              </div>
+            <div v-else class="empty-state">
+              <i class="pi pi-users empty-icon" />
+              <p class="empty-text">У вас пока нет участников</p>
+              <p class="empty-subtitle">Поделитесь ссылкой с родителями для привлечения участников</p>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div class="stats-actions">
-            <Button
-              label="Управление участниками"
-              icon="pi pi-cog"
-              class="p-button-outlined"
-              @click="goToParticipants"
-            />
+      <!-- Компетенции участников -->
+      <div class="info-card" v-if="user?.menteeChildren && user.menteeChildren.length > 0">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="pi pi-star" />
+            Компетенции участников
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="competencies-section">
+            <div 
+              v-for="child in user.menteeChildren" 
+              :key="child.id"
+              class="child-competencies"
+            >
+              <h4 class="child-name">
+                {{ `${child.lastName} ${child.firstName} ${child.patronymic}` }}
+              </h4>
+              <div v-if="getChildCompetencies(child.id).length > 0" class="competencies-list">
+                <div 
+                  v-for="competence in getChildCompetencies(child.id)" 
+                  :key="competence.id"
+                  class="competence-item"
+                >
+                  <div class="competence-icon">
+                    <i class="pi pi-star" />
+                  </div>
+                  <div class="competence-info">
+                    <div class="competence-name">{{ competence.name }}</div>
+                    <div class="competence-description">{{ competence.description }}</div>
+                    <div class="competence-expert">
+                      <i class="pi pi-user" />
+                      Главный эксперт: ID {{ competence.expertId }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="no-competencies">
+                <i class="pi pi-info-circle" />
+                <span>Участник пока не зарегистрирован ни на одну компетенцию</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -127,16 +148,10 @@
         <div class="card-content">
           <div class="quick-actions">
             <Button
-              label="Добавить участника"
-              icon="pi pi-user-plus"
+              label="Управление участниками"
+              icon="pi pi-cog"
               class="p-button-primary"
-              @click="addParticipant"
-            />
-            <Button
-              label="Изменить состав"
-              icon="pi pi-pencil"
-              class="p-button-outlined"
-              @click="editParticipants"
+              @click="goToParticipants"
             />
             <Button
               label="Связаться с родителями"
@@ -156,37 +171,6 @@
               class="p-button-success"
               @click="generateParentLink"
             />
-          </div>
-        </div>
-      </div>
-
-      <!-- Последние обновления -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-clock" />
-            Последние обновления
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="updates-list">
-            <div
-              v-for="update in recentUpdates"
-              :key="update.id"
-              class="update-item"
-            >
-              <div class="update-icon">
-                <i :class="update.icon" />
-              </div>
-              <div class="update-content">
-                <div class="update-text">
-                  {{ update.text }}
-                </div>
-                <div class="update-time">
-                  {{ update.time }}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -229,6 +213,8 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import { useUserStore } from '@/stores/userStore.ts';
+import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 
 export default {
   name: "MentorDashboardHome",
@@ -240,67 +226,73 @@ export default {
   data() {
     return {
       userStore: useUserStore(),
+      competenceResolver: new CompetenceResolver(),
       showLinkDialog: false,
       generatedLink: "",
-      MentorData: {
-        fullName: "Смирнов Алексей Владимирович",
-        email: "a.smirnov@mentor.ru",
-        phone: "+7 (999) 987-65-43",
-        telegram: "@alex_mentor",
-        specialization: "Веб-разработка и дизайн",
-        experience: "5 лет",
-        status: "Активный наставник",
-      },
-      participantsStats: {
-        total: 8,
-        active: 6,
-        competencies: 12,
-        stage2: 3,
-      },
-      recentUpdates: [
-        {
-          id: 1,
-          icon: "pi pi-user-plus",
-          text: "Добавлен новый участник: Иванов Петр",
-          time: "2 часа назад",
-        },
-        {
-          id: 2,
-          icon: "pi pi-trophy",
-          text: "Петров Анна прошла во второй этап",
-          time: "1 день назад",
-        },
-        {
-          id: 3,
-          icon: "pi pi-envelope",
-          text: "Получено сообщение от родителя",
-          time: "2 дня назад",
-        },
-        {
-          id: 4,
-          icon: "pi pi-certificate",
-          text: "Выдан сертификат участнику",
-          time: "3 дня назад",
-        },
-      ],
+      childrenCompetencies: {} as Record<number, CompetenceOutputDto[]>,
+      loading: false,
     };
   },
   computed: {
+    user() {
+      return this.userStore.user;
+    },
     MentorName() {
-      return this.MentorData.fullName.split(" ")[1] || "Наставник";
+      return this.user?.firstName || "Наставник";
     },
   },
   methods: {
+    formatMobileNumber(number: string) {
+      return `${number.substring(0, 2)}
+              (${number.substring(2, 5)})
+              ${number.substring(5, 8)}
+              ${number.substring(8, 10)}
+              -${number.substring(10, 12)}`;
+    },
+    calculateAge(birthDate: string) {
+      const today = new Date();
+      const birth = new Date(birthDate);
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age;
+    },
+    getChildCompetencies(childId: number): CompetenceOutputDto[] {
+      return this.childrenCompetencies[childId] || [];
+    },
+    getChildCompetenciesCount(childId: number): number {
+      return this.getChildCompetencies(childId).length;
+    },
+    async loadChildCompetencies(childId: number) {
+      try {
+        const response = await this.competenceResolver.getAllByUserId(childId);
+        if (response.message && Array.isArray(response.message)) {
+          this.childrenCompetencies[childId] = response.message;
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке компетенций для ребенка:', error);
+        this.childrenCompetencies[childId] = [];
+      }
+    },
+    async loadAllChildrenCompetencies() {
+      if (!this.user?.menteeChildren) return;
+      
+      this.loading = true;
+      try {
+        const promises = this.user.menteeChildren.map(child => 
+          this.loadChildCompetencies(child.id)
+        );
+        await Promise.all(promises);
+      } catch (error) {
+        console.error('Ошибка при загрузке компетенций:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
     goToParticipants() {
       this.$router.push("/mentor/participants");
-    },
-    addParticipant() {
-      // Логика добавления участника
-      console.log("Добавление участника");
-    },
-    editParticipants() {
-      // Логика изменения состава
-      console.log("Изменение состава участников");
     },
     contactParents() {
       // Логика связи с родителями
@@ -328,6 +320,19 @@ export default {
         alert('Не удалось скопировать ссылку');
       }
     },
+  },
+  async mounted() {
+    // Загружаем компетенции для всех детей при монтировании компонента
+    await this.loadAllChildrenCompetencies();
+  },
+  watch: {
+    'user.menteeChildren': {
+      handler() {
+        // Перезагружаем компетенции при изменении списка детей
+        this.loadAllChildrenCompetencies();
+      },
+      deep: true
+    }
   },
 };
 </script>
@@ -615,6 +620,32 @@ export default {
     height: 28px;
     font-size: 0.8rem;
   }
+
+  .participant-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .participant-competencies {
+    text-align: left;
+    width: 100%;
+  }
+
+  .competence-item {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .competence-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+
+  .child-competencies {
+    margin-bottom: 1.5rem;
+  }
 }
 
 /* Очень маленькие экраны */
@@ -710,6 +741,242 @@ export default {
   .update-time {
     font-size: 0.7rem;
   }
+
+  .participant-item {
+    padding: 0.75rem;
+  }
+
+  .participant-name {
+    font-size: 0.9rem;
+  }
+
+  .participant-age,
+  .participant-school {
+    font-size: 0.8rem;
+  }
+
+  .competencies-count {
+    font-size: 0.8rem;
+  }
+
+  .child-name {
+    font-size: 1rem;
+  }
+
+  .competence-item {
+    padding: 0.75rem;
+  }
+
+  .competence-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+
+  .competence-name {
+    font-size: 0.9rem;
+  }
+
+  .competence-description {
+    font-size: 0.8rem;
+  }
+
+  .competence-expert {
+    font-size: 0.8rem;
+  }
+
+  .empty-icon {
+    font-size: 2.5rem;
+  }
+
+  .empty-text {
+    font-size: 0.9rem;
+  }
+
+  .empty-subtitle {
+    font-size: 0.8rem;
+  }
+}
+
+/* Стили для участников */
+.participants-preview {
+  text-align: center;
+}
+
+.preview-text {
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-weight: 500;
+}
+
+.participants-list {
+  margin-top: 1rem;
+}
+
+.participant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  border-left: 3px solid #ff9800;
+}
+
+.participant-item:last-child {
+  margin-bottom: 0;
+}
+
+.participant-info {
+  flex: 1;
+}
+
+.participant-name {
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.participant-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.participant-age,
+.participant-school {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.participant-competencies {
+  text-align: right;
+}
+
+.competencies-count {
+  color: #ff9800;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Стили для компетенций */
+.competencies-section {
+  margin-top: 1rem;
+}
+
+.child-competencies {
+  margin-bottom: 2rem;
+}
+
+.child-competencies:last-child {
+  margin-bottom: 0;
+}
+
+.child-name {
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #ff9800;
+  padding-bottom: 0.5rem;
+}
+
+.competencies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.competence-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #ff9800;
+}
+
+.competence-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.competence-info {
+  flex: 1;
+}
+
+.competence-name {
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.competence-description {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.competence-expert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ff9800;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.competence-expert i {
+  font-size: 0.9rem;
+}
+
+.no-competencies {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #e9ecef;
+  border-radius: 8px;
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: #dee2e6;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  color: #6c757d;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-subtitle {
+  color: #adb5bd;
+  font-size: 0.9rem;
+  margin: 0;
 }
 
 /* Стили для диалога ссылки */

@@ -9,7 +9,7 @@
       </p>
     </div>
 
-    <div class="filters-section">
+    <div class="filters-section sticky-filters">
       <div class="search-group">
         <InputText
           v-model="searchQuery"
@@ -23,7 +23,7 @@
     <!-- Список экспертов -->
     <div class="experts-grid">
       <div
-        v-for="tutor in filteredTutors"
+        v-for="tutor in paginatedTutors"
         :key="tutor.id"
         class="expert-card"
       >
@@ -95,6 +95,19 @@
         </div>
       </div>
     </div>
+
+    <!-- Обычная пагинация (скрывается при скролле) -->
+    <div class="pagination-container" :class="{ 'hidden': showFloatingPagination }">
+      <Paginator
+        :first="currentPage * itemsPerPage"
+        :rows="itemsPerPage"
+        :total-records="totalRecords"
+        :rows-per-page-options="[8, 16, 24, 32]"
+        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+        @page="onPageChange"
+      />
+    </div>
+
 
     <!-- Диалог редактирования куратора -->
     <Dialog
@@ -235,6 +248,7 @@
   import Dialog from 'primevue/dialog';
   import InputText from 'primevue/inputtext';
   import InputMask from 'primevue/inputmask';
+  import Paginator from 'primevue/paginator';
   import { TutorDocumentsResolver } from '@/api/resolvers/tutorDocuments/tutor-documents.resolver.ts';
 
   export default {
@@ -245,6 +259,7 @@
       Dialog,
       InputText,
       InputMask,
+      Paginator,
     },
     data() {
       return {
@@ -281,6 +296,9 @@
         },
         
         showEditTutorDialog: false,
+        // Пагинация
+        currentPage: 0,
+        itemsPerPage: 8,
       }
     },
     computed: {
@@ -298,6 +316,16 @@
           })
         }
         return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
+      },
+
+      paginatedTutors(): UserOutputDto[] {
+        const start = this.currentPage * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return this.filteredTutors.slice(start, end);
+      },
+
+      totalRecords(): number {
+        return this.filteredTutors.length;
       },
 
       dateOfBirthFormatted() {
@@ -460,8 +488,21 @@
             };
           }
         }
-      }
-    }
+      },
+
+      onPageChange(event: any) {
+        this.currentPage = event.page;
+        this.itemsPerPage = event.rows;
+        // Плавная прокрутка к началу списка
+        this.$nextTick(() => {
+          const grid = this.$el.querySelector('.experts-grid');
+          if (grid) {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      },
+
+    },
   };
 </script>
 
@@ -561,6 +602,19 @@
     background: #f8f9fa;
     border-radius: 8px;
     flex-wrap: wrap;
+  }
+
+  /* Sticky фильтры */
+  .sticky-filters {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .sticky-filters:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .search-group {
@@ -816,5 +870,27 @@
       font-size: 0.75rem;
       padding: 0.2rem 0.5rem;
     }
+  }
+
+  /* Стили для пагинации */
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    transition: opacity 0.3s ease;
+  }
+
+
+
+  /* Простые анимации для карточек */
+  .expert-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .expert-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 </style>

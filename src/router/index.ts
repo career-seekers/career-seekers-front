@@ -36,6 +36,7 @@ import AdminTutors from '@/views/admin/AdminTutors.vue';
 import AdminExperts from '@/views/admin/AdminExperts.vue';
 import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
 import AdminDocuments from '@/views/admin/AdminDocuments.vue';
+import AdminChildrenDocuments from '@/views/admin/AdminChildrenDocuments.vue';
 import AdminVenues from '@/views/admin/AdminVenues.vue';
 
 //shared views
@@ -312,6 +313,14 @@ const routes = [
         meta: {
           title: "Документы",
           icon: "pi pi-file",
+        }
+      },
+      {
+        path: "children-documents",
+        component: AdminChildrenDocuments,
+        meta: {
+          title: "Документы детей",
+          icon: "pi pi-users",
         }
       },
       {
