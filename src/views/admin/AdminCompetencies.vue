@@ -732,7 +732,7 @@
       },
 
       async savePlaceForAge(ageCategory: AgeCategories) {
-        if (!this.selectedCompetence || !this.placesForm[ageCategory]) return;
+        if (!this.selectedCompetence || this.placesForm[ageCategory] < 0) return;
 
         try {
           const response = await this.competenceResolver.updateCompetencePlaces({
