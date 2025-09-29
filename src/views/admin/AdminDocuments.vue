@@ -57,14 +57,39 @@
             size="small"
             @click="selectedAge = age"
           />
-          <Button
-            label="Сбросить возраст"
-            icon="pi pi-refresh"
-            class="p-button-text p-button-sm"
-            @click="resetAge"
+        </div>
+        <div class="filter-group">
+          <label for="statusFilter">Компетенция:</label>
+          <AutoComplete
+              v-model="selectedCompetence"
+              :suggestions="filteredCompetencies"
+              @complete="filterCompetencies"
+              dropdown
+              field="name"
+              placeholder="Все компетенции"
+              class="filter-dropdown"
+              :disabled="competencies.length === 0"
           />
         </div>
-      </div>
+        <div class="filter-group" v-if="availableAges.length > 0">
+          <label>Возрастные группы:</label>
+          <div class="age-buttons">
+            <Button
+              v-for="age in availableAges"
+              :key="age"
+              :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
+              :label="ageGroups.find(group => group.value === age)?.label"
+              @click="selectedAge = age"
+              size="small"
+            />
+            <Button
+              label="Сбросить возраст"
+              icon="pi pi-refresh"
+              class="p-button-text p-button-sm"
+              @click="resetAge"
+            />
+          </div>
+        </div>
       <div class="filter-group">
         <Button
           label="Сбросить фильтры"
@@ -138,6 +163,7 @@ import {useAgeGroups} from '@/shared/UseAgeGroups.ts';
 import DocsToVerifyList from '@/components/DocsToVerifyList.vue';
 import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import {Roles} from "@/state/UserState.types.ts";
+import AutoComplete from "primevue/autocomplete";
 
 export default {
     name: "AdminDocuments",
@@ -149,6 +175,7 @@ export default {
       Dropdown,
       TabView,
       TabPanel,
+      AutoComplete,
     },
     data() {
       return {
@@ -160,6 +187,7 @@ export default {
         documents: [] as CompetenceDocumentsOutputDto[],
         experts: [] as UserOutputDto[],
         competencies: [] as CompetenceOutputDto[],
+        filteredCompetencies: [] as CompetenceOutputDto[],
         DocumentTemplates: useDocumentTemplates,
         DocumentTypes: useDocumentTypes,
         errors: {
@@ -222,6 +250,27 @@ export default {
       }
     },
     methods: {
+      filterCompetencies(event: { query: string }) {
+        const query = event.query ? event.query.toLowerCase() : '';
+        let filtered = [];
+        if (!query.length) {
+          filtered = [...this.competencies];
+        } else {
+          filtered = this.competencies.filter(c =>
+              c.name.toLowerCase().includes(query)
+          );
+        }
+
+        const uniqueByName = new Map();
+        filtered.forEach(item => {
+          if (!uniqueByName.has(item.name)) {
+            uniqueByName.set(item.name, item);
+          }
+        });
+
+        this.filteredCompetencies = [...uniqueByName.values()];
+      },
+
       documentCompetence(document: DocumentsOutputDto): CompetenceOutputDto | undefined {
         return this.competencies.find((competence: CompetenceOutputDto) =>
           competence.documents.some((doc) => doc.id === document.id),
