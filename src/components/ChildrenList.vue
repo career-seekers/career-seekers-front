@@ -8,7 +8,6 @@
   }
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import Button from 'primevue/button';
-  import Dialog from 'primevue/dialog';
   import Dropdown from 'primevue/dropdown';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
@@ -20,12 +19,15 @@
   import type {
     ChildCompetenciesOutputDto
   } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
+  import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+  import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
 
   export default {
     name: 'ChildrenList',
     components: {
+      CompetenceDialog,
       Button,
-      Dialog,
       Dropdown,
       ToastPopup
     },
@@ -46,11 +48,14 @@
     data() {
       return {
         childCompetenciesResolver: new ChildCompetenciesResolver(),
+        competenceResolver: new CompetenceResolver(),
         childResolver: new ChildResolver(),
         userResolver: new UserResolver(),
+
         userStore: useUserStore(),
         ageGroups: useAgeGroups,
         gradeOptions: useGradeOptions,
+
         availableMentor: null as { id: number; name: string } | null,
         mentorOptions: [] as Array<{label: string; value: string | number}>,
         mentorAssignments: new Map<number, number>(), // mentorId -> количество назначений
@@ -58,6 +63,9 @@
           title: '',
           message: ''
         },
+        showDetailsDialog: false,
+
+        selectedCompetence: null as CompetenceOutputDto | null,
         childCompetencies: [] as {
           child: ChildOutputDto,
           competencies: ChildCompetenciesOutputDto[]
@@ -104,6 +112,14 @@
           child: child,
           competencies: response.message
         })
+      },
+      async openCompetenceDialog(competenceId: number) {
+        if (this.selectedCompetence === null || this.selectedCompetence.id !== competenceId) {
+          const response = await this.competenceResolver.getById(competenceId)
+          if (typeof response.message === "string" || response.status !== 200) return
+          this.selectedCompetence = response.message
+        }
+        this.showDetailsDialog = true
       },
       async removeChild(child: ChildOutputDto) {
         if (confirm(`Удалить ребёнка "${child.firstName}"`)) {
@@ -413,7 +429,10 @@
         </div>
       </div>
 
-      <div class="child-content">
+      <div
+        v-if="child.childDocuments !== null"
+        class="child-content"
+      >
         <div class="child-details">
           <div class="detail-item">
             <span class="detail-label">Дата рождения:</span>
@@ -464,6 +483,7 @@
               v-for="competence in getCompetenciesByChildId(child.id)"
               :key="competence.id"
               class="competence-tag"
+              @click="openCompetenceDialog(competence.direction.id)"
             >
               {{ competence.direction.name }}
             </span>
@@ -518,32 +538,12 @@
         </div>
       </div>
     </div>
-
-    <Dialog>
-      <!--      <p class="preview-text">-->
-      <!--        Выбрано компетенций: {{ selectedCompetenciesCount }}/3-->
-      <!--      </p>-->
-
-      <!--      <div class="selected-competencies">-->
-      <!--        <div-->
-      <!--          v-for="competence in selectedCompetencies"-->
-      <!--          :key="competence.id"-->
-      <!--          class="competence-item"-->
-      <!--        >-->
-      <!--          <div class="competence-icon">-->
-      <!--            <i :class="competence.icon" />-->
-      <!--          </div>-->
-      <!--          <div class="competence-info">-->
-      <!--            <h4 class="competence-name">-->
-      <!--              {{ competence.name }}-->
-      <!--            </h4>-->
-      <!--            <p class="competence-status">-->
-      <!--              {{ competence.status }}-->
-      <!--            </p>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--      </div>-->
-    </Dialog>
+    <CompetenceDialog
+      v-if="selectedCompetence !== null"
+      :selected-competence-prop="selectedCompetence"
+      :show-details-dialog-prop="showDetailsDialog"
+      @update:show-details-dialog="(show) => showDetailsDialog = show"
+    />
   </div>
 </template>
 
@@ -679,6 +679,10 @@
     font-size: 0.8rem;
     font-weight: 500;
     border: 1px solid #e9ecef;
+  }
+
+  .competence-tag:hover {
+    cursor: pointer;
   }
 
   .mentor-selection {

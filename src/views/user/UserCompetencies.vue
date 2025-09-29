@@ -199,7 +199,7 @@
         this.competencies = []
         if (this.selectedChild === null) return
         const ageCategory = FormatManager.getAgeGroupByAge(
-          FormatManager.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild?.childDocuments.learningClass
+          FormatManager.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild?.childDocuments!.learningClass
         )
         if (!ageCategory) return
         const response = await this.competenceResolver.getByAgeCategory(ageCategory.value)
@@ -264,7 +264,7 @@
           if (this.selectedChild === null) return
           const ageCategory = FormatManager.getAgeGroupByAge(
             FormatManager.calculateAge(childCompetencies.child.dateOfBirth),
-            this.selectedChild.childDocuments.learningClass
+            this.selectedChild.childDocuments!.learningClass
           )
           for (const competence of childCompetencies.competencies) {
             const ageCategoryId = competence.ageCategories

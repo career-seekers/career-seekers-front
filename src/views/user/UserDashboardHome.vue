@@ -67,7 +67,7 @@
               label="Добавить ребёнка"
               icon="pi pi-plus"
               class="p-button-primary"
-              @click="showAddChildDialog = true"
+              @click="fillNewChild"
             />
           </div>
         </div>
@@ -109,6 +109,7 @@
           style="width: 100%"
           class="p-button-primary"
           type="submit"
+          :loading="isLoading"
         />
       </form>
     </Dialog>
@@ -146,6 +147,7 @@ export default {
       selectedChild: null as ChildOutputDto | null,
       selectedMentorId: null as null | number,
 
+      isLoading: false,
       addBirthFile: false,
       addSnilsFile: false,
       addConsentFile: false,
@@ -276,16 +278,41 @@ export default {
       
       return isValid
     },
-    async editChild(child: ChildOutputDto) {
-      this.isEditing = true
+    clearChildForm() {
+      this.childForm = {
+        birthCertificate: null,
+        birthDate: '',
+        childConsentFile: null,
+        fullName: '',
+        grade: null,
+        platform: '',
+        platformCertificate: null,
+        schoolCertificate: null,
+        schoolName: '',
+        snilsNumber: '',
+        snilsScan: null
+
+      }
+    },
+    fillNewChild() {
+      this.selectedChild = null
+      this.childForm.fullName = ""
+      this.childForm.birthDate = ""
+      this.isEditing = false
+      this.showAddChildDialog = true;
+    },
+    editChild(child: ChildOutputDto) {
+      this.clearChildForm()
+      this.isEditing = child.childDocuments !== null
       this.showAddChildDialog = true
       this.childForm.fullName = `${child.lastName} ${child.firstName} ${child.patronymic}`
       this.childForm.birthDate = FormatManager.formatBirthDateFromDTO(child.dateOfBirth)
       this.selectedChild = child
     },
     async addChild() {
+      this.isLoading = true;
       if (this.user === null || !this.validateForm()) return
-      if (this.isEditing && this.selectedChild !== null) {
+      if (this.selectedChild !== null && (this.isEditing || this.selectedChild.childDocuments === null)) {
         await this.childResolver.update({
           id: this.selectedChild.id,
           lastName: this.childForm.fullName.split(" ")[0],
@@ -294,25 +321,7 @@ export default {
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null
         })
-        if (this.addBirthFile || this.addSnilsFile
-          || this.addSchoolFile || this.addPlatformFile
-          || this.addConsentFile) {
-          await this.childDocumentsResolver.update({
-            id: this.selectedChild.childDocuments.id,
-            additionalStudyingCertificateFile: this.childForm.platformCertificate,
-            birthCertificateFile: this.childForm.birthCertificate,
-            consentToChildPdpFile: this.childForm.childConsentFile,
-            learningClass: this.childForm.grade ?? this.selectedChild.childDocuments.learningClass,
-            parentRole: this.selectedChild.childDocuments.parentRole,
-            snilsFile: this.childForm.snilsScan,
-            snilsNumber: this.childForm.snilsNumber
-              ? FormatManager.formatSnilsToDTO(this.childForm.snilsNumber)
-              : this.selectedChild.childDocuments.snilsNumber,
-            studyingCertificateFile: this.childForm.schoolCertificate,
-            studyingPlace: this.childForm.schoolName ?? this.selectedChild.childDocuments.studyingPlace,
-            trainingGround: this.childForm.platform ?? this.selectedChild.childDocuments.trainingGround,
-          })
-        }
+        await this.addChildDocs(this.selectedChild)
       } else {
         const childResponse = await this.childResolver.create({
           userId: this.user.id,
@@ -322,21 +331,31 @@ export default {
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null
         })
+        await this.addChildDocs(childResponse.message)
+      }
+      await this.userStore.fillChildren()
+      this.isLoading = false
+      this.showAddChildDialog = false
+    },
+    async addChildDocs(child: ChildOutputDto | string) {
+      if (this.selectedChild === null) return
+      if (this.selectedChild.childDocuments === null) {
         if (this.childForm.childConsentFile !== null
           && this.childForm.schoolCertificate !== null
           && this.childForm.birthCertificate !== null
           && this.childForm.platformCertificate !== null
           && this.childForm.snilsScan !== null
           && this.childForm.grade !== null
-          && typeof childResponse.message !== "string") {
+          && this.user !== null
+          && typeof child !== "string") {
           await this.childDocumentsResolver.create({
-            childId: childResponse.message.id,
+            childId: child.id,
             additionalStudyingCertificateFile: this.childForm.platformCertificate,
             birthCertificateFile: this.childForm.birthCertificate,
             consentToChildPdpFile: this.childForm.childConsentFile,
             learningClass: this.childForm.grade,
             parentRole: this.user.children.length > 0
-              ? this.user.children[0].childDocuments.parentRole
+              ? this.user.children[0].childDocuments!.parentRole
               : "Не указано",
             snilsFile: this.childForm.snilsScan,
             snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
@@ -345,9 +364,25 @@ export default {
             trainingGround: this.childForm.platform
           })
         }
+      } else if (this.addBirthFile || this.addSnilsFile
+        || this.addSchoolFile || this.addPlatformFile
+        || this.addConsentFile) {
+        await this.childDocumentsResolver.update({
+          id: this.selectedChild?.childDocuments.id,
+          additionalStudyingCertificateFile: this.childForm.platformCertificate,
+          birthCertificateFile: this.childForm.birthCertificate,
+          consentToChildPdpFile: this.childForm.childConsentFile,
+          learningClass: this.childForm.grade ?? this.selectedChild.childDocuments!.learningClass,
+          parentRole: this.selectedChild.childDocuments!.parentRole,
+          snilsFile: this.childForm.snilsScan,
+          snilsNumber: this.childForm.snilsNumber
+            ? FormatManager.formatSnilsToDTO(this.childForm.snilsNumber)
+            : this.selectedChild.childDocuments!.snilsNumber,
+          studyingCertificateFile: this.childForm.schoolCertificate,
+          studyingPlace: this.childForm.schoolName ?? this.selectedChild.childDocuments!.studyingPlace,
+          trainingGround: this.childForm.platform ?? this.selectedChild.childDocuments!.trainingGround,
+        })
       }
-      await this.userStore.fillChildren()
-      this.showAddChildDialog = false
     },
     checkForSavedMentor() {
       const mentorId = localStorage.getItem('selectedMentorId')

@@ -65,6 +65,6 @@ export const FormatManager = {
     return group ? group : undefined;
   },
   calculateGrade(child: ChildOutputDto) {
-    return this.gradeOptions.find(grade => grade.value === child.childDocuments.learningClass)?.label
+    return this.gradeOptions.find(grade => grade.value === child.childDocuments?.learningClass)?.label
   },
 }
