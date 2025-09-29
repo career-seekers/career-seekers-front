@@ -79,70 +79,141 @@
         </div>
       </div>
     </div>
-
-    <!-- Список документов -->
-    <div
-      v-if="filteredDocuments.length === 0"
-      class="empty-state"
-    >
-      <i
-        class="pi pi-file-o"
-        style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"
-      />
-      <h3>Документы не найдены</h3>
-      <p v-if="allDocuments.length === 0">
-        Загрузите документы для ваших компетенций
-      </p>
-      <p v-else>
-        Попробуйте изменить фильтры
-      </p>
-    </div>
-
-    <div
-      v-else
-      class="documents-grid"
-    >
-      <div
-        v-for="document in filteredDocuments"
-        :key="document.id"
-        class="document-card"
-      >
-        <div class="document-header">
-          <div class="document-icon">
-            <i class="pi pi-file" />
-          </div>
-          <div class="document-info">
-            <h4 class="document-name">
-              {{ getDocumentTypeLabel(document.documentType) }}
-            </h4>
-            <div class="document-meta">
-              <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
-              <span class="document-date">{{ formatDate(document.createdAt) }}</span>
+    <TabView class="documents-tabs">
+      <TabPanel header="Проверены">
+        <div v-if="acceptedDocuments.length === 0" class="empty-state">
+          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+          <h3>Нет проверенных документов</h3>
+          <p>Документы, которые прошли проверку</p>
+        </div>
+        <div v-else class="documents-grid">
+          <div
+            v-for="document in acceptedDocuments"
+            :key="document.id"
+            class="document-card"
+          >
+            <div class="document-header">
+              <div class="document-icon">
+                <i class="pi pi-file" />
+              </div>
+              <div class="document-info">
+                <h4 class="document-name">{{ getDocumentTypeLabel(document.documentType) }}</h4>
+                <div class="document-meta">
+                  <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
+                  <span class="document-date">{{ formatDate(document.createdAt) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="document-actions">
+              <Button
+                icon="pi pi-eye"
+                class="p-button-text p-button-sm"
+                v-tooltip="'Просмотреть'"
+                @click="viewDocument(document.documentId)"
+              />
+              <Button
+                icon="pi pi-download"
+                class="p-button-text p-button-sm"
+                v-tooltip="'Скачать'"
+                @click="downloadDocument(document.documentId)"
+              />
             </div>
           </div>
         </div>
-        <div class="document-actions">
-          <Button
-            v-tooltip="'Просмотреть'"
-            icon="pi pi-eye"
-            class="p-button-text p-button-sm"
-            @click="viewDocument(document.documentId)"
-          />
-          <Button
-            v-tooltip="'Скачать'"
-            icon="pi pi-download"
-            class="p-button-text p-button-sm"
-            @click="downloadDocument(document.documentId)"
-          />
+      </TabPanel>
+      
+      <TabPanel header="На проверке">
+        <div v-if="uncheckedDocuments.length === 0" class="empty-state">
+          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+          <h3>Нет документов на проверке</h3>
+          <p>Документы, ожидающие проверки</p>
         </div>
-      </div>
-    </div>
+        <div v-else class="documents-grid">
+          <div
+            v-for="document in uncheckedDocuments"
+            :key="document.id"
+            class="document-card"
+          >
+            <div class="document-header">
+              <div class="document-icon">
+                <i class="pi pi-file" />
+              </div>
+              <div class="document-info">
+                <h4 class="document-name">{{ getDocumentTypeLabel(document.documentType) }}</h4>
+                <div class="document-meta">
+                  <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
+                  <span class="document-date">{{ formatDate(document.createdAt) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="document-actions">
+              <Button
+                icon="pi pi-eye"
+                class="p-button-text p-button-sm"
+                v-tooltip="'Просмотреть'"
+                @click="viewDocument(document.documentId)"
+              />
+              <Button
+                icon="pi pi-download"
+                class="p-button-text p-button-sm"
+                v-tooltip="'Скачать'"
+                @click="downloadDocument(document.documentId)"
+              />
+            </div>
+          </div>
+        </div>
+      </TabPanel>
+      
+      <TabPanel header="Отклоненные">
+        <div v-if="rejectedDocuments.length === 0" class="empty-state">
+          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+          <h3>Нет отклоненных документов</h3>
+          <p>Документы, которые были отклонены</p>
+        </div>
+        <div v-else class="documents-grid">
+          <div
+            v-for="document in rejectedDocuments"
+            :key="document.id"
+            class="document-card"
+          >
+            <div class="document-header">
+              <div class="document-icon">
+                <i class="pi pi-file" />
+              </div>
+              <div class="document-info">
+                <h4 class="document-name">{{ getDocumentTypeLabel(document.documentType) }}</h4>
+                <div class="document-meta">
+                  <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
+                  <span class="document-date">{{ formatDate(document.createdAt) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="document-actions">
+              <Button
+                icon="pi pi-eye"
+                class="p-button-text p-button-sm"
+                v-tooltip="'Просмотреть'"
+                @click="viewDocument(document.documentId)"
+              />
+              <Button
+                icon="pi pi-download"
+                class="p-button-text p-button-sm"
+                v-tooltip="'Скачать'"
+                @click="downloadDocument(document.documentId)"
+              />
+            </div>
+          </div>
+        </div>
+      </TabPanel>
+    </TabView>
   </div>
 </template>
 
 <script lang="ts">
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
+import TabView from "primevue/tabview";
+import TabPanel from "primevue/tabpanel";
 import type { CompetenceDocumentsOutputDto } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
@@ -159,6 +230,8 @@ export default {
   components: {
     Button,
     Dropdown,
+    TabView,
+    TabPanel,
   },
   data() {
     return {
@@ -179,6 +252,21 @@ export default {
       }
       return this.allDocuments;
     },
+    acceptedDocuments() {
+      return this.filteredDocuments
+        .filter(doc => doc.verified === true)
+        .sort((a, b) => b.id - a.id);
+    },
+    uncheckedDocuments() {
+      return this.filteredDocuments
+        .filter(doc => doc.verified === null)
+        .sort((a, b) => b.id - a.id);
+    },
+    rejectedDocuments() {
+      return this.filteredDocuments
+        .filter(doc => doc.verified === false)
+        .sort((a, b) => b.id - a.id);
+    }
   },
   async mounted() {
     await this.loadAllDocuments();
@@ -546,9 +634,44 @@ export default {
 }
 
 .competence-ages i,
-.competence-docs-count i {
-  color: #ff9800;
-}
+  .competence-docs-count i {
+    color: #ff9800;
+  }
+
+  /* Стили для табов документов */
+  .documents-tabs {
+    margin-top: 2rem;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav) {
+    background: transparent;
+    border-radius: 0;
+    padding: 0.5rem 0;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li) {
+    margin-right: 0.5rem;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li .p-tabview-nav-link) {
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li.p-highlight .p-tabview-nav-link) {
+    background: #ff9800;
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+  }
+
+  .documents-tabs :deep(.p-tabview-panels) {
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
 
 /* Мобильные стили */
 @media (max-width: 768px) {

@@ -180,73 +180,230 @@
       </div>
     </div>
 
-    <!-- Список документов -->
-    <div class="documents-grid">
-      <div
-        v-for="document in filteredDocuments"
-        :key="document.id"
-        class="document-card"
-      >
-        <div class="document-header">
-          <div class="document-icon">
-            <i class="pi pi-file" />
-          </div>
-          <div class="document-info">
-            <h3 class="document-name">
-              {{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}
-            </h3>
-            <div class="document-meta">
-              <span class="document-size">#{{ document.documentId }}</span>
-              <span class="document-date">{{ document.createdAt.substring(0, 10) }}</span>
+    <!-- Табы для документов -->
+    <TabView class="documents-tabs">
+      <TabPanel header="Проверены">
+        <div v-if="acceptedDocuments.length === 0" class="empty-state">
+          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+          <h3>Нет проверенных документов</h3>
+          <p>Документы, которые прошли проверку</p>
+        </div>
+        <div v-else class="documents-grid">
+          <div
+            v-for="document in acceptedDocuments"
+            :key="document.id"
+            class="document-card"
+          >
+            <div class="document-header">
+              <div class="document-icon">
+                <i class="pi pi-file" />
+              </div>
+              <div class="document-info">
+                <h3 class="document-name">
+                  {{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}
+                </h3>
+                <div class="document-meta">
+                  <span class="document-size">#{{ document.documentId }}</span>
+                  <span class="document-date">{{ document.createdAt.substring(0, 10) }}</span>
+                </div>
+              </div>
+              <div class="document-actions">
+                <Button
+                  v-tooltip="'Скачать'"
+                  icon="pi pi-download"
+                  style="background: white"
+                  class="p-button-text p-button-sm"
+                  @click="downloadDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Предварительный просмотр'"
+                  icon="pi pi-eye"
+                  style="background: white"
+                  class="p-button-text p-button-sm"
+                  @click="previewDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Удалить'"
+                  icon="pi pi-trash"
+                  style="background: white"
+                  class="p-button-text p-button-sm p-button-danger"
+                  @click="deleteDocument(document)"
+                />
+              </div>
             </div>
-          </div>
-          <div class="document-actions">
-            <Button
-              v-tooltip="'Скачать'"
-              icon="pi pi-download"
-              style="background: white"
-              class="p-button-text p-button-sm"
-              @click="downloadDocument(document)"
-            />
-            <Button
-              v-tooltip="'Предварительный просмотр'"
-              icon="pi pi-eye"
-              style="background: white"
-              class="p-button-text p-button-sm"
-              @click="previewDocument(document)"
-            />
-            <Button
-              v-tooltip="'Удалить'"
-              icon="pi pi-trash"
-              style="background: white"
-              class="p-button-text p-button-sm p-button-danger"
-              @click="deleteDocument(document)"
-            />
+            
+            <div class="document-content">
+              <div class="document-details">
+                <div class="detail-item">
+                  <span class="detail-label">Тип документа:</span>
+                  <span class="detail-value">{{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Возрастная группа:</span>
+                  <span class="detail-value">{{ ageGroups.find(group => document.ageCategory === group.value)?.label }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Дата загрузки:</span>
+                  <span class="detail-value">{{ document.createdAt.substring(0, 10) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">ID документа:</span>
+                  <span class="detail-value">#{{ document.documentId }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        
-        <div class="document-content">
-          <div class="document-details">
-            <div class="detail-item">
-              <span class="detail-label">Тип документа:</span>
-              <span class="detail-value">{{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}</span>
+      </TabPanel>
+      
+      <TabPanel header="На проверке">
+        <div v-if="uncheckedDocuments.length === 0" class="empty-state">
+          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+          <h3>Нет документов на проверке</h3>
+          <p>Документы, ожидающие проверки</p>
+        </div>
+        <div v-else class="documents-grid">
+          <div
+            v-for="document in uncheckedDocuments"
+            :key="document.id"
+            class="document-card"
+          >
+            <div class="document-header">
+              <div class="document-icon">
+                <i class="pi pi-file" />
+              </div>
+              <div class="document-info">
+                <h3 class="document-name">
+                  {{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}
+                </h3>
+                <div class="document-meta">
+                  <span class="document-size">#{{ document.documentId }}</span>
+                  <span class="document-date">{{ document.createdAt.substring(0, 10) }}</span>
+                </div>
+              </div>
+              <div class="document-actions">
+                <Button
+                  v-tooltip="'Скачать'"
+                  icon="pi pi-download"
+                  style="background: white"
+                  class="p-button-text p-button-sm"
+                  @click="downloadDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Предварительный просмотр'"
+                  icon="pi pi-eye"
+                  style="background: white"
+                  class="p-button-text p-button-sm"
+                  @click="previewDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Удалить'"
+                  icon="pi pi-trash"
+                  style="background: white"
+                  class="p-button-text p-button-sm p-button-danger"
+                  @click="deleteDocument(document)"
+                />
+              </div>
             </div>
-            <div class="detail-item">
-              <span class="detail-label">Возрастная группа:</span>
-              <span class="detail-value">{{ ageGroups.find(group => document.ageCategory === group.value)?.label }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Дата загрузки:</span>
-              <span class="detail-value">{{ document.createdAt.substring(0, 10) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">ID документа:</span>
-              <span class="detail-value">#{{ document.documentId }}</span>
+            
+            <div class="document-content">
+              <div class="document-details">
+                <div class="detail-item">
+                  <span class="detail-label">Тип документа:</span>
+                  <span class="detail-value">{{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Возрастная группа:</span>
+                  <span class="detail-value">{{ ageGroups.find(group => document.ageCategory === group.value)?.label }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Дата загрузки:</span>
+                  <span class="detail-value">{{ document.createdAt.substring(0, 10) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">ID документа:</span>
+                  <span class="detail-value">#{{ document.documentId }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </TabPanel>
+      
+      <TabPanel header="Отклоненные">
+        <div v-if="rejectedDocuments.length === 0" class="empty-state">
+          <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+          <h3>Нет отклоненных документов</h3>
+          <p>Документы, которые были отклонены</p>
+        </div>
+        <div v-else class="documents-grid">
+          <div
+            v-for="document in rejectedDocuments"
+            :key="document.id"
+            class="document-card"
+          >
+            <div class="document-header">
+              <div class="document-icon">
+                <i class="pi pi-file" />
+              </div>
+              <div class="document-info">
+                <h3 class="document-name">
+                  {{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}
+                </h3>
+                <div class="document-meta">
+                  <span class="document-size">#{{ document.documentId }}</span>
+                  <span class="document-date">{{ document.createdAt.substring(0, 10) }}</span>
+                </div>
+              </div>
+              <div class="document-actions">
+                <Button
+                  v-tooltip="'Скачать'"
+                  icon="pi pi-download"
+                  style="background: white"
+                  class="p-button-text p-button-sm"
+                  @click="downloadDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Предварительный просмотр'"
+                  icon="pi pi-eye"
+                  style="background: white"
+                  class="p-button-text p-button-sm"
+                  @click="previewDocument(document)"
+                />
+                <Button
+                  v-tooltip="'Удалить'"
+                  icon="pi pi-trash"
+                  style="background: white"
+                  class="p-button-text p-button-sm p-button-danger"
+                  @click="deleteDocument(document)"
+                />
+              </div>
+            </div>
+            
+            <div class="document-content">
+              <div class="document-details">
+                <div class="detail-item">
+                  <span class="detail-label">Тип документа:</span>
+                  <span class="detail-value">{{ DocumentTypes.find(docType => docType.value === document.documentType)?.label }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Возрастная группа:</span>
+                  <span class="detail-value">{{ ageGroups.find(group => document.ageCategory === group.value)?.label }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Дата загрузки:</span>
+                  <span class="detail-value">{{ document.createdAt.substring(0, 10) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">ID документа:</span>
+                  <span class="detail-value">#{{ document.documentId }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </TabPanel>
+    </TabView>
   </div>
 </template>
 
@@ -254,6 +411,8 @@
   import Button from "primevue/button";
   import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
   import Dropdown from "primevue/dropdown";
+  import TabView from "primevue/tabview";
+  import TabPanel from "primevue/tabpanel";
   import { FileType } from '@/api/resolvers/files/file.resolver.ts';
   import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
   import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
@@ -281,6 +440,8 @@
       Dropdown,
       ToastPopup,
       ConfirmationModal,
+      TabView,
+      TabPanel,
     },
     props: {
       competenceId: {
@@ -329,6 +490,21 @@
         return [...new Set(this.documents.map(doc => doc.ageCategory))].toSorted((a, b) => {
           return ageOrder.get(a)!! - ageOrder.get(b)!!;
         });
+      },
+      acceptedDocuments() {
+        return this.filteredDocuments
+          .filter(doc => doc.verified === true)
+          .sort((a, b) => b.id - a.id);
+      },
+      uncheckedDocuments() {
+        return this.filteredDocuments
+          .filter(doc => doc.verified === null)
+          .sort((a, b) => b.id - a.id);
+      },
+      rejectedDocuments() {
+        return this.filteredDocuments
+          .filter(doc => doc.verified === false)
+          .sort((a, b) => b.id - a.id);
       }
     },
     async beforeMount() {
@@ -834,6 +1010,59 @@
     color: #2c3e50;
     font-weight: 500;
     text-align: right;
+  }
+
+  /* Стили для табов документов */
+  .documents-tabs {
+    margin-top: 2rem;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav) {
+    background: transparent;
+    border-radius: 0;
+    padding: 0.5rem 0;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li) {
+    margin-right: 0.5rem;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li .p-tabview-nav-link) {
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li.p-highlight .p-tabview-nav-link) {
+    background: #ff9800;
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+  }
+
+  .documents-tabs :deep(.p-tabview-panels) {
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+    font-size: 1.1rem;
+  }
+
+  .empty-state h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .empty-state p {
+    margin: 0;
+    font-size: 1rem;
   }
 
   .document-description {
