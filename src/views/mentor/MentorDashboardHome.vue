@@ -123,11 +123,11 @@
                 {{ `${child.lastName} ${child.firstName} ${child.patronymic}` }}
               </h4>
               <div
-                v-if="getChildCompetencies(child.id).length > 0"
+                v-if="getCompetenciesByChildId(child.id).length > 0"
                 class="competencies-list"
               >
                 <div 
-                  v-for="competence in getChildCompetencies(child.id)" 
+                  v-for="competence in getCompetenciesByChildId(child.id)"
                   :key="competence.id"
                   class="competence-item"
                 >
@@ -136,14 +136,14 @@
                   </div>
                   <div class="competence-info">
                     <div class="competence-name">
-                      {{ competence.name }}
+                      {{ competence.direction.name }}
                     </div>
                     <div class="competence-description">
-                      {{ competence.description }}
+                      {{ competence.direction.description }}
                     </div>
                     <div class="competence-expert">
                       <i class="pi pi-user" />
-                      Главный эксперт: ID {{ competence.expertId }}
+                      Главный эксперт: ID {{ competence.direction.expertId }}
                     </div>
                   </div>
                 </div>
@@ -218,9 +218,12 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import { useUserStore } from '@/stores/userStore.ts';
-import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
-import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 import { FormatManager } from '@/utils/FormatManager.ts';
+import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
+import type {
+  ChildCompetenciesOutputDto
+} from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
+import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
 
 export default {
   name: "MentorDashboardHome",
@@ -232,11 +235,14 @@ export default {
   data() {
     return {
       userStore: useUserStore(),
-      competenceResolver: new CompetenceResolver(),
+      childCompetenciesResolver: new ChildCompetenciesResolver(),
       showLinkDialog: false,
       generatedLink: "",
-      childrenCompetencies: {} as Record<number, CompetenceOutputDto[]>,
       loading: false,
+      childCompetencies: [] as {
+        child: ChildOutputDto,
+        competencies: ChildCompetenciesOutputDto[]
+      }[]
     };
   },
   computed: {
@@ -267,22 +273,20 @@ export default {
     await this.loadAllChildrenCompetencies();
   },
   methods: {
-    getChildCompetencies(childId: number): CompetenceOutputDto[] {
-      return this.childrenCompetencies[childId] || [];
+    getCompetenciesByChildId(childId: number) {
+      const competencies = this.childCompetencies.find(row => row.child.id === childId)?.competencies
+      return competencies ? competencies : []
+    },
+    async loadCompetenciesByChild(child: ChildOutputDto) {
+      const response = await this.childCompetenciesResolver.getByChildId(child.id)
+      if (typeof response.message === "string" || response.status !== 200) return
+      this.childCompetencies.push({
+        child: child,
+        competencies: response.message
+      })
     },
     getChildCompetenciesCount(childId: number): number {
-      return this.getChildCompetencies(childId).length;
-    },
-    async loadChildCompetencies(childId: number) {
-      try {
-        const response = await this.competenceResolver.getAllByUserId(childId);
-        if (response.message && Array.isArray(response.message)) {
-          this.childrenCompetencies[childId] = response.message;
-        }
-      } catch (error) {
-        console.error('Ошибка при загрузке компетенций для ребенка:', error);
-        this.childrenCompetencies[childId] = [];
-      }
+      return this.getCompetenciesByChildId(childId).length;
     },
     async loadAllChildrenCompetencies() {
       if (!this.user?.menteeChildren) return;
@@ -290,8 +294,7 @@ export default {
       this.loading = true;
       try {
         const promises = this.user.menteeChildren.map(child =>
-          this.loadChildCompetencies(child.id)
-        );
+          this.loadCompetenciesByChild(child));
         await Promise.all(promises);
       } catch (error) {
         console.error('Ошибка при загрузке компетенций:', error);
