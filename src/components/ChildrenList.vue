@@ -326,7 +326,7 @@
             console.log('Update successful, clearing form...');
             
             // Обновляем счетчик назначений наставника
-            if (child.selectedMentor !== 'parent' && typeof mentorId === 'number') {
+            if (mentorId !== this.userStore.user?.id && typeof mentorId === 'number') {
               const currentAssignments = this.mentorAssignments.get(mentorId) || 0;
               this.mentorAssignments.set(mentorId, currentAssignments + 1);
               console.log(`Mentor ${mentorId} assignments: ${currentAssignments + 1}/3`);
@@ -355,7 +355,7 @@
             
             // Показываем уведомление об успехе через toast
             let message = `Наставник "${mentorName}" назначен для ${child.firstName}`;
-            if (child.selectedMentor !== 'parent' && typeof mentorId === 'number') {
+            if (mentorId !== this.userStore.user?.id && typeof mentorId === 'number') {
               const assignments = this.mentorAssignments.get(mentorId) || 0;
               message += ` (${assignments}/3 назначений)`;
             }
@@ -656,7 +656,7 @@
     margin-bottom: 1.5rem;
   }
 
-  .competencies-title {
+  .competencies-title, .mentor-title {
     color: #2c3e50;
     margin: 0 0 0.75rem 0;
     font-size: 1rem;

@@ -113,6 +113,7 @@
         />
       </form>
     </Dialog>
+    <ToastPopup :content="toastPopup" />
   </div>
 </template>
 
@@ -127,10 +128,12 @@ import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
 import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
 import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
 import { FormatManager } from '@/utils/FormatManager.ts';
+import ToastPopup from '@/components/ToastPopup.vue';
 
 export default {
   name: "UserDashboardHome",
   components: {
+    ToastPopup,
     AddChildForm,
     ChildrenList,
     Button,
@@ -153,6 +156,11 @@ export default {
       addConsentFile: false,
       addSchoolFile: false,
       addPlatformFile: false,
+
+      toastPopup: {
+        title: "",
+        message: ""
+      },
 
       childForm: {
         fullName: "",
@@ -296,8 +304,7 @@ export default {
     },
     fillNewChild() {
       this.selectedChild = null
-      this.childForm.fullName = ""
-      this.childForm.birthDate = ""
+      this.clearChildForm()
       this.isEditing = false
       this.showAddChildDialog = true;
     },
@@ -310,8 +317,8 @@ export default {
       this.selectedChild = child
     },
     async addChild() {
-      this.isLoading = true;
       if (this.user === null || !this.validateForm()) return
+      this.isLoading = true;
       if (this.selectedChild !== null && (this.isEditing || this.selectedChild.childDocuments === null)) {
         await this.childResolver.update({
           id: this.selectedChild.id,
@@ -338,8 +345,7 @@ export default {
       this.showAddChildDialog = false
     },
     async addChildDocs(child: ChildOutputDto | string) {
-      if (this.selectedChild === null) return
-      if (this.selectedChild.childDocuments === null) {
+      if (this.selectedChild === null || this.selectedChild.childDocuments === null) {
         if (this.childForm.childConsentFile !== null
           && this.childForm.schoolCertificate !== null
           && this.childForm.birthCertificate !== null
@@ -348,7 +354,7 @@ export default {
           && this.childForm.grade !== null
           && this.user !== null
           && typeof child !== "string") {
-          await this.childDocumentsResolver.create({
+          const response = await this.childDocumentsResolver.create({
             childId: child.id,
             additionalStudyingCertificateFile: this.childForm.platformCertificate,
             birthCertificateFile: this.childForm.birthCertificate,
@@ -363,24 +369,30 @@ export default {
             studyingPlace: this.childForm.schoolName,
             trainingGround: this.childForm.platform
           })
+          if (typeof response.message === "string") {
+            this.toastPopup = {
+              title: `Ошибка ${response.status.toString()} при загрузке документов`,
+              message: response.message
+            }
+          }
         }
       } else if (this.addBirthFile || this.addSnilsFile
         || this.addSchoolFile || this.addPlatformFile
         || this.addConsentFile) {
         await this.childDocumentsResolver.update({
-          id: this.selectedChild?.childDocuments.id,
+          id: this.selectedChild!.childDocuments!.id,
           additionalStudyingCertificateFile: this.childForm.platformCertificate,
           birthCertificateFile: this.childForm.birthCertificate,
           consentToChildPdpFile: this.childForm.childConsentFile,
-          learningClass: this.childForm.grade ?? this.selectedChild.childDocuments!.learningClass,
-          parentRole: this.selectedChild.childDocuments!.parentRole,
+          learningClass: this.childForm.grade ?? this.selectedChild!.childDocuments!.learningClass,
+          parentRole: this.selectedChild!.childDocuments!.parentRole,
           snilsFile: this.childForm.snilsScan,
           snilsNumber: this.childForm.snilsNumber
             ? FormatManager.formatSnilsToDTO(this.childForm.snilsNumber)
-            : this.selectedChild.childDocuments!.snilsNumber,
+            : this.selectedChild!.childDocuments!.snilsNumber,
           studyingCertificateFile: this.childForm.schoolCertificate,
-          studyingPlace: this.childForm.schoolName ?? this.selectedChild.childDocuments!.studyingPlace,
-          trainingGround: this.childForm.platform ?? this.selectedChild.childDocuments!.trainingGround,
+          studyingPlace: this.childForm.schoolName ?? this.selectedChild!.childDocuments!.studyingPlace,
+          trainingGround: this.childForm.platform ?? this.selectedChild!.childDocuments!.trainingGround,
         })
       }
     },
