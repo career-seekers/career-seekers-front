@@ -61,12 +61,6 @@
                 class="competence-age"
               >
                 {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
-                <span
-                  v-if="item.maxParticipantsCount !== undefined"
-                  class="places-count"
-                >
-                  ({{ item.maxParticipantsCount }} мест)
-                </span>
               </span>
             </div>
             <div class="competence-description">
