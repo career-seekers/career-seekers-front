@@ -106,7 +106,10 @@
     </div>
 
     <!-- Обычная пагинация (скрывается при скролле) -->
-    <div class="pagination-container" :class="{ 'hidden': showFloatingPagination }">
+    <div
+      class="pagination-container"
+      :class="{ 'hidden': showFloatingPagination }"
+    >
       <Paginator
         :first="currentPage * itemsPerPage"
         :rows="itemsPerPage"
@@ -116,7 +119,6 @@
         @page="onPageChange"
       />
     </div>
-
   </div>
 </template>
 

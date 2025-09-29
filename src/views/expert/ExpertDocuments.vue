@@ -53,8 +53,12 @@
           class="competence-item"
         >
           <div class="competence-info">
-            <h4 class="competence-name">{{ competence.name }}</h4>
-            <p class="competence-description">{{ competence.description }}</p>
+            <h4 class="competence-name">
+              {{ competence.name }}
+            </h4>
+            <p class="competence-description">
+              {{ competence.description }}
+            </p>
             <div class="competence-meta">
               <span class="competence-ages">
                 <i class="pi pi-users" />
@@ -77,14 +81,27 @@
     </div>
 
     <!-- Список документов -->
-    <div v-if="filteredDocuments.length === 0" class="empty-state">
-      <i class="pi pi-file-o" style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;" />
+    <div
+      v-if="filteredDocuments.length === 0"
+      class="empty-state"
+    >
+      <i
+        class="pi pi-file-o"
+        style="font-size: 3rem; color: #6c757d; margin-bottom: 1rem;"
+      />
       <h3>Документы не найдены</h3>
-      <p v-if="allDocuments.length === 0">Загрузите документы для ваших компетенций</p>
-      <p v-else>Попробуйте изменить фильтры</p>
+      <p v-if="allDocuments.length === 0">
+        Загрузите документы для ваших компетенций
+      </p>
+      <p v-else>
+        Попробуйте изменить фильтры
+      </p>
     </div>
 
-    <div v-else class="documents-grid">
+    <div
+      v-else
+      class="documents-grid"
+    >
       <div
         v-for="document in filteredDocuments"
         :key="document.id"
@@ -95,7 +112,9 @@
             <i class="pi pi-file" />
           </div>
           <div class="document-info">
-            <h4 class="document-name">{{ getDocumentTypeLabel(document.documentType) }}</h4>
+            <h4 class="document-name">
+              {{ getDocumentTypeLabel(document.documentType) }}
+            </h4>
             <div class="document-meta">
               <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
               <span class="document-date">{{ formatDate(document.createdAt) }}</span>
@@ -104,15 +123,15 @@
         </div>
         <div class="document-actions">
           <Button
+            v-tooltip="'Просмотреть'"
             icon="pi pi-eye"
             class="p-button-text p-button-sm"
-            v-tooltip="'Просмотреть'"
             @click="viewDocument(document.documentId)"
           />
           <Button
+            v-tooltip="'Скачать'"
             icon="pi pi-download"
             class="p-button-text p-button-sm"
-            v-tooltip="'Скачать'"
             @click="downloadDocument(document.documentId)"
           />
         </div>

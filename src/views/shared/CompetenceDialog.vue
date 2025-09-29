@@ -97,6 +97,10 @@
             <i class="pi pi-calendar" />
             <span>Возраст: {{ competenceAgeCategories(selectedCompetence) }}</span>
           </div>
+          <div class="meta-item">
+            <i class="pi pi-users" />
+            <span>Количество участников: {{ selectedCompetence.participantsCount }}</span>
+          </div>
         </div>
       </div>
 

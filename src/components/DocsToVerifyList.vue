@@ -69,6 +69,10 @@
         return this.documents.length;
       }
     },
+    mounted() {
+      console.log('DocsToVerifyList mounted with documents:', this.documents);
+      console.log('DocsToVerifyList props:', this.$props);
+    },
     methods: {
       viewDocument(doc: CompetenceDocumentsOutputDto) {
         window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`, "_blank");
@@ -106,10 +110,6 @@
         });
       },
 
-    },
-    mounted() {
-      console.log('DocsToVerifyList mounted with documents:', this.documents);
-      console.log('DocsToVerifyList props:', this.$props);
     }
   };
 </script>
@@ -253,7 +253,6 @@
       @page="onPageChange"
     />
   </div>
-
 </template>
 
 <style scoped>

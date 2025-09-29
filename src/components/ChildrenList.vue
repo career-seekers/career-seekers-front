@@ -1,28 +1,33 @@
 <script lang="ts">
-  import type { PropType } from 'vue';
+  import { type PropType } from 'vue';
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
 
   // Расширяем тип ChildOutputDto для добавления локального свойства
-  interface ChildWithMentorSelection extends ChildOutputDto {
+  export interface ChildWithMentorSelection extends ChildOutputDto {
     selectedMentor?: string | number | null;
   }
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import Button from 'primevue/button';
-  import Dialog from 'primevue/dialog';
   import Dropdown from 'primevue/dropdown';
-  import { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
   import { useUserStore } from '@/stores/userStore.ts';
   import { useGradeOptions } from '../shared/UseGradeOptions.ts';
   import ToastPopup from './ToastPopup.vue';
   import { FormatManager } from '../utils/FormatManager.ts';
+  import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+  import type {
+    ChildCompetenciesOutputDto
+  } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
+  import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+  import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
 
   export default {
     name: 'ChildrenList',
     components: {
+      CompetenceDialog,
       Button,
-      Dialog,
       Dropdown,
       ToastPopup
     },
@@ -30,6 +35,10 @@
       children: {
         type: Array as PropType<ChildOutputDto[]>,
         required: true,
+      },
+      selectedMentorId: {
+        type: Number as PropType<number | null>,
+        default: null
       }
     },
     emits: [
@@ -38,11 +47,15 @@
     ],
     data() {
       return {
+        childCompetenciesResolver: new ChildCompetenciesResolver(),
+        competenceResolver: new CompetenceResolver(),
         childResolver: new ChildResolver(),
         userResolver: new UserResolver(),
+
         userStore: useUserStore(),
         ageGroups: useAgeGroups,
         gradeOptions: useGradeOptions,
+
         availableMentor: null as { id: number; name: string } | null,
         mentorOptions: [] as Array<{label: string; value: string | number}>,
         mentorAssignments: new Map<number, number>(), // mentorId -> количество назначений
@@ -50,9 +63,19 @@
           title: '',
           message: ''
         },
+        showDetailsDialog: false,
+
+        selectedCompetence: null as CompetenceOutputDto | null,
+        childCompetencies: [] as {
+          child: ChildOutputDto,
+          competencies: ChildCompetenciesOutputDto[]
+        }[]
       }
     },
     computed: {
+      FormatManager() {
+        return FormatManager
+      },
       sortedChildren(): ChildWithMentorSelection[] {
         const children = this.children.map(child => ({
           ...child,
@@ -64,52 +87,39 @@
         return this.mentorOptions.length > 0;
       }
     },
+    watch: {
+      selectedMentorId() {
+        if (this.selectedMentorId !== null) {
+          this.loadAvailableMentor()
+        }
+      }
+    },
     mounted() {
       this.loadAvailableMentor();
+      this.children.forEach(child => {
+        this.loadCompetenciesByChild(child)
+      })
     },
     methods: {
-      calculateGrade(child: ChildOutputDto) {
-        return this.gradeOptions.find(grade => grade.value === child.childDocuments?.learningClass)?.label || '-'
+      getCompetenciesByChildId(childId: number) {
+        const competencies = this.childCompetencies.find(row => row.child.id === childId)?.competencies
+        return competencies ? competencies : []
       },
-      formatDateOfBirth(birthDate: string) {
-        const parts = birthDate.split("-");
-        return `${parts[2]}.${parts[1]}.${parts[0]}`;
-      },
-      formatSnils(snils: string | undefined | null) {
-        if (!snils) return '-';
-        return `${snils.substring(0, 3)}-${snils.substring(3, 6)}-${snils.substring(6, 9)} ${snils.substring(9, 11)}`;
-      },
-      calculateAge(birthDate: string) {
-        const birth = new Date(birthDate.substring(0, 10));
-        const onDate = new Date(2026, 1, 14)
-
-        let age = onDate.getFullYear() - birth.getFullYear();
-        let monthDiff = onDate.getMonth() - birth.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && onDate.getDate() < birth.getDate())) {
-          age--;
-        }
-        return age;
-      },
-      getAgeGroupByAge(age: number, learningClass: number | undefined | null) {
-        if (age === 7) {
-          const group = this.ageGroups
-            .find(group => (learningClass ?? 0) > 0
-              ? group.value === AgeCategories.EARLY_SCHOOL
-              : group.value === AgeCategories.PRESCHOOL
-            )
-          return group
-            ? group.label
-            : "-"
-        }
-        const group = this.ageGroups.find(group => {
-          const edges = group.label.split(" ")[0].split("-")
-          const min = parseInt(edges[0]);
-          const max = parseInt(edges[1]);
-          if (min <= age && age <= max) {
-            return group.label
-          }
+      async loadCompetenciesByChild(child: ChildOutputDto) {
+        const response = await this.childCompetenciesResolver.getByChildId(child.id)
+        if (typeof response.message === "string" || response.status !== 200) return
+        this.childCompetencies.push({
+          child: child,
+          competencies: response.message
         })
-        return group ? group.label : "-"
+      },
+      async openCompetenceDialog(competenceId: number) {
+        if (this.selectedCompetence === null || this.selectedCompetence.id !== competenceId) {
+          const response = await this.competenceResolver.getById(competenceId)
+          if (typeof response.message === "string" || response.status !== 200) return
+          this.selectedCompetence = response.message
+        }
+        this.showDetailsDialog = true
       },
       async removeChild(child: ChildOutputDto) {
         if (confirm(`Удалить ребёнка "${child.firstName}"`)) {
@@ -225,22 +235,6 @@
         this.mentorOptions = this.mentorOptions.filter(option => option.value !== mentorId);
         console.log('Removed mentor from options list:', mentorId);
       },
-      
-      // Временный метод для тестирования API
-      async testMentorAPI(mentorId: number = 201) {
-        try {
-          console.log(`Testing API for mentor ID: ${mentorId}`);
-          const response = await this.userResolver.getById(mentorId);
-          console.log('API Test Response:', response);
-          console.log('Response status:', response.status);
-          console.log('Response message:', response.message);
-          console.log('Response data type:', typeof response.message);
-          return response;
-        } catch (error) {
-          console.error('API Test Error:', error);
-          return null;
-        }
-      },
       onMentorChange(child: ChildWithMentorSelection) {
         console.log('Mentor selection changed for child:', child.firstName, 'Selected:', child.selectedMentor);
         console.log('Child object after change:', child);
@@ -332,7 +326,7 @@
             console.log('Update successful, clearing form...');
             
             // Обновляем счетчик назначений наставника
-            if (child.selectedMentor !== 'parent' && typeof mentorId === 'number') {
+            if (mentorId !== this.userStore.user?.id && typeof mentorId === 'number') {
               const currentAssignments = this.mentorAssignments.get(mentorId) || 0;
               this.mentorAssignments.set(mentorId, currentAssignments + 1);
               console.log(`Mentor ${mentorId} assignments: ${currentAssignments + 1}/3`);
@@ -361,7 +355,7 @@
             
             // Показываем уведомление об успехе через toast
             let message = `Наставник "${mentorName}" назначен для ${child.firstName}`;
-            if (child.selectedMentor !== 'parent' && typeof mentorId === 'number') {
+            if (mentorId !== this.userStore.user?.id && typeof mentorId === 'number') {
               const assignments = this.mentorAssignments.get(mentorId) || 0;
               message += ` (${assignments}/3 назначений)`;
             }
@@ -435,7 +429,10 @@
         </div>
       </div>
 
-      <div class="child-content">
+      <div
+        v-if="child.childDocuments !== null"
+        class="child-content"
+      >
         <div class="child-details">
           <div class="detail-item">
             <span class="detail-label">Дата рождения:</span>
@@ -470,6 +467,25 @@
             <span class="detail-label">Площадка подготовки:</span>
             <span class="detail-value">
               {{ child.childDocuments?.trainingGround || '-' }}
+            </span>
+          </div>
+        </div>
+
+        <div
+          v-if="getCompetenciesByChildId(child.id).length > 0"
+          class="competencies-section"
+        >
+          <h4 class="competencies-title">
+            Компетенции:
+          </h4>
+          <div class="competencies-list">
+            <span
+              v-for="competence in getCompetenciesByChildId(child.id)"
+              :key="competence.id"
+              class="competence-tag"
+              @click="openCompetenceDialog(competence.direction.id)"
+            >
+              {{ competence.direction.name }}
             </span>
           </div>
         </div>
@@ -522,32 +538,12 @@
         </div>
       </div>
     </div>
-
-    <Dialog>
-      <!--      <p class="preview-text">-->
-      <!--        Выбрано компетенций: {{ selectedCompetenciesCount }}/3-->
-      <!--      </p>-->
-
-      <!--      <div class="selected-competencies">-->
-      <!--        <div-->
-      <!--          v-for="competence in selectedCompetencies"-->
-      <!--          :key="competence.id"-->
-      <!--          class="competence-item"-->
-      <!--        >-->
-      <!--          <div class="competence-icon">-->
-      <!--            <i :class="competence.icon" />-->
-      <!--          </div>-->
-      <!--          <div class="competence-info">-->
-      <!--            <h4 class="competence-name">-->
-      <!--              {{ competence.name }}-->
-      <!--            </h4>-->
-      <!--            <p class="competence-status">-->
-      <!--              {{ competence.status }}-->
-      <!--            </p>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--      </div>-->
-    </Dialog>
+    <CompetenceDialog
+      v-if="selectedCompetence !== null"
+      :selected-competence-prop="selectedCompetence"
+      :show-details-dialog-prop="showDetailsDialog"
+      @update:show-details-dialog="(show) => showDetailsDialog = show"
+    />
   </div>
 </template>
 
@@ -654,6 +650,39 @@
     color: #2c3e50;
     font-weight: 500;
     text-align: right;
+  }
+
+  .competencies-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .competencies-title, .mentor-title {
+    color: #2c3e50;
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #ff9800;
+    padding-bottom: 0.25rem;
+  }
+
+  .competencies-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .competence-tag {
+    background: #f8f9fa;
+    color: #2c3e50;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid #e9ecef;
+  }
+
+  .competence-tag:hover {
+    cursor: pointer;
   }
 
   .mentor-selection {

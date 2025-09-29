@@ -1,11 +1,16 @@
 <template>
   <div class="confirmation-page">
     <div class="confirmation-container">
-      <div v-if="isLoading" class="loading-container">
+      <div
+        v-if="isLoading"
+        class="loading-container"
+      >
         <div class="loading-spinner">
           <i class="pi pi-spin pi-spinner" />
         </div>
-        <p class="loading-text">Загрузка...</p>
+        <p class="loading-text">
+          Загрузка...
+        </p>
       </div>
       
       <div v-else>
@@ -21,29 +26,31 @@
           Теперь вы можете указать <strong>{{ mentorName }}</strong> в качестве наставника для своего ребенка.
         </p>
       
-      <div class="mentor-info-card">
-        <div class="mentor-avatar">
-          <i class="pi pi-user" />
+        <div class="mentor-info-card">
+          <div class="mentor-avatar">
+            <i class="pi pi-user" />
+          </div>
+          <div class="mentor-details">
+            <h3 class="mentor-name">
+              {{ mentorName }}
+            </h3>
+          </div>
         </div>
-        <div class="mentor-details">
-          <h3 class="mentor-name">{{ mentorName }}</h3>
-        </div>
-      </div>
       
-      <div class="action-buttons">
-        <Button
-          label="Вернуться к личному кабинету"
-          icon="pi pi-home"
-          class="p-button-primary"
-          @click="goToDashboard"
-        />
-        <Button
-          label="Выбрать наставника для ребенка"
-          icon="pi pi-users"
-          class="p-button-outlined"
-          @click="goToChildren"
-        />
-      </div>
+        <div class="action-buttons">
+          <Button
+            label="Вернуться к личному кабинету"
+            icon="pi pi-home"
+            class="p-button-primary"
+            @click="goToDashboard"
+          />
+          <Button
+            label="Выбрать наставника для ребенка"
+            icon="pi pi-users"
+            class="p-button-outlined"
+            @click="goToChildren"
+          />
+        </div>
       </div>
     </div>
   </div>

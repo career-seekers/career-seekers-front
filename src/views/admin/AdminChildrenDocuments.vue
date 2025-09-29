@@ -5,10 +5,15 @@
         <i class="pi pi-users" />
         Документы участников
       </h1>
-      <p class="page-subtitle">Управление участием детей в чемпионате</p>
+      <p class="page-subtitle">
+        Управление участием детей в чемпионате
+      </p>
     </div>
 
-    <div v-if="paginatedChildren.length > 0" class="children-grid">
+    <div
+      v-if="paginatedChildren.length > 0"
+      class="children-grid"
+    >
       <div
         v-for="child in paginatedChildren"
         :key="child.id"
@@ -31,15 +36,24 @@
               <span class="detail-label">ФИО:</span>
               <span class="detail-value">{{ getChildFullName(child) }}</span>
             </div>
-            <div class="detail-item" v-if="child.childDocuments?.ageCategory">
+            <div
+              v-if="child.childDocuments?.ageCategory"
+              class="detail-item"
+            >
               <span class="detail-label">Возрастная группа:</span>
               <span class="detail-value">{{ getAgeGroupLabel(child.childDocuments.ageCategory) }}</span>
             </div>
-            <div class="detail-item" v-if="child.childDocuments?.learningClass">
+            <div
+              v-if="child.childDocuments?.learningClass"
+              class="detail-item"
+            >
               <span class="detail-label">Класс:</span>
               <span class="detail-value">{{ child.childDocuments.learningClass }} класс</span>
             </div>
-            <div class="detail-item" v-if="child.dateOfBirth">
+            <div
+              v-if="child.dateOfBirth"
+              class="detail-item"
+            >
               <span class="detail-label">Дата рождения:</span>
               <span class="detail-value">{{ formatDate(child.dateOfBirth) }}</span>
             </div>
@@ -81,21 +95,30 @@
       </div>
     </div>
 
-    <div v-else class="empty-state">
-      <i class="pi pi-users" style="font-size: 3rem; color: #6c757d;"></i>
+    <div
+      v-else
+      class="empty-state"
+    >
+      <i
+        class="pi pi-users"
+        style="font-size: 3rem; color: #6c757d;"
+      />
       <h3>Нет данных о детях</h3>
       <p>Документы детей не найдены</p>
     </div>
 
     <!-- Пагинация -->
-    <div class="pagination-container" v-if="totalRecords > itemsPerPage">
+    <div
+      v-if="totalRecords > itemsPerPage"
+      class="pagination-container"
+    >
       <Paginator
         :rows="itemsPerPage"
-        :totalRecords="totalRecords"
+        :total-records="totalRecords"
         :first="currentPage * itemsPerPage"
-        @page="onPageChange"
-        :rowsPerPageOptions="[8, 16, 24]"
+        :rows-per-page-options="[8, 16, 24]"
         template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+        @page="onPageChange"
       />
     </div>
 

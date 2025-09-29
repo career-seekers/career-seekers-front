@@ -104,17 +104,21 @@
               v-if="showRegisterOptions"
               class="register-options"
             >
-              <!--              <router-link-->
-              <!--                to="/register/mentor"-->
-              <!--                class="register-option"-->
-              <!--                @click="closeRegisterOptions"-->
-              <!--              >-->
-              <!--                <i class="pi pi-user"></i>-->
-              <!--                <div class="option-text">-->
-              <!--                  <div class="option-title">Наставник</div>-->
-              <!--                  <div class="option-desc">Для специалистов</div>-->
-              <!--                </div>-->
-              <!--              </router-link>-->
+              <router-link
+                to="/register/mentor"
+                class="register-option"
+                @click="closeRegisterOptions"
+              >
+                <i class="pi pi-user" />
+                <div class="option-text">
+                  <div class="option-title">
+                    Наставник
+                  </div>
+                  <div class="option-desc">
+                    Для специалистов
+                  </div>
+                </div>
+              </router-link>
               <router-link
                 to="/register/user"
                 class="register-option"
