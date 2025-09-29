@@ -74,10 +74,10 @@
       </div>
     </div>
     <ChildrenList
+      :selected-mentor-id="selectedMentorId"
       :children="user.children"
       @update:children-list="userStore.fillChildren"
       @open:child-form="(child) => editChild(child)"
-      ref="childrenList"
     />
     <Dialog
       v-model:visible="showAddChildDialog"
@@ -144,6 +144,7 @@ export default {
       showAddChildDialog: false,
       isEditing: false,
       selectedChild: null as ChildOutputDto | null,
+      selectedMentorId: null as null | number,
 
       addBirthFile: false,
       addSnilsFile: false,
@@ -203,6 +204,10 @@ export default {
         snilsScan: ''
       }
     }
+  },
+  mounted() {
+    // Проверяем, есть ли сохраненный наставник после перехода по ссылке
+    this.checkForSavedMentor();
   },
   methods: {
     validateForm() {
@@ -345,21 +350,11 @@ export default {
       this.showAddChildDialog = false
     },
     checkForSavedMentor() {
-      const selectedMentorId = localStorage.getItem('selectedMentorId');
-      if (selectedMentorId) {
-        console.log('Found saved mentor ID in UserDashboardHome:', selectedMentorId);
-        // Обновляем список детей, чтобы показать доступного наставника
-        this.$nextTick(() => {
-          if (this.$refs.childrenList) {
-            this.$refs.childrenList.loadAvailableMentor();
-          }
-        });
-      }
+      const mentorId = localStorage.getItem('selectedMentorId')
+      this.selectedMentorId = mentorId
+        ? parseInt(mentorId)
+        : null
     }
-  },
-  mounted() {
-    // Проверяем, есть ли сохраненный наставник после перехода по ссылке
-    this.checkForSavedMentor();
   }
 };
 </script>

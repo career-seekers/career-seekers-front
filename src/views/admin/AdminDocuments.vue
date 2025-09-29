@@ -13,70 +13,79 @@
 
     <!-- Фильтры -->
     <div class="filters-section sticky-filters">
-        <div class="filter-group">
-          <label for="typeFilter">Тип документа:</label>
-          <Dropdown
-            id="typeFilter"
-            v-model="selectedType"
-            :options="DocumentTypes"
-            option-label="label"
-            option-value="value"
-            placeholder="Все типы"
-            class="filter-dropdown"
-          />
-        </div>
-        <div class="filter-group">
-          <label for="statusFilter">Компетенция:</label>
-          <Dropdown
-            id="statusFilter"
-            v-model="selectedCompetence"
-            :options="competencies"
-            :disabled="competencies.length === 0"
-            placeholder="Все компетенции"
-            class="filter-dropdown"
-          >
-            <template #option="slotProps">
-              {{ slotProps ? slotProps.option.name : "Не выбран" }}
-            </template>
-            <template #value="{ value }">
-              {{ value ? value.name : "Все компетенции" }}
-            </template>
-          </Dropdown>
-        </div>
-        <div class="filter-group" v-if="availableAges.length > 0">
-          <label>Возрастные группы:</label>
-          <div class="age-buttons">
-            <Button
-              v-for="age in availableAges"
-              :key="age"
-              :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
-              :label="ageGroups.find(group => group.value === age)?.label"
-              @click="selectedAge = age"
-              size="small"
-            />
-            <Button
-              label="Сбросить возраст"
-              icon="pi pi-refresh"
-              class="p-button-text p-button-sm"
-              @click="resetAge"
-            />
-          </div>
-        </div>
-        <div class="filter-group">
+      <div class="filter-group">
+        <label for="typeFilter">Тип документа:</label>
+        <Dropdown
+          id="typeFilter"
+          v-model="selectedType"
+          :options="DocumentTypes"
+          option-label="label"
+          option-value="value"
+          placeholder="Все типы"
+          class="filter-dropdown"
+        />
+      </div>
+      <div class="filter-group">
+        <label for="statusFilter">Компетенция:</label>
+        <Dropdown
+          id="statusFilter"
+          v-model="selectedCompetence"
+          :options="competencies"
+          :disabled="competencies.length === 0"
+          placeholder="Все компетенции"
+          class="filter-dropdown"
+        >
+          <template #option="slotProps">
+            {{ slotProps ? slotProps.option.name : "Не выбран" }}
+          </template>
+          <template #value="{ value }">
+            {{ value ? value.name : "Все компетенции" }}
+          </template>
+        </Dropdown>
+      </div>
+      <div
+        v-if="availableAges.length > 0"
+        class="filter-group"
+      >
+        <label>Возрастные группы:</label>
+        <div class="age-buttons">
           <Button
-            label="Сбросить фильтры"
+            v-for="age in availableAges"
+            :key="age"
+            :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
+            :label="ageGroups.find(group => group.value === age)?.label"
+            size="small"
+            @click="selectedAge = age"
+          />
+          <Button
+            label="Сбросить возраст"
             icon="pi pi-refresh"
             class="p-button-text p-button-sm"
-            @click="resetFilters"
+            @click="resetAge"
           />
         </div>
       </div>
+      <div class="filter-group">
+        <Button
+          label="Сбросить фильтры"
+          icon="pi pi-refresh"
+          class="p-button-text p-button-sm"
+          @click="resetFilters"
+        />
+      </div>
     </div>
+  </div>
 
-    <!-- Кастомный sticky контейнер для табов -->
-    <div class="custom-sticky-container" :class="{ 'sticky': isSticky }">
-      <!-- Табы для документов -->
-      <TabView v-model:activeIndex="activeTab" class="documents-tabs">
+  <!-- Кастомный sticky контейнер для табов -->
+  <div
+    class="custom-sticky-container"
+    :class="{ 'sticky': isSticky }"
+  >
+    <!-- Табы для документов -->
+    <TabView
+      v-model:active-index="activeTab"
+      class="documents-tabs"
+    >
       <TabPanel header="Необработанные">
         <DocsToVerifyList
           :documents="filterDocs(uncheckedDocuments)"

@@ -477,6 +477,7 @@ import { FileManager } from "@/utils/FileManager";
 import VuePdfEmbed from "vue-pdf-embed";
 import AddChildForm, { type ChildFormErrors, type ChildFormFields } from '@/components/AddChildForm.vue';
 import { useGradeOptions } from '@/shared/UseGradeOptions.ts';
+import { FormatManager } from '@/utils/FormatManager.ts';
 
 export type ParentFormErrors = {
   fullName: string;
@@ -583,12 +584,6 @@ export default {
     };
   },
   computed: {
-    mobileNumberFormatted() {
-      return this.parentForm.phone.replaceAll(/\s|-|\(|\)|/g, "");
-    },
-    snilsFormatted() {
-      return this.childForm.snilsNumber.replaceAll(/\s|-/g, "");
-    },
     telegramLinkFormatted() {
       return this.parentForm.telegramLink.replace("@", "https://t.me/");
     },
@@ -619,14 +614,6 @@ export default {
         return;
       }
       this.parentFormErrors.password = "";
-    },
-
-    formatBirthDate(birthDate: string) {
-      const [day, month, year] = birthDate.split(".");
-      const date = new Date(
-        Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)),
-      );
-      return date.toISOString();
     },
 
     validateStep(step: number) {
@@ -829,9 +816,9 @@ export default {
               lastName: this.parentForm.fullName.split(" ")[0],
               firstName: this.parentForm.fullName.split(" ")[1],
               patronymic: this.parentForm.fullName.split(" ")[2],
-              dateOfBirth: this.formatBirthDate(this.parentForm.birthDate),
+              dateOfBirth: FormatManager.formatBirthDateToDTO(this.parentForm.birthDate),
               email: this.parentForm.email.toLowerCase(),
-              mobileNumber: this.mobileNumberFormatted,
+              mobileNumber: FormatManager.formatMobileNumberToDTO(this.parentForm.phone),
               password: this.parentForm.password,
               role: Roles.USER,
               uuid: "",
@@ -839,11 +826,11 @@ export default {
               childLastName: this.childForm.fullName.split(" ")[0],
               childFirstName: this.childForm.fullName.split(" ")[1],
               childPatronymic: this.childForm.fullName.split(" ")[2],
-              childDateOfBirth: this.formatBirthDate(this.childForm.birthDate),
+              childDateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
               mentorId: null
             },
             extra: {
-              snilsNumber: this.snilsFormatted,
+              snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
               snilsFileName: await fileManager.saveFileToCache(
                 this.childForm.snilsScan as File,
               ),

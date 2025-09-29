@@ -370,14 +370,12 @@ const router = createRouter({
 export const historyStack: string[] = []
 
 router.beforeEach(async (to, _, next) => {
-  console.log('Router: Navigating to', to.path);
   const authStore = useAuthStore();
   const userStore = useUserStore();
   if (authStore.access_token !== null) {
     const userData = await authStore.loadByTokens()
     if (userData !== null) await userStore.fillUser(userData)
   }
-  console.log('Router: User role after auth check:', userStore.user?.role);
 
   // Проверяем, есть ли сохраненная ссылка для возврата после авторизации
   if (to.path === "/login" && userStore.user !== null) {
@@ -405,7 +403,7 @@ router.beforeEach(async (to, _, next) => {
   }
 
   // Специальная обработка для страницы подтверждения наставника
-  if (to.path.startsWith('/link/') && userStore.user?.role === 'USER') {
+  if (to.path.startsWith('/link/') && userStore.user?.role === Roles.USER) {
     console.log('Allowing access to mentor link confirmation page');
     next();
     return;

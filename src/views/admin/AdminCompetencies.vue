@@ -53,7 +53,10 @@
                 class="competence-age"
               >
                 {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
-                <span v-if="item.maxPlaces !== undefined" class="places-count">
+                <span
+                  v-if="item.maxPlaces !== undefined"
+                  class="places-count"
+                >
                   ({{ item.maxPlaces }} мест)
                 </span>
               </span>
@@ -147,7 +150,10 @@
     </div>
 
     <!-- Обычная пагинация (скрывается при скролле) -->
-    <div class="pagination-container" :class="{ 'hidden': showFloatingPagination }">
+    <div
+      class="pagination-container"
+      :class="{ 'hidden': showFloatingPagination }"
+    >
       <Paginator
         :first="currentPage * itemsPerPage"
         :rows="itemsPerPage"
@@ -369,7 +375,10 @@
       class="places-dialog"
       :style="{ width: '600px' }"
     >
-      <div v-if="selectedCompetence" class="places-management">
+      <div
+        v-if="selectedCompetence"
+        class="places-management"
+      >
         <div class="places-info">
           <p class="places-description">
             Установите максимальное количество мест для каждого возрастного периода компетенции.

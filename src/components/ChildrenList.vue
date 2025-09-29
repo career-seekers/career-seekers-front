@@ -1,16 +1,15 @@
 <script lang="ts">
-  import type { PropType } from 'vue';
+  import { type PropType } from 'vue';
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
 
   // Расширяем тип ChildOutputDto для добавления локального свойства
-  interface ChildWithMentorSelection extends ChildOutputDto {
+  export interface ChildWithMentorSelection extends ChildOutputDto {
     selectedMentor?: string | number | null;
   }
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import Button from 'primevue/button';
   import Dialog from 'primevue/dialog';
   import Dropdown from 'primevue/dropdown';
-  import { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
   import { useUserStore } from '@/stores/userStore.ts';
@@ -30,6 +29,10 @@
       children: {
         type: Array as PropType<ChildOutputDto[]>,
         required: true,
+      },
+      selectedMentorId: {
+        type: Number as PropType<number | null>,
+        default: null
       }
     },
     emits: [
@@ -53,6 +56,9 @@
       }
     },
     computed: {
+      FormatManager() {
+        return FormatManager
+      },
       sortedChildren(): ChildWithMentorSelection[] {
         const children = this.children.map(child => ({
           ...child,
@@ -64,53 +70,17 @@
         return this.mentorOptions.length > 0;
       }
     },
+    watch: {
+      selectedMentorId() {
+        if (this.selectedMentorId !== null) {
+          this.loadAvailableMentor()
+        }
+      }
+    },
     mounted() {
       this.loadAvailableMentor();
     },
     methods: {
-      calculateGrade(child: ChildOutputDto) {
-        return this.gradeOptions.find(grade => grade.value === child.childDocuments?.learningClass)?.label || '-'
-      },
-      formatDateOfBirth(birthDate: string) {
-        const parts = birthDate.split("-");
-        return `${parts[2]}.${parts[1]}.${parts[0]}`;
-      },
-      formatSnils(snils: string | undefined | null) {
-        if (!snils) return '-';
-        return `${snils.substring(0, 3)}-${snils.substring(3, 6)}-${snils.substring(6, 9)} ${snils.substring(9, 11)}`;
-      },
-      calculateAge(birthDate: string) {
-        const birth = new Date(birthDate.substring(0, 10));
-        const onDate = new Date(2026, 1, 14)
-
-        let age = onDate.getFullYear() - birth.getFullYear();
-        let monthDiff = onDate.getMonth() - birth.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && onDate.getDate() < birth.getDate())) {
-          age--;
-        }
-        return age;
-      },
-      getAgeGroupByAge(age: number, learningClass: number | undefined | null) {
-        if (age === 7) {
-          const group = this.ageGroups
-            .find(group => (learningClass ?? 0) > 0
-              ? group.value === AgeCategories.EARLY_SCHOOL
-              : group.value === AgeCategories.PRESCHOOL
-            )
-          return group
-            ? group.label
-            : "-"
-        }
-        const group = this.ageGroups.find(group => {
-          const edges = group.label.split(" ")[0].split("-")
-          const min = parseInt(edges[0]);
-          const max = parseInt(edges[1]);
-          if (min <= age && age <= max) {
-            return group.label
-          }
-        })
-        return group ? group.label : "-"
-      },
       async removeChild(child: ChildOutputDto) {
         if (confirm(`Удалить ребёнка "${child.firstName}"`)) {
           const response = await this.childResolver.deleteById(child.id)
@@ -224,22 +194,6 @@
         // Удаляем наставника из списка опций
         this.mentorOptions = this.mentorOptions.filter(option => option.value !== mentorId);
         console.log('Removed mentor from options list:', mentorId);
-      },
-      
-      // Временный метод для тестирования API
-      async testMentorAPI(mentorId: number = 201) {
-        try {
-          console.log(`Testing API for mentor ID: ${mentorId}`);
-          const response = await this.userResolver.getById(mentorId);
-          console.log('API Test Response:', response);
-          console.log('Response status:', response.status);
-          console.log('Response message:', response.message);
-          console.log('Response data type:', typeof response.message);
-          return response;
-        } catch (error) {
-          console.error('API Test Error:', error);
-          return null;
-        }
       },
       onMentorChange(child: ChildWithMentorSelection) {
         console.log('Mentor selection changed for child:', child.firstName, 'Selected:', child.selectedMentor);
