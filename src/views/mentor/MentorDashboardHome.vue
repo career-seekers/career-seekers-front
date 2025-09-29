@@ -130,6 +130,7 @@
                   v-for="competence in getCompetenciesByChildId(child.id)"
                   :key="competence.id"
                   class="competence-item"
+                  @click="openCompetenceDialog(competence.direction.id)"
                 >
                   <div class="competence-icon">
                     <i class="pi pi-star" />
@@ -181,6 +182,13 @@
       </div>
     </div>
 
+    <CompetenceDialog
+      v-if="selectedCompetence !== null"
+      :selected-competence-prop="selectedCompetence"
+      :show-details-dialog-prop="showDetailsDialog"
+      @update:show-details-dialog="(show) => showDetailsDialog = show"
+    />
+
     <!-- Диалог для отображения ссылки -->
     <Dialog
       v-model:visible="showLinkDialog"
@@ -224,10 +232,14 @@ import type {
   ChildCompetenciesOutputDto
 } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
 import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
+import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
 
 export default {
   name: "MentorDashboardHome",
   components: {
+    CompetenceDialog,
     Button,
     Dialog,
     InputText,
@@ -236,9 +248,12 @@ export default {
     return {
       userStore: useUserStore(),
       childCompetenciesResolver: new ChildCompetenciesResolver(),
+      competenceResolver: new CompetenceResolver(),
       showLinkDialog: false,
       generatedLink: "",
       loading: false,
+      showDetailsDialog: false,
+      selectedCompetence: null as CompetenceOutputDto | null,
       childCompetencies: [] as {
         child: ChildOutputDto,
         competencies: ChildCompetenciesOutputDto[]
@@ -273,6 +288,14 @@ export default {
     await this.loadAllChildrenCompetencies();
   },
   methods: {
+    async openCompetenceDialog(competenceId: number) {
+      if (this.selectedCompetence === null || this.selectedCompetence.id !== competenceId) {
+        const response = await this.competenceResolver.getById(competenceId)
+        if (typeof response.message === "string" || response.status !== 200) return
+        this.selectedCompetence = response.message
+      }
+      this.showDetailsDialog = true
+    },
     getCompetenciesByChildId(childId: number) {
       const competencies = this.childCompetencies.find(row => row.child.id === childId)?.competencies
       return competencies ? competencies : []
