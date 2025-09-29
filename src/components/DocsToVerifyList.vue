@@ -33,7 +33,7 @@
         required: true,
       }
     },
-    emits: ['update'],
+    emits: ['update', 'delete', 'verify'],
     data() {
       return {
         userResolver: new UserResolver(),
@@ -83,19 +83,20 @@
       documentExpert(document: CompetenceDocumentsOutputDto) {
         return this.experts.find((expert) => expert.id === document.userId);
       },
-      async verifyDocument(doc: CompetenceDocumentsOutputDto, status: boolean) {
-        const response = await this.competenceDocumentsResolver.verify(doc.id, status)
-        if (response.status === 200) this.$emit('update');
+      verifyDocument(doc: CompetenceDocumentsOutputDto, status: boolean) {
+        const action = status ? 'принять' : 'отклонить';
+        const actionPast = status ? 'принят' : 'отклонен';
+        
+        this.$emit('verify', { 
+          document: doc, 
+          status, 
+          action,
+          actionPast,
+          showConfirm: true 
+        });
       },
-      async deleteDocument(document: CompetenceDocumentsOutputDto) {
-        if (
-          confirm(`Вы уверены, что хотите удалить документ "${document.documentId}"?`)
-        ) {
-          const response = await this.competenceDocumentsResolver.delete(
-            document.id,
-          );
-          if (response.status === 200) this.$emit('update');
-        }
+      deleteDocument(document: CompetenceDocumentsOutputDto) {
+        this.$emit('delete', document);
       },
 
       onPageChange(event: any) {
@@ -386,5 +387,75 @@
   .document-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Стили для диалога подтверждения */
+  :deep(.p-confirm-dialog) {
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  :deep(.p-confirm-dialog .p-dialog-header) {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 1.5rem;
+  }
+
+  :deep(.p-confirm-dialog .p-dialog-title) {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  :deep(.p-confirm-dialog .p-dialog-content) {
+    padding: 2rem 1.5rem;
+    background: #f8f9fa;
+  }
+
+  :deep(.p-confirm-dialog .p-dialog-message) {
+    color: #2c3e50;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  :deep(.p-confirm-dialog .p-dialog-footer) {
+    padding: 1rem 1.5rem 1.5rem;
+    background: white;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+
+  :deep(.p-confirm-dialog .p-button) {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  :deep(.p-confirm-dialog .p-button-danger) {
+    background: #dc3545;
+    border-color: #dc3545;
+  }
+
+  :deep(.p-confirm-dialog .p-button-danger:hover) {
+    background: #c82333;
+    border-color: #bd2130;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  }
+
+  :deep(.p-confirm-dialog .p-button-text) {
+    color: #6c757d;
+    background: transparent;
+    border: 1px solid #dee2e6;
+  }
+
+  :deep(.p-confirm-dialog .p-button-text:hover) {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+    color: #495057;
   }
 </style>
