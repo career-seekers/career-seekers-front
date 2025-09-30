@@ -358,8 +358,16 @@
   >
     <label
       for="schoolCertificate"
-      class="field-label"
-    >Скан согласия на ОПД *</label>
+      class="field-label template-link"
+    >
+      Скан согласия на ОПД ребенка*
+      <a
+        href="/docs/child_consent_template.docx"
+        download="Шаблон согласия на ОПД ребенка"
+      >
+        Шаблон
+      </a>
+    </label>
     <FileUpload
       id="childConsentFile"
       ref="consentUpload"
@@ -595,6 +603,11 @@
 </script>
 
 <style scoped>
+
+  .template-link {
+    display: flex;
+    justify-content: space-between;
+  }
 
   @keyframes slideUp {
     from {
