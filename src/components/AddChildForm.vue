@@ -70,6 +70,7 @@
     >Скан свидетельства о рождении *</label>
     <FileUpload
       id="birthCertificate"
+      ref="birthUpload"
       mode="basic"
       accept=".pdf,.jpg,.jpeg,.png"
       :max-file-size="10000000"
@@ -142,6 +143,7 @@
     >Скан СНИЛС *</label>
     <FileUpload
       id="snilsScan"
+      ref="snilsUpload"
       mode="basic"
       accept=".pdf,.jpg,.jpeg,.png"
       :max-file-size="10000000"
@@ -240,6 +242,7 @@
     >Скан справки из ОУ *</label>
     <FileUpload
       id="schoolCertificate"
+      ref="schoolUpload"
       mode="basic"
       accept=".pdf,.jpg,.jpeg,.png"
       :max-file-size="10000000"
@@ -311,6 +314,7 @@
     >Скан справки из площадки подготовки *</label>
     <FileUpload
       id="platformCertificate"
+      ref="platformUpload"
       mode="basic"
       accept=".pdf,.jpg,.jpeg,.png"
       :max-file-size="10000000"
@@ -358,6 +362,7 @@
     >Скан согласия на ОПД *</label>
     <FileUpload
       id="childConsentFile"
+      ref="consentUpload"
       mode="basic"
       accept=".pdf,.jpg,.jpeg,.png"
       :max-file-size="10000000"
@@ -382,10 +387,11 @@
   import InputMask from "primevue/inputmask";
   import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
   import Dropdown from "primevue/dropdown";
-  import type { PropType } from 'vue';
+  import { type PropType, ref } from 'vue';
   import { useGradeOptions } from '@/shared/UseGradeOptions.ts';
   import Checkbox from 'primevue/checkbox';
   import { FormatManager } from '@/utils/FormatManager.ts';
+  import { FileManager } from '@/utils/FileManager.ts';
 
   export type ChildFormFields = {
     fullName: string,
@@ -449,6 +455,12 @@
     ],
     data() {
       return {
+        birthUpload: ref(null),
+        snilsUpload: ref(null),
+        schoolUpload: ref(null),
+        platformUpload: ref(null),
+        consentUpload: ref(null),
+
         showAgreementDialog: false,
         showPoliticsDialog: false,
         gradeOptions: useGradeOptions,
@@ -461,6 +473,8 @@
         addConsentFile: false,
         addSchoolFile: false,
         addPlatformFile: false,
+
+        fileManager: new FileManager(),
 
         platformOptions: [
           { label: "Площадка 1", value: "platform1" },
