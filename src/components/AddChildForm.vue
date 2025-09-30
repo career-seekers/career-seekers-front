@@ -220,6 +220,7 @@
       :class="{ 'p-invalid': errors.grade }"
       option-label="label"
       option-value="value"
+      :disabled="filteredGrades.length === 0"
     />
     <small
       v-if="errors.grade"
@@ -470,6 +471,8 @@
     },
     computed: {
       filteredGrades() {
+        const regex = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.(19|20)\d\d$/;
+        if (!regex.test(this.childForm.birthDate)) return this.gradeOptions
         if (this.childForm.birthDate.length !== 10) return this.gradeOptions
         const age = FormatManager.calculateAge(FormatManager.formatBirthDateToDTO(this.childForm.birthDate))
         return this.gradeOptions.filter(option => {
