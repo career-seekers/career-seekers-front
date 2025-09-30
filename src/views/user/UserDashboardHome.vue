@@ -85,7 +85,7 @@
         isEditing ? 'Редактировать ребёнка' : 'Добавить ребёнка'
       "
       :modal="true"
-      :style="{ width: '600px' }"
+      :style="{ width: '600px', maxWidth: '90vw' }"
     >
       <form
         class="child-form"
