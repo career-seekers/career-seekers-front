@@ -407,6 +407,22 @@
           <i class="pi pi-user" />
           {{ `${child.lastName} ${child.firstName} ${child.patronymic}` }}
         </h3>
+        <div class="child-actions">
+          <Button
+            v-tooltip="'Редактировать'"
+            icon="pi pi-pencil"
+            style="background: white;"
+            class="p-button-text p-button-sm"
+            @click="$emit('open:child-form', child)"
+          />
+          <Button
+            v-tooltip="'Удалить'"
+            icon="pi pi-trash"
+            style="background: white"
+            class="p-button-text p-button-sm p-button-danger"
+            @click="removeChild(child)"
+          />
+        </div>
       </div>
 
       <div
@@ -516,23 +532,6 @@
             </p>
           </div>
         </div>
-
-        <div class="child-actions">
-          <Button
-            v-tooltip="'Редактировать'"
-            icon="pi pi-pencil"
-            style="background: white;"
-            class="p-button-text p-button-sm"
-            @click="$emit('open:child-form', child)"
-          />
-          <Button
-            v-tooltip="'Удалить'"
-            icon="pi pi-trash"
-            style="background: white"
-            class="p-button-text p-button-sm p-button-danger"
-            @click="removeChild(child)"
-          />
-        </div>
       </div>
     </div>
     <CompetenceDialog
@@ -585,6 +584,8 @@
   }
 
   .card-header {
+    display: flex;
+    justify-content: space-between;
     background: linear-gradient(135deg, #ff9800, #f57c00);
     color: white;
     padding: 1.5rem;
@@ -620,12 +621,8 @@
   }
 
   .child-actions {
-    margin-top: 0.9rem;
-    padding-top: 0.6rem;
     display: flex;
-    justify-content: flex-end;
     gap: 1rem;
-    border-top: solid 1px #ff9800;
   }
 
   .data-item {

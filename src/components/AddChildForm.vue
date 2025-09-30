@@ -30,6 +30,7 @@
       mask="99.99.9999"
       placeholder="дд.мм.гггг"
       class="w-full"
+      :disabled="user !== null && childId !== null"
       :class="{ 'p-invalid': errors.birthDate }"
     />
     <small
@@ -41,7 +42,8 @@
   </div>
 
   <div 
-    v-if="isEditing"
+    v-if="isEditing &&
+      user?.children.find(child => child.id === childId)?.childDocuments === null"
     class="field"
   >
     <div class="flex align-items-center">
@@ -400,6 +402,7 @@
   import Checkbox from 'primevue/checkbox';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import { FileManager } from '@/utils/FileManager.ts';
+  import { useUserStore } from '@/stores/userStore.ts';
 
   export type ChildFormFields = {
     fullName: string,
@@ -439,6 +442,10 @@
       Checkbox
     },
     props: {
+      childId: {
+        type: Number as PropType<number | null>,
+        default: null
+      },
       isEditing: {
         type: Boolean,
         default: false
@@ -483,6 +490,7 @@
         addPlatformFile: false,
 
         fileManager: new FileManager(),
+        userStore: useUserStore(),
 
         platformOptions: [
           { label: "Площадка 1", value: "platform1" },
@@ -492,6 +500,9 @@
       };
     },
     computed: {
+      user() {
+        return this.userStore.user
+      },
       filteredGrades() {
         const regex = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.(19|20)\d\d$/;
         if (!regex.test(this.childForm.birthDate)) return this.gradeOptions
@@ -527,6 +538,7 @@
       }
     },
     methods: {
+      useUserStore,
       onBirthCertificateSelect(event: FileUploadSelectEvent) {
         this.handleFileSelect(event, "birthCertificate");
       },

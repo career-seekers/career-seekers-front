@@ -100,6 +100,7 @@
         @submit.prevent="addChild"
       >
         <AddChildForm
+          :child-id="selectedChild?.id"
           :is-editing="isEditing"
           :model-child-form="childForm"
           :model-child-form-errors="errors"
