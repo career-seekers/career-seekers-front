@@ -406,7 +406,6 @@ import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dt
 import ToastPopup from "@/components/ToastPopup.vue";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
-import type {CompetenceInputDto} from "@/api/resolvers/competence/dto/input/competence-input.dto.ts";
 import {
   AgeCategories,
   CompetenceResolver,
@@ -435,6 +434,7 @@ export default {
       userResolver: new UserResolver(),
       experts: [] as UserOutputDto[],
       selectedAge: [] as AgeCategories[],
+      oldAgeCategories: [] as AgeCategories[],
       showDetailsDialog: false,
       showPlacesDialog: false,
       selectedCompetence: undefined as undefined | CompetenceOutputDto,
@@ -585,6 +585,7 @@ export default {
     editCompetence(competence: CompetenceOutputDto) {
       this.isEditing = true;
       this.editingCompetenceId = competence.id;
+      this.oldAgeCategories = competence.ageCategories.map(item => item.ageCategory)
 
       this.competenceForm = {
         id: this.editingCompetenceId,
@@ -632,7 +633,7 @@ export default {
 
     async saveCompetence() {
       if (this.user !== null) {
-        const data: CompetenceInputDto = {
+        const dataNoAgeCategories = {
           id: this.competenceForm.id,
           userId: this.user.id,
           expertId: this.competenceForm.expert!.id,
@@ -641,8 +642,16 @@ export default {
           ageCategory: this.competenceForm.ageCategory!,
         };
         const response = this.isEditing
-          ? await this.competenceResolver.update(data)
-          : await this.competenceResolver.create(data);
+          ? await this.competenceResolver.update({
+            ...dataNoAgeCategories,
+            ageCategory: JSON.stringify(this.competenceForm.ageCategory) === JSON.stringify(this.oldAgeCategories)
+              ? null
+              : this.competenceForm.ageCategory
+          })
+          : await this.competenceResolver.create({
+            ...dataNoAgeCategories,
+            ageCategory: this.competenceForm.ageCategory!,
+          });
 
         if (typeof response.message === "string") {
           this.errors.toastPopup = {
