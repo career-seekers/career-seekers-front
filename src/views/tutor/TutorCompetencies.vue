@@ -99,10 +99,10 @@
           <!--            @click="goToParticipants(competence.id)"-->
           <!--          />-->
           <Button
-              label="Места"
-              icon="pi pi-users"
-              class="p-button-outlined"
-              @click="managePlaces(competence)"
+            label="Места"
+            icon="pi pi-users"
+            class="p-button-outlined"
+            @click="managePlaces(competence)"
           />
           <Button
             label="Документы"
@@ -341,17 +341,17 @@
 
     <!-- Диалог управления местами -->
     <Dialog
-        v-model:visible="showPlacesDialog"
-        :header="`Управление местами: ${selectedCompetence?.name || ''}`"
-        :modal="true"
-        :closable="true"
-        class="places-dialog"
-        :style="{ width: '600px' }"
-        @update:visible="closePlacesDialog()"
+      v-model:visible="showPlacesDialog"
+      :header="`Управление местами: ${selectedCompetence?.name || ''}`"
+      :modal="true"
+      :closable="true"
+      class="places-dialog"
+      :style="{ width: '600px' }"
+      @update:visible="closePlacesDialog()"
     >
       <div
-          v-if="selectedCompetence"
-          class="places-management"
+        v-if="selectedCompetence"
+        class="places-management"
       >
         <div class="places-info">
           <p class="places-description">
@@ -361,9 +361,9 @@
 
         <div class="places-list">
           <div
-              v-for="ageCategory in selectedCompetence.ageCategories"
-              :key="ageCategory.id"
-              class="place-item"
+            v-for="ageCategory in selectedCompetence.ageCategories"
+            :key="ageCategory.id"
+            class="place-item"
           >
             <div class="place-age-info">
               <div class="age-label">
@@ -375,17 +375,17 @@
             </div>
             <div class="place-input-group">
               <InputNumber
-                  v-model="placesForm[ageCategory.ageCategory]"
-                  :min="0"
-                  :max="1000"
-                  placeholder="Максимум мест"
-                  class="place-input"
+                v-model="placesForm[ageCategory.ageCategory]"
+                :min="0"
+                :max="1000"
+                placeholder="Максимум мест"
+                class="place-input"
               />
               <Button
-                  icon="pi pi-check"
-                  class="p-button-sm"
-                  :disabled="placesForm[ageCategory.ageCategory] == null || placesForm[ageCategory.ageCategory] < 0"
-                  @click="savePlaceForAge(ageCategory.ageCategory)"
+                icon="pi pi-check"
+                class="p-button-sm"
+                :disabled="placesForm[ageCategory.ageCategory] == null || placesForm[ageCategory.ageCategory] < 0"
+                @click="savePlaceForAge(ageCategory.ageCategory)"
               />
             </div>
           </div>

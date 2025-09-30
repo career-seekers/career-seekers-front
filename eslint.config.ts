@@ -5,23 +5,6 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
   {
-    files: ["**/*.{ts,tsx}"],
-    plugins: { "@typescript-eslint": tseslint.plugin },
-    ignores: ["*.config.ts"],
-    extends: [tseslint.configs.strictTypeChecked],
-    languageOptions: {
-      parser: tseslint.parser,
-      parserOptions: {
-        project: "./tsconfig.json",
-        projectService: true,
-        extraFileExtensions: [".vue"],
-      },
-    },
-    rules: {
-      "@typescript-eslint/no-unnecessary-type-parameters": "off"
-    },
-  },
-  {
     files: ['**/*.vue'],
     plugins: { 'vue': pluginVue },
     extends: [...pluginVue.configs['flat/recommended']],
@@ -38,5 +21,22 @@ export default defineConfig([
     rules: {
       'vue/no-reserved-component-names': 'off',
     },
-  }
+  },
+  {
+    files: ["**/*.{ts,tsx}"],
+    plugins: { "@typescript-eslint": tseslint.plugin },
+    ignores: ["*.config.ts"],
+    extends: [tseslint.configs.strictTypeChecked],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        project: "./tsconfig.json",
+        projectService: true,
+        extraFileExtensions: [".vue"],
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-unnecessary-type-parameters": "off"
+    },
+  },
 ]);
