@@ -73,9 +73,15 @@
           <component
             :is="Component"
             :key="route.name"
+            @open-settings="showSettingsDialog = true"
           />
         </transition>
       </router-view>
+
+      <EditCredentialsDialog
+        :show-settings-prop="showSettingsDialog"
+        @update="(showSettings) => showSettingsDialog = showSettings"
+      />
 
       <!-- Футер -->
       <footer class="dashboard-footer">
@@ -94,10 +100,12 @@
   import router from '@/router';
   import { useUserStore } from '@/stores/userStore.ts';
   import { Roles } from '@/state/UserState.types.ts';
+  import EditCredentialsDialog from '@/components/EditCredentialsDialog.vue';
 
   export default {
     name: "DashboardWrapper",
     components: {
+      EditCredentialsDialog,
       Button,
     },
     data() {
@@ -107,6 +115,7 @@
         userStore: useUserStore(),
         sidebarOpen: false,
         isMobile: false,
+        showSettingsDialog: false,
       };
     },
     mounted() {
