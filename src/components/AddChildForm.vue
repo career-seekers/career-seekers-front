@@ -288,7 +288,7 @@
     <label
       for="platform"
       class="field-label"
-    >Площадка подготовки *</label>
+    >Площадка подготовки <br>(если совпадает с ОУ, просто продублируйте название и документ) *</label>
     <InputText
       id="platform"
       v-model="childForm.platform"
