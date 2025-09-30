@@ -8,6 +8,8 @@
   import type { PlatformOutputDto } from '@/api/resolvers/platform/dto/output/platform-output.dto.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import Dialog from 'primevue/dialog';
+  import { useUserStore } from '@/stores/userStore.ts';
+  import { Roles } from '@/state/UserState.types.ts';
 
   export default {
     name: 'CompetenceDialog',
@@ -27,6 +29,7 @@
     emits: ['update:showDetailsDialog'],
     data: function() {
       return {
+        userStore: useUserStore(),
         showDetailsDialog: false,
         ageGroups: useAgeGroups,
 
@@ -54,8 +57,10 @@
       async loadDialog() {
         if (this.selectedCompetence !== this.selectedCompetenceProp) {
           this.selectedCompetence = this.selectedCompetenceProp
-          await this.competenceExpert(this.selectedCompetence)
-          await this.competencePlatform(this.selectedCompetence)
+          if (this.userStore?.user?.role === Roles.MENTOR) {
+            await this.competenceExpert(this.selectedCompetence)
+            await this.competencePlatform(this.selectedCompetence)
+          }
           this.showDetailsDialog = this.showDetailsDialogProp
         }
       },
@@ -97,10 +102,6 @@
             <i class="pi pi-calendar" />
             <span>Возраст: {{ competenceAgeCategories(selectedCompetence) }}</span>
           </div>
-          <div class="meta-item">
-            <i class="pi pi-users" />
-            <span>Количество участников: {{ selectedCompetence.participantsCount }}</span>
-          </div>
         </div>
       </div>
 
@@ -108,7 +109,11 @@
         <h4>Описание</h4>
         <p>{{ selectedCompetence.description }}</p>
 
-        <h4>Контакты главного эксперта</h4>
+        <h4
+          v-if="expert"
+        >
+          Контакты главного эксперта
+        </h4>
         <div
           v-if="expert"
           class="mentor-contacts"
@@ -123,13 +128,13 @@
             <i class="pi pi-envelope" />
             <a :href="`mailto:${expert.email}`">{{ expert.email }}</a>
           </div>
-          <div class="contact-item">
-            <i class="pi pi-phone" />
-            <a :href="`tel:${expert.mobileNumber}`">{{ expert.mobileNumber }}</a>
-          </div>
         </div>
 
-        <h4>Информация о площадке</h4>
+        <h4
+          v-if="platform"
+        >
+          Информация о площадке
+        </h4>
         <div
           v-if="platform"
           class="mentor-contacts"
