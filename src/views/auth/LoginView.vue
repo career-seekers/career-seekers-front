@@ -135,6 +135,7 @@
                 </div>
               </router-link>
               <router-link
+                v-if="false"
                 to="/register/tutor"
                 class="register-option"
                 @click="closeRegisterOptions"

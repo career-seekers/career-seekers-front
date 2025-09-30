@@ -77,6 +77,9 @@ const routes = [
     path: "/register/tutor",
     name: "tutor-register",
     component: TutorRegisterView,
+    meta: {
+      blocked: true,
+    }
   },
   {
     path: "/email-confirmation",
@@ -384,6 +387,11 @@ router.beforeEach(async (to, _, next) => {
   if (authStore.access_token !== null) {
     const userData = await authStore.loadByTokens()
     if (userData !== null) await userStore.fillUser(userData)
+  }
+
+  if (to.meta.blocked) {
+    next({ path: "/"})
+    return
   }
 
   // Проверяем, есть ли сохраненная ссылка для возврата после авторизации
