@@ -425,7 +425,6 @@
   import ToastPopup from "@/components/ToastPopup.vue";
   import InputText from "primevue/inputtext";
   import Textarea from "primevue/textarea";
-  import type {CompetenceInputDto} from "@/api/resolvers/competence/dto/input/competence-input.dto.ts";
   import {
     AgeCategories,
     CompetenceResolver,
@@ -480,6 +479,7 @@
         placesForm: {} as Record<AgeCategories, number>,
         ageGroups: useAgeGroups,
         competencies: [] as CompetenceOutputDto[],
+        oldAgeCategories: [] as AgeCategories[],
         filterCompetenceName: null as string | null,
         // Пагинация
         currentPage: 0,
@@ -573,6 +573,7 @@
         this.isEditing = true;
         this.editingCompetenceId = competence.id;
         this.selectedCompetence = competence;
+        this.oldAgeCategories = competence.ageCategories.map(item => item.ageCategory)
 
         this.competenceForm = {
           id: this.editingCompetenceId,
@@ -618,17 +619,24 @@
       },
 
       async saveCompetence() {
-        const data: CompetenceInputDto = {
+        const noAgeCategoryData = {
           id: this.competenceForm.id,
           userId: this.competenceForm.expert!.tutorId!,
           expertId: this.competenceForm.expert!.id,
           name: this.competenceForm.name,
           description: this.competenceForm.description,
-          ageCategory: this.competenceForm.ageCategory!,
         };
         const response = this.isEditing
-          ? await this.competenceResolver.update(data)
-          : await this.competenceResolver.create(data);
+          ? await this.competenceResolver.update({
+            ...noAgeCategoryData,
+            ageCategory: JSON.stringify(this.competenceForm.ageCategory) === JSON.stringify(this.oldAgeCategories)
+              ? null
+              : this.competenceForm.ageCategory
+          })
+          : await this.competenceResolver.create({
+            ...noAgeCategoryData,
+            ageCategory: this.competenceForm.ageCategory!,
+          });
 
         if (typeof response.message === "string") {
           this.errors.toastPopup = {
