@@ -66,7 +66,6 @@ const routes = [
     path: "/register/mentor",
     name: "mentor-register",
     component: MentorRegisterView,
-    meta: { blocked: true },
   },
   {
     path: "/register/user",
