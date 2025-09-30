@@ -8,11 +8,18 @@
   import type { PlatformOutputDto } from '@/api/resolvers/platform/dto/output/platform-output.dto.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import Dialog from 'primevue/dialog';
+  import { useUserStore } from '@/stores/userStore.ts';
+  import { Roles } from '@/state/UserState.types.ts';
+  import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
+  import { FileResolver, FileType } from '@/api/resolvers/files/file.resolver.ts';
+  import apiConf from '@/api/api.conf.ts';
+  import Button from 'primevue/button';
 
   export default {
     name: 'CompetenceDialog',
     components: {
       Dialog,
+      Button
     },
     props: {
       showDetailsDialogProp: {
@@ -27,16 +34,25 @@
     emits: ['update:showDetailsDialog'],
     data: function() {
       return {
+        userStore: useUserStore(),
         showDetailsDialog: false,
         ageGroups: useAgeGroups,
 
         userResolver: new UserResolver(),
         platformResolver: new PlatformResolver(),
+        fileResolver: new FileResolver(),
 
         selectedCompetence: null as CompetenceOutputDto | null,
+        document: null as DocumentsOutputDto | null,
         expert: null as UserOutputDto | null,
         platform: null as PlatformOutputDto | null
       };
+    },
+    computed: {
+      competenceDocumentId() {
+        return this.selectedCompetence?.documents.find((doc) =>
+          doc.documentType === FileType.DESCRIPTION)?.id;
+      }
     },
     watch: {
       async showDetailsDialogProp() {
@@ -51,11 +67,16 @@
         await this.loadDialog()
     },
     methods: {
+      downloadDocument() {
+        window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${this.competenceDocumentId}`;
+      },
       async loadDialog() {
         if (this.selectedCompetence !== this.selectedCompetenceProp) {
           this.selectedCompetence = this.selectedCompetenceProp
-          await this.competenceExpert(this.selectedCompetence)
-          await this.competencePlatform(this.selectedCompetence)
+          if (this.userStore?.user?.role === Roles.MENTOR) {
+            await this.competenceExpert(this.selectedCompetence)
+            await this.competencePlatform(this.selectedCompetence)
+          }
           this.showDetailsDialog = this.showDetailsDialogProp
         }
       },
@@ -97,10 +118,6 @@
             <i class="pi pi-calendar" />
             <span>Возраст: {{ competenceAgeCategories(selectedCompetence) }}</span>
           </div>
-          <div class="meta-item">
-            <i class="pi pi-users" />
-            <span>Количество участников: {{ selectedCompetence.participantsCount }}</span>
-          </div>
         </div>
       </div>
 
@@ -108,7 +125,11 @@
         <h4>Описание</h4>
         <p>{{ selectedCompetence.description }}</p>
 
-        <h4>Контакты главного эксперта</h4>
+        <h4
+          v-if="expert"
+        >
+          Контакты главного эксперта
+        </h4>
         <div
           v-if="expert"
           class="mentor-contacts"
@@ -123,13 +144,13 @@
             <i class="pi pi-envelope" />
             <a :href="`mailto:${expert.email}`">{{ expert.email }}</a>
           </div>
-          <div class="contact-item">
-            <i class="pi pi-phone" />
-            <a :href="`tel:${expert.mobileNumber}`">{{ expert.mobileNumber }}</a>
-          </div>
         </div>
 
-        <h4>Информация о площадке</h4>
+        <h4
+          v-if="platform"
+        >
+          Информация о площадке
+        </h4>
         <div
           v-if="platform"
           class="mentor-contacts"
@@ -151,6 +172,17 @@
             <i class="pi pi-globe" />
             <a :href="platform.website">{{ platform.website }}</a>
           </div>
+        </div>
+        <h4>
+          Документ с полным описанием компетенции
+        </h4>
+        <div class="actions">
+          <Button
+            label="Скачать"
+            icon="pi pi-download"
+            class="p-button-sm action-btn"
+            @click="downloadDocument"
+          />
         </div>
       </div>
     </div>
@@ -225,6 +257,11 @@
   .contact-item i {
     color: #ff9800;
     width: 16px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 1rem;
   }
 
   /* Мобильные стили */

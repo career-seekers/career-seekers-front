@@ -172,7 +172,6 @@
         this.loadCompetenciesByChild()
       },
       selectedChildCompetencies(newVal, oldVal) {
-        console.log(JSON.stringify(newVal) != JSON.stringify(oldVal) && oldVal !== undefined);
         if (JSON.stringify(newVal) != JSON.stringify(oldVal) && oldVal !== undefined) {
           this.needToSave = true
         }
