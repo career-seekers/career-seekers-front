@@ -546,70 +546,6 @@ export default {
   font-weight: 500;
 }
 
-.mentor-info {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-/* Стили для выбранных компетенций */
-.selected-competencies {
-  margin: 1rem 0;
-}
-
-.competence-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
-  border-left: 3px solid #ff9800;
-}
-
-.competence-item:last-child {
-  margin-bottom: 0;
-}
-
-.competence-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #ff9800, #f57c00);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-
-.competence-info {
-  flex: 1;
-}
-
-.competence-name {
-  color: #2c3e50;
-  margin: 0 0 0.25rem 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.competence-status {
-  color: #6c757d;
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.competencies-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
 /* Мобильные стили */
 @media (max-width: 768px) {
   .dashboard-home {
@@ -653,22 +589,6 @@ export default {
 
   .data-value {
     text-align: left;
-  }
-
-  .mentor-info {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .competencies-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .competence-item {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.75rem;
   }
 }
 
@@ -725,54 +645,6 @@ export default {
 
   .data-value {
     font-size: 0.9rem;
-  }
-
-  .mentor-avatar {
-    width: 45px;
-    height: 45px;
-    font-size: 1.1rem;
-  }
-
-  .mentor-name {
-    font-size: 0.95rem;
-  }
-
-  .contact-item {
-    font-size: 0.8rem;
-  }
-
-  .competence-item {
-    padding: 0.5rem;
-  }
-
-  .competence-icon {
-    width: 30px;
-    height: 30px;
-    font-size: 0.9rem;
-  }
-
-  .competence-name {
-    font-size: 0.85rem;
-  }
-
-  .competence-status {
-    font-size: 0.75rem;
-  }
-
-  .empty-state {
-    padding: 1rem 0.25rem;
-  }
-
-  .empty-icon {
-    font-size: 2rem;
-  }
-
-  .empty-text {
-    font-size: 0.9rem;
-  }
-
-  .empty-subtitle {
-    font-size: 0.8rem;
   }
 }
 </style>

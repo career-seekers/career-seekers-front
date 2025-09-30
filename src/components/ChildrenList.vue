@@ -395,77 +395,57 @@
 
   <div
     v-if="children.length > 0"
-    class="children-grid"
+    class="dashboard-grid"
   >
     <div
       v-for="child in sortedChildren"
       :key="child.id"
-      class="child-card"
+      class="info-card"
     >
-      <div class="child-header">
-        <div class="child-icon">
+      <div class="card-header">
+        <h3 class="card-title">
           <i class="pi pi-user" />
-        </div>
-        <div class="child-info">
-          <h3 class="child-name">
-            {{ `${child.lastName} ${child.firstName} ${child.patronymic}` }}
-          </h3>
-        </div>
-        <div class="child-actions">
-          <Button
-            v-tooltip="'Редактировать'"
-            icon="pi pi-pencil"
-            style="background: white;"
-            class="p-button-text p-button-sm"
-            @click="$emit('open:child-form', child)"
-          />
-          <Button
-            v-tooltip="'Удалить'"
-            icon="pi pi-trash"
-            style="background: white"
-            class="p-button-text p-button-sm p-button-danger"
-            @click="removeChild(child)"
-          />
-        </div>
+          {{ `${child.lastName} ${child.firstName} ${child.patronymic}` }}
+        </h3>
       </div>
 
       <div
         v-if="child.childDocuments !== null"
-        class="child-content"
+        class="card-content"
       >
-        <div class="child-details">
-          <div class="detail-item">
-            <span class="detail-label">Дата рождения:</span>
-            <span class="detail-value">{{ FormatManager.formatBirthDateFromDTO(child.dateOfBirth) }}</span>
+        <div class="data-section">
+          <div class="data-item">
+            <span class="data-label">Дата рождения:</span>
+            <span class="data-value">{{ FormatManager.formatBirthDateFromDTO(child.dateOfBirth) }}</span>
           </div>
-          <div class="detail-item">
-            <span class="detail-label">СНИЛС:</span>
-            <span class="detail-value">{{ FormatManager.formatSnilsFromDTO(child.childDocuments?.snilsNumber) }}</span>
+          <div class="data-item">
+            <span class="data-label">СНИЛС:</span>
+            <span class="data-value">{{ FormatManager.formatSnilsFromDTO(child.childDocuments?.snilsNumber) }}</span>
           </div>
-          <div class="detail-item">
-            <span class="detail-label">Класс обучения:</span>
-            <span class="detail-value">
+          <div class="data-item">
+            <span class="data-label">Класс обучения:</span>
+            <span class="data-value">
               {{ FormatManager.calculateGrade(child) }}
             </span>
           </div>
-          <div class="detail-item">
-            <span class="detail-label">Возрастная группа:</span>
-            <span class="detail-value">{{
+          <div class="data-item">
+            <span class="data-label">Возрастная группа:</span>
+            <span class="data-value">{{
               FormatManager.getAgeGroupByAge(
                 FormatManager.calculateAge(child.dateOfBirth),
                 child.childDocuments?.learningClass
               )?.label
             }}</span>
           </div>
-          <div class="detail-item">
-            <span class="detail-label">Образовательное учреждение:</span>
-            <span class="detail-value">
+          <div class="data-item">
+            <span class="data-label">Образовательное учреждение:</span>
+            <span class="data-value">
               {{ child.childDocuments?.studyingPlace || '-' }}
             </span>
           </div>
-          <div class="detail-item">
-            <span class="detail-label">Площадка подготовки:</span>
-            <span class="detail-value">
+          <div class="data-item">
+            <span class="data-label">Площадка подготовки:</span>
+            <span class="data-value">
               {{ child.childDocuments?.trainingGround || '-' }}
             </span>
           </div>
@@ -536,6 +516,23 @@
             </p>
           </div>
         </div>
+
+        <div class="child-actions">
+          <Button
+            v-tooltip="'Редактировать'"
+            icon="pi pi-pencil"
+            style="background: white;"
+            class="p-button-text p-button-sm"
+            @click="$emit('open:child-form', child)"
+          />
+          <Button
+            v-tooltip="'Удалить'"
+            icon="pi pi-trash"
+            style="background: white"
+            class="p-button-text p-button-sm p-button-danger"
+            @click="removeChild(child)"
+          />
+        </div>
       </div>
     </div>
     <CompetenceDialog
@@ -546,29 +543,29 @@
     />
   </div>
 </template>
-
 <style scoped>
-  .children-grid-header {
-    margin: 2rem 0 1rem 0;
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
-  .children-grid-title {
-    color: #2c3e50;
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
-    font-weight: 500;
-    font-family: "BIPS", sans-serif;
-  }
-
-  .children-grid {
+  .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 1.5rem;
     width: 100%;
-    margin-bottom: 4rem;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
-  .child-card {
+  .info-card {
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -577,58 +574,61 @@
     transition:
       box-shadow 0.3s ease,
       border-color 0.3s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
-  .child-card:hover {
+  .info-card:hover {
     box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2);
     border: 2px solid #ff9800;
   }
 
-  .child-header {
+  .card-header {
     background: linear-gradient(135deg, #ff9800, #f57c00);
     color: white;
     padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
   }
 
-  .child-icon {
-    width: 60px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    flex-shrink: 0;
-  }
-
-  .child-info {
-    flex: 1;
-  }
-
-  .child-name {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.1rem;
+  .card-title {
+    margin: 0;
+    font-size: 1.25rem;
     font-weight: 600;
-  }
-
-  .child-actions {
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
   }
 
-  .child-content {
+  .card-title i {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+  }
+
+  .card-content {
     padding: 1.5rem;
   }
 
-  .child-details {
-    margin-bottom: 1.5rem;
+  .data-section {
+    margin-bottom: 1rem;
   }
 
-  .detail-item {
+  .data-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .mentor-title {
+    margin: 1rem 0;
+  }
+
+  .child-actions {
+    margin-top: 0.9rem;
+    padding-top: 0.6rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    border-top: solid 1px #ff9800;
+  }
+
+  .data-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -636,103 +636,99 @@
     border-bottom: 1px solid #f1f3f4;
   }
 
-  .detail-item:last-child {
+  .data-item:last-child {
     border-bottom: none;
   }
 
-  .detail-label {
+  .data-label {
     color: #6c757d;
     font-weight: 500;
-    min-width: 100px;
+    min-width: 120px;
   }
 
-  .detail-value {
+  .data-value {
     color: #2c3e50;
     font-weight: 500;
     text-align: right;
   }
 
-  .competencies-section {
-    margin-bottom: 1.5rem;
-  }
-
-  .competencies-title, .mentor-title {
-    color: #2c3e50;
-    margin: 0 0 0.75rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-    border-bottom: 2px solid #ff9800;
-    padding-bottom: 0.25rem;
-  }
-
-  .competencies-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .competence-tag {
-    background: #f8f9fa;
-    color: #2c3e50;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    border: 1px solid #e9ecef;
-  }
-
-  .competence-tag:hover {
-    cursor: pointer;
-  }
-
-  .mentor-selection {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 3px solid #ff9800;
-  }
-
-  .mentor-title {
-    color: #2c3e50;
-    margin: 0 0 0.75rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
-
-  .mentor-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .mentor-selector {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .mentor-dropdown {
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .no-mentor-text {
-    color: #6c757d;
-    margin: 0;
-    font-style: italic;
-  }
-
   /* Мобильные стили */
   @media (max-width: 768px) {
-    .mentor-selector {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.75rem;
+
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+      margin: 0;
     }
 
-    .mentor-dropdown {
-      min-width: auto;
+    .info-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0;
+    }
+
+    .card-header {
+      padding: 1rem;
+    }
+
+    .card-content {
+      padding: 1rem;
+    }
+
+    .data-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+
+    .data-value {
+      text-align: left;
+    }
+  }
+
+  /* Очень маленькие экраны */
+  @media (max-width: 480px) {
+
+    .dashboard-grid {
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+      margin: 0;
+    }
+
+    .info-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    .card-header {
+      padding: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+    }
+
+    .card-content {
+      padding: 0.75rem;
+    }
+
+    .data-item {
+      padding: 0.5rem 0;
+    }
+
+    .data-label {
+      font-size: 0.85rem;
+    }
+
+    .data-value {
+      font-size: 0.9rem;
     }
   }
 </style>
