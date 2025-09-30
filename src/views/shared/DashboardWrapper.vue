@@ -87,7 +87,8 @@
       <footer class="dashboard-footer">
         <p class="footer-text">
           Региональный чемпионат «Искатели профессий» <b>|</b>
-          <a href="https://t.me/career_seekers_help">Техническая поддержка</a>
+          <a href="https://t.me/career_seekers_help">Техническая поддержка</a><b>|</b>
+          <a href="tel:89675900328">8 (967) 590-03-28</a>
         </p>
       </footer>
     </div>
