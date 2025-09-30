@@ -637,11 +637,6 @@
     }
   }
 
-  .login-link {
-    text-align: center;
-    margin-top: 1rem;
-  }
-
   .login-link p {
     margin: 0;
     color: #6c757d;
@@ -729,10 +724,6 @@
 
   /* Общие мобильные стили */
   @media (max-width: 768px) {
-
-    .step-title {
-      font-size: 1.25rem;
-    }
 
     .field {
       margin-bottom: 1.25rem;
