@@ -89,31 +89,17 @@
       v-model:active-index="activeTab"
       class="documents-tabs"
     >
-      <TabPanel header="Необработанные">
+      <TabPanel 
+        v-for="tab in tabsConfig" 
+        :key="tab.key"
+        :header="tab.header"
+        :disabled="!tab.hasDocuments"
+        :class="{ 'disabled-tab': !tab.hasDocuments }"
+      >
         <DocsToVerifyList
-          :documents="filterDocs(uncheckedDocuments)"
+          :documents="filterDocs(tab.documents)"
           :experts="experts"
-          verify-status="UNCHECKED"
-          @update="loadCompetencies"
-          @delete="handleDeleteDocument"
-          @verify="handleVerifyDocument"
-        />
-      </TabPanel>
-      <TabPanel header="Принятые">
-        <DocsToVerifyList
-          :documents="filterDocs(acceptedDocuments)"
-          :experts="experts"
-          verify-status="ACCEPTED"
-          @update="loadCompetencies"
-          @delete="handleDeleteDocument"
-          @verify="handleVerifyDocument"
-        />
-      </TabPanel>
-      <TabPanel header="Отклоненные">
-        <DocsToVerifyList
-          :documents="filterDocs(rejectedDocuments)"
-          :experts="experts"
-          verify-status="REJECTED"
+          :verify-status="tab.key === 'unchecked' ? 'UNCHECKED' : tab.key === 'accepted' ? 'ACCEPTED' : 'REJECTED'"
           @update="loadCompetencies"
           @delete="handleDeleteDocument"
           @verify="handleVerifyDocument"
@@ -153,6 +139,13 @@ import {Roles} from "@/state/UserState.types.ts";
 import AutoComplete from "primevue/autocomplete";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
+
+interface TabConfig {
+  key: string;
+  header: string;
+  documents: CompetenceDocumentsOutputDto[];
+  hasDocuments: boolean;
+}
 
 export default {
   name: "AdminDocuments",
@@ -222,6 +215,52 @@ export default {
       return [...new Set(this.documents.map(doc => doc.ageCategory))].toSorted((a, b) => {
         return ageOrder.get(a)!! - ageOrder.get(b)!!;
       });
+    },
+    // Определяем доступность табов на основе наличия документов
+    tabsConfig() {
+      const tabs = [
+        {
+          key: 'unchecked',
+          header: 'Необработанные',
+          documents: this.uncheckedDocuments,
+          hasDocuments: this.uncheckedDocuments.length > 0
+        },
+        {
+          key: 'accepted',
+          header: 'Принятые',
+          documents: this.acceptedDocuments,
+          hasDocuments: this.acceptedDocuments.length > 0
+        },
+        {
+          key: 'rejected',
+          header: 'Отклоненные',
+          documents: this.rejectedDocuments,
+          hasDocuments: this.rejectedDocuments.length > 0
+        }
+      ];
+
+      // Сортируем табы: сначала с документами, потом без документов
+      return tabs.sort((a, b) => {
+        if (a.hasDocuments && !b.hasDocuments) return -1;
+        if (!a.hasDocuments && b.hasDocuments) return 1;
+        return 0;
+      });
+    }
+  },
+  watch: {
+    // Автоматически переключаемся на первый доступный таб, если текущий стал недоступным
+    tabsConfig: {
+      handler(newTabsConfig: TabConfig[]) {
+        const availableTabs = newTabsConfig.filter((tab: TabConfig) => tab.hasDocuments);
+        if (availableTabs.length > 0) {
+          // Если текущий активный таб недоступен, переключаемся на первый доступный
+          const currentTab = newTabsConfig[this.activeTab];
+          if (!currentTab || !currentTab.hasDocuments) {
+            this.activeTab = 0; // Первый таб в отсортированном списке всегда доступен
+          }
+        }
+      },
+      immediate: true
     }
   },
   async mounted() {
@@ -707,6 +746,26 @@ export default {
   border-radius: 0;
   box-shadow: none;
   padding: 0;
+}
+
+/* Стили для недоступных табов */
+.documents-tabs :deep(.p-tabview-nav li.disabled-tab .p-tabview-nav-link) {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+  border: 1px solid #dee2e6;
+}
+
+.documents-tabs :deep(.p-tabview-nav li.disabled-tab .p-tabview-nav-link:hover) {
+  background: #f8f9fa;
+  color: #6c757d;
+  transform: none;
+  box-shadow: none;
+}
+
+.documents-tabs :deep(.p-tabview-nav li.disabled-tab) {
+  order: 999; /* Перемещаем в конец */
 }
 
 /* Обычный контейнер для табов */
