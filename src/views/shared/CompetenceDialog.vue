@@ -55,29 +55,53 @@
       }
     },
     watch: {
-      async showDetailsDialogProp() {
-        await this.loadDialog()
-        this.showDetailsDialog = this.showDetailsDialogProp
+      showDetailsDialogProp: {
+        handler(newValue: boolean) {
+          console.log('CompetenceDialog: showDetailsDialogProp changed to:', newValue);
+          this.showDetailsDialog = newValue;
+          console.log('CompetenceDialog: showDetailsDialog set to:', this.showDetailsDialog);
+        },
+        immediate: true
       },
-      async showDetailsDialog(newValue: boolean) {
+      selectedCompetenceProp: {
+        handler(newValue: any) {
+          console.log('CompetenceDialog: selectedCompetenceProp changed to:', newValue);
+          if (newValue) {
+            this.selectedCompetence = newValue;
+            if (this.userStore?.user?.role === Roles.MENTOR) {
+              this.competenceExpert(newValue);
+              this.competencePlatform(newValue);
+            }
+          }
+        },
+        immediate: true
+      },
+      showDetailsDialog(newValue: boolean) {
+        console.log('CompetenceDialog: showDetailsDialog changed to:', newValue);
         this.$emit('update:showDetailsDialog', newValue);
       }
     },
     async mounted() {
-        await this.loadDialog()
+        console.log('CompetenceDialog: mounted');
+        // Watchers с immediate: true обработают начальные значения
     },
     methods: {
       downloadDocument() {
         window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${this.competenceDocumentId}`;
       },
       async loadDialog() {
-        if (this.selectedCompetence !== this.selectedCompetenceProp) {
+        console.log('CompetenceDialog: loadDialog called');
+        console.log('selectedCompetenceProp:', this.selectedCompetenceProp);
+        console.log('selectedCompetence:', this.selectedCompetence);
+        
+        if (this.selectedCompetenceProp) {
+          console.log('Loading new competence data...');
           this.selectedCompetence = this.selectedCompetenceProp
           if (this.userStore?.user?.role === Roles.MENTOR) {
+            console.log('Loading expert and platform data...');
             await this.competenceExpert(this.selectedCompetence)
             await this.competencePlatform(this.selectedCompetence)
           }
-          this.showDetailsDialog = this.showDetailsDialogProp
         }
       },
       async competenceExpert(competence: CompetenceOutputDto) {
@@ -100,10 +124,11 @@
 </script>
 
 <template>
+  
   <!-- Диалог с подробной информацией о компетенции -->
   <Dialog
     v-model:visible="showDetailsDialog"
-    :header="selectedCompetence?.name"
+    :header="selectedCompetence?.name || 'Загрузка...'"
     modal
     :style="{ width: '90vw', maxWidth: '800px' }"
     class="competence-dialog"
@@ -122,83 +147,192 @@
       </div>
 
       <div class="details-content">
-        <h4>Описание</h4>
-        <p>{{ selectedCompetence.description }}</p>
+        <div class="details-section">
+          <div class="section-title">
+            <i class="pi pi-info-circle" />
+            Описание
+          </div>
+          <div class="competence-details">
+            <div class="competence-name">{{ selectedCompetence.name }}</div>
+            <div class="competence-description">{{ selectedCompetence.description }}</div>
+          </div>
+        </div>
 
-        <h4
-          v-if="expert"
-        >
-          Контакты главного эксперта
-        </h4>
         <div
           v-if="expert"
-          class="mentor-contacts"
+          class="details-section"
         >
-          <div class="contact-item">
+          <div class="section-title">
             <i class="pi pi-user" />
-            <span>
-              {{ `${expert.lastName} ${expert.firstName} ${expert.patronymic}` }}
-            </span>
+            Контакты главного эксперта
           </div>
-          <div class="contact-item">
-            <i class="pi pi-envelope" />
-            <a :href="`mailto:${expert.email}`">{{ expert.email }}</a>
+          <div class="mentor-info">
+            <div class="mentor-details">
+              <div class="detail-item">
+                <div class="detail-label">ФИО:</div>
+                <div class="detail-value">{{ `${expert.lastName} ${expert.firstName} ${expert.patronymic}` }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Email:</div>
+                <div class="detail-value">
+                  <a :href="`mailto:${expert.email}`">{{ expert.email }}</a>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <h4
-          v-if="platform"
-        >
-          Информация о площадке
-        </h4>
         <div
           v-if="platform"
-          class="mentor-contacts"
+          class="details-section"
         >
-          <div class="contact-item">
-            <i class="pi pi-building" />
-            <span>
-              {{ platform.fullName }}
-            </span>
-          </div>
-          <div class="contact-item">
-            <i class="pi pi-map" />
-            <span>{{ platform.address }}</span>
-          </div>
-          <div
-            v-if="platform.website"
-            class="contact-item"
-          >
+          <div class="section-title">
             <i class="pi pi-globe" />
-            <a :href="platform.website">{{ platform.website }}</a>
+            Информация о площадке
+          </div>
+          <div class="competence-details">
+            <div class="detail-item">
+              <div class="detail-label">Название:</div>
+              <div class="detail-value">{{ platform.fullName }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Адрес:</div>
+              <div class="detail-value">{{ platform.address }}</div>
+            </div>
+            <div
+              v-if="platform.website"
+              class="detail-item"
+            >
+              <div class="detail-label">Сайт:</div>
+              <div class="detail-value">
+                <a :href="platform.website">{{ platform.website }}</a>
+              </div>
+            </div>
           </div>
         </div>
-        <h4>
-          Документ с полным описанием компетенции
-        </h4>
-        <div class="actions">
-          <Button
-            label="Скачать"
-            icon="pi pi-download"
-            class="p-button-sm action-btn"
-            @click="downloadDocument"
-          />
-        </div>
+        
       </div>
+    </div>
     </div>
   </Dialog>
 </template>
 
 <style scoped>
+  .competence-dialog {
+    z-index: 1000;
+  }
+
+  .competence-dialog .p-dialog {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .competence-dialog .p-dialog-header {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 1.5rem;
+  }
+
+  .competence-dialog .p-dialog-content {
+    padding: 2rem;
+    background: white;
+  }
+
   .competence-details {
     max-height: 70vh;
     overflow-y: auto;
+  }
+
+  .details-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .details-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-title {
+    color: #2c3e50;
+    margin: 0 0 1.25rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-bottom: 2px solid #ff9800;
+    padding-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   .details-header {
     display: flex;
     gap: 1.5rem;
     margin-bottom: 1.5rem;
+  }
+
+  .competence-details {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+
+  .competence-details .competence-name {
+    color: #2c3e50;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .competence-details .competence-description {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 0;
+    line-height: 1.5;
+  }
+
+  .mentor-info {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #28a745;
+  }
+
+  .mentor-details {
+    margin-bottom: 1rem;
+  }
+
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .detail-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .detail-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .detail-value {
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .detail-value a {
+    color: #2196f3;
+    text-decoration: none;
+  }
+
+  .detail-value a:hover {
+    text-decoration: underline;
   }
 
   .competence-image img {
@@ -259,13 +393,46 @@
     width: 16px;
   }
 
-  .actions {
-    display: flex;
-    gap: 1rem;
-  }
 
   /* Мобильные стили */
   @media (max-width: 768px) {
+    .competence-dialog .p-dialog {
+      width: 95vw !important;
+      max-width: 95vw !important;
+      margin: 1rem;
+    }
+
+    .competence-dialog .p-dialog-header {
+      padding: 1rem;
+    }
+
+    .competence-dialog .p-dialog-content {
+      padding: 1.5rem;
+      background: white;
+    }
+
+    .details-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .competence-details,
+    .mentor-info {
+      padding: 1.25rem;
+    }
+
+    .competence-details .competence-name {
+      font-size: 1.2rem;
+    }
+
+    .detail-item {
+      margin-bottom: 0.75rem;
+    }
+
 
     .details-header {
       flex-direction: column;

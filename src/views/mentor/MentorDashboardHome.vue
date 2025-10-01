@@ -46,10 +46,18 @@
       <!-- Список детей -->
       <div class="info-card">
         <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-users" />
-            Мои участники
-          </h3>
+          <div class="card-header-content">
+            <h3 class="card-title">
+              <i class="pi pi-users" />
+              Мои участники
+            </h3>
+            <Button
+              label="Поделиться ссылкой"
+              icon="pi pi-share-alt"
+              class="p-button-sm header-button"
+              @click="generateParentLink"
+            />
+          </div>
         </div>
         <div class="card-content">
           <div class="participants-preview">
@@ -113,7 +121,7 @@
           </h3>
         </div>
         <div class="card-content">
-          <div class="competencies-section">
+          <div class="competencies-section competencies-scrollable">
             <div 
               v-for="child in user.menteeChildren" 
               :key="child.id"
@@ -144,7 +152,7 @@
                     </div>
                     <div class="competence-expert">
                       <i class="pi pi-user" />
-                      Главный эксперт: ID {{ competence.direction.expertId }}
+                      Главный эксперт: {{ expertNames.get(competence.direction.expertId) || `ID ${competence.direction.expertId}` }}
                     </div>
                   </div>
                 </div>
@@ -161,30 +169,12 @@
         </div>
       </div>
 
-      <!-- Быстрые действия -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-bolt" />
-            Быстрые действия
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="quick-actions">
-            <Button
-              label="Сгенерировать ссылку для родителей"
-              icon="pi pi-link"
-              class="p-button-success"
-              @click="generateParentLink"
-            />
-          </div>
-        </div>
-      </div>
     </div>
 
+    
     <CompetenceDialog
-      v-if="selectedCompetence !== null"
-      :selected-competence-prop="selectedCompetence"
+      v-if="selectedCompetence"
+      :selected-competence-prop="selectedCompetence!"
       :show-details-dialog-prop="showDetailsDialog"
       @update:show-details-dialog="(show) => showDetailsDialog = show"
     />
@@ -195,6 +185,7 @@
       header="Ссылка для родителей"
       :modal="true"
       :style="{ width: '500px' }"
+      class="link-dialog"
     >
       <div class="link-dialog-content">
         <p class="link-description">
@@ -235,6 +226,9 @@ import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/chi
 import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
+import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
+import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
 
 export default {
   name: "MentorDashboardHome",
@@ -249,6 +243,8 @@ export default {
       userStore: useUserStore(),
       childCompetenciesResolver: new ChildCompetenciesResolver(),
       competenceResolver: new CompetenceResolver(),
+      userResolver: new UserResolver(),
+      mentorLinksResolver: new MentorLinksResolver(),
       showLinkDialog: false,
       generatedLink: "",
       loading: false,
@@ -257,7 +253,9 @@ export default {
       childCompetencies: [] as {
         child: ChildOutputDto,
         competencies: ChildCompetenciesOutputDto[]
-      }[]
+      }[],
+      expertsCache: new Map<number, UserOutputDto>(),
+      expertNames: new Map<number, string>()
     };
   },
   computed: {
@@ -289,12 +287,19 @@ export default {
   },
   methods: {
     async openCompetenceDialog(competenceId: number) {
+      console.log('Opening competence dialog for ID:', competenceId);
       if (this.selectedCompetence === null || this.selectedCompetence.id !== competenceId) {
         const response = await this.competenceResolver.getById(competenceId)
-        if (typeof response.message === "string" || response.status !== 200) return
+        console.log('Competence response:', response);
+        if (typeof response.message === "string" || response.status !== 200) {
+          console.error('Failed to load competence:', response);
+          return;
+        }
         this.selectedCompetence = response.message
+        console.log('Selected competence set:', this.selectedCompetence);
       }
-      this.showDetailsDialog = true
+      this.showDetailsDialog = true;
+      console.log('Dialog should be visible now. showDetailsDialog:', this.showDetailsDialog);
     },
     getCompetenciesByChildId(childId: number) {
       const competencies = this.childCompetencies.find(row => row.child.id === childId)?.competencies
@@ -311,6 +316,29 @@ export default {
     getChildCompetenciesCount(childId: number): number {
       return this.getCompetenciesByChildId(childId).length;
     },
+    async getExpertName(expertId: number): Promise<string> {
+      // Проверяем кэш
+      if (this.expertsCache.has(expertId)) {
+        const expert = this.expertsCache.get(expertId)!;
+        return `${expert.lastName} ${expert.firstName} ${expert.patronymic}`;
+      }
+
+      try {
+        // Загружаем данные эксперта
+        const response = await this.userResolver.getById(expertId);
+        if (typeof response.message === "string" || response.status !== 200) {
+          return `ID ${expertId}`;
+        }
+
+        const expert = response.message;
+        // Сохраняем в кэш
+        this.expertsCache.set(expertId, expert);
+        return `${expert.lastName} ${expert.firstName} ${expert.patronymic}`;
+      } catch (error) {
+        console.error('Ошибка при загрузке эксперта:', error);
+        return `ID ${expertId}`;
+      }
+    },
     async loadAllChildrenCompetencies() {
       if (!this.user?.menteeChildren) return;
 
@@ -319,19 +347,76 @@ export default {
         const promises = this.user.menteeChildren.map(child =>
           this.loadCompetenciesByChild(child));
         await Promise.all(promises);
+        
+        // Загружаем имена экспертов для всех компетенций
+        await this.loadExpertNames();
       } catch (error) {
         console.error('Ошибка при загрузке компетенций:', error);
       } finally {
         this.loading = false;
       }
     },
-    generateParentLink() {
+    async loadExpertNames() {
+      const expertIds = new Set<number>();
+      
+      // Собираем все уникальные ID экспертов
+      this.childCompetencies.forEach(row => {
+        row.competencies.forEach(competence => {
+          expertIds.add(competence.direction.expertId);
+        });
+      });
+
+      // Загружаем имена экспертов
+      const promises = Array.from(expertIds).map(async (expertId) => {
+        if (!this.expertNames.has(expertId)) {
+          const expertName = await this.getExpertName(expertId);
+          this.expertNames.set(expertId, expertName);
+        }
+      });
+
+      await Promise.all(promises);
+    },
+    async generateParentLink() {
       if (this.userStore.user) {
-        // Генерируем зашифрованный ID наставника
-        const mentorId = this.userStore.user.id;
-        const encryptedId = btoa(mentorId.toString());
-        this.generatedLink = `${window.location.origin}/link/${encryptedId}`;
-        this.showLinkDialog = true;
+        try {
+          // Сначала пытаемся получить существующую ссылку
+          const existingLinkResponse = await this.mentorLinksResolver.getByUserId(this.userStore.user.id);
+          
+          if (existingLinkResponse.status === 200 && typeof existingLinkResponse.message !== "string") {
+            // Ссылка уже существует, показываем её
+            this.generatedLink = `${window.location.origin}/link/${existingLinkResponse.message.biscuit}`;
+            this.showLinkDialog = true;
+            return;
+          }
+          
+          // Если ссылки нет, создаём новую
+          const response = await this.mentorLinksResolver.create({
+            userId: this.userStore.user.id
+          });
+          
+          if (typeof response.message === "string" || response.status !== 200) {
+            // Проверяем, не является ли ошибка "ссылка уже существует"
+            const errorMessage = response.message as string;
+            if (errorMessage && errorMessage.includes('уже существует')) {
+              // Пытаемся получить существующую ссылку ещё раз
+              const retryResponse = await this.mentorLinksResolver.getByUserId(this.userStore.user.id);
+              if (retryResponse.status === 200 && typeof retryResponse.message !== "string") {
+                this.generatedLink = `${window.location.origin}/link/${retryResponse.message.biscuit}`;
+                this.showLinkDialog = true;
+                return;
+              }
+            }
+            alert('Ошибка при создании ссылки: ' + errorMessage);
+            return;
+          }
+          
+          // Используем biscuit для создания ссылки
+          this.generatedLink = `${window.location.origin}/link/${response.message.biscuit}`;
+          this.showLinkDialog = true;
+        } catch (error) {
+          console.error('Ошибка при создании ссылки:', error);
+          alert('Не удалось создать ссылку');
+        }
       }
     },
     async copyLink() {
@@ -420,17 +505,40 @@ export default {
   padding: 1.5rem;
 }
 
+.card-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
 .card-title {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
   display: flex;
   align-items: center;
+  flex: 1;
 }
 
 .card-title i {
   margin-right: 0.75rem;
   font-size: 1.1rem;
+}
+
+.header-button {
+  background: white !important;
+  color: #ff9800 !important;
+  border: 2px solid white !important;
+  font-weight: 600 !important;
+}
+
+.header-button:hover {
+  background: #f8f9fa !important;
+  color: #f57c00 !important;
+  border-color: #f8f9fa !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card-content {
@@ -809,6 +917,29 @@ export default {
   }
 }
 
+/* Адаптивные стили для скролла */
+@media (max-width: 768px) {
+  .competencies-scrollable {
+    max-height: 300px;
+  }
+  
+  .card-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .card-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .competencies-scrollable {
+    max-height: 250px;
+  }
+}
+
 /* Стили для участников */
 .participants-preview {
   text-align: center;
@@ -877,6 +1008,31 @@ export default {
   margin-top: 1rem;
 }
 
+.competencies-scrollable {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Кастомный скроллбар для WebKit браузеров */
+.competencies-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.competencies-scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.competencies-scrollable::-webkit-scrollbar-thumb {
+  background: #ff9800;
+  border-radius: 3px;
+}
+
+.competencies-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #f57c00;
+}
+
 .child-competencies {
   margin-bottom: 2rem;
 }
@@ -908,6 +1064,15 @@ export default {
   background: #f8f9fa;
   border-radius: 8px;
   border-left: 3px solid #ff9800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.competence-item:hover {
+  background: #e3f2fd;
+  border-left-color: #2196f3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
 }
 
 .competence-icon {
@@ -921,6 +1086,12 @@ export default {
   color: white;
   font-size: 1.1rem;
   flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.competence-item:hover .competence-icon {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+  transform: scale(1.1);
 }
 
 .competence-info {
@@ -932,6 +1103,11 @@ export default {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.competence-item:hover .competence-name {
+  color: #2196f3;
 }
 
 .competence-description {
@@ -939,6 +1115,11 @@ export default {
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.competence-item:hover .competence-description {
+  color: #1976d2;
 }
 
 .competence-expert {
@@ -948,10 +1129,20 @@ export default {
   color: #ff9800;
   font-size: 0.85rem;
   font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.competence-item:hover .competence-expert {
+  color: #1976d2;
 }
 
 .competence-expert i {
   font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.competence-item:hover .competence-expert i {
+  color: #1976d2;
 }
 
 .no-competencies {
@@ -1029,5 +1220,72 @@ export default {
 .link-note i {
   color: #ff9800;
   font-size: 1rem;
+}
+
+/* Стили для модальных окон */
+.p-dialog {
+  z-index: 1000;
+}
+
+.p-dialog-mask {
+  z-index: 999;
+}
+
+/* Стили для диалога ссылки */
+.link-dialog .p-dialog {
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.link-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
+}
+
+.link-dialog .p-dialog-content {
+  padding: 1.5rem;
+  background: #fafafa;
+}
+
+/* Мобильные стили для диалогов */
+@media (max-width: 768px) {
+  .p-dialog {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 1rem;
+  }
+  
+  .link-dialog .p-dialog-header,
+  .link-dialog .p-dialog-content {
+    padding: 1rem;
+  }
+  
+  /* Hover эффекты для touch устройств */
+  .competence-item:active {
+    background: #e3f2fd;
+    border-left-color: #2196f3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+  }
+  
+  .competence-item:active .competence-icon {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    transform: scale(1.05);
+  }
+  
+  .competence-item:active .competence-name {
+    color: #2196f3;
+  }
+  
+  .competence-item:active .competence-description {
+    color: #1976d2;
+  }
+  
+  .competence-item:active .competence-expert,
+  .competence-item:active .competence-expert i {
+    color: #1976d2;
+  }
 }
 </style>

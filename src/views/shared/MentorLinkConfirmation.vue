@@ -39,16 +39,16 @@
       
         <div class="action-buttons">
           <Button
-            label="Вернуться к личному кабинету"
-            icon="pi pi-home"
+            label="Подтвердить связь с наставником"
+            icon="pi pi-check"
             class="p-button-primary"
-            @click="goToDashboard"
+            @click="confirmMentorLink"
           />
           <Button
-            label="Выбрать наставника для ребенка"
-            icon="pi pi-users"
+            label="Вернуться к личному кабинету"
+            icon="pi pi-home"
             class="p-button-outlined"
-            @click="goToChildren"
+            @click="goToDashboard"
           />
         </div>
       </div>
@@ -62,6 +62,7 @@ import { useUserStore } from '@/stores/userStore.ts';
 import { useAuthStore } from '@/stores/authStore.ts';
 import { Roles } from '@/state/UserState.types.ts';
 import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
+import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
 
 export default {
   name: "MentorLinkConfirmation",
@@ -73,6 +74,7 @@ export default {
       userStore: useUserStore(),
       authStore: useAuthStore(),
       userResolver: new UserResolver(),
+      mentorLinksResolver: new MentorLinksResolver(),
       mentorId: null as number | null,
       mentorName: "",
       isLoading: true,
@@ -120,80 +122,63 @@ export default {
     },
     
     async loadMentorData() {
-      // Получаем зашифрованный ID из URL
-      const encryptedId = this.$route.params.id as string;
-      console.log('Encrypted ID from URL:', encryptedId);
-      if (encryptedId) {
+      // Получаем biscuit из URL
+      const biscuit = this.$route.params.id as string;
+      console.log('Biscuit from URL:', biscuit);
+      if (biscuit) {
         try {
-          // Декодируем ID наставника
-          this.mentorId = parseInt(atob(encryptedId));
-          console.log('Decoded mentor ID:', this.mentorId);
-          await this.loadMentorInfo();
+          // Получаем данные наставника по biscuit
+          await this.loadMentorInfoByBiscuit(biscuit);
         } catch (error) {
-          console.error('Ошибка при декодировании ID наставника:', error);
+          console.error('Ошибка при получении данных наставника:', error);
           this.$router.push('/login');
         }
       } else {
-        console.log('No encrypted ID found, redirecting to login');
+        console.log('No biscuit found, redirecting to login');
         this.$router.push('/login');
       }
     },
     
-    async loadMentorInfo() {
-      if (!this.mentorId) {
-        console.error('No mentor ID provided');
-        this.$router.push('/login');
-        return;
-      }
-      
+    async loadMentorInfoByBiscuit(biscuit: string) {
       try {
-        console.log('Loading mentor info for ID:', this.mentorId);
+        console.log('Loading mentor info by biscuit:', biscuit);
         
-        // Пробуем загрузить информацию о наставнике по ID
-        const response = await this.userResolver.getById(this.mentorId);
+        // Получаем данные наставника по biscuit
+        const response = await this.mentorLinksResolver.getByBiscuit(biscuit);
         
         console.log('API Response:', response);
         console.log('Response status:', response.status);
-        console.log('Response data type:', typeof response.data);
-        console.log('Response data:', response.data);
-        console.log('Response message type:', typeof response.message);
         console.log('Response message:', response.message);
         
-        // Проверяем, где находятся данные - в data или message
-        const apiMentorData = response.data || response.message;
-        
-        if (response.status === 200 && apiMentorData && typeof apiMentorData !== 'string') {
-          const mentor = apiMentorData;
+        if (response.status === 200 && typeof response.message !== 'string') {
+          const mentorLink = response.message;
           
-          console.log('Full mentor data from API:', mentor);
+          console.log('Full mentor data from API:', mentorLink);
+          
+          // Сохраняем ID наставника
+          this.mentorId = mentorLink.user.id;
           
           // Формируем полное имя наставника
-          this.mentorName = `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}`;
+          this.mentorName = `${mentorLink.user.lastName} ${mentorLink.user.firstName} ${mentorLink.user.patronymic}`;
           
-          // Дополнительная информация не нужна для отображения
+          console.log('Final mentor info:', {
+            id: this.mentorId,
+            name: this.mentorName
+          });
+          
+          // Наставник найден, переходим к подтверждению
+          console.log('Mentor found, proceeding to confirmation');
+          
         } else {
-          console.log('API failed or returned string, using fallback data');
-          // Fallback к базовым данным
-          this.mentorName = `Наставник #${this.mentorId}`;
+          console.log('API failed or returned string, redirecting to login');
+          this.$router.push('/login');
+          return;
         }
         
-        console.log('Final mentor info:', {
-          id: this.mentorId,
-          name: this.mentorName
-        });
-        
-        // Сохраняем только ID наставника в localStorage для последующего использования
-        localStorage.setItem('selectedMentorId', this.mentorId.toString());
-        console.log('Saved mentor ID to localStorage:', this.mentorId);
-        
       } catch (error) {
-        console.error('Error loading mentor info:', error);
-        // Fallback к базовым данным
-        this.mentorName = `Наставник #${this.mentorId}`;
-        
-        // Сохраняем fallback ID наставника
-        localStorage.setItem('selectedMentorId', this.mentorId.toString());
-        console.log('Saved fallback mentor ID to localStorage:', this.mentorId);
+        console.error('Error loading mentor info by biscuit:', error);
+        this.$router.push('/login');
+        return;
       }
       
       this.isLoading = false;
@@ -218,6 +203,55 @@ export default {
         this.$router.push(`/${role}/dashboard`);
       } else {
         this.$router.push('/login');
+      }
+    },
+    async confirmMentorLink() {
+      if (this.mentorId && this.userStore.user) {
+        try {
+          // Сохраняем связь родитель-наставник на сервере
+          console.log('Confirming mentor link:', {
+            parentId: this.userStore.user.id,
+            parentIdType: typeof this.userStore.user.id,
+            mentorId: this.mentorId,
+            mentorIdType: typeof this.mentorId
+          });
+          
+          // Сохраняем связь родитель-наставник на сервере
+          const response = await this.mentorLinksResolver.assignMentorToParent({
+            parentId: this.userStore.user.id,
+            mentorId: this.mentorId
+          });
+          
+          console.log('Assign mentor response:', response);
+          
+          if (response.status === 200) {
+            // Обновляем данные пользователя для получения актуальной информации
+            await this.refreshUserData();
+            
+            // Показываем сообщение об успехе
+            alert('Связь с наставником успешно установлена!');
+            
+            // Редиректим на дашборд
+            this.$router.push('/user/dashboard');
+          } else {
+            alert('Ошибка при установке связи с наставником: ' + response.message);
+          }
+        } catch (error) {
+          console.error('Ошибка при подтверждении связи с наставником:', error);
+          alert('Не удалось установить связь с наставником');
+        }
+      }
+    },
+    
+    async refreshUserData() {
+      try {
+        // Перезагружаем данные пользователя
+        const userData = await this.authStore.loadByTokens();
+        if (userData) {
+          await this.userStore.fillUser(userData);
+        }
+      } catch (error) {
+        console.error('Ошибка при обновлении данных пользователя:', error);
       }
     },
     goToDashboard() {
