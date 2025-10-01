@@ -149,6 +149,7 @@
       :children="user.children"
       @update:children-list="userStore.fillChildren"
       @open:child-form="(child) => editChild(child)"
+      @open:mentor-dropdown="(child) => openMentorSelectionDialog(child)"
     />
 
     <Dialog
@@ -283,7 +284,7 @@
                 label="Изменить наставника"
                 icon="pi pi-pencil"
                 class="p-button-outlined p-button-sm"
-                @click="openMentorSelectionDialog"
+                @click="openMentorSelectionDialog(selectedChildDetails.child)"
               />
             </div>
           </div>
@@ -299,7 +300,7 @@
               label="Выбрать наставника"
               icon="pi pi-plus"
               class="p-button-primary p-button-sm"
-              @click="openMentorSelectionDialog"
+              @click="openMentorSelectionDialog(selectedChildDetails.child)"
             />
           </div>
         </div>
@@ -319,10 +320,10 @@
         </p>
         <div class="mentor-list">
           <!-- Опция "Я и являюсь наставником" -->
-          <div 
-            class="mentor-item parent-mentor-option"
-            :class="{ 'selected': selectedMentorId === 'parent' }"
-            @click="selectMentor('parent')"
+          <div
+            class="mentor-item"
+            :class="{ 'selected': selectedMentorId === user.id }"
+            @click="selectMentor(user.id)"
           >
             <div class="mentor-info">
               <div class="mentor-name">
@@ -336,7 +337,7 @@
             </div>
             <div class="mentor-actions">
               <i
-                v-if="selectedMentorId === 'parent'"
+                v-if="selectedMentorId === user.id"
                 class="pi pi-check selected-icon"
               />
             </div>
@@ -439,13 +440,20 @@ export default {
 
       isEditing: false,
       selectedChild: null as ChildOutputDto | null,
-      selectedMentorId: null as null | number | string,
+      selectedMentorId: null as null | number,
 
       // Новые свойства для компетенций и модальных окон
       showChildDetailsDialog: false,
       showMentorSelectionDialog: false,
       selectedChildDetails: null as { child: ChildOutputDto, competence: ChildCompetenciesOutputDto } | null,
-      availableMentors: [] as UserOutputDto[],
+      availableMentors: [] as {
+        id: number;
+        lastName: string;
+        firstName: string;
+        patronymic: string;
+        email: string;
+        mobileNumber: string;
+      }[],
       childCompetencies: [] as {
         child: ChildOutputDto,
         competencies: ChildCompetenciesOutputDto[]
@@ -756,86 +764,64 @@ export default {
       this.selectedChildDetails = { child, competence };
       this.showChildDetailsDialog = true;
     },
-    async openMentorSelectionDialog() {
+    async openMentorSelectionDialog(child: ChildOutputDto) {
       // Загружаем наставников с сервера
       await this.loadAvailableMentors();
+      this.selectedChild = child
+      this.selectedMentorId = child.mentor!.id
       this.showMentorSelectionDialog = true;
     },
-    
-    async loadAvailableMentors() {
-      try {
-        if (!this.userStore.user) {
-          this.toastPopup = {
-            title: 'Ошибка',
-            message: 'Пользователь не авторизован'
-          };
-          return;
-        }
 
-        console.log('Загружаем наставников для родителя:', this.userStore.user.id, 'тип:', typeof this.userStore.user.id);
-        
-        // Загружаем все связи наставников
-        const response = await this.mentorLinksResolver.getAll();
-        
-        console.log('Ответ сервера (все связи):', response);
-        
-        if (response.status === 200 && typeof response.message !== "string") {
-          // Фильтруем связи, где родитель является текущим пользователем
-          // В MentorLinkOutputDto поле user содержит данные наставника
-          const mentorLinks = response.message || [];
-          console.log('Все связи наставников:', mentorLinks);
-          
-          // Пока что показываем всех наставников, так как логика связей не ясна
-          // TODO: Нужно уточнить у бэкендера, как определяется связь родитель-наставник
-          this.availableMentors = mentorLinks.map(link => link.user);
-          console.log('Загружены наставники:', this.availableMentors);
-        } else {
-          console.warn('Не удалось загрузить наставников:', response);
-          this.availableMentors = [];
+    async loadAvailableMentors() {
+      // Проверяем localStorage на наличие ID наставника
+      const strMentorIds = localStorage.getItem('mentorIds');
+      const mentorIds = strMentorIds ? JSON.parse(strMentorIds) as number[] : [];
+      console.log('Loading available mentor from localStorage ID:', mentorIds);
+
+      // Полностью очищаем и пересоздаем список опций наставников
+      this.availableMentors = [];
+
+      console.log('Initial mentorOptions:', this.availableMentors);
+
+      if (mentorIds.length > 0) {
+        for (const mentorId of mentorIds) {
+          try {
+            console.log('Loading mentor data from API for ID:', mentorId);
+
+            // Загружаем данные наставника из API
+            const response = await this.userResolver.getById(mentorId);
+            console.log('API Response for mentor:', response);
+
+            if (response.status === 200 && typeof response.message !== 'string') {
+              const mentor = response.message;
+              const mentorName = `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}`;
+
+
+              // Добавляем внешнего наставника в список опций (проверяем на дублирование)
+              const existingMentor = this.availableMentors.find(option => option.id === mentorId);
+              if (!existingMentor) {
+                this.availableMentors.push(mentor);
+                console.log('Added mentor to options:', mentorName);
+              } else {
+                console.log('Mentor already exists in options:', existingMentor);
+              }
+            } else {
+              console.log('API failed, using fallback');
+            }
+          } catch (error) {
+            console.error('Error loading mentor from API:', error);
+          }
         }
-      } catch (error) {
-        console.error('Ошибка при загрузке наставников:', error);
-        this.toastPopup = {
-          title: 'Ошибка',
-          message: 'Не удалось загрузить список наставников'
-        };
+      } else {
+        console.log('No mentor ID found in localStorage');
       }
     },
     async removeMentorFromList(mentorId: number) {
       // Удаляем связь родитель-наставник с сервера
-      if (this.userStore.user) {
-        try {
-          // Получаем все связи и находим нужную
-          const response = await this.mentorLinksResolver.getAll();
-          
-          if (response.status === 200 && typeof response.message !== "string") {
-            const mentorLinks = response.message || [];
-            // Находим связь с нужным наставником
-            const mentorLink = mentorLinks.find(link => link.user.id === mentorId);
-            
-            if (mentorLink) {
-              await this.mentorLinksResolver.deleteById(mentorLink.id);
-              console.log(`Удалена связь с наставником ID: ${mentorId}`);
-            }
-          }
-          
-          // Обновляем список наставников
-          this.availableMentors = this.availableMentors.filter(mentor => mentor.id !== mentorId);
-          
-          this.toastPopup = {
-            title: 'Успех',
-            message: 'Наставник удален из списка'
-          };
-        } catch (error) {
-          console.error('Ошибка при удалении наставника:', error);
-          this.toastPopup = {
-            title: 'Ошибка',
-            message: 'Не удалось удалить наставника'
-          };
-        }
-      }
+      this.availableMentors = this.availableMentors.filter(mentor => mentor.id !== mentorId)
+      localStorage.setItem("mentorIds", JSON.stringify(this.availableMentors.map(mentor => mentor.id)));
     },
-    selectMentor(mentorId: number | string) {
+    selectMentor(mentorId: number) {
       this.selectedMentorId = mentorId;
     },
     closeMentorSelectionDialog() {
@@ -843,13 +829,12 @@ export default {
       this.selectedMentorId = null;
     },
     async saveMentorSelection() {
-      if (!this.selectedChildDetails || !this.selectedMentorId) return;
-
+      if (!this.selectedMentorId || !this.selectedChild?.id) return;
       try {
         let mentorId = null;
         
         // Определяем ID наставника
-        if (this.selectedMentorId === 'parent') {
+        if (this.selectedMentorId === this.user?.id) {
           // Если родитель выбирает себя, используем его ID
           mentorId = this.user?.id || null;
         } else {
@@ -859,12 +844,12 @@ export default {
 
         // Обновляем наставника для ребенка
         await this.childResolver.update({
-          id: this.selectedChildDetails.child.id,
-          lastName: this.selectedChildDetails.child.lastName,
-          firstName: this.selectedChildDetails.child.firstName,
-          patronymic: this.selectedChildDetails.child.patronymic,
-          dateOfBirth: this.selectedChildDetails.child.dateOfBirth,
-          mentorId: mentorId
+          id: this.selectedChild.id,
+          mentorId: mentorId,
+          dateOfBirth: null,
+          firstName: null,
+          lastName: null,
+          patronymic: null
         });
 
         // Обновляем данные пользователя

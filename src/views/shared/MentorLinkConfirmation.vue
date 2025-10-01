@@ -44,6 +44,12 @@
             class="p-button-primary w-full"
             @click="confirmMentorLink"
           />
+          <Button
+            label="Отменить привязку"
+            icon="pi pi-times"
+            class="p-button-outlined w-full"
+            @click="$router.push(`/${userStore.user?.role.toLowerCase()}/dashboard`)"
+          />
         </div>
       </div>
     </div>
@@ -176,8 +182,13 @@ export default {
     },
     async confirmMentorLink() {
       if (this.mentorId && this.userStore.user) {
+        console.log("hi")
         try {
-          localStorage.setItem('selectedMentorId', this.mentorId.toString());
+          const strMentorIds = localStorage.getItem("mentorIds")
+          const mentorIds = (strMentorIds as string | null) !== null
+            ? JSON.parse(strMentorIds as string) as number[]
+            : []
+          localStorage.setItem('mentorIds', JSON.stringify([...mentorIds, this.mentorId]));
           this.$router.push('/user/dashboard');
         } catch (error) {
           console.error('Ошибка при подтверждении связи с наставником:', error);

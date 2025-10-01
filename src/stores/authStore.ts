@@ -66,6 +66,7 @@ export const useAuthStore = defineStore("auth", {
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
       localStorage.removeItem('uuid')
+      localStorage.removeItem('selectedMentorId')
 
       this.access_token = null
       this.refresh_token = null
