@@ -183,7 +183,27 @@
   </div>
 
   <div
-    v-if="!isEditing || addSchoolFile"
+    v-if="(!isEditing || addSchoolFile)"
+    class="field"
+  >
+    <div class="flex align-items-center">
+      <Checkbox
+        v-model="isHomeEducated"
+        input-id="is-home-educate"
+        :binary="true"
+        @change="$emit('update:home-education', isHomeEducated)"
+      />
+      <label
+        for="is-home-educate"
+        class="ml-2 agreement-label"
+      >
+        Нет ОУ / На домашнем обучении
+      </label>
+    </div>
+  </div>
+
+  <div
+    v-if="(!isEditing || addSchoolFile) && !isHomeEducated"
     class="field"
   >
     <label
@@ -206,7 +226,7 @@
   </div>
 
   <div
-    v-if="!isEditing || addSchoolFile"
+    v-if="(!isEditing || addSchoolFile) && !isHomeEducated"
     class="field"
   >
     <label
@@ -233,7 +253,7 @@
   </div>
 
   <div
-    v-if="!isEditing || addSchoolFile"
+    v-if="(!isEditing || addSchoolFile) && !isHomeEducated"
     class="field"
   >
     <label
@@ -281,7 +301,27 @@
   </div>
 
   <div
-    v-if="!isEditing || addPlatformFile"
+    v-if="(!isEditing || addPlatformFile)"
+    class="field"
+  >
+    <div class="flex align-items-center">
+      <Checkbox
+        v-model="isHomePrepared"
+        input-id="is-home-prepare"
+        :binary="true"
+        @change="$emit('update:home-preparation', isHomePrepared)"
+      />
+      <label
+        for="is-home-prepare"
+        class="ml-2 agreement-label"
+      >
+        Нет площадки подготовки / На домашнем обучении
+      </label>
+    </div>
+  </div>
+
+  <div
+    v-if="(!isEditing || addPlatformFile) && !isHomePrepared"
     class="field"
   >
     <label
@@ -304,7 +344,7 @@
   </div>
 
   <div
-    v-if="!isEditing || addPlatformFile"
+    v-if="(!isEditing || addPlatformFile) && !isHomePrepared"
     class="field"
   >
     <label
@@ -462,10 +502,13 @@
       'update:school-file',
       'update:platform-file',
       'update:consent-file',
+      'update:home-education',
+      'update:home-preparation'
     ],
     data() {
       return {
-
+        isHomeEducated: false,
+        isHomePrepared: false,
         showAgreementDialog: false,
         showPoliticsDialog: false,
         gradeOptions: useGradeOptions,

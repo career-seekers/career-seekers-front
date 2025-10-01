@@ -179,6 +179,8 @@
           @update:school-file="(val) => addSchoolFile = val"
           @update:platform-file="(val) => addPlatformFile = val"
           @update:consent-file="(val) => addConsentFile = val"
+          @update:home-education="(val) => isHomeEducated = val"
+          @update:home-preparation="(val) => isHomePrepared = val"
         />
         <Button
           :label="isEditing ? 'Обновить данные о ребенке' : 'Добавить нового ребёнка'"
@@ -215,6 +217,13 @@
               class="p-button-outlined p-button-sm edit-button"
               @click="editChild(selectedChildDetails.child)"
             />
+            <Button
+              v-tooltip="'Удалить'"
+              icon="pi pi-trash"
+              style="background: white; margin-left: 0.5rem;"
+              class="p-button-outlined p-button-sm"
+              @click="deleteChild(selectedChildDetails.child.id)"
+            />
           </div>
           <div class="details-grid">
             <div class="detail-item">
@@ -233,6 +242,12 @@
               <span class="detail-label">Школа:</span>
               <span class="detail-value">
                 {{ selectedChildDetails.child.childDocuments?.studyingPlace || 'Не указана' }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">СНИЛС:</span>
+              <span class="info-value">
+                {{ selectedChildDetails.child.childDocuments?.snilsNumber ? FormatManager.formatSnilsFromDTO(selectedChildDetails.child.childDocuments?.snilsNumber) : 'Не указана' }}
               </span>
             </div>
             <div class="detail-item">
@@ -473,6 +488,13 @@
               class="p-button-outlined p-button-sm edit-button"
               @click="editChild(selectedChildInfo)"
             />
+            <Button
+              v-tooltip="'Удалить'"
+              icon="pi pi-trash"
+              style="background: white; margin-left: 0.5rem;"
+              class="p-button-outlined p-button-sm"
+              @click="deleteChild(selectedChildInfo.id)"
+            />
           </div>
           <div class="info-grid">
             <div class="info-item">
@@ -491,6 +513,12 @@
               <span class="info-label">Школа:</span>
               <span class="info-value">
                 {{ selectedChildInfo.childDocuments?.studyingPlace || 'Не указана' }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">СНИЛС:</span>
+              <span class="info-value">
+                {{ selectedChildInfo.childDocuments?.snilsNumber ? FormatManager.formatSnilsFromDTO(selectedChildInfo.childDocuments?.snilsNumber) : 'Не указана' }}
               </span>
             </div>
             <div class="info-item">
@@ -852,6 +880,8 @@ export default {
 
       showAddChildDialog: false,
       showUserSettingsDialog: false,
+      isHomeEducated: false,
+      isHomePrepared: false,
 
       isEditing: false,
       selectedChild: null as ChildOutputDto | null,
@@ -1022,27 +1052,27 @@ export default {
         isValid = false;
       }
 
-      if (!this.childForm.schoolName && (!this.isEditing || this.addSchoolFile)) {
+      if (!this.childForm.schoolName && (!this.isEditing || this.addSchoolFile) && !this.isHomeEducated) {
         this.errors.schoolName = "Название учреждения обязательно";
         isValid = false;
       }
 
-      if (this.childForm.grade === null && (!this.isEditing || this.addSchoolFile)) {
+      if (this.childForm.grade === null && (!this.isEditing || this.addSchoolFile)  && !this.isHomeEducated) {
         this.errors.grade = "Класс обучения обязателен";
         isValid = false;
       }
 
-      if (!this.childForm.platform && (!this.isEditing || this.addPlatformFile)) {
+      if (!this.childForm.platform && (!this.isEditing || this.addPlatformFile) && !this.isHomePrepared) {
         this.errors.platform = "Выберите площадку подготовки";
         isValid = false;
       }
 
-      if (!this.childForm.schoolCertificate && (!this.isEditing || this.addSchoolFile)) {
+      if (!this.childForm.schoolCertificate && (!this.isEditing || this.addSchoolFile)  && !this.isHomeEducated) {
         this.errors.schoolCertificate = "Необходимо загрузить справку из ОУ";
         isValid = false;
       }
 
-      if (!this.childForm.platformCertificate && (!this.isEditing || this.addPlatformFile)) {
+      if (!this.childForm.platformCertificate && (!this.isEditing || this.addPlatformFile)  && !this.isHomePrepared) {
         this.errors.platformCertificate =
           "Необходимо загрузить справку из площадки подготовки";
         isValid = false;
@@ -1099,7 +1129,6 @@ export default {
           mentorId: null
         })
         await this.addChildDocs()
-        await this.userStore.fillChildren()
         
         // Обновляем данные в модалках, если они открыты
         if (this.showChildDetailsDialog && this.selectedChildDetails) {
@@ -1133,18 +1162,28 @@ export default {
           patronymic: this.childForm.fullName.split(" ")[2],
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null,
-          additionalStudyingCertificateFile: this.childForm.platformCertificate!,
+          additionalStudyingCertificateFile: this.isHomePrepared
+            ? await this.getHomeFile("home_preparation.txt")
+            : this.childForm.platformCertificate!,
           birthCertificateFile: this.childForm.birthCertificate!,
           consentToChildPdpFile: this.childForm.childConsentFile!,
-          learningClass: this.childForm.grade!,
+          learningClass: this.isHomeEducated
+            ? 0
+            : this.childForm.grade!,
           parentRole: this.user.children.length > 0 && this.user.children[0].childDocuments !== null
             ? this.user.children[0].childDocuments?.parentRole
             : "Не указано",
           snilsFile: this.childForm.snilsScan!,
           snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
-          studyingCertificateFile: this.childForm.schoolCertificate!,
-          studyingPlace: this.childForm.schoolName,
-          trainingGround: this.childForm.platform
+          studyingCertificateFile: this.isHomeEducated
+            ? await this.getHomeFile("home_education.txt")
+            : this.childForm.schoolCertificate!,
+          studyingPlace: this.isHomeEducated
+            ? "Домашнее обучение"
+            : this.childForm.schoolName,
+          trainingGround: this.isHomePrepared
+            ? "Домашнее обучение"
+            : this.childForm.platform
         })
         if (typeof response.message !== "string") await this.userStore.fillChildren()
         else this.toastPopup = {
@@ -1165,21 +1204,43 @@ export default {
         || this.addConsentFile) {
         const response = await this.childDocumentsResolver.update({
           id: this.selectedChild!.childDocuments!.id,
-          additionalStudyingCertificateFile: this.childForm.platformCertificate,
+          additionalStudyingCertificateFile: this.isHomePrepared
+            ? await this.getHomeFile("home_preparation.txt")
+            : this.childForm.platformCertificate,
           birthCertificateFile: this.childForm.birthCertificate,
           consentToChildPdpFile: this.childForm.childConsentFile,
-          learningClass: this.childForm.grade ?? this.selectedChild!.childDocuments!.learningClass,
+          learningClass: this.isHomeEducated
+            ? 0
+            : this.childForm.grade ?? this.selectedChild!.childDocuments!.learningClass,
           parentRole: this.selectedChild!.childDocuments!.parentRole,
           snilsFile: this.childForm.snilsScan,
           snilsNumber: this.childForm.snilsNumber
             ? FormatManager.formatSnilsToDTO(this.childForm.snilsNumber)
             : this.selectedChild!.childDocuments!.snilsNumber,
-          studyingCertificateFile: this.childForm.schoolCertificate,
-          studyingPlace: this.childForm.schoolName ?? this.selectedChild!.childDocuments!.studyingPlace,
-          trainingGround: this.childForm.platform ?? this.selectedChild!.childDocuments!.trainingGround,
+          studyingCertificateFile: this.isHomeEducated
+            ? await this.getHomeFile("home_education.txt")
+            : this.childForm.schoolCertificate,
+          studyingPlace: this.isHomeEducated
+            ? "Домашнее обучение"
+            : this.childForm.schoolName ?? this.selectedChild!.childDocuments!.studyingPlace,
+          trainingGround: this.isHomePrepared
+            ? "Дамашнее обучение"
+            : this.childForm.platform ?? this.selectedChild!.childDocuments!.trainingGround,
         })
         if (typeof response.message !== "string") await this.userStore.fillChildren()
       }
+    },
+    async deleteChild(id: number) {
+      const response = await this.childResolver.deleteById(id)
+      if (response.status === 200) {
+        await this.userStore.fillChildren()
+        this.hideAllDialogs()
+      }
+    },
+    async getHomeFile(filename: string) {
+      const response = await fetch(`/docs/${filename}`)
+      const blob = await response.blob()
+      return new File([], filename, { type: blob.type })
     },
     // Методы для работы с компетенциями
     getCompetenciesByChildId(childId: number) {
@@ -2305,6 +2366,7 @@ export default {
   gap: 0.5rem;
 }
 
+.info-section .mentor-info,
 .details-section .mentor-info {
   background: #f8f9fa;
   padding: 1rem;
@@ -2312,10 +2374,12 @@ export default {
   border-left: 3px solid #28a745;
 }
 
+.info-section .mentor-details,
 .details-section .mentor-details {
   margin-bottom: 1rem;
 }
 
+.info-section .mentor-actions,
 .details-section .mentor-actions {
   display: flex;
   justify-content: flex-end;
