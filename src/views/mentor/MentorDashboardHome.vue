@@ -228,6 +228,7 @@ import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolv
 import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
 import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
+import type { MentorLinkOutputDto } from '@/api/resolvers/mentorLinks/dto/output/mentor-link-output.dto.ts';
 
 export default {
   name: "MentorDashboardHome",
@@ -346,7 +347,7 @@ export default {
         const promises = this.user.menteeChildren.map(child =>
           this.loadCompetenciesByChild(child));
         await Promise.all(promises);
-        
+
         // Загружаем имена экспертов для всех компетенций
         await this.loadExpertNames();
       } catch (error) {
@@ -393,9 +394,9 @@ export default {
             userId: this.userStore.user.id
           });
           
-          if (typeof response.message === "string" || response.status !== 200) {
+          if (response.status !== 200 && typeof response.message === "string") {
             // Проверяем, не является ли ошибка "ссылка уже существует"
-            const errorMessage = response.message as string;
+            const errorMessage = response.message;
             if (errorMessage && errorMessage.includes('уже существует')) {
               // Пытаемся получить существующую ссылку ещё раз
               const retryResponse = await this.mentorLinksResolver.getByUserId(this.userStore.user.id);
@@ -410,7 +411,7 @@ export default {
           }
           
           // Используем biscuit для создания ссылки
-          this.generatedLink = `${window.location.origin}/link/${response.message.biscuit}`;
+          this.generatedLink = `${window.location.origin}/link/${(response.message as MentorLinkOutputDto).biscuit}`;
           this.showLinkDialog = true;
         } catch (error) {
           console.error('Ошибка при создании ссылки:', error);

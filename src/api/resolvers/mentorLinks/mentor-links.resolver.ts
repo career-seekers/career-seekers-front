@@ -42,9 +42,9 @@ export class MentorLinksResolver {
   public async getByUserId(userId: number) {
     return this.apiResolver.request<
       null,
-      CommonOutputDto<MentorLinkOutputDto>
+      CommonOutputDto<MentorLinkOutputDto | string>
     >(
-      `getByUserId/${userId}`,
+      `getByUserId/${userId.toString()}`,
       "GET",
       null,
       this.getToken()
@@ -66,7 +66,7 @@ export class MentorLinksResolver {
   public async create(item: CreateMentorLinkInputDto) {
     return this.apiResolver.request<
       CreateMentorLinkInputDto,
-      CommonOutputDto<MentorLinkOutputDto>
+      CommonOutputDto<MentorLinkOutputDto | string>
     >(
       ``,
       "POST",

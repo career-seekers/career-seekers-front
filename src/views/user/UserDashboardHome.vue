@@ -411,6 +411,7 @@ import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
 import type { ChildCompetenciesOutputDto } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
 import ChildrenList from '@/components/ChildrenList.vue';
+import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 
 export default {
   name: "UserDashboardHome",
@@ -428,6 +429,7 @@ export default {
       childResolver: new ChildResolver(),
       childDocumentsResolver: new ChildDocumentsResolver(),
       childCompetenciesResolver: new ChildCompetenciesResolver(),
+      childPackResolver: new ChildPackResolver(),
       userResolver: new UserResolver(),
       mentorLinksResolver: new MentorLinksResolver(),
       userStore: useUserStore(),
@@ -448,6 +450,7 @@ export default {
         child: ChildOutputDto,
         competencies: ChildCompetenciesOutputDto[]
       }[],
+      children: [] as ChildOutputDto[],
       expertsCache: new Map<number, UserOutputDto>(),
       expertNames: new Map<number, string>(),
 
@@ -532,7 +535,7 @@ export default {
   async mounted() {
     // Проверяем, есть ли сохраненный наставник после перехода по ссылке
     // Загружаем компетенции для всех детей
-    await this.loadAllChildrenCompetencies();
+    await this.loadCompetencies()
     
     // Загружаем доступных наставников
     await this.loadAvailableMentors();
@@ -544,6 +547,15 @@ export default {
     await this.loadAvailableMentors();
   },
   methods: {
+    async loadCompetencies() {
+      const response = await this.childResolver.getByUserId(this.user!.id)
+      if (typeof response.message !== "string" && response.status === 200) {
+        this.children = response.message;
+        for (const child of this.children) {
+          await this.loadCompetenciesByChild(child)
+        }
+      }
+    },
     validateForm() {
       let isValid = true
       // Валидация данных ребенка
@@ -643,7 +655,7 @@ export default {
     async addChild() {
       if (this.user === null || !this.validateForm()) return
       this.isLoading = true;
-      if (this.selectedChild !== null && (this.isEditing || this.selectedChild.childDocuments === null)) {
+      if (this.isEditing && this.selectedChild !== null) {
         await this.childResolver.update({
           id: this.selectedChild.id,
           lastName: this.childForm.fullName.split(" ")[0],
@@ -652,59 +664,43 @@ export default {
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null
         })
-        await this.addChildDocs(this.selectedChild)
+        await this.addChildDocs()
+        await this.userStore.fillChildren()
       } else {
-        const childResponse = await this.childResolver.create({
+        const response = await this.childPackResolver.create({
           userId: this.user.id,
           lastName: this.childForm.fullName.split(" ")[0],
           firstName: this.childForm.fullName.split(" ")[1],
           patronymic: this.childForm.fullName.split(" ")[2],
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
-          mentorId: null
+          mentorId: null,
+          additionalStudyingCertificateFile: this.childForm.platformCertificate!,
+          birthCertificateFile: this.childForm.birthCertificate!,
+          consentToChildPdpFile: this.childForm.childConsentFile!,
+          learningClass: this.childForm.grade!,
+          parentRole: this.user.children.length > 0 && this.user.children[0].childDocuments !== null
+            ? this.user.children[0].childDocuments?.parentRole
+            : "Не указано",
+          snilsFile: this.childForm.snilsScan!,
+          snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
+          studyingCertificateFile: this.childForm.schoolCertificate!,
+          studyingPlace: this.childForm.schoolName,
+          trainingGround: this.childForm.platform
         })
-        await this.addChildDocs(childResponse.message)
+        if (typeof response.message !== "string") await this.userStore.fillChildren()
+        else this.toastPopup = {
+          title: response.status.toString(),
+          message: response.message
+        }
       }
-      await this.userStore.fillChildren()
       this.isLoading = false
       this.showAddChildDialog = false
     },
-    async addChildDocs(child: ChildOutputDto | string) {
-      if (this.selectedChild === null || this.selectedChild.childDocuments === null) {
-        if (this.childForm.childConsentFile !== null
-          && this.childForm.schoolCertificate !== null
-          && this.childForm.birthCertificate !== null
-          && this.childForm.platformCertificate !== null
-          && this.childForm.snilsScan !== null
-          && this.childForm.grade !== null
-          && this.user !== null
-          && typeof child !== "string") {
-          console.log(this.childForm)
-          const response = await this.childDocumentsResolver.create({
-            childId: child.id,
-            additionalStudyingCertificateFile: this.childForm.platformCertificate,
-            birthCertificateFile: this.childForm.birthCertificate,
-            consentToChildPdpFile: this.childForm.childConsentFile,
-            learningClass: this.childForm.grade,
-            parentRole: this.user.children.length > 0 && this.user.children[0].childDocuments !== null
-              ? this.user.children[0].childDocuments?.parentRole
-              : "Не указано",
-            snilsFile: this.childForm.snilsScan,
-            snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
-            studyingCertificateFile: this.childForm.schoolCertificate,
-            studyingPlace: this.childForm.schoolName,
-            trainingGround: this.childForm.platform
-          })
-          if (typeof response.message === "string") {
-            this.toastPopup = {
-              title: `Ошибка ${response.status.toString()} при загрузке документов`,
-              message: response.message
-            }
-          }
-        }
-      } else if (this.addBirthFile || this.addSnilsFile
+    async addChildDocs() {
+      if (this.addBirthFile || this.addSnilsFile
         || this.addSchoolFile || this.addPlatformFile
         || this.addConsentFile) {
-        await this.childDocumentsResolver.update({
+        const response = await this.childDocumentsResolver.update({
           id: this.selectedChild!.childDocuments!.id,
           additionalStudyingCertificateFile: this.childForm.platformCertificate,
           birthCertificateFile: this.childForm.birthCertificate,
@@ -719,6 +715,7 @@ export default {
           studyingPlace: this.childForm.schoolName ?? this.selectedChild!.childDocuments!.studyingPlace,
           trainingGround: this.childForm.platform ?? this.selectedChild!.childDocuments!.trainingGround,
         })
+        if (typeof response.message !== "string") await this.userStore.fillChildren()
       }
     },
     // Методы для работы с компетенциями
@@ -734,7 +731,6 @@ export default {
     },
     async loadCompetenciesByChild(child: ChildOutputDto) {
       try {
-        console.log(`Загружаем компетенции для ребенка ID: ${child.id}`);
         const response = await this.childCompetenciesResolver.getByChildId(child.id)
         
         if (typeof response.message === "string" || response.status !== 200) {
@@ -754,100 +750,7 @@ export default {
         console.error(`Критическая ошибка при загрузке компетенций для ребенка ${child.id}:`, error);
       }
     },
-    async loadCompetenciesByChildWithRetry(child: ChildOutputDto, maxRetries: number = 5) {
-      let lastError: any = null;
-      
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          console.log(`Попытка ${attempt}/${maxRetries} загрузки компетенций для ребенка ${child.id}`);
-          await this.loadCompetenciesByChild(child);
-          return; // Успешно загружено
-        } catch (error) {
-          lastError = error;
-          console.warn(`Попытка ${attempt} неудачна для ребенка ${child.id}:`, error);
-          
-          if (attempt < maxRetries) {
-            // Экспоненциальная задержка: 1s, 2s, 4s
-            const delay = Math.pow(2, attempt - 1) * 1000;
-            console.log(`Повторная попытка через ${delay}ms`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          }
-        }
-      }
-      
-      console.error(`Не удалось загрузить компетенции для ребенка ${child.id} после ${maxRetries} попыток:`, lastError);
-    },
-    async loadAllChildrenCompetencies() {
-      if (!this.user?.children) return;
 
-      try {
-        console.log(`Начинаем загрузку компетенций для ${this.user.children.length} детей`);
-        
-        // Ограничиваем количество параллельных запросов (максимум 3 одновременно)
-        const batchSize = 3;
-        const children = this.user.children;
-        
-        for (let i = 0; i < children.length; i += batchSize) {
-          const batch = children.slice(i, i + batchSize);
-          const batchPromises = batch.map(child => this.loadCompetenciesByChildWithRetry(child));
-          await Promise.all(batchPromises);
-          
-          // Небольшая задержка между батчами для снижения нагрузки на сервер
-          if (i + batchSize < children.length) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-          }
-        }
-        
-        // Загружаем имена экспертов для всех компетенций
-        await this.loadExpertNames();
-        console.log('Загрузка компетенций завершена');
-      } catch (error) {
-        console.error('Ошибка при загрузке компетенций:', error);
-      }
-    },
-    async loadExpertNames() {
-      const expertIds = new Set<number>();
-      
-      // Собираем все уникальные ID экспертов
-      this.childCompetencies.forEach(row => {
-        row.competencies.forEach(competence => {
-          expertIds.add(competence.direction.expertId);
-        });
-      });
-
-      // Загружаем имена экспертов
-      const promises = Array.from(expertIds).map(async (expertId) => {
-        if (!this.expertNames.has(expertId)) {
-          const expertName = await this.getExpertName(expertId);
-          this.expertNames.set(expertId, expertName);
-        }
-      });
-
-      await Promise.all(promises);
-    },
-    async getExpertName(expertId: number): Promise<string> {
-      // Проверяем кэш
-      if (this.expertsCache.has(expertId)) {
-        const expert = this.expertsCache.get(expertId)!;
-        return `${expert.lastName} ${expert.firstName} ${expert.patronymic}`;
-      }
-
-      try {
-        // Загружаем данные эксперта
-        const response = await this.userResolver.getById(expertId);
-        if (typeof response.message === "string" || response.status !== 200) {
-          return `ID ${expertId}`;
-        }
-
-        const expert = response.message;
-        // Сохраняем в кэш
-        this.expertsCache.set(expertId, expert);
-        return `${expert.lastName} ${expert.firstName} ${expert.patronymic}`;
-      } catch (error) {
-        console.error('Ошибка при загрузке эксперта:', error);
-        return `ID ${expertId}`;
-      }
-    },
     // Методы для модальных окон
     openChildDetailsDialog(child: ChildOutputDto, competence: ChildCompetenciesOutputDto) {
       this.selectedChildDetails = { child, competence };

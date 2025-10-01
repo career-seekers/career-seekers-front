@@ -15,8 +15,8 @@ import type {
 } from '@/api/resolvers/auth/dto/input/register-input.dto.ts';
 import { MentorDocumentsResolver } from '@/api/resolvers/mentorDocuments/mentor-documents.resolver.ts';
 import { TelegramLinkResolver } from '@/api/resolvers/telegramLink/telegram-link.resolver.ts';
-import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-documents.resolver.ts';
 import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
+import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 
 export const useUserStore = defineStore("user", {
   state: (): { user: UserStateInterface | null } => ({
@@ -57,6 +57,7 @@ export const useUserStore = defineStore("user", {
         if (response.status === 200) localStorage.removeItem("telegramLink");
       }
       if (userData.children.length === 0) await this.fillChildren()
+      localStorage.removeItem("dataToVerify");
     },
     async fillDocuments(docsToVerifyStr: string) {
       const fileManager = new FileManager()
@@ -112,46 +113,41 @@ export const useUserStore = defineStore("user", {
           }
 
           case Roles.USER: {
-            const childResolver = new ChildResolver()
-            const childDocumentsResolver = new ChildDocumentsResolver()
+            const childPackResolver = new ChildPackResolver()
             const cachedData = JSON.parse(docsToVerifyStr) as
               RegistrationData<UserWithChildRegistrationDto, UserCachedData>
-            const childResponse = await childResolver.create({
+            const response = await childPackResolver.create({
               lastName: cachedData.dto.childLastName,
               firstName: cachedData.dto.childFirstName,
               patronymic: cachedData.dto.childPatronymic,
               dateOfBirth: cachedData.dto.childDateOfBirth,
               userId: this.user.id,
-              mentorId: this.user.isMentor ? this.user.id : null
-            })
-            if (childResponse.status === 200 && typeof childResponse.message !== "string") {
-              const childDocsResponse = await childDocumentsResolver.create({
-                childId: childResponse.message.id,
-                snilsNumber: cachedData.extra.snilsNumber,
-                snilsFile: await fileManager.loadFileFromCache(
-                  cachedData.extra.snilsFileName
-                ),
-                studyingPlace: cachedData.extra.studyingPlace,
-                studyingCertificateFile: await fileManager.loadFileFromCache(
-                  cachedData.extra.studyingCertificateFileName
-                ),
-                learningClass: cachedData.extra.learningClass,
-                trainingGround: cachedData.extra.trainingGround,
-                additionalStudyingCertificateFile: await fileManager.loadFileFromCache(
-                  cachedData.extra.additionalStudyingCertificateFileName
-                ),
-                consentToChildPdpFile: await fileManager.loadFileFromCache(
-                  cachedData.extra.consentToChildPdpFilename
-                ),
-                parentRole: cachedData.extra.parentRole,
-                birthCertificateFile: await fileManager.loadFileFromCache(
-                  cachedData.extra.birthCertificateFilename
-                )
-              })
+              mentorId: this.user.isMentor ? this.user.id : null,
+              additionalStudyingCertificateFile: await fileManager.loadFileFromCache(
+                cachedData.extra.additionalStudyingCertificateFileName
+              ),
+              birthCertificateFile: await fileManager.loadFileFromCache(
+                cachedData.extra.birthCertificateFilename
+              ),
+              consentToChildPdpFile: await fileManager.loadFileFromCache(
+                cachedData.extra.consentToChildPdpFilename
+              ),
+              learningClass: cachedData.extra.learningClass,
+              parentRole: cachedData.extra.parentRole,
+              snilsFile: await fileManager.loadFileFromCache(
+                cachedData.extra.snilsFileName
+              ),
+              snilsNumber: cachedData.extra.snilsNumber,
+              studyingCertificateFile: await fileManager.loadFileFromCache(
+                cachedData.extra.studyingCertificateFileName
+              ),
+              studyingPlace: cachedData.extra.studyingPlace,
+              trainingGround: cachedData.extra.trainingGround,
 
-              if (childDocsResponse.status === 200 && typeof childDocsResponse.message !== "string") {
-                localStorage.removeItem("dataToVerify");
-              }
+            })
+            if (response.status === 200 && typeof response.message !== "string") {
+              console.log("documents uploaded successfully")
+              localStorage.removeItem("dataToVerify");
             }
 
             await fileManager.removeFileFromCache(cachedData.extra.snilsFileName);

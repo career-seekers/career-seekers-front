@@ -28,13 +28,13 @@ class ApiResolverUtil {
       headers: {
         Authorization: jwt ? `Bearer ${jwt}` : undefined,
       },
-      timeout: 10000, // 10 секунд таймаут
     };
 
     try {
       console.log(`API запрос: ${method} ${fullUrl}`);
       const response: AxiosResponse<S> = await axios(config);
-      console.log(`API ответ: ${response.status} для ${fullUrl}`);
+      console.log(`API ответ: ${response.toString()} для ${fullUrl}`);
+      console.error(response);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
