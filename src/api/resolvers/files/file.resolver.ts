@@ -12,6 +12,16 @@ export enum FileType {
   FINAL_CRITERIA = "FINAL_CRITERIA",
   FINAL_STATEMENT = "FINAL_STATEMENT",
   DESCRIPTION = "DESCRIPTION",
+  AVATAR = "AVATAR",
+  SNILS = "SNILS",
+  STUDYING_CERTIFICATE = "STUDYING_CERTIFICATE",
+  ADDITIONAL_STUDYING_CERTIFICATE = "ADDITIONAL_STUDYING_CERTIFICATE",
+  CONSENT_TO_CHILD_PDP = "CONSENT_TO_CHILD_PDP",
+  CONSENT_TO_MENTOR_PDP = "CONSENT_TO_MENTOR_PDP",
+  CONSENT_TO_TUTOR_PDP = "CONSENT_TO_TUTOR_PDP",
+  CONSENT_TO_EXPERT_PDP = "CONSENT_TO_EXPERT_PDP",
+  BIRTH_CERTIFICATE = "BIRTH_CERTIFICATE",
+  DIRECTION_ICON = "DIRECTION_ICON",
 }
 
 export class FileResolver {
@@ -61,6 +71,30 @@ export class FileResolver {
     >(
       "",
       "GET",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
+
+  public async verify(id: number, status: boolean) {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<string>
+    >(
+      `verify/${id.toString()}/${status.toString()}`,
+      "PATCH",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
+
+  public async deleteById(id: number) {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<string>
+    >(
+      id.toString(),
+      "DELETE",
       null,
       this.token ? this.token : undefined,
     )

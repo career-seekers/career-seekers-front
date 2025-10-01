@@ -10,6 +10,18 @@ export class ChildDocumentsResolver {
   private apiResolver = new ApiResolver("users-service/v1/child-docs");
   private token = localStorage.getItem("access_token");
 
+  public async getAll() {
+    return this.apiResolver.request<
+      null,
+      CommonOutputDto<ChildDocumentsOutputDto[] | string>
+    >(
+      "",
+      "GET",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
+
   public async create(data: ChildDocumentsInputDto) {
     console.log(data)
     return this.apiResolver.request<

@@ -348,7 +348,7 @@ const routes = [
         component: AdminChildrenDocuments,
         meta: {
           title: "Документы детей",
-          icon: "pi pi-users",
+          icon: "pi pi-file",
         }
       },
       {
