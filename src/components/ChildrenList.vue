@@ -43,7 +43,8 @@
     },
     emits: [
       'update:children-list',
-      'open:child-form'
+      'open:child-form',
+      'open:mentor-dropdown'
     ],
     data() {
       return {
@@ -129,8 +130,9 @@
       },
       async loadAvailableMentor() {
         // Проверяем localStorage на наличие ID наставника
-        const selectedMentorId = localStorage.getItem('selectedMentorId');
-        console.log('Loading available mentor from localStorage ID:', selectedMentorId);
+        const strMentorIds = localStorage.getItem('mentorIds');
+        const mentorIds = strMentorIds ? JSON.parse(strMentorIds) as number[] : [];
+        console.log('Loading available mentor from localStorage ID:', mentorIds);
         
         // Полностью очищаем и пересоздаем список опций наставников
         this.mentorOptions = [];
@@ -144,58 +146,58 @@
         
         console.log('Initial mentorOptions:', this.mentorOptions);
         
-        if (selectedMentorId) {
-          try {
-            const mentorId = parseInt(selectedMentorId);
-            console.log('Loading mentor data from API for ID:', mentorId);
-            
-            // Загружаем данные наставника из API
-            const response = await this.userResolver.getById(mentorId);
-            console.log('API Response for mentor:', response);
-            
-            if (response.status === 200) {
-              const mentorData = response.message;
-              if (mentorData && typeof mentorData !== 'string') {
-                const mentor = mentorData;
-                const mentorName = `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}`;
-                
-                this.availableMentor = {
-                  id: mentorId,
-                  name: mentorName
-                };
-                
-                // Добавляем внешнего наставника в список опций (проверяем на дублирование)
-                const existingMentor = this.mentorOptions.find(option => option.value === mentorId);
-                if (!existingMentor) {
-                  this.mentorOptions.push({
-                    label: mentorName,
-                    value: mentorId
-                  });
-                  console.log('Added mentor to options:', mentorName);
+        if (mentorIds.length > 0) {
+          for (const mentorId of mentorIds) {
+            try {
+              console.log('Loading mentor data from API for ID:', mentorId);
+
+              // Загружаем данные наставника из API
+              const response = await this.userResolver.getById(mentorId);
+              console.log('API Response for mentor:', response);
+
+              if (response.status === 200) {
+                const mentorData = response.message;
+                if (mentorData && typeof mentorData !== 'string') {
+                  const mentor = mentorData;
+                  const mentorName = `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}`;
+
+                  this.availableMentor = {
+                    id: mentorId,
+                    name: mentorName
+                  };
+
+                  // Добавляем внешнего наставника в список опций (проверяем на дублирование)
+                  const existingMentor = this.mentorOptions.find(option => option.value === mentorId);
+                  if (!existingMentor) {
+                    this.mentorOptions.push({
+                      label: mentorName,
+                      value: mentorId
+                    });
+                    console.log('Added mentor to options:', mentorName);
+                  } else {
+                    console.log('Mentor already exists in options:', existingMentor);
+                  }
+
+                  console.log('Set availableMentor:', this.availableMentor);
+                  console.log('Mentor options:', this.mentorOptions);
+
+                  // Инициализируем счетчик назначений для наставника (если еще не установлен)
+                  if (!this.mentorAssignments.has(mentorId)) {
+                    this.mentorAssignments.set(mentorId, 0);
+                    console.log('Initialized mentor assignments counter:', mentorId);
+                  }
                 } else {
-                  console.log('Mentor already exists in options:', existingMentor);
-                }
-                
-                console.log('Set availableMentor:', this.availableMentor);
-                console.log('Mentor options:', this.mentorOptions);
-                
-                // Инициализируем счетчик назначений для наставника (если еще не установлен)
-                if (!this.mentorAssignments.has(mentorId)) {
-                  this.mentorAssignments.set(mentorId, 0);
-                  console.log('Initialized mentor assignments counter:', mentorId);
+                  console.log('API returned invalid data, using fallback');
+                  this.setFallbackMentor(mentorId);
                 }
               } else {
-                console.log('API returned invalid data, using fallback');
+                console.log('API failed, using fallback');
                 this.setFallbackMentor(mentorId);
               }
-            } else {
-              console.log('API failed, using fallback');
+            } catch (error) {
+              console.error('Error loading mentor from API:', error);
               this.setFallbackMentor(mentorId);
             }
-          } catch (error) {
-            console.error('Error loading mentor from API:', error);
-            const mentorId = parseInt(selectedMentorId);
-            this.setFallbackMentor(mentorId);
           }
         } else {
           console.log('No mentor ID found in localStorage');
@@ -493,9 +495,16 @@
           <h4 class="mentor-title">
             Наставник:
           </h4>
-          <p class="mentor-name">
-            {{ `${child.mentor.lastName} ${child.mentor.firstName} ${child.mentor.patronymic}` }}
-          </p>
+          <div class="mentor-actions">
+            <p class="mentor-name">
+              {{ `${child.mentor.lastName} ${child.mentor.firstName} ${child.mentor.patronymic}` }}
+            </p>
+            <Button
+              class="p-button-text p-button-sm"
+              icon="pi pi-pencil"
+              @click="$emit('open:mentor-dropdown', child)"
+            />
+          </div>
         </div>
         
         <div
@@ -618,6 +627,11 @@
 
   .mentor-title {
     margin: 1rem 0;
+  }
+
+  .mentor-actions {
+    display: flex;
+    gap: 1rem
   }
 
   .child-actions {
