@@ -106,6 +106,10 @@
                       <i class="pi pi-user" />
                       Главный эксперт: {{ expertNames.get(competence.direction.expertId) || `ID ${competence.direction.expertId}` }}
                     </div>
+                    <div class="competence-mentor">
+                      <i class="pi pi-users" />
+                      Наставник: {{ getMentorName(child) }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -683,6 +687,12 @@ export default {
     getCompetenciesByChildId(childId: number) {
       const competencies = this.childCompetencies.find(row => row.child.id === childId)?.competencies
       return competencies ? competencies : []
+    },
+    getMentorName(child: ChildOutputDto) {
+      if (child.mentor) {
+        return `${child.mentor.lastName} ${child.mentor.firstName} ${child.mentor.patronymic}`;
+      }
+      return 'Наставник не назначен';
     },
     async loadCompetenciesByChild(child: ChildOutputDto) {
       try {
@@ -1366,9 +1376,24 @@ export default {
   transition: color 0.3s ease;
 }
 
-  .competence-item:hover .competence-expert {
-    color: #1976d2;
-  }
+.competence-mentor {
+  color: #28a745;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.3s ease;
+  margin-top: 0.25rem;
+}
+
+.competence-item:hover .competence-expert {
+  color: #1976d2;
+}
+
+.competence-item:hover .competence-mentor {
+  color: #1976d2;
+}
 
   /* Мобильные стили для touch устройств */
   @media (max-width: 768px) {
@@ -1393,6 +1418,10 @@ export default {
     }
     
     .competence-item:active .competence-expert {
+      color: #1976d2;
+    }
+    
+    .competence-item:active .competence-mentor {
       color: #1976d2;
     }
   }
