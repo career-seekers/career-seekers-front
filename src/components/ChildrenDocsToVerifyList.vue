@@ -94,7 +94,7 @@
         
         this.$emit('verify', { 
           document: doc, 
-          status: status ? status : null,
+          status: status,
           action,
           actionPast,
           showConfirm: true 
@@ -223,7 +223,7 @@
           </p>
         </div>
         <div
-          v-if="document.document.verified === false"
+          v-if="document.document.verified === null"
           class="verify"
         >
           <Button

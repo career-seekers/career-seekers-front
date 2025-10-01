@@ -172,7 +172,7 @@ export default {
     },
     rejectedDocuments() {
       return this.documents
-        .filter(doc => doc.document.verified === null)
+        .filter(doc => doc.document.verified === false)
         .sort((a, b) => b.document.id - a.document.id);
     },
     acceptedDocuments() {
@@ -182,7 +182,7 @@ export default {
     },
     uncheckedDocuments() {
       const result = this.documents
-        .filter(doc => doc.document.verified === false)
+        .filter(doc => doc.document.verified === null)
         .sort((a, b) => b.document.id - a.document.id);
       console.log('Unchecked documents:', result);
       console.log('Total documents:', this.documents.length);
