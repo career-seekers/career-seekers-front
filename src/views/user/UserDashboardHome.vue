@@ -204,10 +204,18 @@
       >
         <!-- Информация о ребенке -->
         <div class="details-section">
-          <h4 class="section-title">
-            <i class="pi pi-user" />
-            Информация о ребенке
-          </h4>
+          <div class="section-header">
+            <h4 class="section-title">
+              <i class="pi pi-user" />
+              Информация о ребенке
+            </h4>
+            <Button
+              v-tooltip="'Редактировать данные ребенка'"
+              icon="pi pi-pencil"
+              class="p-button-outlined p-button-sm edit-button"
+              @click="editChild(selectedChildDetails.child)"
+            />
+          </div>
           <div class="details-grid">
             <div class="detail-item">
               <span class="detail-label">ФИО:</span>
@@ -267,34 +275,114 @@
             class="info-grid docs-grid"
           >
             <div class="info-item">
-              <span class="info-label">Скан свидетельства о рождении:</span>
-              <span class="info-value">
-                {{ `Статус: ${selectedDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+              <div class="doc-info">
+                <span class="info-label">Скан свидетельства о рождении:</span>
+                <span class="info-value">
+                  {{ `Статус: ${selectedDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
+              </div>
+              <div class="doc-actions">
+                <Button
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-outlined p-button-sm"
+                  @click="viewDocument(selectedDocs.birthFile)"
+                />
+                <Button
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-outlined p-button-sm"
+                  @click="downloadDocument(selectedDocs.birthFile)"
+                />
+              </div>
             </div>
             <div class="info-item">
-              <span class="info-label">СНИЛС:</span>
-              <span class="info-value">
-                {{ `Статус: ${selectedDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+              <div class="doc-info">
+                <span class="info-label">СНИЛС:</span>
+                <span class="info-value">
+                  {{ `Статус: ${selectedDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
+              </div>
+              <div class="doc-actions">
+                <Button
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-outlined p-button-sm"
+                  @click="viewDocument(selectedDocs.snilsFile)"
+                />
+                <Button
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-outlined p-button-sm"
+                  @click="downloadDocument(selectedDocs.snilsFile)"
+                />
+              </div>
             </div>
             <div class="info-item">
-              <span class="info-label">Скан справки из ОУ:</span>
-              <span class="info-value">
-                {{ `Статус: ${selectedDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+              <div class="doc-info">
+                <span class="info-label">Скан справки из ОУ:</span>
+                <span class="info-value">
+                  {{ `Статус: ${selectedDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
+              </div>
+              <div class="doc-actions">
+                <Button
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-outlined p-button-sm"
+                  @click="viewDocument(selectedDocs.schoolFile)"
+                />
+                <Button
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-outlined p-button-sm"
+                  @click="downloadDocument(selectedDocs.schoolFile)"
+                />
+              </div>
             </div>
             <div class="info-item">
-              <span class="info-label">Скан справки из площадки подготовки:</span>
-              <span class="info-value">
-                {{ `Статус: ${selectedDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+              <div class="doc-info">
+                <span class="info-label">Скан справки из площадки подготовки:</span>
+                <span class="info-value">
+                  {{ `Статус: ${selectedDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
+              </div>
+              <div class="doc-actions">
+                <Button
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-outlined p-button-sm"
+                  @click="viewDocument(selectedDocs.platformFile)"
+                />
+                <Button
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-outlined p-button-sm"
+                  @click="downloadDocument(selectedDocs.platformFile)"
+                />
+              </div>
             </div>
             <div class="info-item">
-              <span class="info-label">Скан согласия на ОПД:</span>
-              <span class="info-value">
-                {{ `Статус: ${selectedDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+              <div class="doc-info">
+                <span class="info-label">Скан согласия на ОПД:</span>
+                <span class="info-value">
+                  {{ `Статус: ${selectedDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
+              </div>
+              <div class="doc-actions">
+                <Button
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-outlined p-button-sm"
+                  @click="viewDocument(selectedDocs.consentFile)"
+                />
+                <Button
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-outlined p-button-sm"
+                  @click="downloadDocument(selectedDocs.consentFile)"
+                />
+              </div>
             </div>
           </div>
           <div
@@ -315,7 +403,7 @@
           Наставник
         </h4>
         <div
-          v-if="selectedChildDetails.child.mentor"
+          v-if="selectedChildDetails?.child?.mentor"
           class="mentor-info"
         >
           <div class="mentor-details">
@@ -355,7 +443,7 @@
             label="Выбрать наставника"
             icon="pi pi-plus"
             class="p-button-primary p-button-sm"
-            @click="openMentorSelectionDialog(selectedChildDetails.child)"
+            @click="openMentorSelectionDialog(selectedChildDetails?.child || null)"
           />
         </div>
       </div>
@@ -374,10 +462,18 @@
       >
         <!-- Информация о ребенке -->
         <div class="info-section">
-          <h4 class="section-title">
-            <i class="pi pi-user" />
-            Информация о ребенке
-          </h4>
+          <div class="section-header">
+            <h4 class="section-title">
+              <i class="pi pi-user" />
+              Информация о ребенке
+            </h4>
+            <Button
+              v-tooltip="'Редактировать данные ребенка'"
+              icon="pi pi-pencil"
+              class="p-button-outlined p-button-sm edit-button"
+              @click="editChild(selectedChildInfo)"
+            />
+          </div>
           <div class="info-grid">
             <div class="info-item">
               <span class="info-label">ФИО:</span>
@@ -417,34 +513,114 @@
             class="info-grid docs-grid"
           >
             <div class="info-item">
-              <span class="info-label">Скан свидетельства о рождении:</span>
-              <span class="info-value">
-                {{ `Статус: ${selectedDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+              <div class="doc-info">
+                <span class="info-label">Скан свидетельства о рождении:</span>
+                <span class="info-value">
+                  {{ `Статус: ${selectedDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
+              </div>
+              <div class="doc-actions">
+                <Button
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-outlined p-button-sm"
+                  @click="viewDocument(selectedDocs.birthFile)"
+                />
+                <Button
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-outlined p-button-sm"
+                  @click="downloadDocument(selectedDocs.birthFile)"
+                />
+              </div>
             </div>
             <div class="info-item">
-              <span class="info-label">СНИЛС:</span>
-              <span class="info-value">
-                {{ `Статус: ${selectedDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+              <div class="doc-info">
+                <span class="info-label">СНИЛС:</span>
+                <span class="info-value">
+                  {{ `Статус: ${selectedDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
+              </div>
+              <div class="doc-actions">
+                <Button
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-outlined p-button-sm"
+                  @click="viewDocument(selectedDocs.snilsFile)"
+                />
+                <Button
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-outlined p-button-sm"
+                  @click="downloadDocument(selectedDocs.snilsFile)"
+                />
+              </div>
             </div>
             <div class="info-item">
-              <span class="info-label">Скан справки из ОУ:</span>
-              <span class="info-value">
-                {{ `Статус: ${selectedDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+              <div class="doc-info">
+                <span class="info-label">Скан справки из ОУ:</span>
+                <span class="info-value">
+                  {{ `Статус: ${selectedDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
+              </div>
+              <div class="doc-actions">
+                <Button
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-outlined p-button-sm"
+                  @click="viewDocument(selectedDocs.schoolFile)"
+                />
+                <Button
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-outlined p-button-sm"
+                  @click="downloadDocument(selectedDocs.schoolFile)"
+                />
+              </div>
             </div>
             <div class="info-item">
-              <span class="info-label">Скан справки из площадки подготовки:</span>
-              <span class="info-value">
-                {{ `Статус: ${selectedDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+              <div class="doc-info">
+                <span class="info-label">Скан справки из площадки подготовки:</span>
+                <span class="info-value">
+                  {{ `Статус: ${selectedDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
+              </div>
+              <div class="doc-actions">
+                <Button
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-outlined p-button-sm"
+                  @click="viewDocument(selectedDocs.platformFile)"
+                />
+                <Button
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-outlined p-button-sm"
+                  @click="downloadDocument(selectedDocs.platformFile)"
+                />
+              </div>
             </div>
             <div class="info-item">
-              <span class="info-label">Скан согласия на ОПД:</span>
-              <span class="info-value">
-                {{ `Статус: ${selectedDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+              <div class="doc-info">
+                <span class="info-label">Скан согласия на ОПД:</span>
+                <span class="info-value">
+                  {{ `Статус: ${selectedDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
+              </div>
+              <div class="doc-actions">
+                <Button
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-outlined p-button-sm"
+                  @click="viewDocument(selectedDocs.consentFile)"
+                />
+                <Button
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-outlined p-button-sm"
+                  @click="downloadDocument(selectedDocs.consentFile)"
+                />
+              </div>
             </div>
           </div>
           <div
@@ -506,7 +682,7 @@
             label="Выбрать наставника"
             icon="pi pi-plus"
             class="p-button-primary p-button-sm"
-            @click="openMentorSelectionDialog(selectedChildInfo)"
+            @click="openMentorSelectionDialog(selectedChildInfo || null)"
           />
         </div>
       </div>
@@ -652,6 +828,7 @@ import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.re
 import type { ChildCompetenciesOutputDto } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
 import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
+import apiConf from '@/api/api.conf.ts';
 
 export default {
   name: "UserDashboardHome",
@@ -923,6 +1100,31 @@ export default {
         })
         await this.addChildDocs()
         await this.userStore.fillChildren()
+        
+        // Обновляем данные в модалках, если они открыты
+        if (this.showChildDetailsDialog && this.selectedChildDetails) {
+          // Обновляем данные в модалке подробной информации
+          const updatedChild = this.userStore.user?.children.find(child => child.id === this.selectedChildDetails?.child.id)
+          if (updatedChild && this.selectedChildDetails) {
+            this.selectedChildDetails.child = updatedChild
+          }
+        }
+        if (this.showChildInfoDialog && this.selectedChildInfo) {
+          // Обновляем данные в модалке краткой информации
+          const updatedChild = this.userStore.user?.children.find(child => child.id === this.selectedChildInfo?.id)
+          if (updatedChild && this.selectedChildInfo) {
+            this.selectedChildInfo = updatedChild
+          }
+        }
+        
+        // Показываем тост об успехе
+        this.toastPopup = {
+          title: 'Успешно',
+          message: 'Данные ребенка успешно обновлены'
+        }
+        
+        // Закрываем модалку
+        this.showAddChildDialog = false
       } else {
         const response = await this.childPackResolver.create({
           userId: this.user.id,
@@ -951,7 +1153,11 @@ export default {
         }
       }
       this.isLoading = false
-      this.showAddChildDialog = false
+      
+      // Закрываем модалку только если это не было редактирование (для редактирования модалка уже закрыта выше)
+      if (!this.isEditing) {
+        this.showAddChildDialog = false
+      }
     },
     async addChildDocs() {
       if (this.addBirthFile || this.addSnilsFile
@@ -1096,7 +1302,9 @@ export default {
       this.selectedChildInfo = child;
       this.showChildInfoDialog = true;
     },
-    async openMentorSelectionDialog(child: ChildOutputDto) {
+    async openMentorSelectionDialog(child: ChildOutputDto | null) {
+      if (!child) return;
+      
       // Скрываем все другие модалки
       this.hideAllDialogs();
       
@@ -1277,6 +1485,33 @@ export default {
           message: 'Не удалось сохранить наставника'
         };
       }
+    },
+    
+    // Методы для работы с документами
+    viewDocument(doc: DocsOutputFileUploadDto) {
+      if (!doc || !doc.id) {
+        this.toastPopup = {
+          title: 'Ошибка',
+          message: 'Документ недоступен для просмотра'
+        };
+        return;
+      }
+      
+      // Используем тот же подход, что и в админке
+      window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.id}`, '_blank');
+    },
+    
+    downloadDocument(doc: DocsOutputFileUploadDto) {
+      if (!doc || !doc.id) {
+        this.toastPopup = {
+          title: 'Ошибка',
+          message: 'Документ недоступен для скачивания'
+        };
+        return;
+      }
+      
+      // Используем тот же подход, что и в админке
+      window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.id}`;
     }
   }
 };
@@ -1380,6 +1615,68 @@ export default {
 
 .docs-grid {
   margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.docs-grid .info-item {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #ff9800;
+  transition: all 0.3s ease;
+}
+
+.docs-grid .info-item:hover {
+  background: #e3f2fd;
+  border-left-color: #2196f3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+}
+
+.docs-grid .info-label {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.docs-grid .info-value {
+  color: #6c757d;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.docs-grid .info-value::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff9800;
+  flex-shrink: 0;
+}
+
+.docs-grid .info-item:hover .info-value::before {
+  background: #2196f3;
+}
+
+.docs-grid .doc-info {
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.docs-grid .doc-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.docs-grid .doc-actions .p-button {
+  flex: 1;
+  min-width: 120px;
 }
 
 .header-button {
@@ -1886,10 +2183,6 @@ export default {
 }
 
 /* Стили для модальных окон */
-.child-details {
-  max-height: 70vh;
-  overflow-y: auto;
-}
 
 .child-info {
   max-height: 60vh;
@@ -1935,9 +2228,16 @@ export default {
   margin-bottom: 0;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 .section-title {
   color: #2c3e50;
-  margin: 0 0 1rem 0;
+  margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
   border-bottom: 2px solid #ff9800;
@@ -1945,6 +2245,12 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1;
+}
+
+.edit-button {
+  margin-left: 1rem;
+  flex-shrink: 0;
 }
 
 .details-grid {
@@ -1999,18 +2305,18 @@ export default {
   gap: 0.5rem;
 }
 
-.mentor-info {
+.details-section .mentor-info {
   background: #f8f9fa;
   padding: 1rem;
   border-radius: 8px;
   border-left: 3px solid #28a745;
 }
 
-.mentor-details {
+.details-section .mentor-details {
   margin-bottom: 1rem;
 }
 
-.mentor-actions {
+.details-section .mentor-actions {
   display: flex;
   justify-content: flex-end;
 }
@@ -2118,7 +2424,7 @@ export default {
   color: #28a745;
 }
 
-.mentor-info {
+.mentor-selection .mentor-info {
   flex: 1;
   display: flex;
   align-items: center;
@@ -2144,7 +2450,7 @@ export default {
   font-size: 1rem;
 }
 
-.mentor-details {
+.mentor-selection .mentor-details {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -2159,7 +2465,7 @@ export default {
   gap: 0.5rem;
 }
 
-.mentor-actions {
+.mentor-selection .mentor-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -2219,17 +2525,50 @@ export default {
     gap: 0.75rem;
   }
   
-  .mentor-info {
+  .mentor-selection .mentor-info {
     flex-direction: column;
     gap: 0.5rem;
   }
   
-  .mentor-actions {
+  .mentor-selection .mentor-actions {
     align-self: flex-end;
   }
   
   .info-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .docs-grid .info-item {
+    padding: 0.75rem;
+  }
+  
+  .docs-grid .info-label {
+    font-size: 0.85rem;
+  }
+  
+  .docs-grid .info-value {
+    font-size: 0.85rem;
+  }
+  
+  .docs-grid .doc-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .docs-grid .doc-actions .p-button {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .edit-button {
+    margin-left: 0;
+    align-self: flex-end;
   }
   
   .mentor-selection-actions {
