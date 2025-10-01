@@ -26,6 +26,7 @@ export const useAuthStore = defineStore("auth", {
       if (!this.access_token || !this.refresh_token || !this.uuid) return null
 
       const jwtData = JwtManager.decode(this.access_token)
+      
       const userResolver = new UserResolver()
       const response = await userResolver.getById(jwtData.id)
 
