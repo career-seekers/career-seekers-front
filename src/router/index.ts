@@ -11,7 +11,6 @@ import ForgotPasswordView from "@/views/auth/ForgotPasswordView.vue";
 
 // user views
 import UserDashboardHome from "@/views/user/UserDashboardHome.vue";
-import UserCompetencies from '@/views/user/UserCompetencies.vue';
 
 //expert views
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
@@ -51,6 +50,7 @@ import { Roles } from '@/state/UserState.types.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAuthStore } from '@/stores/authStore.ts';
 import MentorCompetencies from '@/views/mentor/MentorCompetencies.vue';
+import ChildrenCompetencies from '@/views/shared/ChildrenCompetencies.vue';
 
 const routes = [
   {
@@ -118,7 +118,7 @@ const routes = [
       {
         path: "competencies",
         name: "user-competencies",
-        component: UserCompetencies,
+        component: ChildrenCompetencies,
         meta: {
           title: "Компетенции",
           icon: "pi pi-briefcase"
