@@ -326,9 +326,11 @@
       class="privacy-dialog"
     >
       <div style="          display: flex;          position: absolute;          left: 0;          top: 0;          height: 90vh;          width: 100%;          overflow: hidden;          background-color: white;          border-radius: 6px;        ">
-        <VuePdfEmbed
-          style="width: 100%; position: absolute"
-          source="/docs/rules.pdf"
+        <iframe
+          title="PDF Document"
+          width="100%"
+          height="100%"
+          src="/public/docs/rules.pdf#toolbar=0&#navpanes=0&#view=Fit"
         />        <Button
           style="            position: absolute;            top: 0.5rem;            padding: 1rem;            right: 0.5rem;            width: auto;            height: 5%;          "
           icon="pi pi-times"

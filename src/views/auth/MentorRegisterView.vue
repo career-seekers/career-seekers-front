@@ -444,9 +444,11 @@
           border-radius: 6px;
         "
       >
-        <VuePdfEmbed
-          style="width: 100%; position: absolute"
-          source="/docs/rules.pdf"
+        <iframe
+          title="PDF Document"
+          width="100%"
+          height="100%"
+          src="/public/docs/rules.pdf#toolbar=0&#navpanes=0&#view=Fit"
         />
         <Button
           style="

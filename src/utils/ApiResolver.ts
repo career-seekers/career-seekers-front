@@ -21,22 +21,12 @@ class ApiResolverUtil {
   ): Promise<S> {
     const fullUrl = `${apiConf.endpoint}/${this.endpoint}/${url}`;
 
-    // Проверяем валидность токена
-    if (jwt && this.isTokenExpired(jwt)) {
-      console.warn('Токен авторизации истек или недействителен');
-      return {
-        status: 401,
-        message: "Токен авторизации истек",
-      } as S;
-    }
-
     const config: RequestConfig<U> = {
       url: fullUrl,
       method,
       data,
       headers: {
         Authorization: jwt ? `Bearer ${jwt}` : undefined,
-        'Content-Type': 'application/json',
       },
       timeout: 10000, // 10 секунд таймаут
     };
@@ -75,16 +65,6 @@ class ApiResolverUtil {
           message: "Неизвестная ошибка",
         } as S;
       }
-    }
-  }
-
-  private isTokenExpired(token: string): boolean {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const currentTime = Math.floor(Date.now() / 1000);
-      return payload.exp < currentTime;
-    } catch {
-      return true; // Если не можем декодировать токен, считаем его недействительным
     }
   }
 

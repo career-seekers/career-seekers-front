@@ -19,7 +19,6 @@
     name: 'CompetenceDialog',
     components: {
       Dialog,
-      Button
     },
     props: {
       showDetailsDialogProp: {
@@ -124,7 +123,6 @@
 </script>
 
 <template>
-  
   <!-- Диалог с подробной информацией о компетенции -->
   <Dialog
     v-model:visible="showDetailsDialog"
@@ -153,8 +151,12 @@
             Описание
           </div>
           <div class="competence-details">
-            <div class="competence-name">{{ selectedCompetence.name }}</div>
-            <div class="competence-description">{{ selectedCompetence.description }}</div>
+            <div class="competence-name">
+              {{ selectedCompetence.name }}
+            </div>
+            <div class="competence-description">
+              {{ selectedCompetence.description }}
+            </div>
           </div>
         </div>
 
@@ -169,11 +171,17 @@
           <div class="mentor-info">
             <div class="mentor-details">
               <div class="detail-item">
-                <div class="detail-label">ФИО:</div>
-                <div class="detail-value">{{ `${expert.lastName} ${expert.firstName} ${expert.patronymic}` }}</div>
+                <div class="detail-label">
+                  ФИО:
+                </div>
+                <div class="detail-value">
+                  {{ `${expert.lastName} ${expert.firstName} ${expert.patronymic}` }}
+                </div>
               </div>
               <div class="detail-item">
-                <div class="detail-label">Email:</div>
+                <div class="detail-label">
+                  Email:
+                </div>
                 <div class="detail-value">
                   <a :href="`mailto:${expert.email}`">{{ expert.email }}</a>
                 </div>
@@ -181,37 +189,46 @@
             </div>
           </div>
 
-        <div
-          v-if="platform"
-          class="details-section"
-        >
-          <div class="section-title">
-            <i class="pi pi-globe" />
-            Информация о площадке
-          </div>
-          <div class="competence-details">
-            <div class="detail-item">
-              <div class="detail-label">Название:</div>
-              <div class="detail-value">{{ platform.fullName }}</div>
+          <div
+            v-if="platform"
+            class="details-section"
+          >
+            <div class="section-title">
+              <i class="pi pi-globe" />
+              Информация о площадке
             </div>
-            <div class="detail-item">
-              <div class="detail-label">Адрес:</div>
-              <div class="detail-value">{{ platform.address }}</div>
-            </div>
-            <div
-              v-if="platform.website"
-              class="detail-item"
-            >
-              <div class="detail-label">Сайт:</div>
-              <div class="detail-value">
-                <a :href="platform.website">{{ platform.website }}</a>
+            <div class="competence-details">
+              <div class="detail-item">
+                <div class="detail-label">
+                  Название:
+                </div>
+                <div class="detail-value">
+                  {{ platform.fullName }}
+                </div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">
+                  Адрес:
+                </div>
+                <div class="detail-value">
+                  {{ platform.address }}
+                </div>
+              </div>
+              <div
+                v-if="platform.website"
+                class="detail-item"
+              >
+                <div class="detail-label">
+                  Сайт:
+                </div>
+                <div class="detail-value">
+                  <a :href="platform.website">{{ platform.website }}</a>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        
       </div>
-    </div>
     </div>
   </Dialog>
 </template>
