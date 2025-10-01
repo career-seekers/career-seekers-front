@@ -30,6 +30,7 @@
       mask="99.99.9999"
       placeholder="дд.мм.гггг"
       class="w-full"
+      :disabled="user !== null && childId !== null"
       :class="{ 'p-invalid': errors.birthDate }"
     />
     <small
@@ -41,7 +42,8 @@
   </div>
 
   <div 
-    v-if="isEditing"
+    v-if="isEditing &&
+      user?.children.find(child => child.id === childId)?.childDocuments === null"
     class="field"
   >
     <div class="flex align-items-center">
@@ -70,6 +72,7 @@
     >Скан свидетельства о рождении *</label>
     <FileUpload
       id="birthCertificate"
+      ref="birthUpload"
       mode="basic"
       accept=".pdf,.jpg,.jpeg,.png"
       :max-file-size="10000000"
@@ -142,6 +145,7 @@
     >Скан СНИЛС *</label>
     <FileUpload
       id="snilsScan"
+      ref="snilsUpload"
       mode="basic"
       accept=".pdf,.jpg,.jpeg,.png"
       :max-file-size="10000000"
@@ -240,6 +244,7 @@
     >Скан справки из ОУ *</label>
     <FileUpload
       id="schoolCertificate"
+      ref="schoolUpload"
       mode="basic"
       accept=".pdf,.jpg,.jpeg,.png"
       :max-file-size="10000000"
@@ -285,7 +290,7 @@
     <label
       for="platform"
       class="field-label"
-    >Площадка подготовки *</label>
+    >Площадка подготовки <br>(если совпадает с ОУ, просто продублируйте название и документ) *</label>
     <InputText
       id="platform"
       v-model="childForm.platform"
@@ -311,6 +316,7 @@
     >Скан справки из площадки подготовки *</label>
     <FileUpload
       id="platformCertificate"
+      ref="platformUpload"
       mode="basic"
       accept=".pdf,.jpg,.jpeg,.png"
       :max-file-size="10000000"
@@ -354,10 +360,19 @@
   >
     <label
       for="schoolCertificate"
-      class="field-label"
-    >Скан согласия на ОПД *</label>
+      class="field-label template-link"
+    >
+      Скан согласия на ОПД ребенка*
+      <a
+        href="/docs/child_consent_template.docx"
+        download="Шаблон согласия на ОПД ребенка"
+      >
+        Шаблон
+      </a>
+    </label>
     <FileUpload
       id="childConsentFile"
+      ref="consentUpload"
       mode="basic"
       accept=".pdf,.jpg,.jpeg,.png"
       :max-file-size="10000000"
@@ -382,10 +397,12 @@
   import InputMask from "primevue/inputmask";
   import FileUpload, { type FileUploadSelectEvent } from 'primevue/fileupload';
   import Dropdown from "primevue/dropdown";
-  import type { PropType } from 'vue';
+  import { type PropType, ref } from 'vue';
   import { useGradeOptions } from '@/shared/UseGradeOptions.ts';
   import Checkbox from 'primevue/checkbox';
   import { FormatManager } from '@/utils/FormatManager.ts';
+  import { FileManager } from '@/utils/FileManager.ts';
+  import { useUserStore } from '@/stores/userStore.ts';
 
   export type ChildFormFields = {
     fullName: string,
@@ -425,6 +442,10 @@
       Checkbox
     },
     props: {
+      childId: {
+        type: Number as PropType<number | null>,
+        default: null
+      },
       isEditing: {
         type: Boolean,
         default: false
@@ -449,6 +470,12 @@
     ],
     data() {
       return {
+        birthUpload: ref(null),
+        snilsUpload: ref(null),
+        schoolUpload: ref(null),
+        platformUpload: ref(null),
+        consentUpload: ref(null),
+
         showAgreementDialog: false,
         showPoliticsDialog: false,
         gradeOptions: useGradeOptions,
@@ -462,6 +489,9 @@
         addSchoolFile: false,
         addPlatformFile: false,
 
+        fileManager: new FileManager(),
+        userStore: useUserStore(),
+
         platformOptions: [
           { label: "Площадка 1", value: "platform1" },
           { label: "Площадка 2", value: "platform2" },
@@ -470,6 +500,9 @@
       };
     },
     computed: {
+      user() {
+        return this.userStore.user
+      },
       filteredGrades() {
         const regex = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.(19|20)\d\d$/;
         if (!regex.test(this.childForm.birthDate)) return this.gradeOptions
@@ -581,6 +614,11 @@
 </script>
 
 <style scoped>
+
+  .template-link {
+    display: flex;
+    justify-content: space-between;
+  }
 
   @keyframes slideUp {
     from {

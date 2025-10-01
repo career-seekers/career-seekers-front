@@ -19,6 +19,13 @@
             <i class="pi pi-user" />
             Информация об администраторе
           </h3>
+          <Button
+            v-tooltip="'Редактировать'"
+            icon="pi pi-pencil"
+            style="background: white;"
+            class="p-button-text p-button-sm"
+            @click="$emit('openSettings', true)"
+          />
         </div>
         <div class="card-content">
           <div class="data-section">
@@ -41,7 +48,7 @@
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ user.mobileNumber }}</span>
+              <span class="data-value">{{ FormatManager.formatMobileNumberFromDTO(user.mobileNumber) }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Должность:</span>
@@ -300,15 +307,17 @@
     CompetenceDocumentsOutputDto
   } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
+  import { FormatManager } from '../../utils/FormatManager.ts';
 
   export default {
     name: 'AdminDashboardHome',
     components: {
       Button
     },
+emits: ['openSettings'],
     data: function() {
       return {
-        user: useUserStore().user,
+        userStore: useUserStore(),
         userResolver: new UserResolver(),
         platformResolver: new PlatformResolver(),
         competenceResolver: new CompetenceResolver(),
@@ -323,6 +332,12 @@
       };
     },
     computed: {
+      FormatManager() {
+        return FormatManager
+      },
+      user() {
+        return this.userStore.user
+      },
       recentDoc() {
         if (this.documents.length === 0) return null
         return this.documents.toSorted((a, b) => {

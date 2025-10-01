@@ -35,12 +35,36 @@ export class ChildCompetenciesResolver {
   public async create(data: ChildCompetenciesInputDto) {
     return this.apiResolver.request<
       ChildCompetenciesInputDto,
-      CommonOutputDto<string>
+      CommonOutputDto<ChildCompetenciesOutputDto | string>
     >(
       ``,
       "POST",
       data,
       this.getToken()
+    )
+  }
+
+  public async update(data: ChildCompetenciesInputDto) {
+    return this.apiResolver.request<
+      ChildCompetenciesInputDto,
+      CommonOutputDto<string>
+    >(
+      ``,
+      "PATCH",
+      data,
+      this.token ? this.token : undefined
+    )
+  }
+
+  public async deleteById(id: number) {
+    return this.apiResolver.request<
+      null,
+      CommonOutputDto<string>
+    >(
+      id.toString(),
+      "DELETE",
+      null,
+      this.token ? this.token : undefined
     )
   }
 }

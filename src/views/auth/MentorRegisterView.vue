@@ -274,6 +274,37 @@
             }}</small>
           </div>
 
+          <div class="field">
+            <div class="flex align-items-center">
+              <Checkbox
+                v-model="registerForm.rules"
+                input-id="rules"
+                :binary="true"
+                :class="{ 'p-invalid': errors.rules }"
+              />
+              <label
+                for="rules"
+                class="ml-2 agreement-label"
+              >
+                с
+                <a
+                  href="#"
+                  class="link"
+                  @click.prevent="showRules"
+                >
+                  Положением
+                </a>
+                ознакомлен
+              </label>
+            </div>
+            <small
+              v-if="errors.rules"
+              class="p-error"
+            >{{
+              errors.rules
+            }}</small>
+          </div>
+
           <Button
             type="submit"
             label="Зарегистрироваться"
@@ -324,7 +355,7 @@
       >
         <VuePdfEmbed
           style="width: 100%; position: absolute"
-          source="/docs/agreement.pdf"
+          source="/docs/agreement_mentor.pdf"
         />
         <Button
           style="
@@ -388,6 +419,52 @@
       </div>
     </Dialog>
 
+    <Dialog
+      v-model:visible="showRulesDialog"
+      modal
+      :show-header="false"
+      :style="{
+        width: '90vw',
+        maxWidth: '650px',
+        height: '90vh',
+        position: 'relative',
+        borderRadius: '6px',
+      }"
+      class="privacy-dialog"
+    >
+      <div
+        style="
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 90vh;
+          width: 100%;
+          overflow: hidden;
+          background-color: white;
+          border-radius: 6px;
+        "
+      >
+        <VuePdfEmbed
+          style="width: 100%; position: absolute"
+          source="/docs/rules.pdf"
+        />
+        <Button
+          style="
+            position: absolute;
+            top: 0.5rem;
+            padding: 1rem;
+            right: 0.5rem;
+            width: auto;
+            height: 5%;
+          "
+          icon="pi pi-times"
+          class="p-button-text p-button-plain"
+          aria-label="Close"
+          @click="showRulesDialog = false"
+        />
+      </div>
+    </Dialog>
+
     <ToastPopup :content="errors.toastPopup" />
   </div>
 </template>
@@ -426,6 +503,7 @@ export default {
       isLoading: false,
       showPoliticsDialog: false,
       showAgreementDialog: false,
+      showRulesDialog: false,
       registerForm: {
         fullName: "",
         birthDate: "",
@@ -436,6 +514,7 @@ export default {
         email: "",
         password: "",
         confirmPassword: "",
+        rules: false,
         consent: false,
         consentFile: new File(["Содержимое файла"], "myfile.txt", {
           type: "text/plain",
@@ -454,6 +533,7 @@ export default {
         confirmPassword: "",
         consent: "",
         agreement: "",
+        rules: "",
         toastPopup: {
           title: "",
           message: "",
@@ -626,6 +706,13 @@ export default {
         isValid = false;
       }
 
+      // Проверка согласия с положением
+      if (!this.registerForm.rules) {
+        this.errors.rules =
+          "Необходимо согласиться с Положением";
+        isValid = false;
+      }
+
       return isValid;
     },
 
@@ -695,6 +782,10 @@ export default {
 
     showPolitics() {
       this.showPoliticsDialog = true;
+    },
+
+    showRules() {
+      this.showRulesDialog = true;
     },
   },
 };

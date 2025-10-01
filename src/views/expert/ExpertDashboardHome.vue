@@ -20,6 +20,13 @@
             <i class="pi pi-user" />
             Информация об эксперте
           </h3>
+          <Button
+            v-tooltip="'Редактировать'"
+            icon="pi pi-pencil"
+            style="background: white;"
+            class="p-button-text p-button-sm"
+            @click="$emit('openSettings', true)"
+          />
         </div>
         <div class="card-content">
           <div class="data-section">
@@ -38,7 +45,7 @@
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ user.mobileNumber }}</span>
+              <span class="data-value">{{ FormatManager.formatMobileNumberFromDTO(user.mobileNumber) }}</span>
             </div>
             <div class="data-item">
               <span class="data-label">Должность:</span>
@@ -388,6 +395,7 @@ import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import ToastPopup from '@/components/ToastPopup.vue';
+import { FormatManager } from '../../utils/FormatManager.ts';
 
 export default {
   name: "ExpertDashboardHome",
@@ -398,9 +406,10 @@ export default {
     Button,
     ToastPopup,
   },
+emits: ['openSettings'],
   data() {
     return {
-      user: useUserStore().user,
+      userStore: useUserStore(),
       DocumentTypes: useDocumentTypes,
       ageGroups: useAgeGroups,
       selectedDoctype: null as null | FileType,
@@ -424,6 +433,14 @@ export default {
       currentExpert: null as UserOutputDto | null,
       usersResolver: new UserResolver(),
     };
+  },
+  computed: {
+    FormatManager() {
+      return FormatManager
+    },
+    user() {
+      return this.userStore.user
+    }
   },
   async mounted() {
     await this.getCurrentExpert();
