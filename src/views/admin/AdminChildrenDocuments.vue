@@ -10,189 +10,148 @@
       </p>
     </div>
 
-    <div
-      v-if="paginatedChildren.length > 0"
-      class="children-grid"
-    >
-      <div
-        v-for="child in paginatedChildren"
-        :key="child.id"
-        class="child-card"
-      >
-        <div class="child-header">
-          <div class="child-icon">
-            <i class="pi pi-user" />
-          </div>
-          <div class="child-info">
-            <h3 class="child-name">
-              {{ getChildFullName(child) }}
-            </h3>
-          </div>
-        </div>
-
-        <div class="child-content">
-          <div class="child-details">
-            <div class="detail-item">
-              <span class="detail-label">ФИО:</span>
-              <span class="detail-value">{{ getChildFullName(child) }}</span>
-            </div>
-            <div
-              v-if="child.childDocuments?.ageCategory"
-              class="detail-item"
-            >
-              <span class="detail-label">Возрастная группа:</span>
-              <span class="detail-value">{{ getAgeGroupLabel(child.childDocuments.ageCategory) }}</span>
-            </div>
-            <div
-              v-if="child.childDocuments?.learningClass"
-              class="detail-item"
-            >
-              <span class="detail-label">Класс:</span>
-              <span class="detail-value">{{ child.childDocuments.learningClass }} класс</span>
-            </div>
-            <div
-              v-if="child.dateOfBirth"
-              class="detail-item"
-            >
-              <span class="detail-label">Дата рождения:</span>
-              <span class="detail-value">{{ formatDate(child.dateOfBirth) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Родитель:</span>
-              <span class="detail-value">{{ getParentFullName(child.user) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Email:</span>
-              <span class="detail-value">{{ child.user.email }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Телефон:</span>
-              <span class="detail-value">{{ child.user.mobileNumber }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Документов:</span>
-              <span class="detail-value">{{ getChildDocumentsCount(child) }}</span>
-            </div>
-          </div>
-
-          <div class="verify">
-            <Button
-              icon="pi pi-check"
-              style="background: white"
-              label="Принять"
-              class="p-button-text p-button-sm p-button-success"
-              @click="approveChildParticipation(child.id)"
-            />
-            <Button
-              icon="pi pi-times"
-              style="background: white"
-              label="Отклонить"
-              class="p-button-text p-button-sm p-button-danger"
-              @click="rejectChildParticipation(child.id)"
-            />
-          </div>
-        </div>
+    <!-- Фильтры -->
+    <div class="filters-section sticky-filters">
+      <div class="filter-group">
+        <label for="typeFilter">Тип документа:</label>
+        <Dropdown
+          id="typeFilter"
+          v-model="selectedDocumentType"
+          :options="childrenDocumentsTypes"
+          option-label="label"
+          option-value="value"
+          placeholder="Все типы"
+          class="filter-dropdown"
+        />
+      </div>
+      <div class="filter-group">
+        <label for="statusFilter">Ребенок:</label>
+        <AutoComplete
+          id="statusFilter"
+          v-model="selectedChild"
+          :suggestions="filteredChildren"
+          dropdown
+          field="fullName"
+          placeholder="Все дети"
+          class="filter-dropdown"
+          :disabled="children.length === 0"
+          @complete="filterChildren"
+        >
+          <template #item="slotProps">
+            {{
+              slotProps
+                ? getChildFullName(slotProps.item)
+                : "Не выбран"
+            }}
+          </template>
+          <template #option="slotProps">
+            {{
+              slotProps
+                ? getChildFullName(slotProps.option)
+                : "Не выбран"
+            }}
+          </template>
+        </AutoComplete>
+      </div>
+      <div class="filter-group">
+        <Button
+          label="Сбросить фильтры"
+          icon="pi pi-refresh"
+          class="p-button-text p-button-sm"
+          @click="resetFilters"
+        />
       </div>
     </div>
+  </div>
 
-    <div
-      v-else
-      class="empty-state"
+  <!-- Кастомный sticky контейнер для табов -->
+  <div
+    class="custom-sticky-container"
+    :class="{ 'sticky': isSticky }"
+  >
+    <!-- Табы для документов -->
+    <TabView
+      v-model:active-index="activeTab"
+      class="documents-tabs"
     >
-      <i
-        class="pi pi-users"
-        style="font-size: 3rem; color: #6c757d;"
-      />
-      <h3>Нет данных о детях</h3>
-      <p>Документы детей не найдены</p>
-    </div>
-
-    <!-- Пагинация -->
-    <div
-      v-if="totalRecords > itemsPerPage"
-      class="pagination-container"
-    >
-      <Paginator
-        :rows="itemsPerPage"
-        :total-records="totalRecords"
-        :first="currentPage * itemsPerPage"
-        :rows-per-page-options="[8, 16, 24]"
-        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-        @page="onPageChange"
-      />
-    </div>
+      <TabPanel
+        v-for="tab in tabsConfig"
+        :key="tab.key"
+        :header="tab.header"
+        :disabled="!tab.hasDocuments"
+        :class="{ 'disabled-tab': !tab.hasDocuments }"
+      >
+        <ChildrenDocsToVerifyList
+          v-if="tab.documents.length > 0"
+          :documents="filterDocs(tab.documents)"
+          :verify-status="tab.key === 'unchecked' ? 'UNCHECKED' : tab.key === 'accepted' ? 'ACCEPTED' : 'REJECTED'"
+          @update="loadChildrenDocuments"
+          @delete="handleDeleteDocument"
+          @verify="handleVerifyDocument"
+        />
+        <ProgressSpinner
+          v-else
+          style="width: 100%; margin-top: 10rem"
+        />
+      </TabPanel>
+    </TabView>
 
     <ToastPopup :content="errors.toastPopup" />
+
+    <!-- Диалог подтверждения удаления -->
+    <ConfirmDialog />
   </div>
 </template>
 
 <script lang="ts">
 import Button from "primevue/button";
-import Paginator from "primevue/paginator";
 import ToastPopup from "@/components/ToastPopup.vue";
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
-import ApiResolver from "@/utils/ApiResolver";
 import Tooltip from 'primevue/tooltip';
-
-interface ChildDocuments {
-  id: number;
-  snilsNumber: string;
-  snilsId: number;
-  studyingPlace: string;
-  studyingCertificateId: number;
-  learningClass: number;
-  ageCategory: string;
-  trainingGround: string;
-  additionalStudyingCertificateId: number;
-  parentRole: string;
-  consentToChildPdpId: number;
-  birthCertificateId: number;
-}
-
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  patronymic: string;
-  dateOfBirth: string;
-  email: string;
-  mobileNumber: string;
-  role: string;
-  avatarId: number;
-  verified: boolean;
-  isMentor: boolean;
-  tutorId: number | null;
-  telegramLink: {
-    id: number;
-    tgLink: string;
-  };
-}
-
-interface Child {
-  id: number;
-  lastName: string;
-  firstName: string;
-  patronymic: string;
-  dateOfBirth: string;
-  childDocuments: ChildDocuments;
-  user: User;
-  mentor: User;
-}
+import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-documents.resolver.ts';
+import type { ChildDocumentsOutputDto } from '@/api/resolvers/childDocuments/dto/output/child-documents-output.dto.ts';
+import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
+import { FileResolver, FileType } from '@/api/resolvers/files/file.resolver.ts';
+import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
+import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
+import { useChildrenDocumentTypes } from '@/shared/UseChildrenDocumentTypes.ts';
+import { useConfirm } from 'primevue/useconfirm';
+import ChildrenDocsToVerifyList, { type DocPerChild } from '@/components/ChildrenDocsToVerifyList.vue';
+import Dropdown from 'primevue/dropdown';
+import AutoComplete from 'primevue/autocomplete';
+import TabView from 'primevue/tabview';
+import TabPanel from 'primevue/tabpanel';
+import ConfirmDialog from 'primevue/confirmdialog';
+import ProgressSpinner from 'primevue/progressspinner';
 
 export default {
   name: "AdminChildrenDocuments",
   components: {
+    ChildrenDocsToVerifyList,
     Button,
-    Paginator,
+    Dropdown,
+    AutoComplete,
+    TabView,
+    TabPanel,
+    ConfirmDialog,
     ToastPopup,
+    ProgressSpinner
   },
   directives: {
     'tooltip': Tooltip
   },
   data() {
     return {
+      childrenDocumentsTypes: useChildrenDocumentTypes,
+      selectedDocumentType: null as FileType | null,
+      selectedChild: null as ChildOutputDto | null,
+      files: [] as DocsOutputFileUploadDto[],
+      documents: [] as DocPerChild[],
+      childrenDocuments: [] as ChildDocumentsOutputDto[],
+      filteredChildren: [] as ChildOutputDto[],
+      childDocumentsResolver: new ChildDocumentsResolver(),
+      fileResolver: new FileResolver(),
       ageGroups: useAgeGroups,
-      children: [] as Child[],
       currentPage: 0,
       itemsPerPage: 8,
       errors: {
@@ -201,38 +160,147 @@ export default {
           message: "",
         },
       },
+      activeTab: 0,
+      isSticky: false,
+      // Confirm dialog
+      confirm: useConfirm(),
     };
   },
   computed: {
-    totalRecords() {
-      return this.children.length;
+    children() {
+      return [...new Set(this.childrenDocuments.map(doc => doc.child))]
     },
-    paginatedChildren() {
-      const start = this.currentPage * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.children.slice(start, end);
+    rejectedDocuments() {
+      return this.documents
+        .filter(doc => doc.document.verified === false)
+        .sort((a, b) => b.document.id - a.document.id);
+    },
+    acceptedDocuments() {
+      return this.documents
+        .filter(doc => doc.document.verified === true)
+        .sort((a, b) => b.document.id - a.document.id);
+    },
+    uncheckedDocuments() {
+      const result = this.documents
+        .filter(doc => doc.document.verified === null)
+        .sort((a, b) => b.document.id - a.document.id);
+      console.log('Unchecked documents:', result);
+      console.log('Total documents:', this.documents.length);
+      return result;
+    },
+    tabsConfig() {
+      const tabs = [
+        {
+          key: 'unchecked',
+          header: 'Необработанные',
+          documents: this.uncheckedDocuments,
+          hasDocuments: this.uncheckedDocuments.length > 0
+        },
+        {
+          key: 'accepted',
+          header: 'Принятые',
+          documents: this.acceptedDocuments,
+          hasDocuments: this.acceptedDocuments.length > 0
+        },
+        {
+          key: 'rejected',
+          header: 'Отклоненные',
+          documents: this.rejectedDocuments,
+          hasDocuments: this.rejectedDocuments.length > 0
+        }
+      ];
+
+      // Сортируем табы: сначала с документами, потом без документов
+      return tabs.sort((a, b) => {
+        if (a.hasDocuments && !b.hasDocuments) return -1;
+        if (!a.hasDocuments && b.hasDocuments) return 1;
+        return 0;
+      });
     },
   },
   async mounted() {
-    await this.loadChildren();
+    await this.loadFiles()
+    await this.loadChildrenDocuments();
   },
   methods: {
-    async loadChildren() {
-      try {
-        console.log('Loading children documents...');
-        const apiResolver = new ApiResolver("users-service/v1/children");
-        const response = await apiResolver.request<null, { message: Child[] }>(
-          "",
-          "GET",
-          null,
-          localStorage.getItem("access_token") || undefined
+    getChildFullName(child: ChildOutputDto) {
+      return `${child.lastName} ${child.firstName} ${child.patronymic}`
+    },
+    filterChildren(event: { query: string }) {
+      const query = event.query ? event.query.toLowerCase() : '';
+      let filtered = [];
+      if (!query.length) {
+        filtered = [...this.children];
+      } else {
+        filtered = [...this.children].filter(child =>
+          child.lastName.toLowerCase().includes(query) ||
+          child.firstName.toLowerCase().includes(query) ||
+          child.patronymic.toLowerCase().includes(query))
+      }
+
+      const uniqueByName = new Map();
+      filtered.forEach(item => {
+        if (!uniqueByName.has(item.id)) {
+          uniqueByName.set(item.id, item);
+        }
+      });
+
+      this.filteredChildren = [...uniqueByName.values()]
+        .map(child => {
+          return {
+            ...child,
+            fullName: this.getChildFullName(child)
+          }
+        })
+        .sort((a, b) => a.lastName.localeCompare(b.lastName));
+    },
+    filterDocs(docs: DocPerChild[]) {
+      if (this.selectedDocumentType) {
+        docs = docs.filter(
+          (doc) => doc.document.fileType === this.selectedDocumentType,
         );
+      }
+
+      if (this.selectedChild) {
+        docs = docs.filter(
+          (doc) => this.selectedChild?.id === doc.child.id,
+        );
+      }
+
+      return docs;
+    },
+
+    resetFilters() {
+      this.selectedDocumentType = null;
+      this.selectedChild = null;
+    },
+    addChildDocument(docId: number, child: ChildOutputDto) {
+      const doc = this.files.find(file => file.id === docId)
+      if (doc !== undefined) {
+        this.documents.push({
+          child: child,
+          document: doc
+        });
+      }
+    },
+    async loadFiles() {
+      const response = await this.fileResolver.getAll()
+      if ((response as CommonOutputDto<string>).message) return
+      this.files = response as DocsOutputFileUploadDto[]
+    },
+    async loadChildrenDocuments() {
+      try {
+        const response = await this.childDocumentsResolver.getAll()
         
-        console.log('Children response:', response);
-        
-        if (response.status === 200 && response.message) {
-          this.children = response.message;
-          console.log('Children loaded:', this.children);
+        if (response.status === 200 && typeof response.message !== "string") {
+          this.childrenDocuments = response.message;
+          for (const docs of this.childrenDocuments) {
+            this.addChildDocument(docs.birthCertificateId, docs.child)
+            this.addChildDocument(docs.snilsId, docs.child)
+            this.addChildDocument(docs.studyingCertificateId, docs.child)
+            this.addChildDocument(docs.additionalStudyingCertificateId, docs.child)
+            this.addChildDocument(docs.consentToChildPdpId, docs.child)
+          }
         } else {
           console.error('Failed to load children:', response);
           this.errors.toastPopup = {
@@ -248,77 +316,111 @@ export default {
         };
       }
     },
+    handleDeleteDocument(document: DocsOutputFileUploadDto) {
+      this.confirm.require({
+        message: `Вы уверены, что хотите удалить документ №${document.id}?`,
+        header: 'Подтверждение удаления',
+        icon: 'pi pi-exclamation-triangle',
+        rejectLabel: 'Отмена',
+        acceptLabel: 'Удалить',
+        acceptClass: 'p-button-danger',
+        rejectClass: 'p-button-text',
+        accept: async () => {
+          try {
+            const response = await this.fileResolver.deleteById(
+              document.id,
+            );
+            if (response.status === 200) {
+              // Локально удаляем документ из списка без полной перезагрузки
+              const documentIndex = this.documents.findIndex(doc => doc.document.id === document.id);
+              if (documentIndex !== -1) {
+                this.documents.splice(documentIndex, 1);
+              }
 
-    getChildFullName(child: Child) {
-      return `${child.lastName} ${child.firstName} ${child.patronymic}`;
+              // Показываем уведомление об успешном удалении
+              this.errors.toastPopup = {
+                title: "Успешно",
+                message: "Документ удален успешно",
+              };
+            }
+          } catch (error) {
+            console.error('Ошибка при удалении документа:', error);
+            this.errors.toastPopup = {
+              title: "Ошибка",
+              message: "Не удалось удалить документ",
+            };
+          }
+        }
+      });
     },
 
-    getParentFullName(user: User) {
-      return `${user.lastName} ${user.firstName} ${user.patronymic}`;
-    },
+    handleVerifyDocument(data: {
+      document: DocsOutputFileUploadDto,
+      status: boolean,
+      success?: boolean,
+      action?: string,
+      actionPast?: string,
+      showConfirm?: boolean
+    }) {
+      if (data.showConfirm) {
+        // Показываем диалог подтверждения
+        this.confirm.require({
+          message: `Вы уверены, что хотите ${data.action} документ №${data.document.id}?`,
+          header: `Подтверждение ${data.action === 'принять' ? 'принятия' : 'отклонения'}`,
+          icon: data.status ? 'pi pi-check-circle' : 'pi pi-times-circle',
+          rejectLabel: 'Отмена',
+          acceptLabel: data.action,
+          acceptClass: data.status ? 'p-button-success' : 'p-button-danger',
+          rejectClass: 'p-button-text',
+          accept: async () => {
+            try {
+              const response = await this.fileResolver.verify(data.document.id, data.status);
+              if (response.status === 200) {
+                // Локально обновляем статус документа в основном массиве
+                const documentIndex = this.documents.findIndex(doc => doc.document.id === data.document.id);
+                if (documentIndex !== -1) {
+                  this.documents[documentIndex].document.verified = data.status;
+                }
 
-    formatDate(dateString: string) {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('ru-RU');
-    },
+                // Показываем уведомление об успешной верификации
+                this.errors.toastPopup = {
+                  title: "Успешно",
+                  message: `Документ ${data.actionPast} успешно`,
+                };
+              } else {
+                // Показываем уведомление об ошибке
+                this.errors.toastPopup = {
+                  title: "Ошибка",
+                  message: "Не удалось обновить статус документа",
+                };
+              }
+            } catch (error) {
+              console.error('Ошибка при верификации документа:', error);
+              this.errors.toastPopup = {
+                title: "Ошибка",
+                message: "Не удалось обновить статус документа",
+              };
+            }
+          }
+        });
+      } else if (data.success) {
+        // Локально обновляем статус документа в основном массиве
+        const documentIndex = this.documents.findIndex(doc => doc.document.id === data.document.id);
+        if (documentIndex !== -1) {
+          this.documents[documentIndex].document.verified = data.status;
+        }
 
-    getAgeGroupLabel(age: string) {
-      const ageGroup = this.ageGroups.find(ag => ag.value === age);
-      return ageGroup ? ageGroup.label : age;
-    },
-
-    getChildDocumentsCount(child: Child) {
-      if (!child.childDocuments) return 0;
-      
-      let count = 0;
-      if (child.childDocuments.snilsId) count++;
-      if (child.childDocuments.studyingCertificateId) count++;
-      if (child.childDocuments.additionalStudyingCertificateId) count++;
-      if (child.childDocuments.consentToChildPdpId) count++;
-      if (child.childDocuments.birthCertificateId) count++;
-      
-      return count;
-    },
-
-    previewFile(fileId: number) {
-      const fileUrl = `/file-service/v1/files/view/${fileId}`;
-      window.open(fileUrl, '_blank');
-    },
-
-    async approveChildParticipation(childId: number) {
-      try {
-        console.log(`Approving child participation ${childId}`);
-        // Здесь должен быть API вызов для одобрения участия ребенка
-        // const response = await this.approveChildAPI(childId);
-        
+        // Показываем уведомление об успешной верификации
+        const action = data.status ? 'принят' : 'отклонен';
         this.errors.toastPopup = {
-          title: "Успех",
-          message: "Участие ребенка в чемпионате одобрено",
+          title: "Успешно",
+          message: `Документ ${action} успешно`,
         };
-      } catch (error) {
-        console.error('Error approving child participation:', error);
+      } else {
+        // Показываем уведомление об ошибке
         this.errors.toastPopup = {
           title: "Ошибка",
-          message: "Не удалось одобрить участие ребенка",
-        };
-      }
-    },
-
-    async rejectChildParticipation(childId: number) {
-      try {
-        console.log(`Rejecting child participation ${childId}`);
-        // Здесь должен быть API вызов для отклонения участия ребенка
-        // const response = await this.rejectChildAPI(childId);
-        
-        this.errors.toastPopup = {
-          title: "Успех",
-          message: "Участие ребенка в чемпионате отклонено",
-        };
-      } catch (error) {
-        console.error('Error rejecting child participation:', error);
-        this.errors.toastPopup = {
-          title: "Ошибка",
-          message: "Не удалось отклонить участие ребенка",
+          message: "Не удалось обновить статус документа",
         };
       }
     },
@@ -330,181 +432,347 @@ export default {
   },
 };
 </script>
-
 <style scoped>
-.children-documents-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  animation: slideInRight 0.4s ease-out;
-}
+  .documents-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: slideInRight 0.4s ease-out;
+    width: 100%;
+    box-sizing: border-box;
+  }
 
-.page-header {
-  margin-bottom: 2rem;
-}
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
 
-.page-title {
-  color: #2c3e50;
-  margin: 0 0 0.5rem 0;
-  font-size: 2rem;
-  font-weight: 700;
-  font-family: "BIPS", sans-serif;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
+  .page-header {
+    margin-bottom: 2rem;
+  }
 
-.page-subtitle {
-  color: #6c757d;
-  margin: 0;
-  font-size: 1.1rem;
-}
+  .page-title {
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: 600;
+    font-family: "BIPS", sans-serif;
+  }
 
-.children-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 1.5rem;
-  width: 100%;
-  margin-bottom: 4rem;
-}
+  .page-subtitle {
+    color: #6c757d;
+    margin: 0;
+    font-size: 1.1rem;
+  }
 
-.child-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  border: 2px solid transparent;
-  overflow: hidden;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
-}
+  .page-actions {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
 
-.child-card:hover {
-  box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2);
-  border: 2px solid #ff9800;
-}
-
-.child-header {
-  background: linear-gradient(135deg, #ff9800, #f57c00);
-  color: white;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.child-icon {
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.child-info {
-  flex: 1;
-}
-
-.child-name {
-  margin: 0 0 0.25rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-
-.child-content {
-  padding: 1.5rem;
-}
-
-.child-details {
-  margin-bottom: 1.5rem;
-}
-
-.detail-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f1f3f4;
-}
-
-.detail-item:last-child {
-  border-bottom: none;
-}
-
-.detail-label {
-  color: #6c757d;
-  font-weight: 500;
-  min-width: 100px;
-}
-
-.detail-value {
-  color: #2c3e50;
-  font-weight: 500;
-  text-align: right;
-}
-
-.verify {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: flex-end;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
-  padding: 1rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #6c757d;
-}
-
-.empty-state h3 {
-  margin: 1rem 0 0.5rem 0;
-  color: #495057;
-}
-
-.empty-state p {
-  margin: 0;
-}
-
-/* Мобильные стили */
-@media (max-width: 768px) {
-  .children-documents-page {
+  .filters-section {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    margin-bottom: 2rem;
     padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    flex-wrap: wrap;
   }
 
-  .children-grid {
-    grid-template-columns: 1fr;
+  /* Обычные фильтры */
+  .sticky-filters {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
   }
 
-  .child-header {
+  .sticky-filters:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .filter-group {
+    display: flex;
     flex-direction: column;
-    align-items: stretch;
     gap: 0.5rem;
+    min-width: 150px;
   }
 
-  .child-icon {
-    align-self: flex-start;
-  }
-
-  .document-item {
-    flex-direction: column;
-    align-items: stretch;
+  .age-buttons {
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
+    align-items: center;
   }
 
-  .child-actions {
-    flex-direction: column;
+  .filter-group label {
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.9rem;
   }
-}
+
+  .filter-dropdown {
+    width: 100%;
+  }
+
+  /* Формы */
+  .upload-form,
+  .link-form {
+    padding: 1rem 0;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-field label {
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  /* Мобильные стили */
+  @media (max-width: 768px) {
+    .documents-page {
+      padding: 0 1rem;
+      max-width: 100%;
+      width: 100%;
+    }
+
+    .documents-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+    }
+
+    .page-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filters-section {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-group {
+      min-width: auto;
+    }
+
+    .document-header {
+      padding: 1rem;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .document-icon {
+      width: 50px;
+      height: 50px;
+      font-size: 1.2rem;
+    }
+
+    .document-content {
+      padding: 1rem;
+    }
+
+    .detail-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+
+    .detail-value {
+      text-align: left;
+    }
+  }
+
+  /* Стили для табов документов */
+  .documents-tabs {
+    margin-top: 2rem;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav) {
+    background: transparent;
+    border-radius: 0;
+    padding: 0.5rem 0;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li) {
+    margin-right: 0.5rem;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li .p-tabview-nav-link) {
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li.p-highlight .p-tabview-nav-link) {
+    background: #ff9800;
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+  }
+
+  .documents-tabs :deep(.p-tabview-panels) {
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  /* Стили для недоступных табов */
+  .documents-tabs :deep(.p-tabview-nav li.disabled-tab .p-tabview-nav-link) {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+    border: 1px solid #dee2e6;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li.disabled-tab .p-tabview-nav-link:hover) {
+    background: #f8f9fa;
+    color: #6c757d;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .documents-tabs :deep(.p-tabview-nav li.disabled-tab) {
+    order: 999; /* Перемещаем в конец */
+  }
+
+  /* Обычный контейнер для табов */
+  .custom-sticky-container {
+    position: relative;
+    background: white;
+    transition: all 0.3s ease;
+  }
+
+  /* Очень маленькие экраны */
+  @media (max-width: 480px) {
+    .documents-page {
+      padding: 0 0.5rem;
+      max-width: 100%;
+      width: 100%;
+    }
+
+    .page-title {
+      font-size: 1.3rem;
+    }
+
+    .page-subtitle {
+      font-size: 0.9rem;
+    }
+
+    .document-header {
+      padding: 0.75rem;
+    }
+
+    .document-icon {
+      width: 40px;
+      height: 40px;
+      font-size: 1rem;
+    }
+
+    .document-name {
+      font-size: 1rem;
+    }
+
+    .document-type {
+      font-size: 0.8rem;
+    }
+
+    .document-content {
+      padding: 0.75rem;
+    }
+
+    .expert-info {
+      padding: 0.75rem;
+    }
+  }
+
+  /* Стили для диалога подтверждения */
+  :deep(.p-confirm-dialog) {
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  :deep(.p-confirm-dialog .p-dialog-header) {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 1.5rem;
+  }
+
+  :deep(.p-confirm-dialog .p-dialog-title) {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  :deep(.p-confirm-dialog .p-dialog-content) {
+    padding: 2rem 1.5rem;
+    background: #f8f9fa;
+  }
+
+  :deep(.p-confirm-dialog .p-dialog-message) {
+    color: #2c3e50;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  :deep(.p-confirm-dialog .p-dialog-footer) {
+    padding: 1rem 1.5rem 1.5rem;
+    background: white;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+
+  :deep(.p-confirm-dialog .p-button) {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  :deep(.p-confirm-dialog .p-button-danger) {
+    background: #dc3545;
+    border-color: #dc3545;
+  }
+
+  :deep(.p-confirm-dialog .p-button-danger:hover) {
+    background: #c82333;
+    border-color: #bd2130;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  }
+
+  :deep(.p-confirm-dialog .p-button-text) {
+    color: #6c757d;
+    background: transparent;
+    border: 1px solid #dee2e6;
+  }
+
+  :deep(.p-confirm-dialog .p-button-text:hover) {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+    color: #495057;
+  }
+
+
 </style>

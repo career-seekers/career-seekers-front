@@ -74,6 +74,30 @@ export class FileResolver {
       this.token ? this.token : undefined,
     )
   }
+
+  public async verify(id: number, status: boolean) {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<string>
+    >(
+      `verify/${id.toString()}/${status.toString()}`,
+      "PATCH",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
+
+  public async deleteById(id: number) {
+    return await this.apiResolver.request<
+      null,
+      CommonOutputDto<string>
+    >(
+      id.toString(),
+      "DELETE",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
 }
 
 export enum FileEndpoints {
