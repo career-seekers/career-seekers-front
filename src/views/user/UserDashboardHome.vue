@@ -843,13 +843,18 @@ export default {
         }
 
         // Обновляем наставника для ребенка
+        console.log(this.availableMentors.find(mentor => mentor.id === mentorId) !== undefined
+          || mentorId === this.user?.id)
         await this.childResolver.update({
           id: this.selectedChild.id,
-          mentorId: mentorId,
-          dateOfBirth: null,
-          firstName: null,
-          lastName: null,
-          patronymic: null
+          mentorId: (this.availableMentors.find(mentor => mentor.id === mentorId) !== undefined
+            || mentorId === this.user?.id)
+            ? mentorId
+            : this.user!.id,
+          dateOfBirth: this.selectedChild.dateOfBirth,
+          firstName: this.selectedChild.firstName,
+          lastName: this.selectedChild.lastName,
+          patronymic: this.selectedChild.patronymic
         });
 
         // Обновляем данные пользователя

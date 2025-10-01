@@ -130,7 +130,7 @@
       },
       async loadAvailableMentor() {
         // Проверяем localStorage на наличие ID наставника
-        const strMentorIds = localStorage.getItem('selectedMentorId');
+        const strMentorIds = localStorage.getItem('mentorIds');
         const mentorIds = strMentorIds ? JSON.parse(strMentorIds) as number[] : [];
         console.log('Loading available mentor from localStorage ID:', mentorIds);
         

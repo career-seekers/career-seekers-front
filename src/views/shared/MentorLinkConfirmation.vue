@@ -182,7 +182,6 @@ export default {
     },
     async confirmMentorLink() {
       if (this.mentorId && this.userStore.user) {
-        console.log("hi")
         try {
           const strMentorIds = localStorage.getItem("mentorIds")
           const mentorIds = (strMentorIds as string | null) !== null
