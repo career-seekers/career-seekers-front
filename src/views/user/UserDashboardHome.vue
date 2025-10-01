@@ -176,7 +176,6 @@
           @update:platform-file="(val) => addPlatformFile = val"
           @update:consent-file="(val) => addConsentFile = val"
         />
-        {{ childForm }}
         <Button
           :label="isEditing ? 'Обновить данные о ребенке' : 'Добавить нового ребёнка'"
           icon="pi pi-plus"
