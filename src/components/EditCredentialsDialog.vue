@@ -59,7 +59,7 @@
       },
     },
     watch: {
-      showSettingsProp(oldVal, newVal) {
+      showSettingsProp(newVal, oldVal) {
         if (newVal !== oldVal) {
           this.showUserSettingsDialog = this.showSettingsProp
         }

@@ -538,7 +538,6 @@
       }
     },
     methods: {
-      useUserStore,
       onBirthCertificateSelect(event: FileUploadSelectEvent) {
         this.handleFileSelect(event, "birthCertificate");
       },
