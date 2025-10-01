@@ -59,10 +59,10 @@
       <div class="info-card">
         <div class="card-header">
           <div class="card-header-content">
-          <h3 class="card-title">
+            <h3 class="card-title">
               <i class="pi pi-users" />
               Мои дети
-          </h3>
+            </h3>
             <Button
               label="Добавить ребёнка"
               icon="pi pi-plus"
@@ -76,7 +76,7 @@
             <p class="preview-text">
               Всего детей: {{ user.children.length }}
             </p>
-      </div>
+          </div>
           <div
             v-if="user.children && user.children.length > 0"
             class="competencies-section competencies-scrollable"
@@ -101,7 +101,7 @@
                 >
                   <div class="competence-icon">
                     <i class="pi pi-star" />
-    </div>
+                  </div>
                   <div class="competence-info">
                     <div class="competence-name">
                       {{ competence.direction.name }}
@@ -176,6 +176,7 @@
           @update:platform-file="(val) => addPlatformFile = val"
           @update:consent-file="(val) => addConsentFile = val"
         />
+        {{ childForm }}
         <Button
           :label="isEditing ? 'Обновить данные о ребенке' : 'Добавить нового ребёнка'"
           icon="pi pi-plus"
@@ -194,7 +195,10 @@
       :modal="true"
       :style="{ width: '800px', maxWidth: '90vw' }"
     >
-      <div v-if="selectedChildDetails" class="child-details">
+      <div
+        v-if="selectedChildDetails"
+        class="child-details"
+      >
         <!-- Информация о ребенке -->
         <div class="details-section">
           <h4 class="section-title">
@@ -255,7 +259,10 @@
             <i class="pi pi-users" />
             Наставник
           </h4>
-          <div v-if="selectedChildDetails.child.mentor" class="mentor-info">
+          <div
+            v-if="selectedChildDetails.child.mentor"
+            class="mentor-info"
+          >
             <div class="mentor-details">
               <div class="detail-item">
                 <span class="detail-label">ФИО:</span>
@@ -281,7 +288,10 @@
               />
             </div>
           </div>
-          <div v-else class="no-mentor">
+          <div
+            v-else
+            class="no-mentor"
+          >
             <p class="no-mentor-text">
               <i class="pi pi-info-circle" />
               Наставник не выбран
@@ -326,7 +336,10 @@
               </div>
             </div>
             <div class="mentor-actions">
-              <i v-if="selectedMentorId === 'parent'" class="pi pi-check selected-icon" />
+              <i
+                v-if="selectedMentorId === 'parent'"
+                class="pi pi-check selected-icon"
+              />
             </div>
           </div>
           
@@ -350,12 +363,15 @@
             <div class="mentor-actions">
               <Button
                 v-if="getSavedMentorIds.includes(mentor.id)"
+                v-tooltip="'Удалить из списка'"
                 icon="pi pi-trash"
                 class="p-button-danger p-button-sm p-button-text"
                 @click.stop="removeMentorFromList(mentor.id)"
-                v-tooltip="'Удалить из списка'"
               />
-              <i v-if="selectedMentorId === mentor.id" class="pi pi-check selected-icon" />
+              <i
+                v-if="selectedMentorId === mentor.id"
+                class="pi pi-check selected-icon"
+              />
             </div>
           </div>
         </div>
@@ -395,10 +411,12 @@ import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
 import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
 import type { ChildCompetenciesOutputDto } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
+import ChildrenList from '@/components/ChildrenList.vue';
 
 export default {
   name: "UserDashboardHome",
   components: {
+    ChildrenList,
     ToastPopup,
     AddChildForm,
     Button,
@@ -661,14 +679,15 @@ export default {
           && this.childForm.grade !== null
           && this.user !== null
           && typeof child !== "string") {
+          console.log(this.childForm)
           const response = await this.childDocumentsResolver.create({
             childId: child.id,
             additionalStudyingCertificateFile: this.childForm.platformCertificate,
             birthCertificateFile: this.childForm.birthCertificate,
             consentToChildPdpFile: this.childForm.childConsentFile,
             learningClass: this.childForm.grade,
-            parentRole: this.user.children.length > 0
-              ? this.user.children[0].childDocuments!.parentRole
+            parentRole: this.user.children.length > 0 && this.user.children[0].childDocuments !== null
+              ? this.user.children[0].childDocuments?.parentRole
               : "Не указано",
             snilsFile: this.childForm.snilsScan,
             snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),

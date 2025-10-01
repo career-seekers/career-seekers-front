@@ -11,6 +11,7 @@ export class ChildDocumentsResolver {
   private token = localStorage.getItem("access_token");
 
   public async create(data: ChildDocumentsInputDto) {
+    console.log(data)
     return this.apiResolver.request<
       FormData,
       CommonOutputDto<ChildDocumentsOutputDto | string>

@@ -9,18 +9,9 @@ import type {
 
 export class ChildCompetenciesResolver {
   private apiResolver = new ApiResolver("events-service/v1/childToDirection");
-
-  private getToken(): string | undefined {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      console.warn('Токен авторизации не найден в localStorage');
-      return undefined;
-    }
-    return token;
-  }
+  private token = localStorage.getItem("access_token");
 
   public async getByChildId(id: number) {
-    console.log(`Запрос компетенций для ребенка ID: ${id}`);
     return this.apiResolver.request<
       null,
       CommonOutputDto<ChildCompetenciesOutputDto[] | string>
@@ -28,7 +19,7 @@ export class ChildCompetenciesResolver {
       `getByChildId/${id.toString()}`,
       "GET",
       null,
-      this.getToken()
+      this.token ? this.token : undefined
     )
   }
 
@@ -40,7 +31,7 @@ export class ChildCompetenciesResolver {
       ``,
       "POST",
       data,
-      this.getToken()
+      this.token ? this.token : undefined
     )
   }
 
