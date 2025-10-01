@@ -2,9 +2,6 @@
   <div
     class="competencies-selection"
   >
-    {{ assignedOutput(assignedCompetencies) }}
-    {{ assignedOutput(assignedCompetenciesCopy) }}
-
     <div class="page-header">
       <h1 class="page-title">
         Выбор компетенций
