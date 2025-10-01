@@ -1,0 +1,18 @@
+export interface ChildPackInputDto {
+  lastName: string,
+  firstName: string,
+  patronymic: string,
+  dateOfBirth: string,
+  userId: number,
+  mentorId: number | null,
+  snilsNumber: string,
+  snilsFile: File,
+  studyingPlace: string,
+  studyingCertificateFile: File,
+  learningClass: number,
+  trainingGround: string,
+  additionalStudyingCertificateFile: File,
+  parentRole: string,
+  consentToChildPdpFile: File,
+  birthCertificateFile: File,
+}

@@ -411,6 +411,7 @@ import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
 import type { ChildCompetenciesOutputDto } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
 import ChildrenList from '@/components/ChildrenList.vue';
+import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 
 export default {
   name: "UserDashboardHome",
@@ -428,6 +429,7 @@ export default {
       childResolver: new ChildResolver(),
       childDocumentsResolver: new ChildDocumentsResolver(),
       childCompetenciesResolver: new ChildCompetenciesResolver(),
+      childPackResolver: new ChildPackResolver(),
       userResolver: new UserResolver(),
       mentorLinksResolver: new MentorLinksResolver(),
       userStore: useUserStore(),
@@ -546,7 +548,7 @@ export default {
   },
   methods: {
     async loadCompetencies() {
-      const response = await this.childResolver.getByUserId(this.user.id)
+      const response = await this.childResolver.getByUserId(this.user!.id)
       if (typeof response.message !== "string" && response.status === 200) {
         this.children = response.message;
         for (const child of this.children) {
@@ -653,7 +655,7 @@ export default {
     async addChild() {
       if (this.user === null || !this.validateForm()) return
       this.isLoading = true;
-      if (this.selectedChild !== null && (this.isEditing || this.selectedChild.childDocuments === null)) {
+      if (this.isEditing && this.selectedChild !== null) {
         await this.childResolver.update({
           id: this.selectedChild.id,
           lastName: this.childForm.fullName.split(" ")[0],
@@ -662,59 +664,43 @@ export default {
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null
         })
-        await this.addChildDocs(this.selectedChild)
+        await this.addChildDocs()
+        await this.userStore.fillChildren()
       } else {
-        const childResponse = await this.childResolver.create({
+        const response = await this.childPackResolver.create({
           userId: this.user.id,
           lastName: this.childForm.fullName.split(" ")[0],
           firstName: this.childForm.fullName.split(" ")[1],
           patronymic: this.childForm.fullName.split(" ")[2],
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
-          mentorId: null
+          mentorId: null,
+          additionalStudyingCertificateFile: this.childForm.platformCertificate!,
+          birthCertificateFile: this.childForm.birthCertificate!,
+          consentToChildPdpFile: this.childForm.childConsentFile!,
+          learningClass: this.childForm.grade!,
+          parentRole: this.user.children.length > 0 && this.user.children[0].childDocuments !== null
+            ? this.user.children[0].childDocuments?.parentRole
+            : "Не указано",
+          snilsFile: this.childForm.snilsScan!,
+          snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
+          studyingCertificateFile: this.childForm.schoolCertificate!,
+          studyingPlace: this.childForm.schoolName,
+          trainingGround: this.childForm.platform
         })
-        await this.addChildDocs(childResponse.message)
+        if (typeof response.message !== "string") await this.userStore.fillChildren()
+        else this.toastPopup = {
+          title: response.status.toString(),
+          message: response.message
+        }
       }
-      await this.userStore.fillChildren()
       this.isLoading = false
       this.showAddChildDialog = false
     },
-    async addChildDocs(child: ChildOutputDto | string) {
-      if (this.selectedChild === null || this.selectedChild.childDocuments === null) {
-        if (this.childForm.childConsentFile !== null
-          && this.childForm.schoolCertificate !== null
-          && this.childForm.birthCertificate !== null
-          && this.childForm.platformCertificate !== null
-          && this.childForm.snilsScan !== null
-          && this.childForm.grade !== null
-          && this.user !== null
-          && typeof child !== "string") {
-          console.log(this.childForm)
-          const response = await this.childDocumentsResolver.create({
-            childId: child.id,
-            additionalStudyingCertificateFile: this.childForm.platformCertificate,
-            birthCertificateFile: this.childForm.birthCertificate,
-            consentToChildPdpFile: this.childForm.childConsentFile,
-            learningClass: this.childForm.grade,
-            parentRole: this.user.children.length > 0 && this.user.children[0].childDocuments !== null
-              ? this.user.children[0].childDocuments?.parentRole
-              : "Не указано",
-            snilsFile: this.childForm.snilsScan,
-            snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
-            studyingCertificateFile: this.childForm.schoolCertificate,
-            studyingPlace: this.childForm.schoolName,
-            trainingGround: this.childForm.platform
-          })
-          if (typeof response.message === "string") {
-            this.toastPopup = {
-              title: `Ошибка ${response.status.toString()} при загрузке документов`,
-              message: response.message
-            }
-          }
-        }
-      } else if (this.addBirthFile || this.addSnilsFile
+    async addChildDocs() {
+      if (this.addBirthFile || this.addSnilsFile
         || this.addSchoolFile || this.addPlatformFile
         || this.addConsentFile) {
-        await this.childDocumentsResolver.update({
+        const response = await this.childDocumentsResolver.update({
           id: this.selectedChild!.childDocuments!.id,
           additionalStudyingCertificateFile: this.childForm.platformCertificate,
           birthCertificateFile: this.childForm.birthCertificate,
@@ -729,6 +715,7 @@ export default {
           studyingPlace: this.childForm.schoolName ?? this.selectedChild!.childDocuments!.studyingPlace,
           trainingGround: this.childForm.platform ?? this.selectedChild!.childDocuments!.trainingGround,
         })
+        if (typeof response.message !== "string") await this.userStore.fillChildren()
       }
     },
     // Методы для работы с компетенциями
