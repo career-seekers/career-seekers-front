@@ -93,7 +93,9 @@
 
         <!-- Отображение мест по возрастным категориям -->
         <div class="age-places-section">
-          <div class="age-places-title">Места по возрастам:</div>
+          <div class="age-places-title">
+            Места по возрастам:
+          </div>
           <div class="age-places-list">
             <div
               v-for="ageCategory in competence.ageCategories"
@@ -351,7 +353,6 @@
         <!--        />-->
       </template>
     </Dialog>
-
   </div>
 </template>
 

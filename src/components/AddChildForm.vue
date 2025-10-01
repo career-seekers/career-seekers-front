@@ -197,7 +197,7 @@
         for="is-home-educate"
         class="ml-2 agreement-label"
       >
-        На домашнем обучении
+        Нет ОУ / На домашнем обучении
       </label>
     </div>
   </div>
@@ -315,7 +315,7 @@
         for="is-home-prepare"
         class="ml-2 agreement-label"
       >
-        На домашнем обучении
+        Нет площадки подготовки / На домашнем обучении
       </label>
     </div>
   </div>

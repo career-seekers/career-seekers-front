@@ -219,7 +219,7 @@
             />
             <Button
               v-tooltip="'Удалить'"
-              icon="pi pi-times"
+              icon="pi pi-trash"
               style="background: white; margin-left: 0.5rem;"
               class="p-button-outlined p-button-sm"
               @click="deleteChild(selectedChildDetails.child.id)"
@@ -490,7 +490,7 @@
             />
             <Button
               v-tooltip="'Удалить'"
-              icon="pi pi-times"
+              icon="pi pi-trash"
               style="background: white; margin-left: 0.5rem;"
               class="p-button-outlined p-button-sm"
               @click="deleteChild(selectedChildInfo.id)"
@@ -1163,7 +1163,7 @@ export default {
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null,
           additionalStudyingCertificateFile: this.isHomePrepared
-            ? await this.getHomeEducationFile("home_preparation.txt")
+            ? await this.getHomeFile("home_preparation.txt")
             : this.childForm.platformCertificate!,
           birthCertificateFile: this.childForm.birthCertificate!,
           consentToChildPdpFile: this.childForm.childConsentFile!,
@@ -1176,7 +1176,7 @@ export default {
           snilsFile: this.childForm.snilsScan!,
           snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
           studyingCertificateFile: this.isHomeEducated
-            ? await this.getHomeEducationFile("home_education.txt")
+            ? await this.getHomeFile("home_education.txt")
             : this.childForm.schoolCertificate!,
           studyingPlace: this.isHomeEducated
             ? "Домашнее обучение"
@@ -1205,7 +1205,7 @@ export default {
         const response = await this.childDocumentsResolver.update({
           id: this.selectedChild!.childDocuments!.id,
           additionalStudyingCertificateFile: this.isHomePrepared
-            ? await this.getHomeEducationFile("home_preparation.txt")
+            ? await this.getHomeFile("home_preparation.txt")
             : this.childForm.platformCertificate,
           birthCertificateFile: this.childForm.birthCertificate,
           consentToChildPdpFile: this.childForm.childConsentFile,
@@ -1218,7 +1218,7 @@ export default {
             ? FormatManager.formatSnilsToDTO(this.childForm.snilsNumber)
             : this.selectedChild!.childDocuments!.snilsNumber,
           studyingCertificateFile: this.isHomeEducated
-            ? await this.getHomeEducationFile("home_education.txt")
+            ? await this.getHomeFile("home_education.txt")
             : this.childForm.schoolCertificate,
           studyingPlace: this.isHomeEducated
             ? "Домашнее обучение"
@@ -1237,7 +1237,7 @@ export default {
         this.hideAllDialogs()
       }
     },
-    async getHomeEducationFile(filename: string) {
+    async getHomeFile(filename: string) {
       const response = await fetch(`/docs/${filename}`)
       const blob = await response.blob()
       return new File([], filename, { type: blob.type })
