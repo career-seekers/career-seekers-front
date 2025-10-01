@@ -256,56 +256,107 @@
           </div>
         </div>
 
-        <!-- Информация о наставнике -->
-        <div class="details-section">
+        <!-- Информация о документах -->
+        <div class="info-section">
           <h4 class="section-title">
-            <i class="pi pi-users" />
-            Наставник
+            <i class="pi pi-file" />
+            Документы
           </h4>
           <div
-            v-if="selectedChildDetails.child.mentor"
-            class="mentor-info"
+            v-if="selectedDocs"
+            class="info-grid docs-grid"
           >
-            <div class="mentor-details">
-              <div class="detail-item">
-                <span class="detail-label">ФИО:</span>
-                <span class="detail-value">
-                  {{ `${selectedChildDetails.child.mentor.lastName} ${selectedChildDetails.child.mentor.firstName} ${selectedChildDetails.child.mentor.patronymic}` }}
-                </span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">Email:</span>
-                <span class="detail-value">{{ selectedChildDetails.child.mentor.email }}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">Телефон:</span>
-                <span class="detail-value">{{ FormatManager.formatMobileNumberFromDTO(selectedChildDetails.child.mentor.mobileNumber) }}</span>
-              </div>
+            <div class="info-item">
+              <span class="info-label">Скан свидетельства о рождении:</span>
+              <span class="info-value">
+                {{ `Статус: ${selectedDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
+              </span>
             </div>
-            <div class="mentor-actions">
-              <Button
-                label="Изменить наставника"
-                icon="pi pi-pencil"
-                class="p-button-outlined p-button-sm"
-                @click="openMentorSelectionDialog(selectedChildDetails.child)"
-              />
+            <div class="info-item">
+              <span class="info-label">СНИЛС:</span>
+              <span class="info-value">
+                {{ `Статус: ${selectedDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Скан справки из ОУ:</span>
+              <span class="info-value">
+                {{ `Статус: ${selectedDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Скан справки из площадки подготовки:</span>
+              <span class="info-value">
+                {{ `Статус: ${selectedDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Скан согласия на ОПД:</span>
+              <span class="info-value">
+                {{ `Статус: ${selectedDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
+              </span>
             </div>
           </div>
           <div
             v-else
-            class="no-mentor"
           >
             <p class="no-mentor-text">
               <i class="pi pi-info-circle" />
-              Наставник не выбран
+              Нет загруженных документов
             </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Информация о наставнике -->
+      <div class="details-section">
+        <h4 class="section-title">
+          <i class="pi pi-users" />
+          Наставник
+        </h4>
+        <div
+          v-if="selectedChildDetails.child.mentor"
+          class="mentor-info"
+        >
+          <div class="mentor-details">
+            <div class="detail-item">
+              <span class="detail-label">ФИО:</span>
+              <span class="detail-value">
+                {{ `${selectedChildDetails.child.mentor.lastName} ${selectedChildDetails.child.mentor.firstName} ${selectedChildDetails.child.mentor.patronymic}` }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email:</span>
+              <span class="detail-value">{{ selectedChildDetails.child.mentor.email }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Телефон:</span>
+              <span class="detail-value">{{ FormatManager.formatMobileNumberFromDTO(selectedChildDetails.child.mentor.mobileNumber) }}</span>
+            </div>
+          </div>
+          <div class="mentor-actions">
             <Button
-              label="Выбрать наставника"
-              icon="pi pi-plus"
-              class="p-button-primary p-button-sm"
+              label="Изменить наставника"
+              icon="pi pi-pencil"
+              class="p-button-outlined p-button-sm"
               @click="openMentorSelectionDialog(selectedChildDetails.child)"
             />
           </div>
+        </div>
+        <div
+          v-else
+          class="no-mentor"
+        >
+          <p class="no-mentor-text">
+            <i class="pi pi-info-circle" />
+            Наставник не выбран
+          </p>
+          <Button
+            label="Выбрать наставника"
+            icon="pi pi-plus"
+            class="p-button-primary p-button-sm"
+            @click="openMentorSelectionDialog(selectedChildDetails.child)"
+          />
         </div>
       </div>
     </Dialog>
@@ -355,56 +406,108 @@
           </div>
         </div>
 
-        <!-- Информация о наставнике -->
+        <!-- Информация о документах -->
         <div class="info-section">
           <h4 class="section-title">
-            <i class="pi pi-users" />
-            Наставник
+            <i class="pi pi-file" />
+            Документы
           </h4>
           <div
-            v-if="selectedChildInfo.mentor"
-            class="mentor-info"
+            v-if="selectedDocs"
+            class="info-grid docs-grid"
           >
-            <div class="mentor-details">
-              <div class="info-item">
-                <span class="info-label">ФИО:</span>
-                <span class="info-value">
-                  {{ `${selectedChildInfo.mentor.lastName} ${selectedChildInfo.mentor.firstName} ${selectedChildInfo.mentor.patronymic}` }}
-                </span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Email:</span>
-                <span class="info-value">{{ selectedChildInfo.mentor.email }}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Телефон:</span>
-                <span class="info-value">{{ FormatManager.formatMobileNumberFromDTO(selectedChildInfo.mentor.mobileNumber) }}</span>
-              </div>
+            <div class="info-item">
+              <span class="info-label">Скан свидетельства о рождении:</span>
+              <span class="info-value">
+                {{ `Статус: ${selectedDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
+              </span>
             </div>
-            <div class="mentor-actions">
-              <Button
-                label="Изменить наставника"
-                icon="pi pi-pencil"
-                class="p-button-outlined p-button-sm"
-                @click="openMentorSelectionDialog(selectedChildInfo)"
-              />
+            <div class="info-item">
+              <span class="info-label">СНИЛС:</span>
+              <span class="info-value">
+                {{ `Статус: ${selectedDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Скан справки из ОУ:</span>
+              <span class="info-value">
+                {{ `Статус: ${selectedDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Скан справки из площадки подготовки:</span>
+              <span class="info-value">
+                {{ `Статус: ${selectedDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Скан согласия на ОПД:</span>
+              <span class="info-value">
+                {{ `Статус: ${selectedDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
+              </span>
             </div>
           </div>
           <div
             v-else
-            class="no-mentor"
           >
             <p class="no-mentor-text">
               <i class="pi pi-info-circle" />
-              Наставник не выбран
+              Нет загруженных документов
             </p>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Информация о наставнике -->
+      <div class="info-section">
+        <h4 class="section-title">
+          <i class="pi pi-users" />
+          Наставник
+        </h4>
+        <div
+          v-if="selectedChildInfo && selectedChildInfo.mentor"
+          class="mentor-info"
+        >
+          <div class="mentor-details">
+            <div class="info-item">
+              <span class="info-label">ФИО:</span>
+              <span class="info-value">
+                {{ `${selectedChildInfo.mentor.lastName} ${selectedChildInfo.mentor.firstName} ${selectedChildInfo.mentor.patronymic}` }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Email:</span>
+              <span class="info-value">{{ selectedChildInfo.mentor.email }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Телефон:</span>
+              <span class="info-value">{{ FormatManager.formatMobileNumberFromDTO(selectedChildInfo.mentor.mobileNumber) }}</span>
+            </div>
+          </div>
+          <div class="mentor-actions">
             <Button
-              label="Выбрать наставника"
-              icon="pi pi-plus"
-              class="p-button-primary p-button-sm"
+              label="Изменить наставника"
+              icon="pi pi-pencil"
+              class="p-button-outlined p-button-sm"
               @click="openMentorSelectionDialog(selectedChildInfo)"
             />
           </div>
+        </div>
+        <div
+          v-else
+          class="no-mentor"
+        >
+          <p class="no-mentor-text">
+            <i class="pi pi-info-circle" />
+            Наставник не выбран
+          </p>
+          <Button
+            label="Выбрать наставника"
+            icon="pi pi-plus"
+            class="p-button-primary p-button-sm"
+            @click="openMentorSelectionDialog(selectedChildInfo)"
+          />
         </div>
       </div>
     </Dialog>
@@ -508,7 +611,9 @@
         <div class="confirmation-content">
           <h4>Удалить наставника?</h4>
           <p>Вы уверены, что хотите удалить наставника "{{ selectedMentorToDelete?.name }}" из списка доступных наставников?</p>
-          <p class="warning-text">Это действие нельзя отменить.</p>
+          <p class="warning-text">
+            Это действие нельзя отменить.
+          </p>
         </div>
         <div class="confirmation-actions">
           <Button
@@ -546,6 +651,7 @@ import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
 import type { ChildCompetenciesOutputDto } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
 import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
+import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
 
 export default {
   name: "UserDashboardHome",
@@ -573,6 +679,13 @@ export default {
       isEditing: false,
       selectedChild: null as ChildOutputDto | null,
       selectedMentorId: null as null | number,
+      selectedDocs: null as null | {
+        birthFile: DocsOutputFileUploadDto,
+        snilsFile: DocsOutputFileUploadDto,
+        schoolFile: DocsOutputFileUploadDto,
+        platformFile: DocsOutputFileUploadDto,
+        consentFile: DocsOutputFileUploadDto,
+      },
 
       // Новые свойства для компетенций и модальных окон
       showChildDetailsDialog: false,
@@ -954,13 +1067,31 @@ export default {
       if (expertId && !this.expertNames.has(expertId)) {
         await this.loadExpertData(expertId);
       }
+      if (child.childDocuments !== null) {
+        this.selectedDocs = {
+          birthFile: (await this.fileResolver.getById(child.childDocuments.birthCertificateId)) as DocsOutputFileUploadDto,
+          snilsFile: (await this.fileResolver.getById(child.childDocuments.snilsId)) as DocsOutputFileUploadDto,
+          schoolFile: (await this.fileResolver.getById(child.childDocuments.studyingCertificateId)) as DocsOutputFileUploadDto,
+          platformFile: (await this.fileResolver.getById(child.childDocuments.additionalStudyingCertificateId)) as DocsOutputFileUploadDto,
+          consentFile: (await this.fileResolver.getById(child.childDocuments.consentToChildPdpId)) as DocsOutputFileUploadDto,
+        }
+      }
       
       this.selectedChildDetails = { child, competence };
       this.showChildDetailsDialog = true;
     },
-    openChildInfoDialog(child: ChildOutputDto) {
+    async openChildInfoDialog(child: ChildOutputDto) {
       // Скрываем все другие модалки
       this.hideAllDialogs();
+      if (child.childDocuments !== null) {
+        this.selectedDocs = {
+          birthFile: (await this.fileResolver.getById(child.childDocuments.birthCertificateId)) as DocsOutputFileUploadDto,
+          snilsFile: (await this.fileResolver.getById(child.childDocuments.snilsId)) as DocsOutputFileUploadDto,
+          schoolFile: (await this.fileResolver.getById(child.childDocuments.studyingCertificateId)) as DocsOutputFileUploadDto,
+          platformFile: (await this.fileResolver.getById(child.childDocuments.additionalStudyingCertificateId)) as DocsOutputFileUploadDto,
+          consentFile: (await this.fileResolver.getById(child.childDocuments.consentToChildPdpId)) as DocsOutputFileUploadDto,
+        }
+      }
       
       this.selectedChildInfo = child;
       this.showChildInfoDialog = true;
@@ -1245,6 +1376,10 @@ export default {
 .card-title i {
   margin-right: 0.75rem;
   font-size: 1.1rem;
+}
+
+.docs-grid {
+  margin-bottom: 2rem;
 }
 
 .header-button {

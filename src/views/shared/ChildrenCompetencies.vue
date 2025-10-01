@@ -92,7 +92,10 @@
     </div>
 
     <div class="competencies-grid">
-      <TransitionGroup name="competence-card" tag="div">
+      <TransitionGroup
+        name="competence-card"
+        tag="div"
+      >
         <div
           v-for="competence in paginatedCompetencies"
           :key="competence.id"
@@ -105,50 +108,53 @@
           }"
           @click="toggleCompetence(competence)"
         >
-        <div class="card-header">
-          <div class="competence-icon">
-            <i class="pi pi-briefcase" />
+          <div class="card-header">
+            <div class="competence-icon">
+              <i class="pi pi-briefcase" />
+            </div>
+            <div
+              v-if="isSelected(competence.id)"
+              class="selection-indicator"
+            >
+              <i class="pi pi-check" />
+            </div>
           </div>
-          <div
-            v-if="isSelected(competence.id)"
-            class="selection-indicator"
-          >
-            <i class="pi pi-check" />
-          </div>
-        </div>
 
-        <div class="card-content">
-          <h3 class="competence-title">
-            {{ competence.name }}
-          </h3>
-          <p class="competence-description">
-            {{ competence.description.length > 150
-              ? competence.description.substring(0, 120) + "..."
-              : competence.description
-            }}
-          </p>
-          <div class="competence-meta">
-            <span class="age-range">
-              <i class="pi pi-calendar" />
-              {{ competenceAgeCategories(competence) }}
-            </span>
+          <div class="card-content">
+            <h3 class="competence-title">
+              {{ competence.name }}
+            </h3>
+            <p class="competence-description">
+              {{ competence.description.length > 150
+                ? competence.description.substring(0, 120) + "..."
+                : competence.description
+              }}
+            </p>
+            <div class="competence-meta">
+              <span class="age-range">
+                <i class="pi pi-calendar" />
+                {{ competenceAgeCategories(competence) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <Button
+              label="Подробнее"
+              icon="pi pi-info-circle"
+              class="p-button-text p-button-sm"
+              @click.stop="showCompetenceDetails(competence)"
+            />
           </div>
         </div>
-
-        <div class="card-footer">
-          <Button
-            label="Подробнее"
-            icon="pi pi-info-circle"
-            class="p-button-text p-button-sm"
-            @click.stop="showCompetenceDetails(competence)"
-          />
-        </div>
-      </div>
       </TransitionGroup>
     </div>
     
     <!-- Пагинация -->
-    <div v-if="totalPages > 1" class="pagination-section">
+    <div
+      v-if="totalPages > 1"
+      class="pagination-section"
+    >
       <div class="pagination-info">
         Показано {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, searchFilteredCompetencies.length) }} из {{ searchFilteredCompetencies.length }} компетенций
       </div>
