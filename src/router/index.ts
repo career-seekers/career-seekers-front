@@ -11,7 +11,6 @@ import ForgotPasswordView from "@/views/auth/ForgotPasswordView.vue";
 
 // user views
 import UserDashboardHome from "@/views/user/UserDashboardHome.vue";
-import UserCompetencies from '@/views/user/UserCompetencies.vue';
 
 //expert views
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
@@ -45,12 +44,12 @@ import AdminVenues from '@/views/admin/AdminVenues.vue';
 import CompetenceDocuments from '@/views/shared/CompetenceDocuments.vue';
 import DashboardWrapper from '@/views/shared/DashboardWrapper.vue';
 import MentorLinkConfirmation from '@/views/shared/MentorLinkConfirmation.vue';
+import ChildrenCompetencies from '@/views/shared/ChildrenCompetencies.vue';
 
 import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
 import { Roles } from '@/state/UserState.types.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAuthStore } from '@/stores/authStore.ts';
-import MentorCompetencies from '@/views/mentor/MentorCompetencies.vue';
 
 const routes = [
   {
@@ -118,7 +117,7 @@ const routes = [
       {
         path: "competencies",
         name: "user-competencies",
-        component: UserCompetencies,
+        component: ChildrenCompetencies,
         meta: {
           title: "Компетенции",
           icon: "pi pi-briefcase"
@@ -149,7 +148,7 @@ const routes = [
       {
         path: "competencies",
         name: "mentor-competencies",
-        component: MentorCompetencies,
+        component: ChildrenCompetencies,
         meta: {
           title: "Компетенции",
           icon: "pi pi-briefcase"

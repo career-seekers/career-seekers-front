@@ -20,6 +20,13 @@
             <i class="pi pi-user" />
             Персональные данные
           </h3>
+          <Button
+            v-tooltip="'Редактировать'"
+            icon="pi pi-pencil"
+            style="background: white;"
+            class="p-button-text p-button-sm"
+            @click="$emit('openSettings', true)"
+          />
         </div>
         <div class="card-content">
           <div class="data-section">
@@ -79,6 +86,7 @@
       @update:children-list="userStore.fillChildren"
       @open:child-form="(child) => editChild(child)"
     />
+
     <Dialog
       v-model:visible="showAddChildDialog"
       :header="
@@ -92,6 +100,7 @@
         @submit.prevent="addChild"
       >
         <AddChildForm
+          :child-id="selectedChild?.id"
           :is-editing="isEditing"
           :model-child-form="childForm"
           :model-child-form-errors="errors"
@@ -139,13 +148,19 @@ export default {
     Button,
     Dialog,
   },
-  data() {
+  emits: ['openSettings'],
+  data: function() {
     return {
       fileResolver: new FileResolver(),
       childResolver: new ChildResolver(),
       childDocumentsResolver: new ChildDocumentsResolver(),
+
+
       userStore: useUserStore(),
+
       showAddChildDialog: false,
+      showUserSettingsDialog: false,
+
       isEditing: false,
       selectedChild: null as ChildOutputDto | null,
       selectedMentorId: null as null | number,
@@ -158,16 +173,17 @@ export default {
       addPlatformFile: false,
 
       toastPopup: {
-        title: "",
-        message: ""
+        title: '',
+        message: '',
       },
 
+
       childForm: {
-        fullName: "",
-        birthDate: "",
-        snilsNumber: "",
-        schoolName: "",
-        platform: "",
+        fullName: '',
+        birthDate: '',
+        snilsNumber: '',
+        schoolName: '',
+        platform: '',
         grade: null as number | null,
         childConsentFile: null as null | File,
         snilsScan: null as null | File,
@@ -186,8 +202,8 @@ export default {
         snilsScan: '',
         schoolCertificate: '',
         birthCertificate: '',
-        platformCertificate: ''
-      } as ChildFormErrors
+        platformCertificate: '',
+      } as ChildFormErrors,
     };
   },
   computed: {
@@ -473,6 +489,8 @@ export default {
 }
 
 .card-header {
+  display: flex;
+  justify-content: space-between;
   background: linear-gradient(135deg, #ff9800, #f57c00);
   color: white;
   padding: 1.5rem;

@@ -20,6 +20,13 @@
             <i class="pi pi-user" />
             Информация о кураторе
           </h3>
+          <Button
+            v-tooltip="'Редактировать'"
+            icon="pi pi-pencil"
+            style="background: white;"
+            class="p-button-text p-button-sm"
+            @click="$emit('openSettings', true)"
+          />
         </div>
         <div class="card-content">
           <div class="data-section">
@@ -42,7 +49,7 @@
             </div>
             <div class="data-item">
               <span class="data-label">Телефон:</span>
-              <span class="data-value">{{ user.mobileNumber }}</span>
+              <span class="data-value">{{ FormatManager.formatMobileNumberFromDTO(user.mobileNumber) }}</span>
             </div>
             <!--            <div class="data-item">-->
             <!--              <span class="data-label">Должность:</span>-->
@@ -308,6 +315,7 @@ import Dialog from "primevue/dialog";
 import InputMask from "primevue/inputmask";
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 import { useUserStore } from '@/stores/userStore.ts';
+import { FormatManager } from '../../utils/FormatManager.ts';
 
 export default {
   name: "TutorDashboardHome",
@@ -318,9 +326,10 @@ export default {
     ToastPopup,
     Button,
   },
+emits: ['openSettings'],
   data() {
     return {
-      user: useUserStore().user,
+      userStore: useUserStore(),
       platformResolver: new PlatformResolver(),
       userResolver: new UserResolver(),
       competenceResolver: new CompetenceResolver(),
@@ -384,6 +393,12 @@ export default {
     };
   },
   computed: {
+    FormatManager() {
+      return FormatManager
+    },
+    user() {
+      return this.userStore.user
+    },
     venueStatusClass() {
       if (!this.venueData.verified) return "status-pending";
       return "status-approved";
