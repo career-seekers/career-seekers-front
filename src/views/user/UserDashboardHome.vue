@@ -754,7 +754,7 @@ export default {
         console.error(`Критическая ошибка при загрузке компетенций для ребенка ${child.id}:`, error);
       }
     },
-    async loadCompetenciesByChildWithRetry(child: ChildOutputDto, maxRetries: number = 3) {
+    async loadCompetenciesByChildWithRetry(child: ChildOutputDto, maxRetries: number = 5) {
       let lastError: any = null;
       
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
