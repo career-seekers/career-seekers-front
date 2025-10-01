@@ -122,10 +122,20 @@
               </div>
               <div
                 v-else
-                class="no-competencies"
+                class="no-competencies clickable"
+                @click="openChildInfoDialog(child)"
               >
-                <i class="pi pi-info-circle" />
-                <span>Ребенок пока не зарегистрирован ни на одну компетенцию</span>
+                <div class="no-competencies-main">
+                  <i class="pi pi-info-circle" />
+                  <span>Ребенок пока не зарегистрирован ни на одну компетенцию</span>
+                  <i class="pi pi-arrow-right click-icon" />
+                </div>
+                
+                <!-- Простая строчка с наставником под основным текстом -->
+                <div class="mentor-simple">
+                  <i class="pi pi-users" />
+                  Наставник: {{ getMentorName(child) }}
+                </div>
               </div>
             </div>
           </div>
@@ -144,13 +154,6 @@
         </div>
       </div>
     </div>
-    <ChildrenList
-      :selected-mentor-id="selectedMentorId"
-      :children="user.children"
-      @update:children-list="userStore.fillChildren"
-      @open:child-form="(child) => editChild(child)"
-      @open:mentor-dropdown="(child) => openMentorSelectionDialog(child)"
-    />
 
     <Dialog
       v-model:visible="showAddChildDialog"
@@ -307,16 +310,115 @@
       </div>
     </Dialog>
 
+    <!-- Диалог информации о ребенке без компетенций -->
+    <Dialog
+      v-model:visible="showChildInfoDialog"
+      header="Информация о ребенке"
+      :modal="true"
+      :style="{ width: '600px', maxWidth: '90vw' }"
+    >
+      <div
+        v-if="selectedChildInfo"
+        class="child-info"
+      >
+        <!-- Информация о ребенке -->
+        <div class="info-section">
+          <h4 class="section-title">
+            <i class="pi pi-user" />
+            Информация о ребенке
+          </h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">ФИО:</span>
+              <span class="info-value">
+                {{ `${selectedChildInfo.lastName} ${selectedChildInfo.firstName} ${selectedChildInfo.patronymic}` }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Возраст:</span>
+              <span class="info-value">
+                {{ FormatManager.calculateAge(selectedChildInfo.dateOfBirth) }} лет
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Школа:</span>
+              <span class="info-value">
+                {{ selectedChildInfo.childDocuments?.studyingPlace || 'Не указана' }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Класс:</span>
+              <span class="info-value">
+                {{ selectedChildInfo.childDocuments?.learningClass || 'Не указан' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Информация о наставнике -->
+        <div class="info-section">
+          <h4 class="section-title">
+            <i class="pi pi-users" />
+            Наставник
+          </h4>
+          <div
+            v-if="selectedChildInfo.mentor"
+            class="mentor-info"
+          >
+            <div class="mentor-details">
+              <div class="info-item">
+                <span class="info-label">ФИО:</span>
+                <span class="info-value">
+                  {{ `${selectedChildInfo.mentor.lastName} ${selectedChildInfo.mentor.firstName} ${selectedChildInfo.mentor.patronymic}` }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Email:</span>
+                <span class="info-value">{{ selectedChildInfo.mentor.email }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Телефон:</span>
+                <span class="info-value">{{ FormatManager.formatMobileNumberFromDTO(selectedChildInfo.mentor.mobileNumber) }}</span>
+              </div>
+            </div>
+            <div class="mentor-actions">
+              <Button
+                label="Изменить наставника"
+                icon="pi pi-pencil"
+                class="p-button-outlined p-button-sm"
+                @click="openMentorSelectionDialog(selectedChildInfo)"
+              />
+            </div>
+          </div>
+          <div
+            v-else
+            class="no-mentor"
+          >
+            <p class="no-mentor-text">
+              <i class="pi pi-info-circle" />
+              Наставник не выбран
+            </p>
+            <Button
+              label="Выбрать наставника"
+              icon="pi pi-plus"
+              class="p-button-primary p-button-sm"
+              @click="openMentorSelectionDialog(selectedChildInfo)"
+            />
+          </div>
+        </div>
+      </div>
+    </Dialog>
+
     <!-- Диалог выбора наставника -->
     <Dialog
       v-model:visible="showMentorSelectionDialog"
       header="Выбор наставника"
       :modal="true"
-      :style="{ width: '600px', maxWidth: '90vw' }"
+      :style="{ width: '700px', maxWidth: '95vw' }"
     >
       <div class="mentor-selection">
         <p class="selection-description">
-          Выберите наставника для {{ selectedChildDetails?.child ? `${selectedChildDetails.child.lastName} ${selectedChildDetails.child.firstName} ${selectedChildDetails.child.patronymic}` : 'ребенка' }}
+          Выберите наставника для {{ getSelectedChildName() }}
         </p>
         <div class="mentor-list">
           <!-- Опция "Я и являюсь наставником" -->
@@ -326,13 +428,15 @@
             @click="selectMentor(user.id)"
           >
             <div class="mentor-info">
-              <div class="mentor-name">
-                <i class="pi pi-user" />
-                Я и являюсь наставником
-              </div>
-              <div class="mentor-details">
-                <span class="mentor-email">{{ user?.email }}</span>
-                <span class="mentor-phone">{{ user?.mobileNumber ? FormatManager.formatMobileNumberFromDTO(user.mobileNumber) : '' }}</span>
+              <div class="mentor-info-content">
+                <div class="mentor-name">
+                  <i class="pi pi-user" />
+                  Я и являюсь наставником
+                </div>
+                <div class="mentor-details">
+                  <span class="mentor-email">{{ user?.email }}</span>
+                  <span class="mentor-phone">{{ user?.mobileNumber ? FormatManager.formatMobileNumberFromDTO(user.mobileNumber) : '' }}</span>
+                </div>
               </div>
             </div>
             <div class="mentor-actions">
@@ -352,18 +456,20 @@
             @click="selectMentor(mentor.id)"
           >
             <div class="mentor-info">
-              <div class="mentor-name">
-                {{ `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}` }}
-              </div>
-              <div class="mentor-details">
-                <span class="mentor-email">{{ mentor.email }}</span>
-                <span class="mentor-phone">{{ FormatManager.formatMobileNumberFromDTO(mentor.mobileNumber) }}</span>
+              <div class="mentor-info-content">
+                <div class="mentor-name">
+                  {{ `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}` }}
+                </div>
+                <div class="mentor-details">
+                  <span class="mentor-email">{{ mentor.email }}</span>
+                  <span class="mentor-phone">{{ FormatManager.formatMobileNumberFromDTO(mentor.mobileNumber) }}</span>
+                </div>
               </div>
             </div>
             <div class="mentor-actions">
               <Button
                 v-if="getSavedMentorIds.includes(mentor.id)"
-                v-tooltip="'Удалить из списка'"
+                v-tooltip.top="'Удалить из списка'"
                 icon="pi pi-trash"
                 class="p-button-danger p-button-sm p-button-text"
                 @click.stop="removeMentorFromList(mentor.id)"
@@ -391,6 +497,34 @@
       </div>
     </Dialog>
 
+    <!-- Диалог подтверждения удаления наставника -->
+    <Dialog
+      v-model:visible="showDeleteMentorDialog"
+      header="Подтверждение удаления"
+      :modal="true"
+      :style="{ width: '400px', maxWidth: '90vw' }"
+    >
+      <div class="delete-confirmation">
+        <div class="confirmation-content">
+          <h4>Удалить наставника?</h4>
+          <p>Вы уверены, что хотите удалить наставника "{{ selectedMentorToDelete?.name }}" из списка доступных наставников?</p>
+          <p class="warning-text">Это действие нельзя отменить.</p>
+        </div>
+        <div class="confirmation-actions">
+          <Button
+            label="Отмена"
+            class="p-button-secondary"
+            @click="cancelDeleteMentor"
+          />
+          <Button
+            label="Удалить"
+            class="p-button-danger"
+            @click="confirmDeleteMentor"
+          />
+        </div>
+      </div>
+    </Dialog>
+
     <ToastPopup :content="toastPopup" />
   </div>
 </template>
@@ -411,13 +545,11 @@ import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
 import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
 import type { ChildCompetenciesOutputDto } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
-import ChildrenList from '@/components/ChildrenList.vue';
 import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 
 export default {
   name: "UserDashboardHome",
   components: {
-    ChildrenList,
     ToastPopup,
     AddChildForm,
     Button,
@@ -444,8 +576,12 @@ export default {
 
       // Новые свойства для компетенций и модальных окон
       showChildDetailsDialog: false,
+      showChildInfoDialog: false,
       showMentorSelectionDialog: false,
+      showDeleteMentorDialog: false,
       selectedChildDetails: null as { child: ChildOutputDto, competence: ChildCompetenciesOutputDto } | null,
+      selectedChildInfo: null as ChildOutputDto | null,
+      selectedMentorToDelete: null as { id: number, name: string } | null,
       availableMentors: [] as {
         id: number;
         lastName: string;
@@ -737,6 +873,17 @@ export default {
       }
       return 'Наставник не назначен';
     },
+    getSelectedChildName() {
+      // Проверяем, откуда открыт диалог - из диалога подробной информации или из диалога информации о ребенке
+      if (this.selectedChildDetails?.child) {
+        return `${this.selectedChildDetails.child.lastName} ${this.selectedChildDetails.child.firstName} ${this.selectedChildDetails.child.patronymic}`;
+      } else if (this.selectedChildInfo) {
+        return `${this.selectedChildInfo.lastName} ${this.selectedChildInfo.firstName} ${this.selectedChildInfo.patronymic}`;
+      } else if (this.selectedChild) {
+        return `${this.selectedChild.lastName} ${this.selectedChild.firstName} ${this.selectedChild.patronymic}`;
+      }
+      return 'ребенка';
+    },
     async loadCompetenciesByChild(child: ChildOutputDto) {
       try {
         const response = await this.childCompetenciesResolver.getByChildId(child.id)
@@ -754,22 +901,88 @@ export default {
           child: child,
           competencies: response.message
         });
+
+        // Загружаем данные экспертов для каждой компетенции
+        for (const competence of response.message) {
+          const expertId = competence.direction.expertId;
+          if (expertId && !this.expertNames.has(expertId)) {
+            await this.loadExpertData(expertId);
+          }
+        }
       } catch (error) {
         console.error(`Критическая ошибка при загрузке компетенций для ребенка ${child.id}:`, error);
       }
     },
 
+    async loadExpertData(expertId: number) {
+      try {
+        // Проверяем, не загружен ли уже эксперт
+        if (this.expertNames.has(expertId)) {
+          return;
+        }
+
+        const response = await this.userResolver.getById(expertId);
+        
+        if (response.status === 200 && typeof response.message !== 'string') {
+          const expert = response.message;
+          const expertName = `${expert.lastName} ${expert.firstName} ${expert.patronymic}`;
+          
+          // Сохраняем данные эксперта
+          this.expertsCache.set(expertId, expert);
+          this.expertNames.set(expertId, expertName);
+          
+          console.log(`Загружен эксперт ${expertId}: ${expertName}`);
+        } else {
+          console.warn(`Не удалось загрузить данные эксперта ${expertId}`);
+          // Устанавливаем fallback имя
+          this.expertNames.set(expertId, `Эксперт #${expertId}`);
+        }
+      } catch (error) {
+        console.error(`Ошибка при загрузке данных эксперта ${expertId}:`, error);
+        // Устанавливаем fallback имя
+        this.expertNames.set(expertId, `Эксперт #${expertId}`);
+      }
+    },
+
     // Методы для модальных окон
-    openChildDetailsDialog(child: ChildOutputDto, competence: ChildCompetenciesOutputDto) {
+    async openChildDetailsDialog(child: ChildOutputDto, competence: ChildCompetenciesOutputDto) {
+      // Скрываем все другие модалки
+      this.hideAllDialogs();
+      
+      // Убеждаемся, что данные эксперта загружены
+      const expertId = competence.direction.expertId;
+      if (expertId && !this.expertNames.has(expertId)) {
+        await this.loadExpertData(expertId);
+      }
+      
       this.selectedChildDetails = { child, competence };
       this.showChildDetailsDialog = true;
     },
+    openChildInfoDialog(child: ChildOutputDto) {
+      // Скрываем все другие модалки
+      this.hideAllDialogs();
+      
+      this.selectedChildInfo = child;
+      this.showChildInfoDialog = true;
+    },
     async openMentorSelectionDialog(child: ChildOutputDto) {
+      // Скрываем все другие модалки
+      this.hideAllDialogs();
+      
       // Загружаем наставников с сервера
       await this.loadAvailableMentors();
       this.selectedChild = child
-      this.selectedMentorId = child.mentor!.id
+      // Устанавливаем выбранного наставника, если он есть, иначе null
+      this.selectedMentorId = child.mentor ? child.mentor.id : null
       this.showMentorSelectionDialog = true;
+    },
+
+    hideAllDialogs() {
+      this.showChildDetailsDialog = false;
+      this.showChildInfoDialog = false;
+      this.showMentorSelectionDialog = false;
+      this.showDeleteMentorDialog = false;
+      this.showAddChildDialog = false;
     },
 
     async loadAvailableMentors() {
@@ -816,10 +1029,43 @@ export default {
         console.log('No mentor ID found in localStorage');
       }
     },
-    async removeMentorFromList(mentorId: number) {
-      // Удаляем связь родитель-наставник с сервера
-      this.availableMentors = this.availableMentors.filter(mentor => mentor.id !== mentorId)
-      localStorage.setItem("mentorIds", JSON.stringify(this.availableMentors.map(mentor => mentor.id)));
+    removeMentorFromList(mentorId: number) {
+      // Находим наставника для отображения в диалоге подтверждения
+      const mentor = this.availableMentors.find(m => m.id === mentorId);
+      if (mentor) {
+        this.selectedMentorToDelete = {
+          id: mentorId,
+          name: `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}`
+        };
+        this.showDeleteMentorDialog = true;
+      }
+    },
+    cancelDeleteMentor() {
+      this.showDeleteMentorDialog = false;
+      this.selectedMentorToDelete = null;
+    },
+    async confirmDeleteMentor() {
+      if (!this.selectedMentorToDelete) return;
+      
+      try {
+        // Удаляем связь родитель-наставник с сервера
+        this.availableMentors = this.availableMentors.filter(mentor => mentor.id !== this.selectedMentorToDelete!.id);
+        localStorage.setItem("mentorIds", JSON.stringify(this.availableMentors.map(mentor => mentor.id)));
+        
+        this.toastPopup = {
+          title: 'Успех',
+          message: `Наставник "${this.selectedMentorToDelete.name}" удален из списка`
+        };
+        
+        this.showDeleteMentorDialog = false;
+        this.selectedMentorToDelete = null;
+      } catch (error) {
+        console.error('Ошибка при удалении наставника:', error);
+        this.toastPopup = {
+          title: 'Ошибка',
+          message: 'Не удалось удалить наставника'
+        };
+      }
     },
     selectMentor(mentorId: number) {
       this.selectedMentorId = mentorId;
@@ -827,6 +1073,7 @@ export default {
     closeMentorSelectionDialog() {
       this.showMentorSelectionDialog = false;
       this.selectedMentorId = null;
+      this.selectedChild = null;
     },
     async saveMentorSelection() {
       if (!this.selectedMentorId || !this.selectedChild?.id) return;
@@ -860,6 +1107,23 @@ export default {
         // Обновляем данные пользователя
         await this.userStore.fillChildren();
         
+        // Обновляем локальные данные для немедленного отображения
+        if (this.selectedChildInfo) {
+          // Обновляем данные в selectedChildInfo
+          const updatedChild = this.userStore.user?.children.find(c => c.id === this.selectedChildInfo!.id);
+          if (updatedChild) {
+            this.selectedChildInfo = updatedChild;
+          }
+        }
+        
+        if (this.selectedChildDetails) {
+          // Обновляем данные в selectedChildDetails
+          const updatedChild = this.userStore.user?.children.find(c => c.id === this.selectedChildDetails!.child.id);
+          if (updatedChild) {
+            this.selectedChildDetails.child = updatedChild;
+          }
+        }
+        
         // Сохраняем связь родитель-наставник на сервере
         if (this.userStore.user && mentorId !== null) {
           await this.mentorLinksResolver.create({
@@ -874,6 +1138,7 @@ export default {
         
         this.closeMentorSelectionDialog();
         this.showChildDetailsDialog = false;
+        this.showChildInfoDialog = false;
       } catch (error) {
         console.error('Ошибка при сохранении наставника:', error);
         this.toastPopup = {
@@ -965,6 +1230,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  width: 100%;
 }
 
 .card-title {
@@ -986,6 +1252,8 @@ export default {
   color: #ff9800 !important;
   border: 2px solid white !important;
   font-weight: 600 !important;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .header-button:hover {
@@ -1234,6 +1502,38 @@ export default {
   gap: 0.75rem;
 }
 
+/* Стили для диалога подтверждения удаления */
+.delete-confirmation {
+  text-align: center;
+  padding: 1rem;
+}
+
+.confirmation-content h4 {
+  color: #2c3e50;
+  margin: 0 0 1rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.confirmation-content p {
+  color: #6c757d;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.5;
+}
+
+.warning-text {
+  color: #e74c3c !important;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.confirmation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
 .competence-item {
   display: flex;
   align-items: flex-start;
@@ -1371,6 +1671,62 @@ export default {
   border-left: 3px solid #6c757d;
 }
 
+.no-competencies.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left-color: #ff9800;
+  background: #fff3cd;
+}
+
+.no-competencies.clickable:hover {
+  background: #e3f2fd;
+  border-left-color: #2196f3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+}
+
+.click-icon {
+  margin-left: auto;
+  color: #ff9800;
+  transition: color 0.3s ease;
+}
+
+.no-competencies.clickable:hover .click-icon {
+  color: #2196f3;
+}
+
+.no-competencies.clickable {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: flex-start;
+}
+
+.no-competencies-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Простая строчка с наставником внутри блока */
+.mentor-simple {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #28a745;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0e0e0;
+  justify-content: flex-start;
+}
+
+.mentor-simple i {
+  color: #28a745;
+  font-size: 0.9rem;
+}
+
 .empty-state {
   text-align: center;
   padding: 2rem 1rem;
@@ -1398,6 +1754,42 @@ export default {
 .child-details {
   max-height: 70vh;
   overflow-y: auto;
+}
+
+.child-info {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.info-section {
+  margin-bottom: 2rem;
+}
+
+.info-section:last-child {
+  margin-bottom: 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-label {
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.info-value {
+  color: #2c3e50;
+  font-weight: 500;
 }
 
 .details-section {
@@ -1507,8 +1899,12 @@ export default {
 
 /* Стили для выбора наставника */
 .mentor-selection {
-  max-height: 60vh;
+
   overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid #e9ecef;
+  border-radius: 0.375rem;
+  background-color: #f8f9fa;
 }
 
 .selection-description {
@@ -1528,22 +1924,38 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
+  padding: 1.25rem;
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  margin-bottom: 0.75rem;
 }
 
 .mentor-item:hover {
   background: #e9ecef;
   border-color: #ff9800;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
 }
 
 .mentor-item.selected {
   background: #fff3cd;
   border-color: #ff9800;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+}
+
+.mentor-item.selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #28a745;
+  border-radius: 12px 0 0 12px;
 }
 
 .parent-mentor-option {
@@ -1573,13 +1985,28 @@ export default {
 
 .mentor-info {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mentor-info-content {
+  flex: 1;
 }
 
 .mentor-name {
   color: #2c3e50;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mentor-name i {
+  color: #ff9800;
+  font-size: 1rem;
 }
 
 .mentor-details {
@@ -1591,7 +2018,10 @@ export default {
 .mentor-email,
 .mentor-phone {
   color: #6c757d;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .mentor-actions {
@@ -1611,6 +2041,12 @@ export default {
   gap: 0.75rem;
   padding-top: 1rem;
   border-top: 1px solid #dee2e6;
+  flex-wrap: wrap;
+}
+
+.mentor-selection-actions .p-button {
+  min-width: 120px;
+  white-space: nowrap;
 }
 
 /* Мобильные стили для новых компонентов */
@@ -1648,8 +2084,27 @@ export default {
     gap: 0.75rem;
   }
   
+  .mentor-info {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
   .mentor-actions {
     align-self: flex-end;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mentor-selection-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .mentor-selection-actions .p-button {
+    width: 100%;
+    min-width: auto;
   }
 }
 

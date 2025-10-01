@@ -31,57 +31,80 @@
     </div>
     <div class="filters-section">
       <div class="filter-group">
-        <Dropdown
-          v-model="selectedCompetence"
-          :options="agedCompetencies"
-          dropdown
-          option-label="name"
-          placeholder="Все компетенции"
-          class="filter-dropdown"
-          :disabled="competencies.length === 0"
-          @change="filterCompetencies"
-        />
-        <Dropdown
-          id="ageFilter"
-          v-model="selectedChild"
-          :options="children"
-          class="filter-dropdown"
-          @change="loadCompetencies"
-        >
-          <template #option="slotProps">
-            {{ slotProps.option.lastName }} {{ slotProps.option.firstName }}
-            {{ slotProps.option.patronymic }}
-          </template>
-          <template #value="{ value }">
-            {{
-              value
-                ? `${value.lastName} ${value.firstName} ${value.patronymic}`
-                : "Ребёнок не выбран"
-            }}
-          </template>
-        </Dropdown>
-        <Button
-          class="p-button-outlined save-btn"
-          label="Сбросить компетенцию"
-          icon="pi pi-refresh"
-          @click="resetFilters"
-        />
+        <div class="filter-item">
+          <label for="childFilter">Выберите ребёнка:</label>
+          <Dropdown
+            id="childFilter"
+            v-model="selectedChild"
+            :options="children"
+            class="filter-dropdown"
+            @change="loadCompetencies"
+          >
+            <template #option="slotProps">
+              {{ slotProps.option.lastName }} {{ slotProps.option.firstName }}
+              {{ slotProps.option.patronymic }}
+            </template>
+            <template #value="{ value }">
+              {{
+                value
+                  ? `${value.lastName} ${value.firstName} ${value.patronymic}`
+                  : "Ребёнок не выбран"
+              }}
+            </template>
+          </Dropdown>
+        </div>
+        
+        <div class="filter-item">
+          <label for="searchInput">Поиск компетенций:</label>
+          <InputText
+            id="searchInput"
+            v-model="searchQuery"
+            placeholder="Введите название или описание..."
+            class="search-input"
+            @input="filterCompetencies"
+          />
+        </div>
+        
+        <div class="filter-item">
+          <label for="competenceFilter">Фильтр по компетенции:</label>
+          <Dropdown
+            id="competenceFilter"
+            v-model="selectedCompetence"
+            :options="agedCompetencies"
+            dropdown
+            option-label="name"
+            placeholder="Все компетенции"
+            class="filter-dropdown"
+            :disabled="competencies.length === 0"
+            @change="filterCompetencies"
+          />
+        </div>
+        
+        <div class="filter-item">
+          <Button
+            class="p-button-outlined reset-btn"
+            label="Сбросить фильтры"
+            icon="pi pi-refresh"
+            @click="resetFilters"
+          />
+        </div>
       </div>
     </div>
 
     <div class="competencies-grid">
-      <div
-        v-for="competence in filteredCompetencies"
-        :key="competence.id"
-        class="competence-card"
-        :class="{
-          selected: isSelected(competence.id),
-          disabled:
-            !isSelected(competence.id) &&
-            getSelectedCompetencies().length >= 3,
-        }"
-        @click="toggleCompetence(competence)"
-      >
+      <TransitionGroup name="competence-card" tag="div">
+        <div
+          v-for="competence in paginatedCompetencies"
+          :key="competence.id"
+          class="competence-card"
+          :class="{
+            selected: isSelected(competence.id),
+            disabled:
+              !isSelected(competence.id) &&
+              getSelectedCompetencies().length >= 3,
+          }"
+          @click="toggleCompetence(competence)"
+        >
         <div class="card-header">
           <div class="competence-icon">
             <i class="pi pi-briefcase" />
@@ -121,12 +144,59 @@
           />
         </div>
       </div>
+      </TransitionGroup>
     </div>
+    
+    <!-- Пагинация -->
+    <div v-if="totalPages > 1" class="pagination-section">
+      <div class="pagination-info">
+        Показано {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, searchFilteredCompetencies.length) }} из {{ searchFilteredCompetencies.length }} компетенций
+      </div>
+      <div class="pagination-controls">
+        <Button
+          label="Предыдущая"
+          icon="pi pi-angle-left"
+          class="p-button-outlined p-button-sm"
+          :disabled="currentPage === 1"
+          @click="goToPage(currentPage - 1)"
+        />
+        
+        <div class="page-numbers">
+          <Button
+            v-for="page in visiblePages"
+            :key="page"
+            :label="page.toString()"
+            :class="{
+              'p-button': page === currentPage,
+              'p-button-outlined': page !== currentPage
+            }"
+            class="p-button-sm page-btn"
+            @click="goToPage(page)"
+          />
+        </div>
+        
+        <Button
+          label="Следующая"
+          icon="pi pi-angle-right"
+          icon-pos="right"
+          class="p-button-outlined p-button-sm"
+          :disabled="currentPage === totalPages"
+          @click="goToPage(currentPage + 1)"
+        />
+      </div>
+    </div>
+    
     <CompetenceDialog
       v-if="selectedCompetence !== null"
       :selected-competence-prop="selectedCompetence"
       :show-details-dialog-prop="showDetailsDialog"
       @update:show-details-dialog="(show) => showDetailsDialog = show"
+    />
+    
+    <!-- Toast уведомления -->
+    <ToastPopup
+      v-if="toastContent.title && toastContent.message"
+      :content="toastContent"
     />
   </div>
 </template>
@@ -134,6 +204,7 @@
 <script lang="ts">
   import Button from 'primevue/button';
   import Dropdown from 'primevue/dropdown';
+  import InputText from 'primevue/inputtext';
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
@@ -145,13 +216,16 @@
   import router from '@/router';
   import { Roles } from '@/state/UserState.types.ts';
   import AutoComplete from 'primevue/autocomplete';
+  import ToastPopup from '@/components/ToastPopup.vue';
 
   export default {
     name: "ChildrenCompetencies",
     components: {
       CompetenceDialog,
       Button,
-      Dropdown
+      Dropdown,
+      InputText,
+      ToastPopup
     },
     data() {
       return {
@@ -185,6 +259,20 @@
 
         needToSave: false,
         loading: false,
+        
+        // Поиск и фильтрация
+        searchQuery: '',
+        searchFilteredCompetencies: [] as CompetenceOutputDto[],
+        
+        // Пагинация
+        currentPage: 1,
+        itemsPerPage: 9,
+        
+        // Toast уведомления
+        toastContent: {
+          title: '',
+          message: ''
+        },
       };
     },
     computed: {
@@ -211,6 +299,34 @@
         return competencies.filter(competence => competence.ageCategories
           .some(category => category.ageCategory === this.selectedAgeCategory?.value)
         ).sort((a, b) => a.name.localeCompare(b.name))
+      },
+      
+      
+      // Пагинация
+      totalPages() {
+        return Math.ceil(this.searchFilteredCompetencies.length / this.itemsPerPage);
+      },
+      
+      paginatedCompetencies() {
+        const start = (this.currentPage - 1) * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return this.searchFilteredCompetencies.slice(start, end);
+      },
+      
+      visiblePages() {
+        const pages = [];
+        const maxVisible = 5;
+        let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+        let end = Math.min(this.totalPages, start + maxVisible - 1);
+        
+        if (end - start + 1 < maxVisible) {
+          start = Math.max(1, end - maxVisible + 1);
+        }
+        
+        for (let i = start; i <= end; i++) {
+          pages.push(i);
+        }
+        return pages;
       }
     },
     async beforeMount() {
@@ -225,6 +341,7 @@
     methods: {
       resetFilters() {
         this.selectedCompetence = null
+        this.searchQuery = ''
         this.filterCompetencies()
       },
       async fillAssigned() {
@@ -258,9 +375,23 @@
         }
       },
       filterCompetencies() {
-        this.filteredCompetencies = this.selectedCompetence !== null
+        // Сначала применяем фильтр по выбранной компетенции
+        let filtered = this.selectedCompetence !== null
           ? this.agedCompetencies.filter(competence => competence.name === this.selectedCompetence?.name)
           : this.agedCompetencies
+        
+        // Затем применяем поиск
+        if (this.searchQuery.trim()) {
+          const query = this.searchQuery.toLowerCase();
+          filtered = filtered.filter(competence => 
+            competence.name.toLowerCase().includes(query) ||
+            competence.description.toLowerCase().includes(query)
+          );
+        }
+        
+        this.searchFilteredCompetencies = filtered;
+        this.filteredCompetencies = filtered; // Для обратной совместимости
+        this.currentPage = 1; // Сброс на первую страницу при фильтрации
       },
       assignedOutput(arr: {
         child: ChildOutputDto,
@@ -333,27 +464,50 @@
           return this.ageGroups.find(group => group.value === category.ageCategory)?.label
         }).join(", ")
       },
+      
       async assignToCompetencies() {
         this.loading = true
-        for (const assign of this.assignedCompetenciesCopy) {
-          for (const relation of assign.competencies) {
-            await this.childCompetenciesResolver.deleteById(relation.id)
-          }
-        }
-        for (const assign of this.assignedCompetencies) {
-          for (const relation of assign.competencies) {
-            const response = await this.childCompetenciesResolver.create({
-              childId: assign.child.id,
-              directionId: relation.competenceId,
-              directionAgeCategoryId: relation.ageCategoryId
-            })
-            if (typeof response.message !== "string" && response.status === 200) {
-              relation.id = response.message.id
+        try {
+          for (const assign of this.assignedCompetenciesCopy) {
+            for (const relation of assign.competencies) {
+              await this.childCompetenciesResolver.deleteById(relation.id)
             }
           }
+          for (const assign of this.assignedCompetencies) {
+            for (const relation of assign.competencies) {
+              const response = await this.childCompetenciesResolver.create({
+                childId: assign.child.id,
+                directionId: relation.competenceId,
+                directionAgeCategoryId: relation.ageCategoryId
+              })
+              if (typeof response.message !== "string" && response.status === 200) {
+                relation.id = response.message.id
+              }
+            }
+          }
+          this.assignedCompetenciesCopy = [...this.assignedCompetencies]
+          
+          // Показываем уведомление об успешном сохранении
+          this.toastContent = {
+            title: 'Успешно сохранено',
+            message: 'Компетенции успешно назначены ребёнку'
+          };
+        } catch (error) {
+          // Показываем уведомление об ошибке
+          this.toastContent = {
+            title: 'Ошибка сохранения',
+            message: 'Произошла ошибка при сохранении компетенций'
+          };
+        } finally {
+          this.loading = false
         }
-        this.assignedCompetenciesCopy = [...this.assignedCompetencies]
-        this.loading = false
+      },
+      
+      // Пагинация
+      goToPage(page: number) {
+        if (page >= 1 && page <= this.totalPages) {
+          this.currentPage = page;
+        }
       }
     },
   };
@@ -439,6 +593,24 @@
     display: flex;
     gap: 1.5rem;
     min-width: 150px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+  
+  .filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+  }
+  
+  .search-input {
+    width: 100%;
+  }
+  
+  .reset-btn {
+    align-self: flex-end;
+    margin-bottom: 0;
   }
 
 
@@ -454,6 +626,11 @@
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
+  }
+  
+  /* Обеспечиваем правильную работу TransitionGroup с CSS Grid */
+  .competencies-grid > div {
+    display: contents;
   }
 
   .competence-card {
@@ -550,6 +727,71 @@
     padding: 0 1.5rem 1.5rem 1.5rem;
   }
 
+  /* Пагинация */
+  .pagination-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .pagination-info {
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .page-numbers {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .page-btn {
+    min-width: 40px;
+    height: 40px;
+  }
+
+  /* Анимации для карточек */
+  .competence-card-enter-active,
+  .competence-card-leave-active {
+    transition: all 0.3s ease;
+  }
+
+  .competence-card-enter-from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  .competence-card-leave-to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+
+  .competence-card-move {
+    transition: transform 0.3s ease;
+  }
+  
+  /* Улучшенная анимация для CSS Grid */
+  .competence-card {
+    transition: all 0.3s ease;
+  }
+
+  /* Анимация при фильтрации */
+  .competencies-grid {
+    transition: all 0.3s ease;
+  }
+
 
   /* Мобильные стили */
   @media (max-width: 768px) {
@@ -557,13 +799,36 @@
       grid-template-columns: 1fr;
       gap: 1rem;
     }
+    
+    .competencies-grid > div {
+      display: contents;
+    }
 
     .filter-group {
       flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .filter-item {
+      min-width: auto;
+    }
+    
+    .reset-btn {
+      align-self: stretch;
+      margin-top: 0.5rem;
     }
 
     .page-title {
       font-size: 1.5rem;
+    }
+    
+    .pagination-controls {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .page-numbers {
+      justify-content: center;
     }
   }
 </style>
