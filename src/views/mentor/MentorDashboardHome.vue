@@ -35,10 +35,10 @@
               <span class="data-label">Телефон:</span>
               <span class="data-value">{{ user?.mobileNumber ? FormatManager.formatMobileNumberFromDTO(user.mobileNumber) : 'Загрузка...' }}</span>
             </div>
-            <div class="data-item">
+            <!-- <div class="data-item">
               <span class="data-label">Статус:</span>
               <span class="data-value">{{ user?.verified ? 'Подтверждён' : 'Не подтверждён' }}</span>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>

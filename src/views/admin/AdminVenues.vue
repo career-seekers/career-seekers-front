@@ -79,10 +79,10 @@
                 </a>
               </span>
             </div>
-            <div class="detail-item">
+            <!-- <div class="detail-item">
               <span class="detail-label">Статус:</span>
               <span class="detail-value">{{ venue.verified ? 'Верифицирована' : 'Не верифицирована' }}</span>
-            </div>
+            </div> -->
           </div>
 
           <div

@@ -39,16 +39,16 @@
       
         <div class="action-buttons">
           <Button
-            label="Подтвердить связь с наставником"
-            icon="pi pi-check"
-            class="p-button-primary"
+            label="Вернуться в личный кабинет"
+            icon="pi pi-home"
+            class="p-button-primary w-full"
             @click="confirmMentorLink"
           />
           <Button
-            label="Вернуться к личному кабинету"
-            icon="pi pi-home"
-            class="p-button-outlined"
-            @click="goToDashboard"
+            label="Отменить привязку"
+            icon="pi pi-times"
+            class="p-button-outlined w-full"
+            @click="$router.push(`/${userStore.user?.role.toLowerCase()}/dashboard`)"
           />
         </div>
       </div>
@@ -59,7 +59,6 @@
 <script lang="ts">
 import Button from "primevue/button";
 import { useUserStore } from '@/stores/userStore.ts';
-import { useAuthStore } from '@/stores/authStore.ts';
 import { Roles } from '@/state/UserState.types.ts';
 import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
@@ -72,7 +71,6 @@ export default {
   data() {
     return {
       userStore: useUserStore(),
-      authStore: useAuthStore(),
       userResolver: new UserResolver(),
       mentorLinksResolver: new MentorLinksResolver(),
       mentorId: null as number | null,
@@ -85,38 +83,15 @@ export default {
   },
   methods: {
     async checkAuthAndRole() {
-      console.log('MentorLinkConfirmation: checkAuthAndRole called');
-      console.log('MentorLinkConfirmation: access_token exists:', !!this.authStore.access_token);
-      // Проверяем, есть ли токен авторизации
-      if (this.authStore.access_token) {
-        try {
-          // Загружаем данные пользователя
-          const userData = await this.authStore.loadByTokens();
-          if (userData) {
-            await this.userStore.fillUser(userData);
-            
-            // Проверяем роль пользователя
-            console.log('User role:', this.userStore.user?.role);
-            console.log('Expected role:', Roles.USER);
-            if (this.userStore.user?.role === Roles.USER) {
-              // Пользователь авторизован как родитель - загружаем информацию о наставнике
-              console.log('User is parent, loading mentor data...');
-              await this.loadMentorData();
-            } else {
-              // Пользователь авторизован, но не родитель - редиректим на его дашборд
-              console.log('User is not parent, redirecting to dashboard...');
-              this.redirectToUserDashboard();
-            }
-          } else {
-            // Не удалось загрузить данные пользователя - редиректим на авторизацию
-            this.redirectToLogin();
-          }
-        } catch (error) {
-          console.error('Ошибка при загрузке данных пользователя:', error);
-          this.redirectToLogin();
+      if (this.userStore.user !== null) {
+        if (this.userStore.user?.role === Roles.USER) {
+          console.log('User is parent, loading mentor data...');
+          await this.loadMentorData();
+        } else {
+          console.log('User is not parent, redirecting to dashboard...');
+          this.redirectToUserDashboard();
         }
       } else {
-        // Пользователь не авторизован - сохраняем ссылку и редиректим на авторизацию
         this.redirectToLogin();
       }
     },
@@ -150,7 +125,7 @@ export default {
         console.log('Response status:', response.status);
         console.log('Response message:', response.message);
         
-        if (response.status === 200 && typeof response.message !== 'string') {
+        if (response.status === 200) {
           const mentorLink = response.message;
           
           console.log('Full mentor data from API:', mentorLink);
@@ -208,57 +183,18 @@ export default {
     async confirmMentorLink() {
       if (this.mentorId && this.userStore.user) {
         try {
-          // Сохраняем связь родитель-наставник на сервере
-          console.log('Confirming mentor link:', {
-            parentId: this.userStore.user.id,
-            parentIdType: typeof this.userStore.user.id,
-            mentorId: this.mentorId,
-            mentorIdType: typeof this.mentorId
-          });
-          
-          // Сохраняем связь родитель-наставник на сервере
-          const response = await this.mentorLinksResolver.create({
-            userId: this.mentorId
-          });
-          
-          console.log('Assign mentor response:', response);
-          
-          if (response.status === 200) {
-            // Обновляем данные пользователя для получения актуальной информации
-            await this.refreshUserData();
-            
-            // Показываем сообщение об успехе
-            alert('Связь с наставником успешно установлена!');
-            
-            // Редиректим на дашборд
-            this.$router.push('/user/dashboard');
-          } else {
-            alert('Ошибка при установке связи с наставником: ' + response.message);
-          }
+          const strMentorIds = localStorage.getItem("mentorIds")
+          const mentorIds = (strMentorIds as string | null) !== null
+            ? JSON.parse(strMentorIds as string) as number[]
+            : []
+          localStorage.setItem('mentorIds', JSON.stringify([...mentorIds, this.mentorId]));
+          this.$router.push('/user/dashboard');
         } catch (error) {
           console.error('Ошибка при подтверждении связи с наставником:', error);
           alert('Не удалось установить связь с наставником');
         }
       }
     },
-    
-    async refreshUserData() {
-      try {
-        // Перезагружаем данные пользователя
-        const userData = await this.authStore.loadByTokens();
-        if (userData) {
-          await this.userStore.fillUser(userData);
-        }
-      } catch (error) {
-        console.error('Ошибка при обновлении данных пользователя:', error);
-      }
-    },
-    goToDashboard() {
-      this.$router.push('/user/dashboard');
-    },
-    goToChildren() {
-      this.$router.push('/user/dashboard');
-    }
   }
 };
 </script>

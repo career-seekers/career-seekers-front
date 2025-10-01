@@ -32,8 +32,9 @@
     </div>
     <div class="filters-section">
       <div class="filter-group">
+        <label for="childFilter">Выберите ребёнка:</label>
         <Dropdown
-          id="ageFilter"
+          id="childFilter"
           v-model="selectedChild"
           :options="children"
           class="filter-dropdown"
@@ -52,60 +53,129 @@
           </template>
         </Dropdown>
       </div>
+      
+      <div class="filter-group">
+        <label for="searchInput">Поиск компетенций:</label>
+        <InputText
+          id="searchInput"
+          v-model="searchQuery"
+          placeholder="Введите название или описание..."
+          class="search-input"
+          @input="filterCompetencies"
+        />
+      </div>
+      
+      <div class="filter-group">
+        <Button
+          label="Сбросить фильтры"
+          icon="pi pi-refresh"
+          class="p-button-text p-button-sm reset-btn"
+          @click="resetFilters"
+        />
+      </div>
     </div>
 
     <div class="competencies-grid">
-      <div
-        v-for="competence in competencies"
-        :key="competence.id"
-        class="competence-card"
-        :class="{
-          selected: isSelected(competence.id),
-          disabled:
-            !isSelected(competence.id) && selectedChildCompetencies.competencies.length >= 3,
-        }"
-        @click="toggleCompetence(competence)"
+      <TransitionGroup
+        name="competence-card"
+        tag="div"
+        class="competencies-grid"
       >
-        <div class="card-header">
-          <div class="competence-icon">
-            <i class="pi pi-briefcase" />
+        <div
+          v-for="competence in paginatedCompetencies"
+          :key="competence.id"
+          class="competence-card"
+          :class="{
+            selected: isSelected(competence.id),
+            disabled:
+              !isSelected(competence.id) && selectedChildCompetencies.competencies.length >= 3,
+          }"
+          @click="toggleCompetence(competence)"
+        >
+          <div class="card-header">
+            <div class="competence-icon">
+              <i class="pi pi-briefcase" />
+            </div>
+            <div
+              v-if="isSelected(competence.id)"
+              class="selection-indicator"
+            >
+              <i class="pi pi-check" />
+            </div>
           </div>
-          <div
-            v-if="isSelected(competence.id)"
-            class="selection-indicator"
-          >
-            <i class="pi pi-check" />
+
+          <div class="card-content">
+            <h3 class="competence-title">
+              {{ competence.name }}
+            </h3>
+            <p class="competence-description">
+              {{ competence.description.length > 150
+                ? competence.description.substring(0, 120) + "..."
+                : competence.description
+              }}
+            </p>
+            <div class="competence-meta">
+              <span class="age-range">
+                <i class="pi pi-calendar" />
+                {{ competenceAgeCategories(competence) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <Button
+              label="Подробнее"
+              icon="pi pi-info-circle"
+              class="p-button-text p-button-sm"
+              @click.stop="showCompetenceDetails(competence)"
+            />
           </div>
         </div>
-
-        <div class="card-content">
-          <h3 class="competence-title">
-            {{ competence.name }}
-          </h3>
-          <p class="competence-description">
-            {{ competence.description.length > 150
-              ? competence.description.substring(0, 120) + "..."
-              : competence.description
-            }}
-          </p>
-          <div class="competence-meta">
-            <span class="age-range">
-              <i class="pi pi-calendar" />
-              {{ competenceAgeCategories(competence) }}
-            </span>
-          </div>
-        </div>
-
-        <div class="card-footer">
+      </TransitionGroup>
+    </div>
+    
+    <!-- Пагинация -->
+    <div
+      v-if="totalPages > 1"
+      class="pagination-section"
+    >
+      <div class="pagination-info">
+        Показано {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredCompetencies.length) }} из {{ filteredCompetencies.length }} компетенций
+      </div>
+      <div class="pagination-controls">
+        <Button
+          label="Предыдущая"
+          icon="pi pi-angle-left"
+          class="p-button-outlined p-button-sm"
+          :disabled="currentPage === 1"
+          @click="goToPage(currentPage - 1)"
+        />
+        
+        <div class="page-numbers">
           <Button
-            label="Подробнее"
-            icon="pi pi-info-circle"
-            class="p-button-text p-button-sm"
-            @click.stop="showCompetenceDetails(competence)"
+            v-for="page in visiblePages"
+            :key="page"
+            :label="page.toString()"
+            :class="{
+              'p-button': page === currentPage,
+              'p-button-outlined': page !== currentPage
+            }"
+            class="p-button-sm page-btn"
+            @click="goToPage(page)"
           />
         </div>
+        
+        <Button
+          label="Следующая"
+          icon="pi pi-angle-right"
+          icon-pos="right"
+          class="p-button-outlined p-button-sm"
+          :disabled="currentPage === totalPages"
+          @click="goToPage(currentPage + 1)"
+        />
       </div>
     </div>
+    
     <CompetenceDialog
       v-if="selectedCompetence !== null"
       :selected-competence-prop="selectedCompetence"
@@ -118,6 +188,7 @@
 <script lang="ts">
   import Button from 'primevue/button';
   import Dropdown from 'primevue/dropdown';
+  import InputText from 'primevue/inputtext';
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
@@ -136,7 +207,8 @@
     components: {
       CompetenceDialog,
       Button,
-      Dropdown
+      Dropdown,
+      InputText
     },
     data: function() {
       return {
@@ -160,12 +232,47 @@
         childCompetenciesResolver: new ChildCompetenciesResolver(),
 
         needToSave: false,
+        
+        // Поиск и фильтрация
+        searchQuery: '',
+        filteredCompetencies: [] as CompetenceOutputDto[],
+        
+        // Пагинация
+        currentPage: 1,
+        itemsPerPage: 9,
       };
     },
     computed: {
       selectedChildCompetencies() {
         return this.selectedCompetencies.find(row => row.child.id === this.selectedChild?.id)
       },
+      
+      // Пагинация
+      totalPages() {
+        return Math.ceil(this.filteredCompetencies.length / this.itemsPerPage);
+      },
+      
+      paginatedCompetencies() {
+        const start = (this.currentPage - 1) * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return this.filteredCompetencies.slice(start, end);
+      },
+      
+      visiblePages() {
+        const pages = [];
+        const maxVisible = 5;
+        let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+        let end = Math.min(this.totalPages, start + maxVisible - 1);
+        
+        if (end - start + 1 < maxVisible) {
+          start = Math.max(1, end - maxVisible + 1);
+        }
+        
+        for (let i = start; i <= end; i++) {
+          pages.push(i);
+        }
+        return pages;
+      }
     },
     watch: {
       selectedChild() {
@@ -204,6 +311,7 @@
         const response = await this.competenceResolver.getByAgeCategory(ageCategory.value)
         if (typeof response.message === 'string' || response.status !== 200) return
         this.competencies = response.message
+        this.filterCompetencies()
       },
       async loadCompetenciesByChild() {
         if (this.selectedChild === null) return
@@ -277,6 +385,32 @@
             if (response.status !== 200) console.log(response.message)
           }
         })
+      },
+      
+      // Поиск и фильтрация
+      filterCompetencies() {
+        if (!this.searchQuery.trim()) {
+          this.filteredCompetencies = [...this.competencies];
+        } else {
+          const query = this.searchQuery.toLowerCase();
+          this.filteredCompetencies = this.competencies.filter(competence => 
+            competence.name.toLowerCase().includes(query) ||
+            competence.description.toLowerCase().includes(query)
+          );
+        }
+        this.currentPage = 1; // Сброс на первую страницу при фильтрации
+      },
+      
+      resetFilters() {
+        this.searchQuery = '';
+        this.filterCompetencies();
+      },
+      
+      // Пагинация
+      goToPage(page: number) {
+        if (page >= 1 && page <= this.totalPages) {
+          this.currentPage = page;
+        }
       }
     },
 };
@@ -373,6 +507,14 @@
 
 .filter-dropdown {
   width: 100%;
+}
+
+.search-input {
+  width: 100%;
+}
+
+.reset-btn {
+  align-self: flex-end;
 }
 
 .competencies-grid {
@@ -476,6 +618,65 @@
   padding: 0 1.5rem 1.5rem 1.5rem;
 }
 
+/* Пагинация */
+.pagination-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.pagination-info {
+  color: #6c757d;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.page-btn {
+  min-width: 40px;
+  height: 40px;
+}
+
+/* Анимации для карточек */
+.competence-card-enter-active,
+.competence-card-leave-active {
+  transition: all 0.3s ease;
+}
+
+.competence-card-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+
+.competence-card-leave-to {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+}
+
+.competence-card-move {
+  transition: transform 0.3s ease;
+}
+
+/* Анимация при фильтрации */
+.competencies-grid {
+  transition: all 0.3s ease;
+}
 
 /* Мобильные стили */
 @media (max-width: 768px) {
@@ -486,6 +687,24 @@
 
   .page-title {
     font-size: 1.5rem;
+  }
+  
+  .pagination-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .page-numbers {
+    justify-content: center;
+  }
+  
+  .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    min-width: auto;
   }
 }
 </style>

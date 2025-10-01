@@ -3,7 +3,6 @@ import type { DocsInputFormDataDto } from '@/api/resolvers/files/dto/input/docs-
 import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
 import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
 
-
 export enum FileType {
   TASK = "TASK",
   CRITERIA = "CRITERIA",
