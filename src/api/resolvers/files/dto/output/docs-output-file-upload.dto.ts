@@ -7,4 +7,5 @@ export interface DocsOutputFileUploadDto {
   filePath: string;
   createdAt: string;
   updatedAt: string;
+  verified: boolean;
 }

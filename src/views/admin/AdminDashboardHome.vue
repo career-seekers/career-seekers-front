@@ -67,7 +67,10 @@
         </div>
         <div class="card-content">
           <div class="stats-grid">
-            <div class="stat-item">
+            <div
+              v-if="tutors.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ tutors.length }}
               </div>
@@ -75,13 +78,34 @@
                 Всего кураторов
               </div>
             </div>
-            <div class="stat-item">
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+            <div
+              v-if="tutors.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ tutors.filter(tutor => tutor.verified).length }}
               </div>
               <div class="stat-label">
                 Верифицированных
               </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
             </div>
           </div>
 
@@ -105,7 +129,10 @@
         </div>
         <div class="card-content">
           <div class="stats-grid">
-            <div class="stat-item">
+            <div
+              v-if="mentors.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ mentors.length }}
               </div>
@@ -113,13 +140,34 @@
                 Всего наставников
               </div>
             </div>
-            <div class="stat-item">
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+            <div
+              v-if="mentors.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ mentors.filter(mentor => mentor.verified).length }}
               </div>
               <div class="stat-label">
                 Верифицированных
               </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
             </div>
           </div>
 
@@ -143,7 +191,10 @@
         </div>
         <div class="card-content">
           <div class="stats-grid">
-            <div class="stat-item">
+            <div
+              v-if="venues.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ venues.length }}
               </div>
@@ -151,13 +202,34 @@
                 Всего площадок
               </div>
             </div>
-            <div class="stat-item">
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+            <div
+              v-if="venues.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ venues.filter(venue => venue.verified).length }}
               </div>
               <div class="stat-label">
                 Верифицированных
               </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
             </div>
           </div>
 
@@ -181,7 +253,10 @@
         </div>
         <div class="card-content">
           <div class="stats-grid">
-            <div class="stat-item">
+            <div
+              v-if="competencies.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ competencies.length }}
               </div>
@@ -189,13 +264,34 @@
                 Всего компетенций
               </div>
             </div>
-            <div class="stat-item">
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+            <div
+              v-if="competencies.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ competencies.filter(competence => competence.documents.length === 0).length }}
               </div>
               <div class="stat-label">
                 Без документов
               </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
             </div>
           </div>
 
@@ -219,7 +315,10 @@
         </div>
         <div class="card-content">
           <div class="stats-grid">
-            <div class="stat-item">
+            <div
+              v-if="experts.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ experts.length }}
               </div>
@@ -227,13 +326,34 @@
                 Всего экспертов
               </div>
             </div>
-            <div class="stat-item">
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+            <div
+              v-if="experts.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ experts.filter(expert => expert.verified).length }}
               </div>
               <div class="stat-label">
                 Верифицированных
               </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
             </div>
           </div>
 
@@ -257,13 +377,25 @@
         </div>
         <div class="card-content">
           <div class="stats-grid">
-            <div class="stat-item">
+            <div
+              v-if="documents.length > 0"
+              class="stat-item"
+            >
               <div class="stat-number">
                 {{ documents.length }}
               </div>
               <div class="stat-label">
                 Всего документов
               </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
             </div>
             <div
               v-if="recentDoc"
@@ -276,6 +408,15 @@
                 Последняя загрузка
               </div>
             </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
           </div>
 
           <div class="card-actions">
@@ -284,6 +425,68 @@
               icon="pi pi-cog"
               class="p-button-outlined"
               @click="router().push('/admin/documents')"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="pi pi-users" />
+            Информация об участниках
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="stats-grid">
+            <div
+              v-if="users.length > 0"
+              class="stat-item"
+            >
+              <div class="stat-number">
+                {{ users.length }}
+              </div>
+              <div class="stat-label">
+                Родителей
+              </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+            <div
+              v-if="children.length > 0"
+              class="stat-item"
+            >
+              <div class="stat-number">
+                {{ children.length }}
+              </div>
+              <div class="stat-label">
+                Детей
+              </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <Button
+              label="Управление участниками"
+              icon="pi pi-cog"
+              class="p-button-outlined"
+              @click="router().push('/admin/users')"
             />
           </div>
         </div>
@@ -307,26 +510,33 @@
     CompetenceDocumentsOutputDto
   } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
-  import { FormatManager } from '../../utils/FormatManager.ts';
+  import { FormatManager } from '@/utils/FormatManager.ts';
+  import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
+  import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
+  import ProgressSpinner from 'primevue/progressspinner';
 
   export default {
     name: 'AdminDashboardHome',
     components: {
-      Button
+      Button,
+      ProgressSpinner
     },
 emits: ['openSettings'],
     data: function() {
       return {
         userStore: useUserStore(),
         userResolver: new UserResolver(),
+        childResolver: new ChildResolver(),
         platformResolver: new PlatformResolver(),
         competenceResolver: new CompetenceResolver(),
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
 
+        users: [] as UserOutputDto[],
         tutors: [] as UserOutputDto[],
         mentors: [] as UserOutputDto[],
         competencies: [] as CompetenceOutputDto[],
         experts: [] as UserOutputDto[],
+        children: [] as ChildOutputDto[],
         documents: [] as CompetenceDocumentsOutputDto[],
         venues: [] as PlatformOutputDto[]
       };
@@ -355,17 +565,25 @@ emits: ['openSettings'],
       if (typeof response.message !== 'string') {
         this.mentors = response.message
       }
-      response = await this.competenceResolver.getAll()
-      if (typeof response.message !== 'string') {
-        this.competencies = response.message
-      }
       response = await this.userResolver.getAllByRole(Roles.EXPERT)
       if (typeof response.message !== 'string') {
         this.experts = response.message
       }
+      response = await this.userResolver.getAllByRole(Roles.USER)
+      if (typeof response.message !== 'string') {
+        this.users = response.message
+      }
+      response = await this.competenceResolver.getAll()
+      if (typeof response.message !== 'string') {
+        this.competencies = response.message
+      }
       response = await this.platformResolver.getAll()
       if (typeof response.message !== 'string') {
         this.venues = response.message
+      }
+      response = await this.childResolver.getAll()
+      if (typeof response.message !== 'string') {
+        this.children = response.message
       }
       response = await this.competenceDocumentsResolver.getByAll()
       if (typeof response.message !== 'string') {

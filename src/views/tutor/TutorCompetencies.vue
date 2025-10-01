@@ -75,7 +75,7 @@
         <div class="competence-stats">
           <div class="stat-item">
             <div class="stat-number">
-              {{ competence.participantsCount }}
+              {{ getTotalParticipants(competence) }}
             </div>
             <div class="stat-label">
               Участников
@@ -91,6 +91,25 @@
           </div>
         </div>
 
+        <!-- Отображение мест по возрастным категориям -->
+        <div class="age-places-section">
+          <div class="age-places-title">Места по возрастам:</div>
+          <div class="age-places-list">
+            <div
+              v-for="ageCategory in competence.ageCategories"
+              :key="ageCategory.id"
+              class="age-place-item"
+            >
+              <span class="age-label">
+                {{ ageGroups.find(group => group.value === ageCategory.ageCategory)?.label }}
+              </span>
+              <span class="places-count">
+                {{ ageCategory.maxParticipantsCount || 0 }} мест
+              </span>
+            </div>
+          </div>
+        </div>
+
         <div class="competence-actions">
           <!--          <Button-->
           <!--            label="Участники"-->
@@ -98,12 +117,6 @@
           <!--            class="p-button-outlined"-->
           <!--            @click="goToParticipants(competence.id)"-->
           <!--          />-->
-          <Button
-            label="Места"
-            icon="pi pi-users"
-            class="p-button-outlined"
-            @click="managePlaces(competence)"
-          />
           <Button
             label="Документы"
             icon="pi pi-file-text"
@@ -285,7 +298,7 @@
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-number">
-                {{ selectedCompetence.participantsCount }}
+                {{ getTotalParticipants(selectedCompetence) }}
               </div>
               <div class="stat-label">
                 Участников
@@ -339,59 +352,6 @@
       </template>
     </Dialog>
 
-    <!-- Диалог управления местами -->
-    <Dialog
-      v-model:visible="showPlacesDialog"
-      :header="`Управление местами: ${selectedCompetence?.name || ''}`"
-      :modal="true"
-      :closable="true"
-      class="places-dialog"
-      :style="{ width: '600px' }"
-      @update:visible="closePlacesDialog()"
-    >
-      <div
-        v-if="selectedCompetence"
-        class="places-management"
-      >
-        <div class="places-info">
-          <p class="places-description">
-            Установите максимальное количество мест для каждого возрастного периода компетенции.
-          </p>
-        </div>
-
-        <div class="places-list">
-          <div
-            v-for="ageCategory in selectedCompetence.ageCategories"
-            :key="ageCategory.id"
-            class="place-item"
-          >
-            <div class="place-age-info">
-              <div class="age-label">
-                {{ ageGroups.find(group => group.value === ageCategory.ageCategory)?.label }}
-              </div>
-              <div class="current-places">
-                Текущее: {{ ageCategory.maxParticipantsCount || 'Не установлено' }}
-              </div>
-            </div>
-            <div class="place-input-group">
-              <InputNumber
-                v-model="placesForm[ageCategory.ageCategory]"
-                :min="0"
-                :max="1000"
-                placeholder="Максимум мест"
-                class="place-input"
-              />
-              <Button
-                icon="pi pi-check"
-                class="p-button-sm"
-                :disabled="placesForm[ageCategory.ageCategory] == null || placesForm[ageCategory.ageCategory] < 0"
-                @click="savePlaceForAge(ageCategory.ageCategory)"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </Dialog>
   </div>
 </template>
 
@@ -412,8 +372,6 @@ import {
 } from "@/api/resolvers/competence/competence.resolver";
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
-import type {UpdateCompetencePlacesInputDto} from "@/api/resolvers/competence/dto/input/competence-places-input.dto.ts";
-import InputNumber from "primevue/inputnumber";
 
 export default {
   name: "ExpertCompetencies",
@@ -425,7 +383,6 @@ export default {
     Textarea,
     Dropdown,
     MultiSelect,
-    InputNumber,
   },
   data() {
     return {
@@ -436,7 +393,6 @@ export default {
       selectedAge: [] as AgeCategories[],
       oldAgeCategories: [] as AgeCategories[],
       showDetailsDialog: false,
-      showPlacesDialog: false,
       selectedCompetence: undefined as undefined | CompetenceOutputDto,
       showAddCompetenceDialog: false,
       isEditing: false,
@@ -451,7 +407,6 @@ export default {
         ageCategory: "",
         expert: "",
       },
-      placesForm: {} as Record<AgeCategories, number>,
       competenceForm: {
         id: null as number | null,
         name: "",
@@ -482,63 +437,19 @@ export default {
     await this.loadCompetencies();
   },
   methods: {
-    // Методы для управления местами
-    managePlaces(competence: CompetenceOutputDto) {
-      this.selectedCompetence = competence;
-      this.placesForm = {} as Record<AgeCategories, number>;
-      // Инициализируем форму текущими значениями
-      competence.ageCategories.forEach(ageCategory => {
-        this.placesForm[ageCategory.ageCategory] = ageCategory.maxParticipantsCount || 0;
-      });
-      this.showPlacesDialog = true;
-    },
-
-    closePlacesDialog() {
-      this.showPlacesDialog = false;
-      this.selectedCompetence = undefined;
-      this.placesForm = {} as Record<AgeCategories, number>;
-    },
-
-    async savePlaceForAge(ageCategory: AgeCategories) {
-      if (!this.selectedCompetence || this.placesForm[ageCategory] < 0) return;
-
-      try {
-        const response = await this.competenceResolver.updateCompetencePlaces({
-          id: this.selectedCompetence.ageCategories.find(
-              item => item.ageCategory === ageCategory
-          )?.id,
-          maxParticipantsCount: this.placesForm[ageCategory],
-        } as UpdateCompetencePlacesInputDto);
-
-        if (response.status === 200) {
-          this.errors.toastPopup = {
-            title: "Успех",
-            message: "Количество мест успешно обновлено",
-          };
-          // Обновляем данные в selectedCompetence
-          const ageCategoryObj = this.selectedCompetence.ageCategories.find(ac => ac.ageCategory === ageCategory);
-          if (ageCategoryObj) {
-            ageCategoryObj.maxParticipantsCount = this.placesForm[ageCategory];
-          }
-        } else {
-          this.errors.toastPopup = {
-            title: `Ошибка #${response.status}`,
-            message: response.message as string,
-          };
-        }
-      } catch (error) {
-        this.errors.toastPopup = {
-          title: "Ошибка",
-          message: "Произошла ошибка при сохранении мест",
-        };
-      }
-    },
 
     getTotalPlaces(competence: CompetenceOutputDto) {
       const totalPlaces = competence.ageCategories.reduce((sum, ageCategory) => {
         return sum + (ageCategory.maxParticipantsCount || 0);
       }, 0);
       return totalPlaces > 0 ? totalPlaces : '-';
+    },
+
+    getTotalParticipants(competence: CompetenceOutputDto) {
+      const totalParticipants = competence.ageCategories.reduce((sum, ageCategory) => {
+        return sum + (ageCategory.currentParticipantsCount || 0);
+      }, 0);
+      return totalParticipants > 0 ? totalParticipants : '-';
     },
 
     competenceExpert(selectedCompetence: CompetenceOutputDto) {
@@ -979,6 +890,46 @@ export default {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
+}
+
+/* Стили для отображения мест по возрастным категориям */
+.age-places-section {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.age-places-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.age-places-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.age-place-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  font-size: 0.8rem;
+}
+
+.age-label {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.places-count {
+  color: #ff9800;
+  font-weight: 600;
 }
 
 /* Стили для диалога управления местами */

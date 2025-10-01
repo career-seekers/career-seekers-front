@@ -3,7 +3,6 @@ import type { DocsInputFormDataDto } from '@/api/resolvers/files/dto/input/docs-
 import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
 import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
 
-
 export enum FileType {
   TASK = "TASK",
   CRITERIA = "CRITERIA",
@@ -12,6 +11,16 @@ export enum FileType {
   FINAL_CRITERIA = "FINAL_CRITERIA",
   FINAL_STATEMENT = "FINAL_STATEMENT",
   DESCRIPTION = "DESCRIPTION",
+  AVATAR = "AVATAR",
+  SNILS = "SNILS",
+  STUDYING_CERTIFICATE = "STUDYING_CERTIFICATE",
+  ADDITIONAL_STUDYING_CERTIFICATE = "ADDITIONAL_STUDYING_CERTIFICATE",
+  CONSENT_TO_CHILD_PDP = "CONSENT_TO_CHILD_PDP",
+  CONSENT_TO_MENTOR_PDP = "CONSENT_TO_MENTOR_PDP",
+  CONSENT_TO_TUTOR_PDP = "CONSENT_TO_TUTOR_PDP",
+  CONSENT_TO_EXPERT_PDP = "CONSENT_TO_EXPERT_PDP",
+  BIRTH_CERTIFICATE = "BIRTH_CERTIFICATE",
+  DIRECTION_ICON = "DIRECTION_ICON",
 }
 
 export class FileResolver {

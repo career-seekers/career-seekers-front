@@ -44,6 +44,20 @@ export class ChildResolver {
     )
   }
 
+  public async getAll() {
+    return this.apiResolver.request<
+      null,
+      CommonOutputDto<ChildOutputDto[] | string>
+    >(
+      ``,
+      "GET",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
+
+
+
   public async deleteById(id: number) {
     return this.apiResolver.request<
       null,
