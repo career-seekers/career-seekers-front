@@ -37,7 +37,7 @@
         required: true,
       },
       selectedMentorId: {
-        type: Number as PropType<number | null>,
+        type: Number as PropType<number | null | string>,
         default: null
       }
     },
