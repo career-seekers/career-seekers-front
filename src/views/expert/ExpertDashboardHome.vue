@@ -91,21 +91,34 @@
                 <div class="competence-stats">
                   <div class="stat-item">
                     <span class="stat-number">{{
-                      competence.participantsCount
+                      getTotalParticipants(competence)
                     }}</span>
                     <span class="stat-label">Участников</span>
-                  </div>
-                  <div class="stat-item">
-                    <span class="stat-number">{{
-                      getTotalPlaces(competence)
-                    }}</span>
-                    <span class="stat-label">Мест</span>
                   </div>
                   <div class="stat-item">
                     <span class="stat-number">{{
                       competence.documentsCount || 0
                     }}</span>
                     <span class="stat-label">Документов</span>
+                  </div>
+                </div>
+
+                <!-- Отображение мест по возрастным категориям -->
+                <div class="age-places-section">
+                  <div class="age-places-title">Места по возрастам:</div>
+                  <div class="age-places-list">
+                    <div
+                      v-for="ageCategory in competence.ageCategories"
+                      :key="ageCategory.id"
+                      class="age-place-item"
+                    >
+                      <span class="age-label">
+                        {{ ageGroups.find(group => group.value === ageCategory.ageCategory)?.label }}
+                      </span>
+                      <span class="places-count">
+                        {{ ageCategory.maxParticipantsCount || 0 }} мест
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div class="competence-actions">
@@ -586,7 +599,13 @@ emits: ['openSettings'],
     getTotalPlaces(competence) {
       if (!competence.ageCategories) return 0;
       return competence.ageCategories.reduce((total, ageCategory) => {
-        return total + (ageCategory.maxPlaces || 0);
+        return total + (ageCategory.maxParticipantsCount || 0);
+      }, 0);
+    },
+    getTotalParticipants(competence) {
+      if (!competence.ageCategories) return 0;
+      return competence.ageCategories.reduce((total, ageCategory) => {
+        return total + (ageCategory.currentParticipantsCount || 0);
       }, 0);
     },
 
@@ -856,8 +875,6 @@ emits: ['openSettings'],
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow-y: auto;
-  max-height: 180px;
   padding-right: 4px;
 }
 
@@ -1052,10 +1069,6 @@ emits: ['openSettings'],
     height: 250px;
   }
 
-  .competence-content {
-    max-height: 150px;
-  }
-
   .quick-actions {
     gap: 0.5rem;
   }
@@ -1103,10 +1116,6 @@ emits: ['openSettings'],
     height: 220px;
   }
 
-  .competence-content {
-    max-height: 120px;
-  }
-
   .stats-grid {
     gap: 0.5rem;
   }
@@ -1118,5 +1127,45 @@ emits: ['openSettings'],
   .stat-number {
     font-size: 1rem;
   }
+}
+
+/* Стили для отображения мест по возрастным категориям */
+.age-places-section {
+  margin: 0.75rem 0;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.age-places-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.4rem;
+}
+
+.age-places-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.age-place-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.2rem 0;
+  font-size: 0.75rem;
+}
+
+.age-label {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.places-count {
+  color: #ff9800;
+  font-weight: 600;
 }
 </style>

@@ -78,18 +78,10 @@
         <div class="competence-stats">
           <div class="stat-item">
             <div class="stat-number">
-              {{ competence.participantsCount }}
+              {{ getTotalParticipants(competence) }}
             </div>
             <div class="stat-label">
               Участников
-            </div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">
-              {{ getTotalPlaces(competence) }}
-            </div>
-            <div class="stat-label">
-              Мест
             </div>
           </div>
           <div class="stat-item">
@@ -98,6 +90,25 @@
             </div>
             <div class="stat-label">
               Событий
+            </div>
+          </div>
+        </div>
+
+        <!-- Отображение мест по возрастным категориям -->
+        <div class="age-places-section">
+          <div class="age-places-title">Места по возрастам:</div>
+          <div class="age-places-list">
+            <div
+              v-for="ageCategory in competence.ageCategories"
+              :key="ageCategory.id"
+              class="age-place-item"
+            >
+              <span class="age-label">
+                {{ ageGroups.find(group => group.value === ageCategory.ageCategory)?.label }}
+              </span>
+              <span class="places-count">
+                {{ ageCategory.maxParticipantsCount || 0 }} мест
+              </span>
             </div>
           </div>
         </div>
@@ -316,7 +327,7 @@
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-number">
-                {{ selectedCompetence.participantsCount }}
+                {{ getTotalParticipants(selectedCompetence) }}
               </div>
               <div class="stat-label">
                 Участников
@@ -753,6 +764,13 @@
         return totalPlaces > 0 ? totalPlaces : '-';
       },
 
+      getTotalParticipants(competence: CompetenceOutputDto) {
+        const totalParticipants = competence.ageCategories.reduce((sum, ageCategory) => {
+          return sum + (ageCategory.currentParticipantsCount || 0);
+        }, 0);
+        return totalParticipants > 0 ? totalParticipants : '-';
+      },
+
       onPageChange(event: any) {
         this.currentPage = event.page;
         this.itemsPerPage = event.rows;
@@ -923,6 +941,41 @@
     color: #ff9800;
     font-weight: 600;
     margin-left: 0.25rem;
+  }
+
+  /* Стили для отображения мест по возрастным категориям */
+  .age-places-section {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+  }
+
+  .age-places-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+  }
+
+  .age-places-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .age-place-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    font-size: 0.8rem;
+  }
+
+  .age-label {
+    color: #6c757d;
+    font-weight: 500;
   }
 
   .competence-description {
