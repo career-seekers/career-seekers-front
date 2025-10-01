@@ -47,10 +47,10 @@
               <span class="data-label">Email:</span>
               <span class="data-value">{{ user.email }}</span>
             </div>
-            <div class="data-item">
+            <!-- <div class="data-item">
               <span class="data-label">Статус:</span>
               <span class="data-value">{{ user.verified ? 'Подтверждён' : 'Не подтверждён' }}</span>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
