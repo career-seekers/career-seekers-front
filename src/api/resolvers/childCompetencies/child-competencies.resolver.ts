@@ -12,6 +12,7 @@ export class ChildCompetenciesResolver {
   private token = localStorage.getItem("access_token");
 
   public async getByChildId(id: number) {
+    console.log(id)
     return this.apiResolver.request<
       null,
       CommonOutputDto<ChildCompetenciesOutputDto[] | string>

@@ -448,6 +448,7 @@ export default {
         child: ChildOutputDto,
         competencies: ChildCompetenciesOutputDto[]
       }[],
+      children: [] as ChildOutputDto[],
       expertsCache: new Map<number, UserOutputDto>(),
       expertNames: new Map<number, string>(),
 
@@ -532,7 +533,7 @@ export default {
   async mounted() {
     // Проверяем, есть ли сохраненный наставник после перехода по ссылке
     // Загружаем компетенции для всех детей
-    await this.loadAllChildrenCompetencies();
+    await this.loadCompetencies()
     
     // Загружаем доступных наставников
     await this.loadAvailableMentors();
@@ -544,6 +545,15 @@ export default {
     await this.loadAvailableMentors();
   },
   methods: {
+    async loadCompetencies() {
+      const response = await this.childResolver.getByUserId(this.user.id)
+      if (typeof response.message !== "string" && response.status === 200) {
+        this.children = response.message;
+        for (const child of this.children) {
+          await this.loadCompetenciesByChild(child)
+        }
+      }
+    },
     validateForm() {
       let isValid = true
       // Валидация данных ребенка
@@ -734,7 +744,6 @@ export default {
     },
     async loadCompetenciesByChild(child: ChildOutputDto) {
       try {
-        console.log(`Загружаем компетенции для ребенка ID: ${child.id}`);
         const response = await this.childCompetenciesResolver.getByChildId(child.id)
         
         if (typeof response.message === "string" || response.status !== 200) {
@@ -754,100 +763,7 @@ export default {
         console.error(`Критическая ошибка при загрузке компетенций для ребенка ${child.id}:`, error);
       }
     },
-    async loadCompetenciesByChildWithRetry(child: ChildOutputDto, maxRetries: number = 5) {
-      let lastError: any = null;
-      
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          console.log(`Попытка ${attempt}/${maxRetries} загрузки компетенций для ребенка ${child.id}`);
-          await this.loadCompetenciesByChild(child);
-          return; // Успешно загружено
-        } catch (error) {
-          lastError = error;
-          console.warn(`Попытка ${attempt} неудачна для ребенка ${child.id}:`, error);
-          
-          if (attempt < maxRetries) {
-            // Экспоненциальная задержка: 1s, 2s, 4s
-            const delay = Math.pow(2, attempt - 1) * 1000;
-            console.log(`Повторная попытка через ${delay}ms`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          }
-        }
-      }
-      
-      console.error(`Не удалось загрузить компетенции для ребенка ${child.id} после ${maxRetries} попыток:`, lastError);
-    },
-    async loadAllChildrenCompetencies() {
-      if (!this.user?.children) return;
 
-      try {
-        console.log(`Начинаем загрузку компетенций для ${this.user.children.length} детей`);
-        
-        // Ограничиваем количество параллельных запросов (максимум 3 одновременно)
-        const batchSize = 3;
-        const children = this.user.children;
-        
-        for (let i = 0; i < children.length; i += batchSize) {
-          const batch = children.slice(i, i + batchSize);
-          const batchPromises = batch.map(child => this.loadCompetenciesByChildWithRetry(child));
-          await Promise.all(batchPromises);
-          
-          // Небольшая задержка между батчами для снижения нагрузки на сервер
-          if (i + batchSize < children.length) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-          }
-        }
-        
-        // Загружаем имена экспертов для всех компетенций
-        await this.loadExpertNames();
-        console.log('Загрузка компетенций завершена');
-      } catch (error) {
-        console.error('Ошибка при загрузке компетенций:', error);
-      }
-    },
-    async loadExpertNames() {
-      const expertIds = new Set<number>();
-      
-      // Собираем все уникальные ID экспертов
-      this.childCompetencies.forEach(row => {
-        row.competencies.forEach(competence => {
-          expertIds.add(competence.direction.expertId);
-        });
-      });
-
-      // Загружаем имена экспертов
-      const promises = Array.from(expertIds).map(async (expertId) => {
-        if (!this.expertNames.has(expertId)) {
-          const expertName = await this.getExpertName(expertId);
-          this.expertNames.set(expertId, expertName);
-        }
-      });
-
-      await Promise.all(promises);
-    },
-    async getExpertName(expertId: number): Promise<string> {
-      // Проверяем кэш
-      if (this.expertsCache.has(expertId)) {
-        const expert = this.expertsCache.get(expertId)!;
-        return `${expert.lastName} ${expert.firstName} ${expert.patronymic}`;
-      }
-
-      try {
-        // Загружаем данные эксперта
-        const response = await this.userResolver.getById(expertId);
-        if (typeof response.message === "string" || response.status !== 200) {
-          return `ID ${expertId}`;
-        }
-
-        const expert = response.message;
-        // Сохраняем в кэш
-        this.expertsCache.set(expertId, expert);
-        return `${expert.lastName} ${expert.firstName} ${expert.patronymic}`;
-      } catch (error) {
-        console.error('Ошибка при загрузке эксперта:', error);
-        return `ID ${expertId}`;
-      }
-    },
     // Методы для модальных окон
     openChildDetailsDialog(child: ChildOutputDto, competence: ChildCompetenciesOutputDto) {
       this.selectedChildDetails = { child, competence };
