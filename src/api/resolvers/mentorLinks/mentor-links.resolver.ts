@@ -5,17 +5,25 @@ import type {CreateMentorLinkInputDto} from "@/api/resolvers/mentorLinks/dto/inp
 
 export class MentorLinksResolver {
   private apiResolver = new ApiResolver("users-service/v1/mentor-links");
-  private token = localStorage.getItem("access_token");
+
+  private getToken(): string | undefined {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      console.warn('Токен авторизации не найден в localStorage');
+      return undefined;
+    }
+    return token;
+  }
 
   public async getAll() {
     return this.apiResolver.request<
       null,
       CommonOutputDto<MentorLinkOutputDto[]>
     >(
-      "/",
+      "",
       "GET",
       null,
-      this.token ? this.token : undefined
+      this.getToken()
     );
   }
 
@@ -24,10 +32,10 @@ export class MentorLinksResolver {
       null,
       CommonOutputDto<MentorLinkOutputDto>
     >(
-      `/${id}`,
+      `${id}`,
       "GET",
       null,
-      this.token ? this.token : undefined
+      this.getToken()
     );
   }
 
@@ -36,10 +44,10 @@ export class MentorLinksResolver {
       null,
       CommonOutputDto<MentorLinkOutputDto>
     >(
-      `/getByUserId/${userId}`,
+      `getByUserId/${userId}`,
       "GET",
       null,
-      this.token ? this.token : undefined
+      this.getToken()
     );
   }
 
@@ -48,10 +56,10 @@ export class MentorLinksResolver {
       null,
       CommonOutputDto<MentorLinkOutputDto>
     >(
-      `/getByBiscuit/${biscuit}`,
+      `getByBiscuit/${biscuit}`,
       "GET",
       null,
-      this.token ? this.token : undefined
+      this.getToken()
     );
   }
 
@@ -60,10 +68,10 @@ export class MentorLinksResolver {
       CreateMentorLinkInputDto,
       CommonOutputDto<MentorLinkOutputDto>
     >(
-      `/`,
+      ``,
       "POST",
       item,
-      this.token ? this.token : undefined
+      this.getToken()
     );
   }
 
@@ -72,10 +80,10 @@ export class MentorLinksResolver {
       null,
       CommonOutputDto<string>
     >(
-      `/${id}`,
+      `${id}`,
       "DELETE",
       null,
-      this.token ? this.token : undefined
+      this.getToken()
     )
   }
 
@@ -84,10 +92,10 @@ export class MentorLinksResolver {
       null,
       CommonOutputDto<string>
     >(
-      `/`,
+      ``,
       "DELETE",
       null,
-      this.token ? this.token : undefined
+      this.getToken()
     )
   }
 }

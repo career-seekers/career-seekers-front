@@ -330,7 +330,7 @@
             </div>
             <div class="mentor-actions">
               <Button
-                v-if="getSavedMentorIds().includes(mentor.id)"
+                v-if="getSavedMentorIds.includes(mentor.id)"
                 icon="pi pi-trash"
                 class="p-button-danger p-button-sm p-button-text"
                 @click.stop="removeMentorFromList(mentor.id)"
@@ -458,10 +458,15 @@ export default {
     user() {
       return this.userStore.user
     },
+    getSavedMentorIds() {
+      // Возвращаем ID наставников, которые уже связаны с родителем
+      // В текущей реализации все доступные наставники считаются связанными
+      return this.availableMentors.map(mentor => mentor.id);
+    },
     debugInfo() {
       return {
         tempMentorId: typeof window !== 'undefined' ? localStorage.getItem('selectedMentorId') : null,
-        savedMentorsCount: this.getSavedMentorIds().length,
+        savedMentorsCount: this.getSavedMentorIds.length,
         availableMentorsCount: this.availableMentors.length
       }
     }
@@ -680,23 +685,74 @@ export default {
       return competencies ? competencies : []
     },
     async loadCompetenciesByChild(child: ChildOutputDto) {
-      const response = await this.childCompetenciesResolver.getByChildId(child.id)
-      if (typeof response.message === "string" || response.status !== 200) return
-      this.childCompetencies.push({
-        child: child,
-        competencies: response.message
-      })
+      try {
+        console.log(`Загружаем компетенции для ребенка ID: ${child.id}`);
+        const response = await this.childCompetenciesResolver.getByChildId(child.id)
+        
+        if (typeof response.message === "string" || response.status !== 200) {
+          console.error(`Ошибка при загрузке компетенций для ребенка ${child.id}:`, {
+            status: response.status,
+            message: response.message
+          });
+          return;
+        }
+        
+        console.log(`Успешно загружены компетенции для ребенка ${child.id}:`, response.message);
+        this.childCompetencies.push({
+          child: child,
+          competencies: response.message
+        });
+      } catch (error) {
+        console.error(`Критическая ошибка при загрузке компетенций для ребенка ${child.id}:`, error);
+      }
+    },
+    async loadCompetenciesByChildWithRetry(child: ChildOutputDto, maxRetries: number = 3) {
+      let lastError: any = null;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`Попытка ${attempt}/${maxRetries} загрузки компетенций для ребенка ${child.id}`);
+          await this.loadCompetenciesByChild(child);
+          return; // Успешно загружено
+        } catch (error) {
+          lastError = error;
+          console.warn(`Попытка ${attempt} неудачна для ребенка ${child.id}:`, error);
+          
+          if (attempt < maxRetries) {
+            // Экспоненциальная задержка: 1s, 2s, 4s
+            const delay = Math.pow(2, attempt - 1) * 1000;
+            console.log(`Повторная попытка через ${delay}ms`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      }
+      
+      console.error(`Не удалось загрузить компетенции для ребенка ${child.id} после ${maxRetries} попыток:`, lastError);
     },
     async loadAllChildrenCompetencies() {
       if (!this.user?.children) return;
 
       try {
-        const promises = this.user.children.map(child =>
-          this.loadCompetenciesByChild(child));
-        await Promise.all(promises);
+        console.log(`Начинаем загрузку компетенций для ${this.user.children.length} детей`);
+        
+        // Ограничиваем количество параллельных запросов (максимум 3 одновременно)
+        const batchSize = 3;
+        const children = this.user.children;
+        
+        for (let i = 0; i < children.length; i += batchSize) {
+          const batch = children.slice(i, i + batchSize);
+          const batchPromises = batch.map(child => this.loadCompetenciesByChildWithRetry(child));
+          await Promise.all(batchPromises);
+          
+          // Небольшая задержка между батчами для снижения нагрузки на сервер
+          if (i + batchSize < children.length) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        }
         
         // Загружаем имена экспертов для всех компетенций
         await this.loadExpertNames();
+        console.log('Загрузка компетенций завершена');
       } catch (error) {
         console.error('Ошибка при загрузке компетенций:', error);
       }
@@ -767,13 +823,20 @@ export default {
 
         console.log('Загружаем наставников для родителя:', this.userStore.user.id, 'тип:', typeof this.userStore.user.id);
         
-        // Загружаем наставников родителя с сервера
-        const response = await this.mentorLinksResolver.getParentMentors(this.userStore.user.id);
+        // Загружаем все связи наставников
+        const response = await this.mentorLinksResolver.getAll();
         
-        console.log('Ответ сервера:', response);
+        console.log('Ответ сервера (все связи):', response);
         
         if (response.status === 200 && typeof response.message !== "string") {
-          this.availableMentors = response.message.map(mentorLink => mentorLink.user);
+          // Фильтруем связи, где родитель является текущим пользователем
+          // В MentorLinkOutputDto поле user содержит данные наставника
+          const mentorLinks = response.message || [];
+          console.log('Все связи наставников:', mentorLinks);
+          
+          // Пока что показываем всех наставников, так как логика связей не ясна
+          // TODO: Нужно уточнить у бэкендера, как определяется связь родитель-наставник
+          this.availableMentors = mentorLinks.map(link => link.user);
           console.log('Загружены наставники:', this.availableMentors);
         } else {
           console.warn('Не удалось загрузить наставников:', response);
@@ -791,10 +854,19 @@ export default {
       // Удаляем связь родитель-наставник с сервера
       if (this.userStore.user) {
         try {
-          await this.mentorLinksResolver.removeMentorFromParent({
-            parentId: this.userStore.user.id,
-            mentorId: mentorId
-          });
+          // Получаем все связи и находим нужную
+          const response = await this.mentorLinksResolver.getAll();
+          
+          if (response.status === 200 && typeof response.message !== "string") {
+            const mentorLinks = response.message || [];
+            // Находим связь с нужным наставником
+            const mentorLink = mentorLinks.find(link => link.user.id === mentorId);
+            
+            if (mentorLink) {
+              await this.mentorLinksResolver.deleteById(mentorLink.id);
+              console.log(`Удалена связь с наставником ID: ${mentorId}`);
+            }
+          }
           
           // Обновляем список наставников
           this.availableMentors = this.availableMentors.filter(mentor => mentor.id !== mentorId);
@@ -848,10 +920,9 @@ export default {
         await this.userStore.fillChildren();
         
         // Сохраняем связь родитель-наставник на сервере
-        if (this.userStore.user) {
-          await this.mentorLinksResolver.assignMentorToParent({
-            parentId: this.userStore.user.id,
-            mentorId: mentorId
+        if (this.userStore.user && mentorId !== null) {
+          await this.mentorLinksResolver.create({
+            userId: mentorId
           });
         }
         

@@ -217,9 +217,8 @@ export default {
           });
           
           // Сохраняем связь родитель-наставник на сервере
-          const response = await this.mentorLinksResolver.assignMentorToParent({
-            parentId: this.userStore.user.id,
-            mentorId: this.mentorId
+          const response = await this.mentorLinksResolver.create({
+            userId: this.mentorId
           });
           
           console.log('Assign mentor response:', response);
