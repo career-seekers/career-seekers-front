@@ -22,22 +22,55 @@
         >
           <div class="field">
             <label
-              for="fullName"
+              for="lastName"
               class="field-label"
-            >ФИО *</label>
+            >Фамилия *</label>
             <InputText
-              id="fullName"
-              v-model="registerForm.fullName"
-              placeholder="Введите ваше полное имя"
+              id="lastName"
+              v-model="registerForm.lastName"
+              placeholder="Введите вашу полную фамилию"
               class="w-full"
-              :class="{ 'p-invalid': errors.fullName }"
+              :class="{ 'p-invalid': errors.lastName }"
             />
             <small
-              v-if="errors.fullName"
+              v-if="errors.lastName"
               class="p-error"
             >{{
-              errors.fullName
+              errors.lastName
             }}</small>
+          </div>
+
+          <div class="field">
+            <label
+              for="firstName"
+              class="field-label"
+            >Имя *</label>
+            <InputText
+              id="firstName"
+              v-model="registerForm.firstName"
+              placeholder="Введите ваше полное имя"
+              class="w-full"
+              :class="{ 'p-invalid': errors.firstName }"
+            />
+            <small
+              v-if="errors.firstName"
+              class="p-error"
+            >{{
+              errors.firstName
+            }}</small>
+          </div>
+
+          <div class="field">
+            <label
+              for="patronymic"
+              class="field-label"
+            >Отчество</label>
+            <InputText
+              id="patronymic"
+              v-model="registerForm.patronymic"
+              placeholder="Введите ваше полное отчество"
+              class="w-full"
+            />
           </div>
 
           <div class="field">
@@ -507,7 +540,9 @@ export default {
       showAgreementDialog: false,
       showRulesDialog: false,
       registerForm: {
-        fullName: "",
+        firstName: "",
+        lastName: "",
+        patronymic: null,
         birthDate: "",
         position: "",
         educationalInstitution: "",
@@ -524,7 +559,8 @@ export default {
         agreement: false,
       },
       errors: {
-        fullName: "",
+        lastName: "",
+        firstName: "",
         birthDate: "",
         position: "",
         educationalInstitution: "",
@@ -615,8 +651,13 @@ export default {
       let isValid = true;
 
       // Проверка ФИО
-      if (!this.registerForm.fullName.trim()) {
-        this.errors.fullName = "ФИО обязательно";
+      if (!this.registerForm.lastName.trim()) {
+        this.errors.lastName = "Фамилия обязательна";
+        isValid = false;
+      }
+
+      if (!this.registerForm.firstName.trim()) {
+        this.errors.firstName = "Имя обязательно";
         isValid = false;
       }
 
@@ -743,9 +784,9 @@ export default {
             dto: {
               type: "UserRegistrationDto",
               verificationCode: "",
-              lastName: this.registerForm.fullName.split(" ")[0],
-              firstName: this.registerForm.fullName.split(" ")[1],
-              patronymic: this.registerForm.fullName.split(" ")[2],
+              lastName: this.registerForm.lastName,
+              firstName: this.registerForm.firstName,
+              patronymic: this.registerForm.patronymic,
               dateOfBirth: this.dateOfBirthFormatted,
               email: this.registerForm.email.toLowerCase(),
               mobileNumber: this.mobileNumberFormatted,

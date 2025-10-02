@@ -26,5 +26,5 @@ export interface UserOutputDto {
     id: number;
     tgLink: string;
   } | null;
-  linkBiscuits?: any; // Добавляем поле linkBiscuits
+  linkBiscuits?: never; // Добавляем поле linkBiscuits
 }
