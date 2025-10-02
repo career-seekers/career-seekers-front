@@ -618,9 +618,6 @@ export default {
       if (!this.registerForm.fullName.trim()) {
         this.errors.fullName = "ФИО обязательно";
         isValid = false;
-      } else if (this.registerForm.fullName.trim().split(" ").length < 2) {
-        this.errors.fullName = "Введите полное имя (имя и фамилию)";
-        isValid = false;
       }
 
       //Проверка даты рождения
