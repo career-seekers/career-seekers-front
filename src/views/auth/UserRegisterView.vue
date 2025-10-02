@@ -145,7 +145,9 @@
                 toggle-mask
                 weak-label="Слабый"
                 medium-label="Средний"
-strong-label="Надежный" prompt-label="Введите пароль" @blur="validatePassword"
+                strong-label="Надежный"
+                prompt-label="Введите пароль"
+                @blur="validatePassword"
               />              <small
                 v-if="parentFormErrors.password"
                 class="p-error"

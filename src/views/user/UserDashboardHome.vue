@@ -233,9 +233,12 @@
               </span>
             </div>
             <div class="detail-item">
-              <span class="detail-label">Возраст:</span>
+              <span class="detail-label">Возрастная группа:</span>
               <span class="detail-value">
-                {{ FormatManager.calculateAge(selectedChildDetails.child.dateOfBirth) }} лет
+                {{ FormatManager.getAgeGroupByAge(
+                  FormatManager.calculateAge(selectedChildDetails.child.dateOfBirth),
+                  selectedChildDetails.child.childDocuments!.learningClass
+                )?.label }}
               </span>
             </div>
             <div class="detail-item">
@@ -504,9 +507,12 @@
               </span>
             </div>
             <div class="info-item">
-              <span class="info-label">Возраст:</span>
-              <span class="info-value">
-                {{ FormatManager.calculateAge(selectedChildInfo.dateOfBirth) }} лет
+              <span class="detail-label">Возрастная группа:</span>
+              <span class="detail-value">
+                {{ FormatManager.getAgeGroupByAge(
+                  FormatManager.calculateAge(selectedChildInfo.dateOfBirth),
+                  selectedChildInfo.childDocuments!.learningClass
+                )?.label }}
               </span>
             </div>
             <div class="info-item">
