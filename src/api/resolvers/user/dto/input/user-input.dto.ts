@@ -3,7 +3,7 @@ import { Roles } from "@/state/UserState.types";
 export interface UserInputDto {
   firstName: string;
   lastName: string;
-  patronymic: string;
+  patronymic: string | null;
   dateOfBirth: string;
   email: string | null;
   mobileNumber: string;
