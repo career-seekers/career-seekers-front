@@ -1140,6 +1140,7 @@ export default {
           mentorId: null
         })
         await this.addChildDocs()
+        await this.userStore.fillChildren()
         
         // Обновляем данные в модалках, если они открыты
         if (this.showChildDetailsDialog && this.selectedChildDetails) {
