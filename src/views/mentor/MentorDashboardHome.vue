@@ -17,6 +17,13 @@
             <i class="pi pi-user" />
             Информация о наставнике
           </h3>
+          <Button
+            v-tooltip="'Редактировать'"
+            icon="pi pi-pencil"
+            style="background: white;"
+            class="p-button-text p-button-sm"
+            @click="$emit('openSettings', true)"
+          />
         </div>
         <div class="card-content">
           <div class="data-section">
@@ -238,6 +245,7 @@ export default {
     Dialog,
     InputText,
   },
+  emits: ["openSettings"],
   data() {
     return {
       userStore: useUserStore(),
@@ -503,6 +511,8 @@ export default {
   background: linear-gradient(135deg, #ff9800, #f57c00);
   color: white;
   padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
 }
 
 .card-header-content {
@@ -584,91 +594,6 @@ export default {
   color: #2c3e50;
   font-weight: 500;
   text-align: right;
-}
-
-/* Статистика */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #ff9800;
-  margin-bottom: 0.5rem;
-}
-
-.stat-label {
-  color: #6c757d;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.stats-actions {
-  text-align: center;
-}
-
-/* Быстрые действия */
-.quick-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-/* Обновления */
-.updates-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.update-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f1f3f4;
-}
-
-.update-item:last-child {
-  border-bottom: none;
-}
-
-.update-icon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #ff9800, #f57c00);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.update-content {
-  flex: 1;
-}
-
-.update-text {
-  color: #2c3e50;
-  font-size: 0.9rem;
-  margin-bottom: 0.25rem;
-}
-
-.update-time {
-  color: #6c757d;
-  font-size: 0.8rem;
 }
 
 /* Мобильные стили */

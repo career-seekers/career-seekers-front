@@ -183,7 +183,7 @@
         <label
           for="patronymic"
           class="field-label"
-        >Отчество *</label>
+        >Отчество</label>
         <InputText
           id="patronymic"
           v-model="userForm.patronymic"

@@ -32,7 +32,7 @@ export class MentorLinksResolver {
       null,
       CommonOutputDto<MentorLinkOutputDto>
     >(
-      `${id}`,
+      id.toString(),
       "GET",
       null,
       this.getToken()
@@ -80,7 +80,7 @@ export class MentorLinksResolver {
       null,
       CommonOutputDto<string>
     >(
-      `${id}`,
+      id.toString(),
       "DELETE",
       null,
       this.getToken()
