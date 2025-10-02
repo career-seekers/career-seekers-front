@@ -5,7 +5,7 @@ export interface UserRegistrationDto {
   verificationCode: string;
   lastName: string;
   firstName: string;
-  patronymic: string;
+  patronymic: string | null;
   dateOfBirth: string;
   email: string;
   mobileNumber: string;
@@ -19,7 +19,7 @@ export interface UserWithChildRegistrationDto extends UserRegistrationDto {
   mentorEqualsUser: boolean;
   childFirstName: string;
   childLastName: string;
-  childPatronymic: string;
+  childPatronymic: string | null;
   childDateOfBirth: string;
   mentorId?: number | null;
 }

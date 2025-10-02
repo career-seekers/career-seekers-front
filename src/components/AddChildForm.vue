@@ -1,22 +1,55 @@
 <template>
   <div class="field">
     <label
-      for="childFullName"
+      for="childLastName"
       class="field-label"
-    >ФИО ребенка *</label>
+    >Фамилия *</label>
     <InputText
-      id="childFullName"
-      v-model="childForm.fullName"
-      placeholder="Введите полное имя ребенка, двойное имя вводите через '-'"
+      id="childLastName"
+      v-model="childForm.lastName"
+      placeholder="Введите фамилию ребенка, двойную фамилию вводите через '-'"
       class="w-full"
-      :class="{ 'p-invalid': errors.fullName }"
+      :class="{ 'p-invalid': errors.lastName }"
     />
     <small
-      v-if="errors.fullName"
+      v-if="errors.lastName"
       class="p-error"
     >{{
-      errors.fullName
+      errors.lastName
     }}</small>
+  </div>
+
+  <div class="field">
+    <label
+      for="childFirstName"
+      class="field-label"
+    >Имя *</label>
+    <InputText
+      id="childFirstName"
+      v-model="childForm.firstName"
+      placeholder="Введите полное имя ребенка, двойное имя вводите через '-'"
+      class="w-full"
+      :class="{ 'p-invalid': errors.firstName }"
+    />
+    <small
+      v-if="errors.firstName"
+      class="p-error"
+    >{{
+      errors.firstName
+    }}</small>
+  </div>
+
+  <div class="field">
+    <label
+      for="childPatronymic"
+      class="field-label"
+    >Отчество</label>
+    <InputText
+      id="childPatronymic"
+      v-model="childForm.patronymic"
+      placeholder="Введите полное отчество ребенка"
+      class="w-full"
+    />
   </div>
 
   <div class="field">
@@ -440,7 +473,9 @@
   import { useUserStore } from '@/stores/userStore.ts';
 
   export type ChildFormFields = {
-    fullName: string,
+    lastName: string,
+    firstName: string,
+    patronymic: string | null,
     birthDate: string,
     snilsNumber: string,
     schoolName: string,
@@ -454,7 +489,8 @@
   }
 
   export type ChildFormErrors = {
-    fullName: string,
+    lastName: string,
+    firstName: string,
     birthDate: string,
     snilsNumber: string,
     schoolName: string,

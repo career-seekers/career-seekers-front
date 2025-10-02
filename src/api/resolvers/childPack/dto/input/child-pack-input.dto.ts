@@ -1,7 +1,7 @@
 export interface ChildPackInputDto {
   lastName: string,
   firstName: string,
-  patronymic: string,
+  patronymic: string | null,
   dateOfBirth: string,
   userId: number,
   mentorId: number | null,

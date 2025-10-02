@@ -209,7 +209,7 @@
           <div class="section-header">
             <h4 class="section-title">
               <i class="pi pi-user" />
-              Информация о ребенке
+              Персональные данные
             </h4>
             <Button
               v-tooltip="'Редактировать данные ребенка'"
@@ -472,7 +472,7 @@
       v-model:visible="showChildInfoDialog"
       header="Информация о ребенке"
       :modal="true"
-      :style="{ width: '600px', maxWidth: '90vw' }"
+      :style="{ width: '700px', maxWidth: '90vw' }"
     >
       <div
         v-if="selectedChildInfo"
@@ -483,7 +483,7 @@
           <div class="section-header">
             <h4 class="section-title">
               <i class="pi pi-user" />
-              Информация о ребенке
+              Персональные данные
             </h4>
             <Button
               v-tooltip="'Редактировать данные ребенка'"
@@ -938,7 +938,9 @@ export default {
 
 
       childForm: {
-        fullName: '',
+        lastName: '',
+        firstName: '',
+        patronymic: '',
         birthDate: '',
         snilsNumber: '',
         schoolName: '',
@@ -952,7 +954,8 @@ export default {
       } as ChildFormFields,
 
       errors: {
-        fullName: '',
+        lastName: '',
+        firstName: '',
         birthDate: '',
         snilsNumber: '',
         schoolName: '',
@@ -973,17 +976,8 @@ export default {
       return this.userStore.user
     },
     getSavedMentorIds() {
-      // Возвращаем ID наставников, которые уже связаны с родителем
-      // В текущей реализации все доступные наставники считаются связанными
       return this.availableMentors.map(mentor => mentor.id);
     },
-    debugInfo() {
-      return {
-        tempMentorId: typeof window !== 'undefined' ? localStorage.getItem('selectedMentorId') : null,
-        savedMentorsCount: this.getSavedMentorIds.length,
-        availableMentorsCount: this.availableMentors.length
-      }
-    }
   },
   watch: {
     showAddChildDialog() {
@@ -991,7 +985,8 @@ export default {
         birthCertificate: '',
         birthDate: '',
         childConsentFile: '',
-        fullName: '',
+        lastName: '',
+        firstName: '',
         grade: '',
         platform: '',
         platformCertificate: '',
@@ -1029,10 +1024,16 @@ export default {
     validateForm() {
       let isValid = true
       // Валидация данных ребенка
-      if (!this.childForm.fullName.trim()) {
-        this.errors.fullName = "ФИО ребенка обязательно";
+      if (!this.childForm.lastName.trim()) {
+        this.errors.lastName = "Фамилия ребенка обязательна";
         isValid = false;
       }
+
+      if (!this.childForm.firstName.trim()) {
+        this.errors.firstName = "Имя ребенка обязательно";
+        isValid = false;
+      }
+
 
       if (!this.childForm.birthDate) {
         this.errors.birthDate = "Дата рождения обязательна";
@@ -1097,7 +1098,9 @@ export default {
         birthCertificate: null,
         birthDate: '',
         childConsentFile: null,
-        fullName: '',
+        lastName: '',
+        firstName: '',
+        patronymic: null,
         grade: null,
         platform: '',
         platformCertificate: null,
@@ -1118,7 +1121,9 @@ export default {
       this.clearChildForm()
       this.isEditing = child.childDocuments !== null
       this.showAddChildDialog = true
-      this.childForm.fullName = `${child.lastName} ${child.firstName} ${child.patronymic}`
+      this.childForm.lastName = child.lastName
+      this.childForm.firstName = child.firstName
+      this.childForm.patronymic = child.patronymic
       this.childForm.birthDate = FormatManager.formatBirthDateFromDTO(child.dateOfBirth)
       this.selectedChild = child
     },
@@ -1128,9 +1133,9 @@ export default {
       if (this.isEditing && this.selectedChild !== null) {
         await this.childResolver.update({
           id: this.selectedChild.id,
-          lastName: this.childForm.fullName.split(" ")[0],
-          firstName: this.childForm.fullName.split(" ")[1],
-          patronymic: this.childForm.fullName.split(" ")[2],
+          lastName: this.childForm.lastName,
+          firstName: this.childForm.firstName,
+          patronymic: this.childForm.patronymic,
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null
         })
@@ -1163,9 +1168,9 @@ export default {
       } else {
         const response = await this.childPackResolver.create({
           userId: this.user.id,
-          lastName: this.childForm.fullName.split(" ")[0],
-          firstName: this.childForm.fullName.split(" ")[1],
-          patronymic: this.childForm.fullName.split(" ")[2],
+          lastName: this.childForm.lastName,
+          firstName: this.childForm.firstName,
+          patronymic: this.childForm.patronymic,
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null,
           additionalStudyingCertificateFile: this.isHomePrepared
