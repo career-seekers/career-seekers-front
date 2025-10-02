@@ -448,7 +448,7 @@
           title="PDF Document"
           width="100%"
           height="100%"
-          src="/public/docs/rules.pdf#toolbar=0&#navpanes=0&#view=Fit"
+          :src="rulesLink"
         />
         <Button
           style="
@@ -544,6 +544,9 @@ export default {
     };
   },
   computed: {
+    rulesLink() {
+      return "/public/docs/rules.pdf#toolbar=0&#navpanes=0&#view=Fit"
+    },
     mobileNumberFormatted() {
       return this.registerForm.phone.replaceAll(/\s|-|\(|\)|/g, "");
     },
