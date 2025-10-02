@@ -37,7 +37,9 @@
         showUserSettingsDialog: this.showSettingsProp,
 
         userForm: {
-          fullName: '',
+          lastName: '',
+          firstName: '',
+          patronymic: null as string | null,
           birthDate: '',
           email: '',
           telegramLink: '',
@@ -45,7 +47,8 @@
         },
 
         userErrors: {
-          fullName: '',
+          lastName: '',
+          firstName: '',
           birthDate: '',
           email: '',
           telegramLink: '',
@@ -94,7 +97,9 @@
         const user = this.userStore.user as UserStateInterface | null
         if (user === null) return
         this.userForm = {
-          fullName: `${user.lastName} ${user.firstName} ${user.patronymic}`,
+          lastName: user.lastName,
+          firstName: user.firstName,
+          patronymic: user.patronymic,
           birthDate: FormatManager.formatBirthDateFromDTO(user.dateOfBirth!),
           email: user.email,
           mobileNumber: user.mobileNumber,
@@ -108,9 +113,9 @@
         this.isLoading = true
         await this.userResolver.update({
           id: this.userStore.user!.id,
-          lastName: this.userForm.fullName.split(" ")[0],
-          firstName: this.userForm.fullName.split(" ")[1],
-          patronymic: this.userForm.fullName.split(" ")[2],
+          lastName: this.userForm.lastName,
+          firstName: this.userForm.firstName,
+          patronymic: this.userForm.patronymic,
           mobileNumber: FormatManager.formatMobileNumberToDTO(this.userForm.mobileNumber),
         })
         const tgData = await this.authStore.loadByTokens()
@@ -132,7 +137,7 @@
     v-model:visible="showUserSettingsDialog"
     header="Редактировать профиль"
     :modal="true"
-    :style="{ width: '600px', maxWidth: '90vw' }"
+    :style="{ width: '600px', maxWidth: '90vw', maxHeight: '95vh' }"
   >
     <form
       class="child-form"
@@ -140,20 +145,51 @@
     >
       <div class="field">
         <label
-          for="fullName"
+          for="lastName"
           class="field-label"
-        >ФИО *</label>
+        >Фамилия *</label>
         <InputText
-          id="fullName"
-          v-model="userForm.fullName"
-          placeholder="Введите ваше полное имя"
+          id="lastName"
+          v-model="userForm.lastName"
+          placeholder="Введите вашу полную фамилию"
           class="w-full"
-          :class="{ 'p-invalid': userErrors.fullName }"
+          :class="{ 'p-invalid': userErrors.lastName }"
         />
         <small
-          v-if="userErrors.fullName"
+          v-if="userErrors.lastName"
           class="p-error"
-        >{{ userErrors.fullName }}</small>
+        >{{ userErrors.lastName }}</small>
+      </div>
+
+      <div class="field">
+        <label
+          for="firstName"
+          class="field-label"
+        >Имя *</label>
+        <InputText
+          id="firstName"
+          v-model="userForm.firstName"
+          placeholder="Введите ваше полное имя"
+          class="w-full"
+          :class="{ 'p-invalid': userErrors.firstName }"
+        />
+        <small
+          v-if="userErrors.firstName"
+          class="p-error"
+        >{{ userErrors.firstName }}</small>
+      </div>
+
+      <div class="field">
+        <label
+          for="patronymic"
+          class="field-label"
+        >Отчество *</label>
+        <InputText
+          id="patronymic"
+          v-model="userForm.patronymic"
+          placeholder="Введите ваше полное отчество"
+          class="w-full"
+        />
       </div>
 
       <div class="field">

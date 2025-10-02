@@ -402,7 +402,9 @@
           ? event.query.toLowerCase()
           : this.selectedCompetence === null
             ? ""
-            : (this.selectedCompetence as unknown as string).toLowerCase()
+            : this.selectedCompetence.name === undefined
+              ? (this.selectedCompetence as unknown as string).toLowerCase()
+              : ""
         const filtered = [...this.agedCompetencies].filter(competence =>
           competence.name.toLowerCase().includes(query)
         ).sort((a, b) => a.name.localeCompare(b.name));
