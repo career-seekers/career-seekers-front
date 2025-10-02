@@ -66,9 +66,9 @@
               class="field-label"
             >Отчество</label>
             <InputText
-              id="fullName"
+              id="patronymic"
               v-model="registerForm.patronymic"
-              placeholder="Введите ваше полное имя"
+              placeholder="Введите ваше полное отчество"
               class="w-full"
             />
           </div>
@@ -656,8 +656,8 @@ export default {
         isValid = false;
       }
 
-      if (!this.registerForm.lastName.trim()) {
-        this.errors.lastName = "Имя обязательно";
+      if (!this.registerForm.firstName.trim()) {
+        this.errors.firstName = "Имя обязательно";
         isValid = false;
       }
 
