@@ -1034,7 +1034,6 @@ export default {
         isValid = false;
       }
 
-
       if (!this.childForm.birthDate) {
         this.errors.birthDate = "Дата рождения обязательна";
         isValid = false;
