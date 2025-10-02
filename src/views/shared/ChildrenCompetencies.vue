@@ -53,30 +53,19 @@
             </template>
           </Dropdown>
         </div>
-        
-        <div class="filter-item">
-          <label for="searchInput">Поиск компетенций:</label>
-          <InputText
-            id="searchInput"
-            v-model="searchQuery"
-            placeholder="Введите название или описание..."
-            class="search-input"
-            @input="filterCompetencies"
-          />
-        </div>
-        
+
         <div class="filter-item">
           <label for="competenceFilter">Фильтр по компетенции:</label>
-          <Dropdown
+          <AutoComplete
             id="competenceFilter"
             v-model="selectedCompetence"
-            :options="agedCompetencies"
+            :suggestions="filteredCompetenceOptions"
             dropdown
-            option-label="name"
+            field="name"
             placeholder="Все компетенции"
             class="filter-dropdown"
             :disabled="competencies.length === 0"
-            @change="filterCompetencies"
+            @complete="filterCompetencies"
           />
         </div>
         
@@ -91,7 +80,10 @@
       </div>
     </div>
 
-    <div class="competencies-grid">
+    <div
+      v-if="paginatedCompetencies.length > 0"
+      class="competencies-grid"
+    >
       <TransitionGroup
         name="competence-card"
         tag="div"
@@ -149,6 +141,17 @@
         </div>
       </TransitionGroup>
     </div>
+
+    <ProgressSpinner
+      v-else-if="loading"
+      style="width: 100%; height: 5rem; margin-top: 5rem;"
+    />
+    <div
+      v-else
+      class="not-found-block"
+    >
+      <p>Компетенции не найдены</p>
+    </div>
     
     <!-- Пагинация -->
     <div
@@ -156,7 +159,7 @@
       class="pagination-section"
     >
       <div class="pagination-info">
-        Показано {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, searchFilteredCompetencies.length) }} из {{ searchFilteredCompetencies.length }} компетенций
+        Показано {{ (currentPage - 1) * itemsPerPage + 1 }}-{{ Math.min(currentPage * itemsPerPage, filteredCompetencies.length) }} из {{ filteredCompetencies.length }} компетенций
       </div>
       <div class="pagination-controls">
         <Button
@@ -210,7 +213,6 @@
 <script lang="ts">
   import Button from 'primevue/button';
   import Dropdown from 'primevue/dropdown';
-  import InputText from 'primevue/inputtext';
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
@@ -223,6 +225,7 @@
   import { Roles } from '@/state/UserState.types.ts';
   import AutoComplete from 'primevue/autocomplete';
   import ToastPopup from '@/components/ToastPopup.vue';
+  import ProgressSpinner from 'primevue/progressspinner';
 
   export default {
     name: "ChildrenCompetencies",
@@ -230,8 +233,9 @@
       CompetenceDialog,
       Button,
       Dropdown,
-      InputText,
-      ToastPopup
+      AutoComplete,
+      ToastPopup,
+      ProgressSpinner
     },
     data() {
       return {
@@ -240,7 +244,7 @@
         selectedChild: null as ChildOutputDto | null,
 
         competencies: [] as CompetenceOutputDto[],
-        filteredCompetencies: [] as CompetenceOutputDto[],
+        filteredCompetenceOptions: [] as CompetenceOutputDto[],
         assignedCompetencies: [] as {
           child: ChildOutputDto,
           competencies: {
@@ -268,8 +272,7 @@
         
         // Поиск и фильтрация
         searchQuery: '',
-        searchFilteredCompetencies: [] as CompetenceOutputDto[],
-        
+
         // Пагинация
         currentPage: 1,
         itemsPerPage: 9,
@@ -300,39 +303,51 @@
           this.selectedChild.childDocuments.learningClass
         )
       },
+      filteredCompetencies() {
+        const selectedCompetenceName = this.selectedCompetence?.name
+        return selectedCompetenceName !== undefined
+          ? [...this.filteredCompetenceOptions].filter(competence =>
+            competence.name === selectedCompetenceName)
+          : [...this.filteredCompetenceOptions]
+      },
       agedCompetencies() {
         const competencies = [...this.competencies]
         return competencies.filter(competence => competence.ageCategories
           .some(category => category.ageCategory === this.selectedAgeCategory?.value)
         ).sort((a, b) => a.name.localeCompare(b.name))
       },
-      
-      
+
+
       // Пагинация
       totalPages() {
-        return Math.ceil(this.searchFilteredCompetencies.length / this.itemsPerPage);
+        return Math.ceil(this.filteredCompetencies.length / this.itemsPerPage);
       },
-      
+
       paginatedCompetencies() {
         const start = (this.currentPage - 1) * this.itemsPerPage;
         const end = start + this.itemsPerPage;
-        return this.searchFilteredCompetencies.slice(start, end);
+        return this.filteredCompetencies.slice(start, end);
       },
-      
+
       visiblePages() {
         const pages = [];
         const maxVisible = 5;
         let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
         let end = Math.min(this.totalPages, start + maxVisible - 1);
-        
+
         if (end - start + 1 < maxVisible) {
           start = Math.max(1, end - maxVisible + 1);
         }
-        
+
         for (let i = start; i <= end; i++) {
           pages.push(i);
         }
         return pages;
+      }
+    },
+    watch: {
+      selectedCompetence() {
+        this.filterCompetencies({ query: ""})
       }
     },
     async beforeMount() {
@@ -343,12 +358,13 @@
       }
       await this.fillAssigned()
       await this.loadCompetencies()
+
     },
     methods: {
       resetFilters() {
         this.selectedCompetence = null
         this.searchQuery = ''
-        this.filterCompetencies()
+        this.filterCompetencies({ query: ""})
       },
       async fillAssigned() {
         this.selectedChild = this.children[0]
@@ -380,23 +396,17 @@
           })
         }
       },
-      filterCompetencies() {
-        // Сначала применяем фильтр по выбранной компетенции
-        let filtered = this.selectedCompetence !== null
-          ? this.agedCompetencies.filter(competence => competence.name === this.selectedCompetence?.name)
-          : this.agedCompetencies
-        
+      filterCompetencies(event: { query: string }) {
         // Затем применяем поиск
-        if (this.searchQuery.trim()) {
-          const query = this.searchQuery.toLowerCase();
-          filtered = filtered.filter(competence => 
-            competence.name.toLowerCase().includes(query) ||
-            competence.description.toLowerCase().includes(query)
-          );
-        }
-        
-        this.searchFilteredCompetencies = filtered;
-        this.filteredCompetencies = filtered; // Для обратной совместимости
+        const query = event.query.length > 0
+          ? event.query.toLowerCase()
+          : this.selectedCompetence === null
+            ? ""
+            : (this.selectedCompetence as unknown as string).toLowerCase()
+        const filtered = [...this.agedCompetencies].filter(competence =>
+          competence.name.toLowerCase().includes(query)
+        ).sort((a, b) => a.name.localeCompare(b.name));
+        this.filteredCompetenceOptions = [...filtered];
         this.currentPage = 1; // Сброс на первую страницу при фильтрации
       },
       assignedOutput(arr: {
@@ -425,11 +435,13 @@
           JSON.stringify(assign.child) === JSON.stringify(this.selectedChild))?.competencies ?? []
       },
       async loadCompetencies() {
+        this.loading = true
         const response = await this.competenceResolver.getAll()
         this.competencies = []
         if (typeof response.message === "string" || response.status !== 200) return
         this.competencies = response.message
         this.filterCompetencies({ query: "" })
+        this.loading = false
       },
       isSelected(competenceId: number) {
         return this.getSelectedCompetencies()
@@ -632,6 +644,12 @@
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
+  }
+
+  .not-found-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
   /* Обеспечиваем правильную работу TransitionGroup с CSS Grid */
