@@ -1243,10 +1243,14 @@ export default {
       }
     },
     async deleteChild(id: number) {
-      const response = await this.childResolver.deleteById(id)
-      if (response.status === 200) {
-        await this.userStore.fillChildren()
-        this.hideAllDialogs()
+      if (confirm(
+        `Вы уверены что хотите удалить ребенка '${this.children.find(child => child.id === id)?.firstName}'?`
+      )) {
+        const response = await this.childResolver.deleteById(id)
+        if (response.status === 200) {
+          await this.userStore.fillChildren()
+          this.hideAllDialogs()
+        }
       }
     },
     async getHomeFile(filename: string) {
