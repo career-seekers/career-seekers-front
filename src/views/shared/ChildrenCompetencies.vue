@@ -406,7 +406,6 @@
         const filtered = [...this.agedCompetencies].filter(competence =>
           competence.name.toLowerCase().includes(query)
         ).sort((a, b) => a.name.localeCompare(b.name));
-        console.log(query, filtered, this.agedCompetencies)
         this.filteredCompetenceOptions = [...filtered];
         this.currentPage = 1; // Сброс на первую страницу при фильтрации
       },
