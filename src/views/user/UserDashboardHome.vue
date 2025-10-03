@@ -47,10 +47,6 @@
               <span class="data-label">Email:</span>
               <span class="data-value">{{ user.email }}</span>
             </div>
-            <!-- <div class="data-item">
-              <span class="data-label">Статус:</span>
-              <span class="data-value">{{ user.verified ? 'Подтверждён' : 'Не подтверждён' }}</span>
-            </div> -->
           </div>
         </div>
       </div>
@@ -90,28 +86,36 @@
                 {{ `${child.lastName} ${child.firstName} ${child.patronymic}` }}
               </h4>
               <div
-                v-if="getCompetenciesByChildId(child.id).length > 0"
+                v-if="isLoading"
+              >
+                <ProgressSpinner style="width: 100%; height: 5rem" />
+              </div>
+              <div
+                v-else-if="getCompetenciesByChildId(child.id).length > 0"
                 class="competencies-list"
               >
-                <div 
+                <div
                   v-for="competence in getCompetenciesByChildId(child.id)"
                   :key="competence.id"
                   class="competence-item"
-                  @click="openChildDetailsDialog(child, competence)"
+                  @click="openChildDetailsDialog(child)"
                 >
                   <div class="competence-icon">
                     <i class="pi pi-star" />
                   </div>
                   <div class="competence-info">
                     <div class="competence-name">
-                      {{ competence.direction.name }}
+                      {{ competence.name }}
                     </div>
                     <div class="competence-description">
-                      {{ competence.direction.description }}
+                      {{ competence.description }}
                     </div>
                     <div class="competence-expert">
                       <i class="pi pi-user" />
-                      Главный эксперт: {{ expertNames.get(competence.direction.expertId) || `ID ${competence.direction.expertId}` }}
+                      Главный эксперт:
+                      {{
+                        `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
+                      }}
                     </div>
                     <div class="competence-mentor">
                       <i class="pi pi-users" />
@@ -123,7 +127,7 @@
               <div
                 v-else
                 class="no-competencies clickable"
-                @click="openChildInfoDialog(child)"
+                @click="openChildDetailsDialog(child)"
               >
                 <div class="no-competencies-main">
                   <i class="pi pi-info-circle" />
@@ -194,533 +198,14 @@
     </Dialog>
 
     <!-- Диалог подробной информации о ребенке -->
-    <Dialog
-      v-model:visible="showChildDetailsDialog"
-      header="Подробная информация о ребенке"
-      :modal="true"
-      :style="{ width: '800px', maxWidth: '90vw' }"
-    >
-      <div
-        v-if="selectedChildDetails"
-        class="child-details"
-      >
-        <!-- Информация о ребенке -->
-        <div class="details-section">
-          <div class="section-header">
-            <h4 class="section-title">
-              <i class="pi pi-user" />
-              Персональные данные
-            </h4>
-<!--            <Button-->
-<!--              v-tooltip="'Редактировать данные ребенка'"-->
-<!--              icon="pi pi-pencil"-->
-<!--              class="p-button-outlined p-button-sm edit-button"-->
-<!--              @click="editChild(selectedChildDetails.child)"-->
-<!--            />-->
-            <Button
-              v-tooltip="'Удалить'"
-              icon="pi pi-trash"
-              style="background: white; margin-left: 0.5rem;"
-              class="p-button-outlined p-button-sm"
-              @click="deleteChild(selectedChildDetails.child.id)"
-            />
-          </div>
-          <div class="details-grid">
-            <div class="detail-item">
-              <span class="detail-label">ФИО:</span>
-              <span class="detail-value">
-                {{ `${selectedChildDetails.child.lastName} ${selectedChildDetails.child.firstName} ${selectedChildDetails.child.patronymic}` }}
-              </span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Возрастная группа:</span>
-              <span class="detail-value">
-                {{ FormatManager.getAgeGroupByAge(
-                  FormatManager.calculateAge(selectedChildDetails.child.dateOfBirth),
-                  selectedChildDetails.child.childDocuments!.learningClass
-                )?.label }}
-              </span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Школа:</span>
-              <span class="detail-value">
-                {{ selectedChildDetails.child.childDocuments?.studyingPlace || 'Не указана' }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">СНИЛС:</span>
-              <span class="info-value">
-                {{ selectedChildDetails.child.childDocuments?.snilsNumber ? FormatManager.formatSnilsFromDTO(selectedChildDetails.child.childDocuments?.snilsNumber) : 'Не указана' }}
-              </span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Класс:</span>
-              <span class="detail-value">
-                {{ selectedChildDetails.child.childDocuments?.learningClass || 'Не указан' }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Информация о компетенции -->
-        <div class="details-section">
-          <h4 class="section-title">
-            <i class="pi pi-star" />
-            Компетенция
-          </h4>
-          <div class="competence-details">
-            <div class="competence-name">
-              {{ selectedChildDetails.competence.direction.name }}
-            </div>
-            <div class="competence-description">
-              {{ selectedChildDetails.competence.direction.description }}
-            </div>
-            <div class="competence-expert">
-              <i class="pi pi-user" />
-              Главный эксперт: {{ expertNames.get(selectedChildDetails.competence.direction.expertId) || `ID ${selectedChildDetails.competence.direction.expertId}` }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Информация о документах -->
-        <div class="info-section">
-          <h4 class="section-title">
-            <i class="pi pi-file" />
-            Документы
-          </h4>
-          <div
-            v-if="selectedDocs"
-            class="info-grid docs-grid"
-          >
-            <div class="info-item">
-              <div class="doc-info">
-                <span class="info-label">Скан свидетельства о рождении:</span>
-                <span class="info-value">
-                  {{ `Статус: ${selectedDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
-                </span>
-              </div>
-              <div class="doc-actions">
-                <Button
-                  label="Просмотреть"
-                  icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
-                  @click="viewDocument(selectedDocs.birthFile)"
-                />
-                <Button
-                  label="Скачать"
-                  icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
-                  @click="downloadDocument(selectedDocs.birthFile)"
-                />
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="doc-info">
-                <span class="info-label">СНИЛС:</span>
-                <span class="info-value">
-                  {{ `Статус: ${selectedDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
-                </span>
-              </div>
-              <div class="doc-actions">
-                <Button
-                  label="Просмотреть"
-                  icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
-                  @click="viewDocument(selectedDocs.snilsFile)"
-                />
-                <Button
-                  label="Скачать"
-                  icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
-                  @click="downloadDocument(selectedDocs.snilsFile)"
-                />
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="doc-info">
-                <span class="info-label">Скан справки из ОУ:</span>
-                <span class="info-value">
-                  {{ `Статус: ${selectedDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
-                </span>
-              </div>
-              <div class="doc-actions">
-                <Button
-                  label="Просмотреть"
-                  icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
-                  @click="viewDocument(selectedDocs.schoolFile)"
-                />
-                <Button
-                  label="Скачать"
-                  icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
-                  @click="downloadDocument(selectedDocs.schoolFile)"
-                />
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="doc-info">
-                <span class="info-label">Скан справки из площадки подготовки:</span>
-                <span class="info-value">
-                  {{ `Статус: ${selectedDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
-                </span>
-              </div>
-              <div class="doc-actions">
-                <Button
-                  label="Просмотреть"
-                  icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
-                  @click="viewDocument(selectedDocs.platformFile)"
-                />
-                <Button
-                  label="Скачать"
-                  icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
-                  @click="downloadDocument(selectedDocs.platformFile)"
-                />
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="doc-info">
-                <span class="info-label">Скан согласия на ОПД:</span>
-                <span class="info-value">
-                  {{ `Статус: ${selectedDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
-                </span>
-              </div>
-              <div class="doc-actions">
-                <Button
-                  label="Просмотреть"
-                  icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
-                  @click="viewDocument(selectedDocs.consentFile)"
-                />
-                <Button
-                  label="Скачать"
-                  icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
-                  @click="downloadDocument(selectedDocs.consentFile)"
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            v-else
-          >
-            <p class="no-mentor-text">
-              <i class="pi pi-info-circle" />
-              Нет загруженных документов
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Информация о наставнике -->
-      <div class="details-section">
-        <h4 class="section-title">
-          <i class="pi pi-users" />
-          Наставник
-        </h4>
-        <div
-          v-if="selectedChildDetails?.child?.mentor"
-          class="mentor-info"
-        >
-          <div class="mentor-details">
-            <div class="detail-item">
-              <span class="detail-label">ФИО:</span>
-              <span class="detail-value">
-                {{ `${selectedChildDetails.child.mentor.lastName} ${selectedChildDetails.child.mentor.firstName} ${selectedChildDetails.child.mentor.patronymic}` }}
-              </span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Email:</span>
-              <span class="detail-value">{{ selectedChildDetails.child.mentor.email }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Телефон:</span>
-              <span class="detail-value">{{ FormatManager.formatMobileNumberFromDTO(selectedChildDetails.child.mentor.mobileNumber) }}</span>
-            </div>
-          </div>
-          <div class="mentor-actions">
-            <Button
-              label="Изменить наставника"
-              icon="pi pi-pencil"
-              class="p-button-outlined p-button-sm"
-              @click="openMentorSelectionDialog(selectedChildDetails.child)"
-            />
-          </div>
-        </div>
-        <div
-          v-else
-          class="no-mentor"
-        >
-          <p class="no-mentor-text">
-            <i class="pi pi-info-circle" />
-            Наставник не выбран
-          </p>
-          <Button
-            label="Выбрать наставника"
-            icon="pi pi-plus"
-            class="p-button-primary p-button-sm"
-            @click="openMentorSelectionDialog(selectedChildDetails?.child || null)"
-          />
-        </div>
-      </div>
-    </Dialog>
-
-    <!-- Диалог информации о ребенке без компетенций -->
-    <Dialog
-      v-model:visible="showChildInfoDialog"
-      header="Информация о ребенке"
-      :modal="true"
-      :style="{ width: '700px', maxWidth: '90vw' }"
-    >
-      <div
-        v-if="selectedChildInfo"
-        class="child-info"
-      >
-        <!-- Информация о ребенке -->
-        <div class="info-section">
-          <div class="section-header">
-            <h4 class="section-title">
-              <i class="pi pi-user" />
-              Персональные данные
-            </h4>
-<!--            <Button-->
-<!--              v-tooltip="'Редактировать данные ребенка'"-->
-<!--              icon="pi pi-pencil"-->
-<!--              class="p-button-outlined p-button-sm edit-button"-->
-<!--              @click="editChild(selectedChildInfo)"-->
-<!--            />-->
-            <Button
-              v-tooltip="'Удалить'"
-              icon="pi pi-trash"
-              style="background: white; margin-left: 0.5rem;"
-              class="p-button-outlined p-button-sm"
-              @click="deleteChild(selectedChildInfo.id)"
-            />
-          </div>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">ФИО:</span>
-              <span class="info-value">
-                {{ `${selectedChildInfo.lastName} ${selectedChildInfo.firstName} ${selectedChildInfo.patronymic}` }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="detail-label">Возрастная группа:</span>
-              <span class="detail-value">
-                {{ FormatManager.getAgeGroupByAge(
-                  FormatManager.calculateAge(selectedChildInfo.dateOfBirth),
-                  selectedChildInfo.childDocuments!.learningClass
-                )?.label }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Школа:</span>
-              <span class="info-value">
-                {{ selectedChildInfo.childDocuments?.studyingPlace || 'Не указана' }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">СНИЛС:</span>
-              <span class="info-value">
-                {{ selectedChildInfo.childDocuments?.snilsNumber ? FormatManager.formatSnilsFromDTO(selectedChildInfo.childDocuments?.snilsNumber) : 'Не указана' }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Класс:</span>
-              <span class="info-value">
-                {{ selectedChildInfo.childDocuments?.learningClass || 'Не указан' }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Информация о документах -->
-        <div class="info-section">
-          <h4 class="section-title">
-            <i class="pi pi-file" />
-            Документы
-          </h4>
-          <div
-            v-if="selectedDocs"
-            class="info-grid docs-grid"
-          >
-            <div class="info-item">
-              <div class="doc-info">
-                <span class="info-label">Скан свидетельства о рождении:</span>
-                <span class="info-value">
-                  {{ `Статус: ${selectedDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
-                </span>
-              </div>
-              <div class="doc-actions">
-                <Button
-                  label="Просмотреть"
-                  icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
-                  @click="viewDocument(selectedDocs.birthFile)"
-                />
-                <Button
-                  label="Скачать"
-                  icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
-                  @click="downloadDocument(selectedDocs.birthFile)"
-                />
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="doc-info">
-                <span class="info-label">СНИЛС:</span>
-                <span class="info-value">
-                  {{ `Статус: ${selectedDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
-                </span>
-              </div>
-              <div class="doc-actions">
-                <Button
-                  label="Просмотреть"
-                  icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
-                  @click="viewDocument(selectedDocs.snilsFile)"
-                />
-                <Button
-                  label="Скачать"
-                  icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
-                  @click="downloadDocument(selectedDocs.snilsFile)"
-                />
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="doc-info">
-                <span class="info-label">Скан справки из ОУ:</span>
-                <span class="info-value">
-                  {{ `Статус: ${selectedDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
-                </span>
-              </div>
-              <div class="doc-actions">
-                <Button
-                  label="Просмотреть"
-                  icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
-                  @click="viewDocument(selectedDocs.schoolFile)"
-                />
-                <Button
-                  label="Скачать"
-                  icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
-                  @click="downloadDocument(selectedDocs.schoolFile)"
-                />
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="doc-info">
-                <span class="info-label">Скан справки из площадки подготовки:</span>
-                <span class="info-value">
-                  {{ `Статус: ${selectedDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
-                </span>
-              </div>
-              <div class="doc-actions">
-                <Button
-                  label="Просмотреть"
-                  icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
-                  @click="viewDocument(selectedDocs.platformFile)"
-                />
-                <Button
-                  label="Скачать"
-                  icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
-                  @click="downloadDocument(selectedDocs.platformFile)"
-                />
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="doc-info">
-                <span class="info-label">Скан согласия на ОПД:</span>
-                <span class="info-value">
-                  {{ `Статус: ${selectedDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
-                </span>
-              </div>
-              <div class="doc-actions">
-                <Button
-                  label="Просмотреть"
-                  icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
-                  @click="viewDocument(selectedDocs.consentFile)"
-                />
-                <Button
-                  label="Скачать"
-                  icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
-                  @click="downloadDocument(selectedDocs.consentFile)"
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            v-else
-          >
-            <p class="no-mentor-text">
-              <i class="pi pi-info-circle" />
-              Нет загруженных документов
-            </p>
-          </div>
-        </div>
-      </div>
-
-
-      <!-- Информация о наставнике -->
-      <div class="info-section">
-        <h4 class="section-title">
-          <i class="pi pi-users" />
-          Наставник
-        </h4>
-        <div
-          v-if="selectedChildInfo && selectedChildInfo.mentor"
-          class="mentor-info"
-        >
-          <div class="mentor-details">
-            <div class="info-item">
-              <span class="info-label">ФИО:</span>
-              <span class="info-value">
-                {{ `${selectedChildInfo.mentor.lastName} ${selectedChildInfo.mentor.firstName} ${selectedChildInfo.mentor.patronymic}` }}
-              </span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Email:</span>
-              <span class="info-value">{{ selectedChildInfo.mentor.email }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Телефон:</span>
-              <span class="info-value">{{ FormatManager.formatMobileNumberFromDTO(selectedChildInfo.mentor.mobileNumber) }}</span>
-            </div>
-          </div>
-          <div class="mentor-actions">
-            <Button
-              label="Изменить наставника"
-              icon="pi pi-pencil"
-              class="p-button-outlined p-button-sm"
-              @click="openMentorSelectionDialog(selectedChildInfo)"
-            />
-          </div>
-        </div>
-        <div
-          v-else
-          class="no-mentor"
-        >
-          <p class="no-mentor-text">
-            <i class="pi pi-info-circle" />
-            Наставник не выбран
-          </p>
-          <Button
-            label="Выбрать наставника"
-            icon="pi pi-plus"
-            class="p-button-primary p-button-sm"
-            @click="openMentorSelectionDialog(selectedChildInfo || null)"
-          />
-        </div>
-      </div>
-    </Dialog>
+    <ChildDetailsDialog
+      :child-details="selectedChildDetails"
+      :show-child-info-prop="showChildDetailsDialog"
+      @edit-child="(child) => editChild(child)"
+      @show-child-info="(val) => showChildDetailsDialog = val"
+      @update-toast-popup="(val) => toastPopup = val"
+      @show-mentors-list="(child) => openMentorSelectionDialog(child)"
+    />
 
     <!-- Диалог выбора наставника -->
     <Dialog
@@ -731,7 +216,8 @@
     >
       <div class="mentor-selection">
         <p class="selection-description">
-          Выберите наставника для {{ getSelectedChildName() }}
+          Выберите наставника для
+          {{ `${selectedChild?.lastName} ${selectedChild?.firstName} ${selectedChild?.patronymic}` }}
         </p>
         <div class="mentor-list">
           <!-- Опция "Я и являюсь наставником" -->
@@ -857,16 +343,19 @@ import { FormatManager } from '@/utils/FormatManager.ts';
 import ToastPopup from '@/components/ToastPopup.vue';
 import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
 import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
-import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
-import type { ChildCompetenciesOutputDto } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
 import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
-import apiConf from '@/api/api.conf.ts';
+import ChildDetailsDialog from '@/components/ChildDetailsDialog.vue';
+import type { ChildDetailsDialogData } from '@/components/ChildDetailsDialog.vue';
+import type { UserStateInterface } from '@/state/UserState.types.ts';
+import ProgressSpinner from 'primevue/progressspinner';
 
 export default {
   name: "UserDashboardHome",
   components: {
+    ChildDetailsDialog,
+    ProgressSpinner,
     ToastPopup,
     AddChildForm,
     Button,
@@ -885,28 +374,17 @@ export default {
       userStore: useUserStore(),
 
       showAddChildDialog: false,
-      showUserSettingsDialog: false,
       isHomeEducated: false,
       isHomePrepared: false,
 
       isEditing: false,
       selectedChild: null as ChildOutputDto | null,
       selectedMentorId: null as null | number,
-      selectedDocs: null as null | {
-        birthFile: DocsOutputFileUploadDto,
-        snilsFile: DocsOutputFileUploadDto,
-        schoolFile: DocsOutputFileUploadDto,
-        platformFile: DocsOutputFileUploadDto,
-        consentFile: DocsOutputFileUploadDto,
-      },
 
       // Новые свойства для компетенций и модальных окон
       showChildDetailsDialog: false,
-      showChildInfoDialog: false,
       showMentorSelectionDialog: false,
       showDeleteMentorDialog: false,
-      selectedChildDetails: null as { child: ChildOutputDto, competence: ChildCompetenciesOutputDto } | null,
-      selectedChildInfo: null as ChildOutputDto | null,
       selectedMentorToDelete: null as { id: number, name: string } | null,
       availableMentors: [] as {
         id: number;
@@ -916,13 +394,6 @@ export default {
         email: string;
         mobileNumber: string;
       }[],
-      childCompetencies: [] as {
-        child: ChildOutputDto,
-        competencies: ChildCompetenciesOutputDto[]
-      }[],
-      children: [] as ChildOutputDto[],
-      expertsCache: new Map<number, UserOutputDto>(),
-      expertNames: new Map<number, string>(),
 
       isLoading: false,
       addBirthFile: false,
@@ -936,6 +407,8 @@ export default {
         message: '',
       },
 
+      childrenDetails: [] as ChildDetailsDialogData[],
+      selectedChildDetails: null as ChildDetailsDialogData | null,
 
       childForm: {
         lastName: '',
@@ -972,7 +445,7 @@ export default {
     FormatManager() {
       return FormatManager
     },
-    user() {
+    user(): UserStateInterface | null {
       return this.userStore.user
     },
     getSavedMentorIds() {
@@ -1000,9 +473,8 @@ export default {
   async mounted() {
     // Проверяем, есть ли сохраненный наставник после перехода по ссылке
     // Загружаем компетенции для всех детей
-    await this.loadCompetencies()
-    
     // Загружаем доступных наставников
+    await this.loadChildrenDetails()
     await this.loadAvailableMentors();
   },
   
@@ -1012,14 +484,43 @@ export default {
     await this.loadAvailableMentors();
   },
   methods: {
-    async loadCompetencies() {
-      const response = await this.childResolver.getByUserId(this.user!.id)
-      if (typeof response.message !== "string" && response.status === 200) {
-        this.children = response.message;
-        for (const child of this.children) {
-          await this.loadCompetenciesByChild(child)
-        }
+    async loadChildrenDetails() {
+      this.isLoading = true
+      const details = [] as ChildDetailsDialogData[]
+      const children = this.user?.children ?? []
+      for (const child of children) {
+        const response = await this.childCompetenciesResolver.getByChildId(child.id)
+        const competencies = typeof response.message === "string"
+          ? []
+          : await Promise.all(response.message.map(async competence => {
+            const expertResponse = await this.userResolver.getById(competence.direction.expertId)
+            return {
+              ...competence.direction,
+              expert: typeof expertResponse.message === "string"
+                ? {
+                  lastName: "Эксперт",
+                  firstName: "не",
+                  patronymic: "указан"
+                }
+                : expertResponse.message
+            }
+          }))
+        details.push({
+          child: child,
+          childDocs: child.childDocuments !== null
+            ? {
+              birthFile: (await this.fileResolver.getById(child.childDocuments.birthCertificateId)) as DocsOutputFileUploadDto,
+              snilsFile: (await this.fileResolver.getById(child.childDocuments.snilsId)) as DocsOutputFileUploadDto,
+              schoolFile: (await this.fileResolver.getById(child.childDocuments.studyingCertificateId)) as DocsOutputFileUploadDto,
+              platformFile: (await this.fileResolver.getById(child.childDocuments.additionalStudyingCertificateId)) as DocsOutputFileUploadDto,
+              consentFile: (await this.fileResolver.getById(child.childDocuments.consentToChildPdpId)) as DocsOutputFileUploadDto,
+            }
+            : null,
+          competencies: competencies
+        })
       }
+      this.childrenDetails = details
+      this.isLoading = false
     },
     validateForm() {
       let isValid = true
@@ -1149,13 +650,6 @@ export default {
             this.selectedChildDetails.child = updatedChild
           }
         }
-        if (this.showChildInfoDialog && this.selectedChildInfo) {
-          // Обновляем данные в модалке краткой информации
-          const updatedChild = this.userStore.user?.children.find(child => child.id === this.selectedChildInfo?.id)
-          if (updatedChild && this.selectedChildInfo) {
-            this.selectedChildInfo = updatedChild
-          }
-        }
         
         // Показываем тост об успехе
         this.toastPopup = {
@@ -1241,17 +735,6 @@ export default {
         if (typeof response.message !== "string") await this.userStore.fillChildren()
       }
     },
-    async deleteChild(id: number) {
-      if (confirm(
-        `Вы уверены что хотите удалить ребенка '${this.children.find(child => child.id === id)?.firstName}'?`
-      )) {
-        const response = await this.childResolver.deleteById(id)
-        if (response.status === 200) {
-          await this.userStore.fillChildren()
-          this.hideAllDialogs()
-        }
-      }
-    },
     async getHomeFile(filename: string) {
       const response = await fetch(`/docs/${filename}`)
       const blob = await response.blob()
@@ -1259,7 +742,7 @@ export default {
     },
     // Методы для работы с компетенциями
     getCompetenciesByChildId(childId: number) {
-      const competencies = this.childCompetencies.find(row => row.child.id === childId)?.competencies
+      const competencies = this.childrenDetails.find(childDetails => childDetails.child.id === childId)?.competencies
       return competencies ? competencies : []
     },
     getMentorName(child: ChildOutputDto) {
@@ -1268,115 +751,20 @@ export default {
       }
       return 'Наставник не назначен';
     },
-    getSelectedChildName() {
-      // Проверяем, откуда открыт диалог - из диалога подробной информации или из диалога информации о ребенке
-      if (this.selectedChildDetails?.child) {
-        return `${this.selectedChildDetails.child.lastName} ${this.selectedChildDetails.child.firstName} ${this.selectedChildDetails.child.patronymic}`;
-      } else if (this.selectedChildInfo) {
-        return `${this.selectedChildInfo.lastName} ${this.selectedChildInfo.firstName} ${this.selectedChildInfo.patronymic}`;
-      } else if (this.selectedChild) {
-        return `${this.selectedChild.lastName} ${this.selectedChild.firstName} ${this.selectedChild.patronymic}`;
-      }
-      return 'ребенка';
-    },
-    async loadCompetenciesByChild(child: ChildOutputDto) {
-      try {
-        const response = await this.childCompetenciesResolver.getByChildId(child.id)
-        
-        if (typeof response.message === "string" || response.status !== 200) {
-          console.error(`Ошибка при загрузке компетенций для ребенка ${child.id}:`, {
-            status: response.status,
-            message: response.message
-          });
-          return;
-        }
-        
-        console.log(`Успешно загружены компетенции для ребенка ${child.id}:`, response.message);
-        this.childCompetencies.push({
-          child: child,
-          competencies: response.message
-        });
-
-        // Загружаем данные экспертов для каждой компетенции
-        for (const competence of response.message) {
-          const expertId = competence.direction.expertId;
-          if (expertId && !this.expertNames.has(expertId)) {
-            await this.loadExpertData(expertId);
-          }
-        }
-      } catch (error) {
-        console.error(`Критическая ошибка при загрузке компетенций для ребенка ${child.id}:`, error);
-      }
-    },
-
-    async loadExpertData(expertId: number) {
-      try {
-        // Проверяем, не загружен ли уже эксперт
-        if (this.expertNames.has(expertId)) {
-          return;
-        }
-
-        const response = await this.userResolver.getById(expertId);
-        
-        if (response.status === 200 && typeof response.message !== 'string') {
-          const expert = response.message;
-          const expertName = `${expert.lastName} ${expert.firstName} ${expert.patronymic}`;
-          
-          // Сохраняем данные эксперта
-          this.expertsCache.set(expertId, expert);
-          this.expertNames.set(expertId, expertName);
-          
-          console.log(`Загружен эксперт ${expertId}: ${expertName}`);
-        } else {
-          console.warn(`Не удалось загрузить данные эксперта ${expertId}`);
-          // Устанавливаем fallback имя
-          this.expertNames.set(expertId, `Эксперт #${expertId}`);
-        }
-      } catch (error) {
-        console.error(`Ошибка при загрузке данных эксперта ${expertId}:`, error);
-        // Устанавливаем fallback имя
-        this.expertNames.set(expertId, `Эксперт #${expertId}`);
-      }
-    },
-
     // Методы для модальных окон
-    async openChildDetailsDialog(child: ChildOutputDto, competence: ChildCompetenciesOutputDto) {
+    async openChildDetailsDialog(child: ChildOutputDto) {
       // Скрываем все другие модалки
-      this.hideAllDialogs();
-      
-      // Убеждаемся, что данные эксперта загружены
-      const expertId = competence.direction.expertId;
-      if (expertId && !this.expertNames.has(expertId)) {
-        await this.loadExpertData(expertId);
-      }
-      if (child.childDocuments !== null) {
-        this.selectedDocs = {
-          birthFile: (await this.fileResolver.getById(child.childDocuments.birthCertificateId)) as DocsOutputFileUploadDto,
-          snilsFile: (await this.fileResolver.getById(child.childDocuments.snilsId)) as DocsOutputFileUploadDto,
-          schoolFile: (await this.fileResolver.getById(child.childDocuments.studyingCertificateId)) as DocsOutputFileUploadDto,
-          platformFile: (await this.fileResolver.getById(child.childDocuments.additionalStudyingCertificateId)) as DocsOutputFileUploadDto,
-          consentFile: (await this.fileResolver.getById(child.childDocuments.consentToChildPdpId)) as DocsOutputFileUploadDto,
+      const selectedChild = this.childrenDetails.find(childDetails => childDetails.child.id === child.id)
+      if (selectedChild) {
+        this.hideAllDialogs();
+        this.selectedChildDetails = selectedChild
+        this.showChildDetailsDialog = true;
+      } else {
+        this.toastPopup = {
+          title: "Ошибка",
+          message: `Информация о ребенке ${child.firstName} не найдена`
         }
       }
-      
-      this.selectedChildDetails = { child, competence };
-      this.showChildDetailsDialog = true;
-    },
-    async openChildInfoDialog(child: ChildOutputDto) {
-      // Скрываем все другие модалки
-      this.hideAllDialogs();
-      if (child.childDocuments !== null) {
-        this.selectedDocs = {
-          birthFile: (await this.fileResolver.getById(child.childDocuments.birthCertificateId)) as DocsOutputFileUploadDto,
-          snilsFile: (await this.fileResolver.getById(child.childDocuments.snilsId)) as DocsOutputFileUploadDto,
-          schoolFile: (await this.fileResolver.getById(child.childDocuments.studyingCertificateId)) as DocsOutputFileUploadDto,
-          platformFile: (await this.fileResolver.getById(child.childDocuments.additionalStudyingCertificateId)) as DocsOutputFileUploadDto,
-          consentFile: (await this.fileResolver.getById(child.childDocuments.consentToChildPdpId)) as DocsOutputFileUploadDto,
-        }
-      }
-      
-      this.selectedChildInfo = child;
-      this.showChildInfoDialog = true;
     },
     async openMentorSelectionDialog(child: ChildOutputDto | null) {
       if (!child) return;
@@ -1394,7 +782,6 @@ export default {
 
     hideAllDialogs() {
       this.showChildDetailsDialog = false;
-      this.showChildInfoDialog = false;
       this.showMentorSelectionDialog = false;
       this.showDeleteMentorDialog = false;
       this.showAddChildDialog = false;
@@ -1414,34 +801,20 @@ export default {
       if (mentorIds.length > 0) {
         for (const mentorId of mentorIds) {
           try {
-            console.log('Loading mentor data from API for ID:', mentorId);
-
             // Загружаем данные наставника из API
             const response = await this.userResolver.getById(mentorId);
-            console.log('API Response for mentor:', response);
-
             if (response.status === 200 && typeof response.message !== 'string') {
               const mentor = response.message;
-              const mentorName = `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}`;
-
-
               // Добавляем внешнего наставника в список опций (проверяем на дублирование)
               const existingMentor = this.availableMentors.find(option => option.id === mentorId);
               if (!existingMentor) {
                 this.availableMentors.push(mentor);
-                console.log('Added mentor to options:', mentorName);
-              } else {
-                console.log('Mentor already exists in options:', existingMentor);
               }
-            } else {
-              console.log('API failed, using fallback');
             }
           } catch (error) {
             console.error('Error loading mentor from API:', error);
           }
         }
-      } else {
-        console.log('No mentor ID found in localStorage');
       }
     },
     removeMentorFromList(mentorId: number) {
@@ -1522,15 +895,6 @@ export default {
         // Обновляем данные пользователя
         await this.userStore.fillChildren();
         
-        // Обновляем локальные данные для немедленного отображения
-        if (this.selectedChildInfo) {
-          // Обновляем данные в selectedChildInfo
-          const updatedChild = this.userStore.user?.children.find(c => c.id === this.selectedChildInfo!.id);
-          if (updatedChild) {
-            this.selectedChildInfo = updatedChild;
-          }
-        }
-        
         if (this.selectedChildDetails) {
           // Обновляем данные в selectedChildDetails
           const updatedChild = this.userStore.user?.children.find(c => c.id === this.selectedChildDetails!.child.id);
@@ -1553,7 +917,6 @@ export default {
         
         this.closeMentorSelectionDialog();
         this.showChildDetailsDialog = false;
-        this.showChildInfoDialog = false;
       } catch (error) {
         console.error('Ошибка при сохранении наставника:', error);
         this.toastPopup = {
@@ -1562,33 +925,6 @@ export default {
         };
       }
     },
-    
-    // Методы для работы с документами
-    viewDocument(doc: DocsOutputFileUploadDto) {
-      if (!doc || !doc.id) {
-        this.toastPopup = {
-          title: 'Ошибка',
-          message: 'Документ недоступен для просмотра'
-        };
-        return;
-      }
-      
-      // Используем тот же подход, что и в админке
-      window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.id}`, '_blank');
-    },
-    
-    downloadDocument(doc: DocsOutputFileUploadDto) {
-      if (!doc || !doc.id) {
-        this.toastPopup = {
-          title: 'Ошибка',
-          message: 'Документ недоступен для скачивания'
-        };
-        return;
-      }
-      
-      // Используем тот же подход, что и в админке
-      window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.id}`;
-    }
   }
 };
 </script>
@@ -1689,72 +1025,6 @@ export default {
   font-size: 1.1rem;
 }
 
-.docs-grid {
-  margin-bottom: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.docs-grid .info-item {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid #ff9800;
-  transition: all 0.3s ease;
-}
-
-.docs-grid .info-item:hover {
-  background: #e3f2fd;
-  border-left-color: #2196f3;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
-}
-
-.docs-grid .info-label {
-  color: #2c3e50;
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.docs-grid .info-value {
-  color: #6c757d;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.docs-grid .info-value::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ff9800;
-  flex-shrink: 0;
-}
-
-.docs-grid .info-item:hover .info-value::before {
-  background: #2196f3;
-}
-
-.docs-grid .doc-info {
-  flex: 1;
-  margin-bottom: 1rem;
-}
-
-.docs-grid .doc-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.docs-grid .doc-actions .p-button {
-  flex: 1;
-  min-width: 120px;
-}
-
 .header-button {
   background: white !important;
   color: #ff9800 !important;
@@ -1815,10 +1085,6 @@ export default {
   color: #2c3e50;
   font-weight: 500;
   text-align: right;
-}
-
-.competencies-preview {
-  text-align: center;
 }
 
 .preview-text {
@@ -1938,19 +1204,6 @@ export default {
   color: #2c3e50;
   margin: 0 0 1rem 0;
   font-weight: 500;
-}
-
-.mentor-available-notice {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: #e8f5e8;
-  border: 1px solid #28a745;
-  border-radius: 6px;
-  color: #155724;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
 }
 
 .mentor-available-notice i {
@@ -2260,57 +1513,6 @@ export default {
 
 /* Стили для модальных окон */
 
-.child-info {
-  max-height: 60vh;
-  overflow-y: auto;
-}
-
-.info-section {
-  margin-bottom: 2rem;
-}
-
-.info-section:last-child {
-  margin-bottom: 0;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.info-label {
-  color: #6c757d;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.info-value {
-  color: #2c3e50;
-  font-weight: 500;
-}
-
-.details-section {
-  margin-bottom: 2rem;
-}
-
-.details-section:last-child {
-  margin-bottom: 0;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
 .section-title {
   color: #2c3e50;
   margin: 0;
@@ -2322,41 +1524,6 @@ export default {
   align-items: center;
   gap: 0.5rem;
   flex: 1;
-}
-
-.edit-button {
-  margin-left: 1rem;
-  flex-shrink: 0;
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.detail-label {
-  color: #6c757d;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.detail-value {
-  color: #2c3e50;
-  font-weight: 500;
-}
-
-.competence-details {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 3px solid #ff9800;
 }
 
 .competence-details .competence-name {
@@ -2398,23 +1565,6 @@ export default {
 .details-section .mentor-actions {
   display: flex;
   justify-content: flex-end;
-}
-
-.no-mentor {
-  text-align: center;
-  padding: 2rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 3px solid #6c757d;
-}
-
-.no-mentor-text {
-  color: #6c757d;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
 }
 
 /* Стили для выбора наставника */
@@ -2476,21 +1626,6 @@ export default {
   width: 4px;
   background: #28a745;
   border-radius: 12px 0 0 12px;
-}
-
-.parent-mentor-option {
-  background: #e8f5e8;
-  border-color: #28a745;
-}
-
-.parent-mentor-option:hover {
-  background: #d4edda;
-  border-color: #28a745;
-}
-
-.parent-mentor-option.selected {
-  background: #c3e6cb;
-  border-color: #28a745;
 }
 
 .parent-mentor-option .mentor-name {
@@ -2564,11 +1699,6 @@ export default {
   flex-wrap: wrap;
 }
 
-.mentor-selection-actions .p-button {
-  min-width: 120px;
-  white-space: nowrap;
-}
-
 /* Мобильные стили для новых компонентов */
 @media (max-width: 768px) {
   .competencies-scrollable {
@@ -2584,11 +1714,7 @@ export default {
   .card-title {
     font-size: 1.1rem;
   }
-  
-  .details-grid {
-    grid-template-columns: 1fr;
-  }
-  
+
   .competence-item {
     flex-direction: column;
     gap: 0.75rem;
@@ -2613,52 +1739,11 @@ export default {
     align-self: flex-end;
   }
   
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .docs-grid .info-item {
-    padding: 0.75rem;
-  }
-  
-  .docs-grid .info-label {
-    font-size: 0.85rem;
-  }
-  
-  .docs-grid .info-value {
-    font-size: 0.85rem;
-  }
-  
-  .docs-grid .doc-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .docs-grid .doc-actions .p-button {
-    min-width: auto;
-    width: 100%;
-  }
-  
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-  
-  .edit-button {
-    margin-left: 0;
-    align-self: flex-end;
-  }
-  
   .mentor-selection-actions {
     flex-direction: column;
     gap: 0.5rem;
   }
   
-  .mentor-selection-actions .p-button {
-    width: 100%;
-    min-width: auto;
-  }
 }
 
 /* Для очень маленьких экранов */
