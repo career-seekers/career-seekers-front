@@ -211,12 +211,12 @@
               <i class="pi pi-user" />
               Персональные данные
             </h4>
-            <Button
-              v-tooltip="'Редактировать данные ребенка'"
-              icon="pi pi-pencil"
-              class="p-button-outlined p-button-sm edit-button"
-              @click="editChild(selectedChildDetails.child)"
-            />
+<!--            <Button-->
+<!--              v-tooltip="'Редактировать данные ребенка'"-->
+<!--              icon="pi pi-pencil"-->
+<!--              class="p-button-outlined p-button-sm edit-button"-->
+<!--              @click="editChild(selectedChildDetails.child)"-->
+<!--            />-->
             <Button
               v-tooltip="'Удалить'"
               icon="pi pi-trash"
@@ -485,12 +485,12 @@
               <i class="pi pi-user" />
               Персональные данные
             </h4>
-            <Button
-              v-tooltip="'Редактировать данные ребенка'"
-              icon="pi pi-pencil"
-              class="p-button-outlined p-button-sm edit-button"
-              @click="editChild(selectedChildInfo)"
-            />
+<!--            <Button-->
+<!--              v-tooltip="'Редактировать данные ребенка'"-->
+<!--              icon="pi pi-pencil"-->
+<!--              class="p-button-outlined p-button-sm edit-button"-->
+<!--              @click="editChild(selectedChildInfo)"-->
+<!--            />-->
             <Button
               v-tooltip="'Удалить'"
               icon="pi pi-trash"
