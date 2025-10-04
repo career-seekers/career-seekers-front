@@ -346,8 +346,8 @@ import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
 import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
-import ChildDetailsDialog from '@/components/ChildDetailsDialog.vue';
-import type { ChildDetailsDialogData } from '@/components/ChildDetailsDialog.vue';
+import ChildDetailsDialog from '@/components/dialogs/ChildDetailsDialog.vue';
+import type { ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
 import ProgressSpinner from 'primevue/progressspinner';
 
 export default {

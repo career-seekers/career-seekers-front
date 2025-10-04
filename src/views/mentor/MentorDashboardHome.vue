@@ -229,7 +229,7 @@ import type {
   ChildCompetenciesOutputDto
 } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
 import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
-import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
+import CompetenceDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
 import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
 import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
 import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';

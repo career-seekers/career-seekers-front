@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto';
+  import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { type PropType } from 'vue';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
-  import { useUserStore } from '@/stores/userStore';
-  import { useAgeGroups } from '../shared/UseAgeGroups.ts';
-  import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto';
+  import { useUserStore } from '@/stores/userStore.ts';
+  import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+  import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
   import apiConf from '@/api/api.conf.ts';
   import Button from 'primevue/button';
   import Dialog from 'primevue/dialog';

@@ -101,7 +101,7 @@
   import router from '@/router';
   import { useUserStore } from '@/stores/userStore.ts';
   import { Roles } from '@/state/UserState.types.ts';
-  import EditCredentialsDialog from '@/components/EditCredentialsDialog.vue';
+  import EditCredentialsDialog from '@/components/dialogs/EditCredentialsDialog.vue';
 
   export default {
     name: "DashboardWrapper",

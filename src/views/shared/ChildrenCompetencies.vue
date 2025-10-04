@@ -218,7 +218,7 @@
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
-  import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
+  import CompetenceDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
   import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
   import router from '@/router';
   import { Roles } from '@/state/UserState.types.ts';
