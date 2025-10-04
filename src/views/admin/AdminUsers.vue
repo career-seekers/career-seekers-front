@@ -20,8 +20,14 @@
       </div>
     </div>
 
-    <!-- Список экспертов -->
-    <div class="experts-grid">
+    <div v-if="isLoading">
+      <ProgressSpinner style="width: 100%; height: 5rem; margin-top: 5rem" />
+    </div>
+    <!-- Список пользователей (родителей) -->
+    <div
+      v-else-if="filteredUsers.length > 0"
+      class="experts-grid"
+    >
       <div
         v-for="user in filteredUsers"
         :key="user.id"
@@ -98,6 +104,10 @@
         </div>
       </div>
     </div>
+    <div v-else>
+      <p>Родители не найдены</p>
+    </div>
+
     <Dialog
       v-model:visible="showEditUserDialog"
       header="Редактировать родителя"
@@ -313,6 +323,7 @@
   import Dialog from 'primevue/dialog';
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
+  import ProgressSpinner from 'primevue/progressspinner';
 
   export default {
     name: 'AdminUsers',
@@ -322,7 +333,8 @@
       InputText,
       InputMask,
       Checkbox,
-      Dialog
+      Dialog,
+      ProgressSpinner
     },
     data() {
       return {
@@ -330,8 +342,8 @@
 
         users: [] as UserOutputDto[],
         editingUserId: null as null | number,
-        oldMail: null as null | string,
 
+        isLoading: false,
         searchQuery: "",
 
         userForm: {
@@ -388,7 +400,6 @@
           birthDate: FormatManager.formatBirthDateFromDTO(user.dateOfBirth),
           isMentor: user.isMentor
         };
-        this.oldMail = user.email;
         this.showEditUserDialog = true;
       },
       showChildDocs(child: ChildOutputDto) {
@@ -461,10 +472,12 @@
         return isValid;
       },
       async loadUsers() {
+        this.isLoading = true
         const response = await this.userResolver.getAllByRole(Roles.USER)
         if (typeof response.message !== "string") {
           this.users = response.message
         }
+        this.isLoading = false
       },
       async deleteUser(user: UserOutputDto) {
         if (
