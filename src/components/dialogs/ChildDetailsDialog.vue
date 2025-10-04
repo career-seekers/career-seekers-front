@@ -9,6 +9,8 @@
   import apiConf from '@/api/api.conf.ts';
   import Button from 'primevue/button';
   import Dialog from 'primevue/dialog';
+  import ProgressSpinner from 'primevue/progressspinner';
+  import { Roles } from '@/state/UserState.types.ts';
 
   export type ChildDetailsDialogData = {
     child: ChildOutputDto;
@@ -35,7 +37,8 @@
     name: 'ChildDetailsDialog',
     components: {
       Button,
-      Dialog
+      Dialog,
+      ProgressSpinner
     },
     props: {
       childDetails: {
@@ -62,6 +65,9 @@
       }
     },
     computed: {
+      Roles() {
+        return Roles
+      },
       FormatManager() {
         return FormatManager
       }
@@ -112,13 +118,13 @@
 
 <template>
   <Dialog
-    v-if="childDetails !== null"
     v-model:visible="showChildInfo"
     header="Подробная информация о ребенке"
     :modal="true"
     :style="{ width: '800px', maxWidth: '90vw' }"
   >
     <div
+      v-if="childDetails !== null"
       class="child-details"
     >
       <!-- Информация о ребенке -->
@@ -320,92 +326,102 @@
           </p>
         </div>
       </div>
-    </div>
 
-    <!-- Информация о компетенциях -->
-    <h4
-      v-if="childDetails.competencies.length > 0"
-      class="section-title"
-    >
-      <i class="pi pi-star" />
-      Компетенции
-    </h4>
-    <div
-      v-for="competence in childDetails.competencies"
-      :key="competence.id"
-      class="details-section"
-    >
-      <div class="competence-details">
-        <div class="competence-name">
-          {{ competence.name }}
-        </div>
-        <div class="competence-description">
-          {{ competence.description }}
-        </div>
-        <div class="competence-expert">
-          <i class="pi pi-user" />
-          Главный эксперт:
-          {{
-            `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
-          }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Информация о наставнике -->
-    <div class="details-section">
-      <h4 class="section-title">
-        <i class="pi pi-users" />
-        Наставник
+      <!-- Информация о компетенциях -->
+      <h4
+        v-if="childDetails.competencies.length > 0"
+        class="section-title"
+      >
+        <i class="pi pi-star" />
+        Компетенции
       </h4>
       <div
-        v-if="childDetails.child.mentor !== null"
-        class="mentor-info"
+        v-for="competence in childDetails.competencies"
+        :key="competence.id"
+        class="details-section"
       >
-        <div class="mentor-details">
-          <div class="detail-item">
-            <span class="detail-label">ФИО:</span>
-            <span class="detail-value">
-              {{
-                `${childDetails.child.mentor.lastName} ${childDetails.child.mentor.firstName} ${childDetails.child.mentor.patronymic}`
-              }}
-            </span>
+        <div class="competence-details">
+          <div class="competence-name">
+            {{ competence.name }}
           </div>
-          <div class="detail-item">
-            <span class="detail-label">Email:</span>
-            <span class="detail-value">{{ childDetails.child.mentor.email }}</span>
+          <div class="competence-description">
+            {{ competence.description }}
           </div>
-          <div class="detail-item">
-            <span class="detail-label">Телефон:</span>
-            <span class="detail-value">
-              {{ FormatManager.formatMobileNumberFromDTO(childDetails.child.mentor.mobileNumber) }}
-            </span>
+          <div class="competence-expert">
+            <i class="pi pi-user" />
+            Главный эксперт:
+            {{
+              `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
+            }}
           </div>
         </div>
-        <div class="mentor-actions">
+      </div>
+
+      <!-- Информация о наставнике -->
+      <div class="details-section">
+        <h4 class="section-title">
+          <i class="pi pi-users" />
+          Наставник
+        </h4>
+        <div
+          v-if="childDetails.child.mentor !== null"
+          class="mentor-info"
+        >
+          <div class="mentor-details">
+            <div class="detail-item">
+              <span class="detail-label">ФИО:</span>
+              <span class="detail-value">
+                {{
+                  `${childDetails.child.mentor.lastName} ${childDetails.child.mentor.firstName} ${childDetails.child.mentor.patronymic}`
+                }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email:</span>
+              <span class="detail-value">{{ childDetails.child.mentor.email }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Телефон:</span>
+              <span class="detail-value">
+                {{ FormatManager.formatMobileNumberFromDTO(childDetails.child.mentor.mobileNumber) }}
+              </span>
+            </div>
+          </div>
+          <div
+            v-if="userStore.user?.role === Roles.USER"
+            class="mentor-actions"
+          >
+            <Button
+              label="Изменить наставника"
+              icon="pi pi-pencil"
+              class="p-button-outlined p-button-sm"
+              @click="$emit('show-mentors-list', childDetails.child)"
+            />
+          </div>
+        </div>
+        <div
+          v-else
+          class="no-mentor"
+        >
+          <p class="no-mentor-text">
+            <i class="pi pi-info-circle" />
+            Наставник не выбран
+          </p>
           <Button
-            label="Изменить наставника"
-            icon="pi pi-pencil"
-            class="p-button-outlined p-button-sm"
+            v-if="userStore.user?.role === Roles.USER"
+            label="Выбрать наставника"
+            icon="pi pi-plus"
+            class="p-button-primary p-button-sm"
             @click="$emit('show-mentors-list', childDetails.child)"
           />
         </div>
       </div>
-      <div
-        v-else
-        class="no-mentor"
-      >
-        <p class="no-mentor-text">
-          <i class="pi pi-info-circle" />
-          Наставник не выбран
-        </p>
-        <Button
-          label="Выбрать наставника"
-          icon="pi pi-plus"
-          class="p-button-primary p-button-sm"
-          @click="$emit('show-mentors-list', childDetails.child)"
-        />
-      </div>
+    </div>
+    <div
+      v-else
+      style="height: 85vh; display: flex; align-items: center"
+    >
+      <ProgressSpinner style="width: 100%; height: 5rem; margin-top: -5rem" />
     </div>
   </Dialog>
 </template>

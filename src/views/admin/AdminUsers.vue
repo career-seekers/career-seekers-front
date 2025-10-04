@@ -20,8 +20,14 @@
       </div>
     </div>
 
-    <!-- Список экспертов -->
-    <div class="experts-grid">
+    <div v-if="isLoading">
+      <ProgressSpinner style="width: 100%; height: 5rem; margin-top: 5rem" />
+    </div>
+    <!-- Список пользователей (родителей) -->
+    <div
+      v-else-if="filteredUsers.length > 0"
+      class="experts-grid"
+    >
       <div
         v-for="user in filteredUsers"
         :key="user.id"
@@ -91,13 +97,17 @@
               <Button
                 :label="`${child.lastName} ${child.firstName} ${child.patronymic}`"
                 class="p-button-outlined detail-label"
-                @click="showChildDocs(child)"
+                @click="showChildDetails(child)"
               />
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div v-else>
+      <p>Родители не найдены</p>
+    </div>
+
     <Dialog
       v-model:visible="showEditUserDialog"
       header="Редактировать родителя"
@@ -223,78 +233,11 @@
       </template>
     </Dialog>
 
-    <Dialog
-      v-if="selectedChild !== null"
-      v-model:visible="showChildDocsDialog"
-      header="Данные о ребенке"
-      :modal="true"
-      :style="{ width: '800px' }"
-    >
-      <div class="child-card">
-        <div class="child-header">
-          <div class="child-icon">
-            <i class="pi pi-user" />
-          </div>
-          <div class="child-info">
-            <h3 class="child-name">
-              {{ `${selectedChild.lastName} ${selectedChild.firstName} ${selectedChild.patronymic}` }}
-            </h3>
-          </div>
-        </div>
-
-        <div
-          v-if="selectedChild.childDocuments !== null"
-          class="child-content"
-        >
-          <div class="child-details">
-            <div class="detail-item">
-              <span class="detail-label">Дата рождения:</span>
-              <span class="detail-value">{{ FormatManager.formatBirthDateFromDTO(selectedChild.dateOfBirth) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">СНИЛС:</span>
-              <span class="detail-value">{{ FormatManager.formatSnilsFromDTO(selectedChild.childDocuments.snilsNumber) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Класс обучения:</span>
-              <span class="detail-value">
-                {{ FormatManager.calculateGrade(selectedChild) }}
-              </span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Возрастная группа:</span>
-              <span class="detail-value">{{
-                FormatManager.getAgeGroupLabel(selectedChild.childDocuments.ageCategory)
-              }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Образовательное учреждение:</span>
-              <span class="detail-value">
-                {{ selectedChild.childDocuments?.studyingPlace }}
-              </span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Площадка подготовки:</span>
-              <span class="detail-value">
-                {{ selectedChild.childDocuments?.trainingGround }}
-              </span>
-            </div>
-          </div>
-
-          <div
-            v-if="selectedChild.mentor !== null"
-            class="mentor-info"
-          >
-            <h4 class="mentor-title">
-              Наставник:
-            </h4>
-            <p class="mentor-name">
-              {{ `${selectedChild.mentor.lastName} ${selectedChild.mentor.firstName} ${selectedChild.mentor.patronymic}` }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </Dialog>
+    <ChildDetailsDialog
+      :child-details="selectedChildDetails"
+      :show-child-info-prop="showChildDetailsDialog" 
+      @show-child-info="(val) => showChildDetailsDialog = val"
+    />
 
     <ToastPopup :content="errors.toastPopup" />
   </div>
@@ -313,25 +256,34 @@
   import Dialog from 'primevue/dialog';
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
+  import ProgressSpinner from 'primevue/progressspinner';
+  import ChildDetailsDialog, { type ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
+  import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+  import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
+  import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
 
   export default {
     name: 'AdminUsers',
     components: {
+      ChildDetailsDialog,
       ToastPopup,
       Button,
       InputText,
       InputMask,
       Checkbox,
-      Dialog
+      Dialog,
+      ProgressSpinner
     },
     data() {
       return {
+        childCompetenciesResolver: new ChildCompetenciesResolver(),
         userResolver: new UserResolver(),
+        fileResolver: new FileResolver(),
 
         users: [] as UserOutputDto[],
         editingUserId: null as null | number,
-        oldMail: null as null | string,
 
+        isLoading: false,
         searchQuery: "",
 
         userForm: {
@@ -354,8 +306,9 @@
         },
 
         selectedChild: null as ChildOutputDto | null,
+        selectedChildDetails: null as ChildDetailsDialogData | null,
         showEditUserDialog: false,
-        showChildDocsDialog: false,
+        showChildDetailsDialog: false,
       }
     },
     computed: {
@@ -379,6 +332,39 @@
     },
     async beforeMount() { await this.loadUsers(); },
     methods: {
+      async loadChildDetails() {
+        if (this.selectedChild === null) return
+        const child = this.selectedChild
+        const response = await this.childCompetenciesResolver.getByChildId(child.id)
+        const competencies = typeof response.message === "string"
+          ? []
+          : await Promise.all(response.message.map(async competence => {
+            const expertResponse = await this.userResolver.getById(competence.direction.expertId)
+            return {
+              ...competence.direction,
+              expert: typeof expertResponse.message === "string"
+                ? {
+                  lastName: "Эксперт",
+                  firstName: "не",
+                  patronymic: "указан"
+                }
+                : expertResponse.message
+            }
+          }))
+        this.selectedChildDetails = {
+          child: child,
+          childDocs: child.childDocuments !== null
+            ? {
+              birthFile: (await this.fileResolver.getById(child.childDocuments.birthCertificateId)) as DocsOutputFileUploadDto,
+              snilsFile: (await this.fileResolver.getById(child.childDocuments.snilsId)) as DocsOutputFileUploadDto,
+              schoolFile: (await this.fileResolver.getById(child.childDocuments.studyingCertificateId)) as DocsOutputFileUploadDto,
+              platformFile: (await this.fileResolver.getById(child.childDocuments.additionalStudyingCertificateId)) as DocsOutputFileUploadDto,
+              consentFile: (await this.fileResolver.getById(child.childDocuments.consentToChildPdpId)) as DocsOutputFileUploadDto,
+            }
+            : null,
+          competencies: competencies
+        }
+      },
       editUser(user: UserOutputDto) {
         this.editingUserId = user.id;
         this.userForm = {
@@ -388,12 +374,15 @@
           birthDate: FormatManager.formatBirthDateFromDTO(user.dateOfBirth),
           isMentor: user.isMentor
         };
-        this.oldMail = user.email;
         this.showEditUserDialog = true;
       },
-      showChildDocs(child: ChildOutputDto) {
-        this.selectedChild = child;
-        this.showChildDocsDialog = true;
+      async showChildDetails(child: ChildOutputDto) {
+        this.showChildDetailsDialog = true;
+        if (this.selectedChild !== child) {
+          this.selectedChildDetails = null
+          this.selectedChild = child;
+          await this.loadChildDetails()
+        }
       },
       async saveUser() {
         if (!this.validateForm()) {
@@ -461,10 +450,12 @@
         return isValid;
       },
       async loadUsers() {
+        this.isLoading = true
         const response = await this.userResolver.getAllByRole(Roles.USER)
         if (typeof response.message !== "string") {
           this.users = response.message
         }
+        this.isLoading = false
       },
       async deleteUser(user: UserOutputDto) {
         if (
