@@ -32,6 +32,18 @@ export class ChildResolver {
     )
   }
 
+  public async getById(id: number) {
+    return this.apiResolver.request<
+      null,
+      CommonOutputDto<ChildOutputDto | string>
+    >(
+      id.toString(),
+      "GET",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
+
   public async getByUserId(id: number) {
     return this.apiResolver.request<
       null,

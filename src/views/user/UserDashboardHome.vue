@@ -331,7 +331,7 @@
 </template>
 
 <script lang="ts">
-import Button from "primevue/button";
+import Button from 'primevue/button';
 import { useUserStore } from '@/stores/userStore.ts';
 import Dialog from 'primevue/dialog';
 import AddChildForm, { type ChildFormErrors, type ChildFormFields } from '@/components/AddChildForm.vue';
@@ -351,7 +351,7 @@ import type { ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDi
 import ProgressSpinner from 'primevue/progressspinner';
 
 export default {
-  name: "UserDashboardHome",
+  name: 'UserDashboardHome',
   components: {
     ChildDetailsDialog,
     ProgressSpinner,
@@ -361,7 +361,7 @@ export default {
     Dialog,
   },
   emits: ['openSettings'],
-  data: function() {
+  data() {
     return {
       fileResolver: new FileResolver(),
       childResolver: new ChildResolver(),
@@ -373,8 +373,6 @@ export default {
       userStore: useUserStore(),
 
       showAddChildDialog: false,
-      isHomeEducated: false,
-      isHomePrepared: false,
 
       isEditing: false,
       selectedChild: null as ChildOutputDto | null,
@@ -400,6 +398,8 @@ export default {
       addConsentFile: false,
       addSchoolFile: false,
       addPlatformFile: false,
+      isHomeEducated: false,
+      isHomePrepared: false,
 
       toastPopup: {
         title: '',
@@ -442,10 +442,10 @@ export default {
   },
   computed: {
     FormatManager() {
-      return FormatManager
+      return FormatManager;
     },
     user() {
-      return this.userStore.user
+      return this.userStore.user;
     },
     getSavedMentorIds() {
       return this.availableMentors.map(mentor => mentor.id);
@@ -465,18 +465,18 @@ export default {
         schoolCertificate: '',
         schoolName: '',
         snilsNumber: '',
-        snilsScan: ''
-      }
-    }
+        snilsScan: '',
+      };
+    },
   },
   async mounted() {
     // Проверяем, есть ли сохраненный наставник после перехода по ссылке
     // Загружаем компетенции для всех детей
     // Загружаем доступных наставников
-    await this.loadChildrenDetails()
+    await this.loadChildrenDetails();
     await this.loadAvailableMentors();
   },
-  
+
   async activated() {
     // Обновляем список наставников при активации компонента
     // Это поможет обновить список после возврата с подтверждения ссылки
@@ -484,26 +484,26 @@ export default {
   },
   methods: {
     async loadChildrenDetails() {
-      this.isLoading = true
-      const details = [] as ChildDetailsDialogData[]
-      const children = this.user?.children ?? []
+      this.isLoading = true;
+      const details = [] as ChildDetailsDialogData[];
+      const children = this.user?.children ?? [];
       for (const child of children) {
-        const response = await this.childCompetenciesResolver.getByChildId(child.id)
-        const competencies = typeof response.message === "string"
+        const response = await this.childCompetenciesResolver.getByChildId(child.id);
+        const competencies = typeof response.message === 'string'
           ? []
           : await Promise.all(response.message.map(async competence => {
-            const expertResponse = await this.userResolver.getById(competence.direction.expertId)
+            const expertResponse = await this.userResolver.getById(competence.direction.expertId);
             return {
               ...competence.direction,
-              expert: typeof expertResponse.message === "string"
+              expert: typeof expertResponse.message === 'string'
                 ? {
-                  lastName: "Эксперт",
-                  firstName: "не",
-                  patronymic: "указан"
+                  lastName: 'Эксперт',
+                  firstName: 'не',
+                  patronymic: 'указан',
                 }
-                : expertResponse.message
-            }
-          }))
+                : expertResponse.message,
+            };
+          }));
         details.push({
           child: child,
           childDocs: child.childDocuments !== null
@@ -515,82 +515,82 @@ export default {
               consentFile: (await this.fileResolver.getById(child.childDocuments.consentToChildPdpId)) as DocsOutputFileUploadDto,
             }
             : null,
-          competencies: competencies
-        })
+          competencies: competencies,
+        });
       }
-      this.childrenDetails = details
-      this.isLoading = false
+      this.childrenDetails = details;
+      this.isLoading = false;
     },
     validateForm() {
-      let isValid = true
+      let isValid = true;
       // Валидация данных ребенка
       if (!this.childForm.lastName.trim()) {
-        this.errors.lastName = "Фамилия ребенка обязательна";
+        this.errors.lastName = 'Фамилия ребенка обязательна';
         isValid = false;
       }
 
       if (!this.childForm.firstName.trim()) {
-        this.errors.firstName = "Имя ребенка обязательно";
+        this.errors.firstName = 'Имя ребенка обязательно';
         isValid = false;
       }
 
       if (!this.childForm.birthDate) {
-        this.errors.birthDate = "Дата рождения обязательна";
+        this.errors.birthDate = 'Дата рождения обязательна';
         isValid = false;
       } else if (!/^\d{2}\.\d{2}\.\d{4}$/.test(this.childForm.birthDate)) {
-        this.errors.birthDate = "Введите дату в формате дд.мм.гггг";
+        this.errors.birthDate = 'Введите дату в формате дд.мм.гггг';
         isValid = false;
       }
 
-      if (!this.childForm.birthCertificate &&  (!this.isEditing || this.addBirthFile)) {
+      if (!this.childForm.birthCertificate && (!this.isEditing || this.addBirthFile)) {
         this.errors.birthCertificate =
-          "Необходимо загрузить скан свидетельства о рождении";
+          'Необходимо загрузить скан свидетельства о рождении';
         isValid = false;
       }
 
       if (!this.childForm.snilsNumber && (!this.isEditing || this.addSnilsFile)) {
-        this.errors.snilsNumber = "Номер СНИЛС обязателен";
+        this.errors.snilsNumber = 'Номер СНИЛС обязателен';
         isValid = false;
       }
 
       if (!this.childForm.snilsScan && (!this.isEditing || this.addSnilsFile)) {
-        this.errors.snilsScan = "Необходимо загрузить скан СНИЛС";
+        this.errors.snilsScan = 'Необходимо загрузить скан СНИЛС';
         isValid = false;
       }
 
       if (!this.childForm.schoolName && (!this.isEditing || this.addSchoolFile) && !this.isHomeEducated) {
-        this.errors.schoolName = "Название учреждения обязательно";
+        this.errors.schoolName = 'Название учреждения обязательно';
         isValid = false;
       }
 
-      if (this.childForm.grade === null && (!this.isEditing || this.addSchoolFile)  && !this.isHomeEducated) {
-        this.errors.grade = "Класс обучения обязателен";
+      if (this.childForm.grade === null && (!this.isEditing || this.addSchoolFile) && !this.isHomeEducated) {
+        this.errors.grade = 'Класс обучения обязателен';
         isValid = false;
       }
 
       if (!this.childForm.platform && (!this.isEditing || this.addPlatformFile) && !this.isHomePrepared) {
-        this.errors.platform = "Выберите площадку подготовки";
+        this.errors.platform = 'Выберите площадку подготовки';
         isValid = false;
       }
 
-      if (!this.childForm.schoolCertificate && (!this.isEditing || this.addSchoolFile)  && !this.isHomeEducated) {
-        this.errors.schoolCertificate = "Необходимо загрузить справку из ОУ";
+      if (!this.childForm.schoolCertificate && (!this.isEditing || this.addSchoolFile) && !this.isHomeEducated) {
+        this.errors.schoolCertificate = 'Необходимо загрузить справку из ОУ';
         isValid = false;
       }
 
-      if (!this.childForm.platformCertificate && (!this.isEditing || this.addPlatformFile)  && !this.isHomePrepared) {
+      if (!this.childForm.platformCertificate && (!this.isEditing || this.addPlatformFile) && !this.isHomePrepared) {
         this.errors.platformCertificate =
-          "Необходимо загрузить справку из площадки подготовки";
+          'Необходимо загрузить справку из площадки подготовки';
         isValid = false;
       }
 
       if (!this.childForm.childConsentFile && (!this.isEditing || this.addConsentFile)) {
         this.errors.childConsentFile =
-          "Необходимо загрузить согласие на обработку персональных данных";
+          'Необходимо загрузить согласие на обработку персональных данных';
         isValid = false;
       }
-      
-      return isValid
+
+      return isValid;
     },
     clearChildForm() {
       this.childForm = {
@@ -606,28 +606,28 @@ export default {
         schoolCertificate: null,
         schoolName: '',
         snilsNumber: '',
-        snilsScan: null
+        snilsScan: null,
 
-      }
+      };
     },
     fillNewChild() {
-      this.selectedChild = null
-      this.clearChildForm()
-      this.isEditing = false
+      this.selectedChild = null;
+      this.clearChildForm();
+      this.isEditing = false;
       this.showAddChildDialog = true;
     },
     editChild(child: ChildOutputDto) {
-      this.clearChildForm()
-      this.isEditing = child.childDocuments !== null
-      this.showAddChildDialog = true
-      this.childForm.lastName = child.lastName
-      this.childForm.firstName = child.firstName
-      this.childForm.patronymic = child.patronymic
-      this.childForm.birthDate = FormatManager.formatBirthDateFromDTO(child.dateOfBirth)
-      this.selectedChild = child
+      this.clearChildForm();
+      this.isEditing = child.childDocuments !== null;
+      this.showAddChildDialog = true;
+      this.childForm.lastName = child.lastName;
+      this.childForm.firstName = child.firstName;
+      this.childForm.patronymic = child.patronymic;
+      this.childForm.birthDate = FormatManager.formatBirthDateFromDTO(child.dateOfBirth);
+      this.selectedChild = child;
     },
     async addChild() {
-      if (this.user === null || !this.validateForm()) return
+      if (this.user === null || !this.validateForm()) return;
       this.isLoading = true;
       if (this.isEditing && this.selectedChild !== null) {
         await this.childResolver.update({
@@ -636,19 +636,19 @@ export default {
           firstName: this.childForm.firstName,
           patronymic: this.childForm.patronymic,
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
-          mentorId: null
-        })
-        await this.addChildDocs()
-        await this.userStore.fillChildren()
-        await this.loadChildrenDetails()
+          mentorId: null,
+        });
+        await this.addChildDocs();
+        await this.userStore.fillChildren();
+        await this.loadChildrenDetails();
         this.selectedChildDetails = this.childrenDetails
-          .find(childDetails => childDetails.child.id === this.selectedChildDetails?.child.id) ?? null
-        
+          .find(childDetails => childDetails.child.id === this.selectedChildDetails?.child.id) ?? null;
+
         // Показываем тост об успехе
         this.toastPopup = {
           title: 'Успешно',
-          message: 'Данные ребенка успешно обновлены'
-        }
+          message: 'Данные ребенка успешно обновлены',
+        };
       } else {
         const response = await this.childPackResolver.create({
           userId: this.user.id,
@@ -658,7 +658,7 @@ export default {
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null,
           additionalStudyingCertificateFile: this.isHomePrepared
-            ? await this.getHomeFile("home_preparation.txt")
+            ? await this.getHomeFile('home_preparation.txt')
             : this.childForm.platformCertificate!,
           birthCertificateFile: this.childForm.birthCertificate!,
           consentToChildPdpFile: this.childForm.childConsentFile!,
@@ -667,27 +667,27 @@ export default {
             : this.childForm.grade!,
           parentRole: this.user.children.length > 0 && this.user.children[0].childDocuments !== null
             ? this.user.children[0].childDocuments?.parentRole
-            : "Не указано",
+            : 'Не указано',
           snilsFile: this.childForm.snilsScan!,
           snilsNumber: FormatManager.formatSnilsToDTO(this.childForm.snilsNumber),
           studyingCertificateFile: this.isHomeEducated
-            ? await this.getHomeFile("home_education.txt")
+            ? await this.getHomeFile('home_education.txt')
             : this.childForm.schoolCertificate!,
           studyingPlace: this.isHomeEducated
-            ? "Домашнее обучение"
+            ? 'Домашнее обучение'
             : this.childForm.schoolName,
           trainingGround: this.isHomePrepared
-            ? "Домашнее обучение"
-            : this.childForm.platform
-        })
-        if (typeof response.message !== "string") await this.userStore.fillChildren()
+            ? 'Домашнее обучение'
+            : this.childForm.platform,
+        });
+        if (typeof response.message !== 'string') await this.userStore.fillChildren();
         else this.toastPopup = {
           title: response.status.toString(),
-          message: response.message
-        }
+          message: response.message,
+        };
       }
-      this.isLoading = false
-      this.showAddChildDialog = false
+      this.isLoading = false;
+      this.showAddChildDialog = false;
     },
     async addChildDocs() {
       if (this.addBirthFile || this.addSnilsFile
@@ -696,7 +696,7 @@ export default {
         const response = await this.childDocumentsResolver.update({
           id: this.selectedChild!.childDocuments!.id,
           additionalStudyingCertificateFile: this.isHomePrepared
-            ? await this.getHomeFile("home_preparation.txt")
+            ? await this.getHomeFile('home_preparation.txt')
             : this.childForm.platformCertificate,
           birthCertificateFile: this.childForm.birthCertificate,
           consentToChildPdpFile: this.childForm.childConsentFile,
@@ -709,27 +709,27 @@ export default {
             ? FormatManager.formatSnilsToDTO(this.childForm.snilsNumber)
             : this.selectedChild!.childDocuments!.snilsNumber,
           studyingCertificateFile: this.isHomeEducated
-            ? await this.getHomeFile("home_education.txt")
+            ? await this.getHomeFile('home_education.txt')
             : this.childForm.schoolCertificate,
           studyingPlace: this.isHomeEducated
-            ? "Домашнее обучение"
+            ? 'Домашнее обучение'
             : this.childForm.schoolName ?? this.selectedChild!.childDocuments!.studyingPlace,
           trainingGround: this.isHomePrepared
-            ? "Дамашнее обучение"
+            ? 'Дамашнее обучение'
             : this.childForm.platform ?? this.selectedChild!.childDocuments!.trainingGround,
-        })
-        if (typeof response.message !== "string") await this.userStore.fillChildren()
+        });
+        if (typeof response.message !== 'string') await this.userStore.fillChildren();
       }
     },
     async getHomeFile(filename: string) {
-      const response = await fetch(`/docs/${filename}`)
-      const blob = await response.blob()
-      return new File([], filename, { type: blob.type })
+      const response = await fetch(`/docs/${filename}`);
+      const blob = await response.blob();
+      return new File([], filename, { type: blob.type });
     },
     // Методы для работы с компетенциями
     getCompetenciesByChildId(childId: number) {
-      const competencies = this.childrenDetails.find(childDetails => childDetails.child.id === childId)?.competencies
-      return competencies ? competencies : []
+      const competencies = this.childrenDetails.find(childDetails => childDetails.child.id === childId)?.competencies;
+      return competencies ? competencies : [];
     },
     getMentorName(child: ChildOutputDto) {
       if (child.mentor) {
@@ -740,29 +740,29 @@ export default {
     // Методы для модальных окон
     async openChildDetailsDialog(child: ChildOutputDto) {
       // Скрываем все другие модалки
-      const selectedChild = this.childrenDetails.find(childDetails => childDetails.child.id === child.id)
+      const selectedChild = this.childrenDetails.find(childDetails => childDetails.child.id === child.id);
       if (selectedChild) {
         this.hideAllDialogs();
-        this.selectedChildDetails = selectedChild
+        this.selectedChildDetails = selectedChild;
         this.showChildDetailsDialog = true;
       } else {
         this.toastPopup = {
-          title: "Ошибка",
-          message: `Информация о ребенке ${child.firstName} не найдена`
-        }
+          title: 'Ошибка',
+          message: `Информация о ребенке ${child.firstName} не найдена`,
+        };
       }
     },
     async openMentorSelectionDialog(child: ChildOutputDto | null) {
       if (!child) return;
-      
+
       // Скрываем все другие модалки
       this.hideAllDialogs();
-      
+
       // Загружаем наставников с сервера
       await this.loadAvailableMentors();
-      this.selectedChild = child
+      this.selectedChild = child;
       // Устанавливаем выбранного наставника, если он есть, иначе null
-      this.selectedMentorId = child.mentor ? child.mentor.id : null
+      this.selectedMentorId = child.mentor ? child.mentor.id : null;
       this.showMentorSelectionDialog = true;
     },
 
@@ -809,7 +809,7 @@ export default {
       if (mentor) {
         this.selectedMentorToDelete = {
           id: mentorId,
-          name: `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}`
+          name: `${mentor.lastName} ${mentor.firstName} ${mentor.patronymic}`,
         };
         this.showDeleteMentorDialog = true;
       }
@@ -820,24 +820,24 @@ export default {
     },
     async confirmDeleteMentor() {
       if (!this.selectedMentorToDelete) return;
-      
+
       try {
         // Удаляем связь родитель-наставник с сервера
         this.availableMentors = this.availableMentors.filter(mentor => mentor.id !== this.selectedMentorToDelete!.id);
-        localStorage.setItem("mentorIds", JSON.stringify(this.availableMentors.map(mentor => mentor.id)));
-        
+        localStorage.setItem('mentorIds', JSON.stringify(this.availableMentors.map(mentor => mentor.id)));
+
         this.toastPopup = {
           title: 'Успех',
-          message: `Наставник "${this.selectedMentorToDelete.name}" удален из списка`
+          message: `Наставник "${this.selectedMentorToDelete.name}" удален из списка`,
         };
-        
+
         this.showDeleteMentorDialog = false;
         this.selectedMentorToDelete = null;
       } catch (error) {
         console.error('Ошибка при удалении наставника:', error);
         this.toastPopup = {
           title: 'Ошибка',
-          message: 'Не удалось удалить наставника'
+          message: 'Не удалось удалить наставника',
         };
       }
     },
@@ -853,7 +853,7 @@ export default {
       if (!this.selectedMentorId || !this.selectedChild?.id) return;
       try {
         let mentorId = null;
-        
+
         // Определяем ID наставника
         if (this.selectedMentorId === this.user?.id) {
           // Если родитель выбирает себя, используем его ID
@@ -865,7 +865,7 @@ export default {
 
         // Обновляем наставника для ребенка
         console.log(this.availableMentors.find(mentor => mentor.id === mentorId) !== undefined
-          || mentorId === this.user?.id)
+          || mentorId === this.user?.id);
         await this.childResolver.update({
           id: this.selectedChild.id,
           mentorId: (this.availableMentors.find(mentor => mentor.id === mentorId) !== undefined
@@ -875,12 +875,12 @@ export default {
           dateOfBirth: this.selectedChild.dateOfBirth,
           firstName: this.selectedChild.firstName,
           lastName: this.selectedChild.lastName,
-          patronymic: this.selectedChild.patronymic
+          patronymic: this.selectedChild.patronymic,
         });
 
         // Обновляем данные пользователя
         await this.userStore.fillChildren();
-        
+
         if (this.selectedChildDetails) {
           // Обновляем данные в selectedChildDetails
           const updatedChild = this.userStore.user?.children.find(c => c.id === this.selectedChildDetails!.child.id);
@@ -888,30 +888,30 @@ export default {
             this.selectedChildDetails.child = updatedChild;
           }
         }
-        
+
         // Сохраняем связь родитель-наставник на сервере
         if (this.userStore.user && mentorId !== null) {
           await this.mentorLinksResolver.create({
-            userId: mentorId
+            userId: mentorId,
           });
         }
-        
+
         this.toastPopup = {
           title: 'Успех',
-          message: 'Наставник успешно назначен'
+          message: 'Наставник успешно назначен',
         };
-        
+
         this.closeMentorSelectionDialog();
         this.showChildDetailsDialog = false;
       } catch (error) {
         console.error('Ошибка при сохранении наставника:', error);
         this.toastPopup = {
           title: 'Ошибка',
-          message: 'Не удалось сохранить наставника'
+          message: 'Не удалось сохранить наставника',
         };
       }
     },
-  }
+  },
 };
 </script>
 

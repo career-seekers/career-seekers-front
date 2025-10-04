@@ -32,7 +32,6 @@ import TutorCompetencies from "@/views/tutor/TutorCompetencies.vue";
 // admin views
 import AdminDashboardHome from '@/views/admin/AdminDashboardHome.vue';
 import AdminTutors from '@/views/admin/AdminTutors.vue';
-import AdminMentors from '@/views/admin/AdminMentors.vue';
 import AdminExperts from '@/views/admin/AdminExperts.vue';
 import AdminUsers from '@/views/admin/AdminUsers.vue';
 import AdminCompetencies from '@/views/admin/AdminCompetencies.vue';
@@ -305,7 +304,8 @@ const routes = [
       },
       {
         path: "mentors",
-        component: AdminMentors,
+        component: AdminUsers,
+        props: { mode: "MENTORS" },
         meta: {
           title: "Наставники",
           icon: "pi pi-users",
