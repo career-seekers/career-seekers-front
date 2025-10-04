@@ -196,8 +196,8 @@
     </div>
     
     <CompetenceDialog
-      v-if="selectedCompetence !== null"
-      :selected-competence-prop="selectedCompetence"
+      v-if="selectedCompetenceDetails !== null"
+      :selected-competence-prop="selectedCompetenceDetails"
       :show-details-dialog-prop="showDetailsDialog"
       @update:show-details-dialog="(show) => showDetailsDialog = show"
     />
@@ -219,7 +219,6 @@
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
   import CompetenceDialog from '@/views/shared/CompetenceDialog.vue';
-  import { FormatManager } from '@/utils/FormatManager.ts';
   import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
   import router from '@/router';
   import { Roles } from '@/state/UserState.types.ts';
@@ -265,6 +264,7 @@
         ageGroups: useAgeGroups,
         userStore: useUserStore(),
 
+        selectedCompetenceDetails: null as CompetenceOutputDto | null,
         childCompetenciesResolver: new ChildCompetenciesResolver(),
 
         needToSave: false,
@@ -298,10 +298,7 @@
       selectedAgeCategory() {
         if (this.selectedChild === null ||
           this.selectedChild.childDocuments === null) return undefined
-        return FormatManager.getAgeGroupByAge(
-          FormatManager.calculateAge(this.selectedChild.dateOfBirth),
-          this.selectedChild.childDocuments.learningClass
-        )
+        return this.selectedChild.childDocuments.ageCategory
       },
       filteredCompetencies() {
         const selectedCompetenceName = this.selectedCompetence?.name
@@ -313,7 +310,7 @@
       agedCompetencies() {
         const competencies = [...this.competencies]
         return competencies.filter(competence => competence.ageCategories
-          .some(category => category.ageCategory === this.selectedAgeCategory?.value)
+          .some(category => category.ageCategory === this.selectedAgeCategory)
         ).sort((a, b) => a.name.localeCompare(b.name))
       },
 
@@ -411,27 +408,6 @@
         this.filteredCompetenceOptions = [...filtered];
         this.currentPage = 1; // Сброс на первую страницу при фильтрации
       },
-      assignedOutput(arr: {
-        child: ChildOutputDto,
-        competencies: {
-          competenceId: number;
-          ageCategoryId: number;
-          id: number;
-        }[]
-      }[]) {
-        return arr.map(assign => {
-          return {
-            childId: assign.child.id,
-            competencies: assign.competencies.map((competence) => {
-              return {
-                id: competence.id,
-                competenceId: competence.competenceId,
-                ageCategoryId: competence.ageCategoryId
-              }
-            })
-          }
-        })
-      },
       getSelectedCompetencies() {
         return this.assignedCompetencies.find(assign =>
           JSON.stringify(assign.child) === JSON.stringify(this.selectedChild))?.competencies ?? []
@@ -460,7 +436,7 @@
           }
         } else if (this.getSelectedCompetencies().length < 3) {
           const ageCategoryId = competence.ageCategories
-            .find(category => category.ageCategory === this.selectedAgeCategory?.value)?.id
+            .find(category => category.ageCategory === this.selectedAgeCategory)?.id
           if (!ageCategoryId) return
           this.assignedCompetencies[this.selectedChildIndex] = {
             child: this.selectedChild,
@@ -474,8 +450,8 @@
       },
 
       async showCompetenceDetails(competence: CompetenceOutputDto) {
-        if (this.selectedCompetence !== competence) {
-          this.selectedCompetence = competence;
+        if (this.selectedCompetenceDetails !== competence) {
+          this.selectedCompetenceDetails = competence;
         }
         this.showDetailsDialog = true;
       },
@@ -622,10 +598,6 @@
     flex-direction: column;
     gap: 0.5rem;
     min-width: 200px;
-  }
-  
-  .search-input {
-    width: 100%;
   }
   
   .reset-btn {
@@ -788,26 +760,6 @@
     height: 40px;
   }
 
-  /* Анимации для карточек */
-  .competence-card-enter-active,
-  .competence-card-leave-active {
-    transition: all 0.3s ease;
-  }
-
-  .competence-card-enter-from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-  }
-
-  .competence-card-leave-to {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-
-  .competence-card-move {
-    transition: transform 0.3s ease;
-  }
-  
   /* Улучшенная анимация для CSS Grid */
   .competence-card {
     transition: all 0.3s ease;

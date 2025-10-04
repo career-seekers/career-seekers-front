@@ -11,9 +11,7 @@
   import { useUserStore } from '@/stores/userStore.ts';
   import { Roles } from '@/state/UserState.types.ts';
   import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
-  import { FileResolver, FileType } from '@/api/resolvers/files/file.resolver.ts';
-  import apiConf from '@/api/api.conf.ts';
-  import Button from 'primevue/button';
+  import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
 
   export default {
     name: 'CompetenceDialog',
@@ -47,24 +45,15 @@
         platform: null as PlatformOutputDto | null
       };
     },
-    computed: {
-      competenceDocumentId() {
-        return this.selectedCompetence?.documents.find((doc) =>
-          doc.documentType === FileType.DESCRIPTION)?.id;
-      }
-    },
     watch: {
       showDetailsDialogProp: {
         handler(newValue: boolean) {
-          console.log('CompetenceDialog: showDetailsDialogProp changed to:', newValue);
           this.showDetailsDialog = newValue;
-          console.log('CompetenceDialog: showDetailsDialog set to:', this.showDetailsDialog);
         },
         immediate: true
       },
       selectedCompetenceProp: {
         handler(newValue: any) {
-          console.log('CompetenceDialog: selectedCompetenceProp changed to:', newValue);
           if (newValue) {
             this.selectedCompetence = newValue;
             if (this.userStore?.user?.role === Roles.MENTOR) {
@@ -76,25 +65,16 @@
         immediate: true
       },
       showDetailsDialog(newValue: boolean) {
-        console.log('CompetenceDialog: showDetailsDialog changed to:', newValue);
         this.$emit('update:showDetailsDialog', newValue);
       }
     },
     async mounted() {
         console.log('CompetenceDialog: mounted');
-        // Watchers с immediate: true обработают начальные значения
+        await this.loadDialog()
     },
     methods: {
-      downloadDocument() {
-        window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${this.competenceDocumentId}`;
-      },
       async loadDialog() {
-        console.log('CompetenceDialog: loadDialog called');
-        console.log('selectedCompetenceProp:', this.selectedCompetenceProp);
-        console.log('selectedCompetence:', this.selectedCompetence);
-        
         if (this.selectedCompetenceProp) {
-          console.log('Loading new competence data...');
           this.selectedCompetence = this.selectedCompetenceProp
           if (this.userStore?.user?.role === Roles.MENTOR) {
             console.log('Loading expert and platform data...');
@@ -238,23 +218,6 @@
     z-index: 1000;
   }
 
-  .competence-dialog .p-dialog {
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  }
-
-  .competence-dialog .p-dialog-header {
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-    color: white;
-    border-radius: 12px 12px 0 0;
-    padding: 1.5rem;
-  }
-
-  .competence-dialog .p-dialog-content {
-    padding: 2rem;
-    background: white;
-  }
-
   .competence-details {
     max-height: 70vh;
     overflow-y: auto;
@@ -333,7 +296,7 @@
     font-size: 0.9rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
   }
 
   .detail-value {
@@ -391,20 +354,6 @@
     margin-bottom: 1rem;
   }
 
-
-  .mentor-contacts {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .contact-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #495057;
-  }
-
   .contact-item i {
     color: #ff9800;
     width: 16px;
@@ -413,20 +362,6 @@
 
   /* Мобильные стили */
   @media (max-width: 768px) {
-    .competence-dialog .p-dialog {
-      width: 95vw !important;
-      max-width: 95vw !important;
-      margin: 1rem;
-    }
-
-    .competence-dialog .p-dialog-header {
-      padding: 1rem;
-    }
-
-    .competence-dialog .p-dialog-content {
-      padding: 1.5rem;
-      background: white;
-    }
 
     .details-section {
       margin-bottom: 2rem;

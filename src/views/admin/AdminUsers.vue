@@ -242,7 +242,10 @@
           </div>
         </div>
 
-        <div class="child-content">
+        <div
+          v-if="selectedChild.childDocuments !== null"
+          class="child-content"
+        >
           <div class="child-details">
             <div class="detail-item">
               <span class="detail-label">Дата рождения:</span>
@@ -250,7 +253,7 @@
             </div>
             <div class="detail-item">
               <span class="detail-label">СНИЛС:</span>
-              <span class="detail-value">{{ FormatManager.formatSnilsFromDTO(selectedChild.childDocuments?.snilsNumber) }}</span>
+              <span class="detail-value">{{ FormatManager.formatSnilsFromDTO(selectedChild.childDocuments.snilsNumber) }}</span>
             </div>
             <div class="detail-item">
               <span class="detail-label">Класс обучения:</span>
@@ -261,10 +264,7 @@
             <div class="detail-item">
               <span class="detail-label">Возрастная группа:</span>
               <span class="detail-value">{{
-                FormatManager.getAgeGroupByAge(
-                  FormatManager.calculateAge(selectedChild.dateOfBirth),
-                  selectedChild.childDocuments?.learningClass
-                )?.label
+                FormatManager.getAgeGroupLabel(selectedChild.childDocuments.ageCategory)
               }}</span>
             </div>
             <div class="detail-item">
@@ -405,26 +405,14 @@
         );
         if (user) {
           const editedUser: UpdateUserInputDto = {
-            avatarId: user.avatarId,
-            dateOfBirth: FormatManager.formatBirthDateToDTO(this.userForm.birthDate),
-            email: this.userForm.email,
             firstName: this.userForm.fullName.split(" ")[1],
             lastName: this.userForm.fullName.split(" ")[0],
             mobileNumber: FormatManager.formatMobileNumberToDTO(this.userForm.phone),
-            password: user.password,
             patronymic: this.userForm.fullName.split(" ")[2],
-            role: Roles.TUTOR,
             id: this.editingUserId!,
-            tutorId: null
           };
 
-          const response = await this.userResolver.update({
-            ...editedUser,
-            email:
-              editedUser.email === this.oldMail
-                ? null
-                : editedUser.email,
-          });
+          const response = await this.userResolver.update(editedUser);
           if (response.status === 200) {
             this.cancelEdit();
           } else {
@@ -658,26 +646,6 @@
     font-size: 0.9rem;
   }
 
-  .children-grid-header {
-    margin: 2rem 0 1rem 0;
-  }
-
-  .children-grid-title {
-    color: #2c3e50;
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
-    font-weight: 500;
-    font-family: "BIPS", sans-serif;
-  }
-
-  .children-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 1.5rem;
-    width: 100%;
-    margin-bottom: 4rem;
-  }
-
   .child-card {
     background: white;
     border-radius: 12px;
@@ -717,11 +685,6 @@
     margin: 0 0 0.25rem 0;
     font-size: 1.1rem;
     font-weight: 600;
-  }
-
-  .child-actions {
-    display: flex;
-    gap: 0.5rem;
   }
 
   .child-content {

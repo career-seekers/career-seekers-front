@@ -31,20 +31,10 @@ class ApiResolverUtil {
     };
 
     try {
-      console.log(`API запрос: ${method} ${fullUrl}`);
       const response: AxiosResponse<S> = await axios(config);
-      console.log(`API ответ: ${response.toString()} для ${fullUrl}`);
-      console.error(response);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        console.error(`API ошибка для ${fullUrl}:`, {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          message: error.message,
-          code: error.code
-        });
         
         return {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access

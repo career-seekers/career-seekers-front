@@ -711,8 +711,6 @@
     }
   }
 
-
-
   .field {
     display: flex;
     flex-direction: column;
@@ -723,25 +721,6 @@
     font-weight: 500;
     color: #2c3e50;
     font-size: 0.9rem;
-  }
-
-
-  .step-navigation .p-button {
-    flex: 1;
-    justify-content: center;
-  }
-
-  /* Мобильные стили для кнопок навигации */
-  @media (max-width: 768px) {
-    .step-navigation {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .step-navigation .p-button {
-      width: 100%;
-      flex: none;
-    }
   }
 
   .login-link p {
@@ -819,15 +798,6 @@
     box-shadow: 0 0 0 0.2rem rgba(255, 152, 0, 0.25);
   }
 
-  select.p-invalid {
-    border-color: #e24c4c;
-  }
-
-  select.p-invalid:focus {
-    border-color: #e24c4c;
-    box-shadow: 0 0 0 0.2rem rgba(226, 76, 76, 0.25);
-  }
-
 
   /* Общие мобильные стили */
   @media (max-width: 768px) {
@@ -841,13 +811,6 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Кнопки на всю ширину */
-    .p-button {
-      width: 100%;
-      justify-content: center;
-      padding: 0.875rem 1rem;
-      font-size: 1rem;
-    }
     /* Диалоги на мобильных */
     :deep(.p-dialog) {
       width: 95vw !important;
