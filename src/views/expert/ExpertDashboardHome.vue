@@ -706,6 +706,7 @@ emits: ['openSettings'],
   top: 0;
   z-index: 10;
   flex-shrink: 0;
+  display: flex;
 }
 
 .card-title {

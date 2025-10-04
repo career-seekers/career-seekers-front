@@ -43,7 +43,15 @@
     </div>
 
     <!-- Список компетенций -->
-    <div class="competencies-grid">
+    <div
+      v-if="isLoading"
+    >
+      <ProgressSpinner style="width: 100%; height: 5rem; margin-top: 5rem" />
+    </div>
+    <div
+      v-else-if="paginatedCompetencies.length > 0"
+      class="competencies-grid"
+    >
       <div
         v-for="competence in paginatedCompetencies"
         :key="competence.id"
@@ -163,11 +171,14 @@
         </div>
       </div>
     </div>
+    <div v-else>
+      <p>Компетенции не найдены</p>
+    </div>
 
     <!-- Обычная пагинация (скрывается при скролле) -->
     <div class="pagination-container">
       <Paginator
-        v-if="filteredCompetencies.length > 0"
+        v-if="filteredCompetencies.length > 0 && !isLoading"
         :first="currentPage * itemsPerPage"
         :rows="itemsPerPage"
         :total-records="totalRecords"
@@ -175,13 +186,9 @@
         template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
         @page="onPageChange"
       />
-      <p v-else>
-        Компетенции не найдены
-      </p>
     </div>
 
 
-    <!-- Диалоги -->
     <!-- Диалог редактирования компетенции -->
     <Dialog
       v-if="selectedCompetence"
@@ -295,79 +302,12 @@
     </Dialog>
 
     <!-- Диалог подробной информации -->
-    <Dialog
+    <CompetenceDetailsDialog
       v-if="selectedCompetence"
-      v-model:visible="showDetailsDialog"
-      :header="selectedCompetence?.name || 'Компетенция'"
-      :modal="true"
-      :style="{ width: '800px' }"
-      @update:visible="closeDetails()"
-    >
-      <div
-        class="competence-details"
-      >
-        <div class="detail-section">
-          <h4>Описание компетенции</h4>
-          <p>{{ selectedCompetence.description }}</p>
-        </div>
-
-        <div class="detail-section">
-          <h4>Главный эксперт</h4>
-          <p>
-            {{
-              competenceExpert(selectedCompetence)?.lastName +
-                " " +
-                competenceExpert(selectedCompetence)?.firstName +
-                " " +
-                competenceExpert(selectedCompetence)?.patronymic
-            }}
-          </p>
-        </div>
-
-        <div class="detail-section">
-          <h4>Статистика</h4>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-number">
-                {{ getTotalParticipants(selectedCompetence) }}
-              </div>
-              <div class="stat-label">
-                Участников
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">
-                {{
-                  selectedCompetence?.ageCategories
-                    .map(item => ageGroups.find(group => group.value === item.ageCategory)?.label?.split(" ")[0])
-                    .filter(Boolean)
-                    .join(', ')
-                }}
-              </div>
-              <div class="stat-label">
-                лет
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">
-                {{ 0 }}
-              </div>
-              <div class="stat-label">
-                Событий
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">
-                {{ selectedCompetence.documents.length }}
-              </div>
-              <div class="stat-label">
-                Документов
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Dialog>
+      :selected-competence-prop="selectedCompetence"
+      :show-details-dialog-prop="showDetailsDialog"
+      @update:show-details-dialog="(val) => showDetailsDialog = val"
+    />
 
     <!-- Диалог управления местами -->
     <Dialog
@@ -446,10 +386,13 @@
   import type {
     UpdateCompetencePlacesInputDto
   } from "@/api/resolvers/competence/dto/input/competence-places-input.dto.ts";
+  import ProgressSpinner from 'primevue/progressspinner';
+  import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
 
   export default {
     name: "AdminCompetencies",
     components: {
+      CompetenceDetailsDialog,
       ToastPopup,
       Button,
       Dialog,
@@ -459,6 +402,7 @@
       MultiSelect,
       InputNumber,
       Paginator,
+      ProgressSpinner
     },
     data() {
       return {
@@ -471,6 +415,7 @@
         showAddCompetenceDialog: false,
         showPlacesDialog: false,
         isEditing: false,
+        isLoading: false,
         editingCompetenceId: null as null | number,
         errors: {
           toastPopup: {
@@ -538,16 +483,7 @@
       },
     },
     async mounted() {
-      console.log('AdminCompetencies mounted');
-      console.log('CompetenceResolver:', this.competenceResolver);
-      console.log('UserResolver:', this.userResolver);
-      console.log('About to call loadCompetencies...');
-      try {
-        await this.loadCompetencies();
-        console.log('loadCompetencies completed successfully');
-      } catch (error) {
-        console.error('Error in loadCompetencies:', error);
-      }
+      await this.loadCompetencies();
     },
     methods: {
       filteredExperts(competence: CompetenceOutputDto) {
@@ -555,33 +491,18 @@
           return expert.tutorId === competence.userId
         })
       },
-
-      competenceExpert(selectedCompetence: CompetenceOutputDto) {
-        return this.experts.find(
-          (expert: UserOutputDto) => expert.id === selectedCompetence.expertId,
-        );
-      },
-
       goToDocuments(competence: CompetenceOutputDto) {
         this.$router.push(`/admin/documents/${competence.id}`);
       },
-
       viewDetails(competenceId: number) {
         this.selectedCompetence = this.competencies.find(
           (c) => c.id === competenceId,
         );
         this.showDetailsDialog = true;
       },
-
-      closeDetails() {
-        this.showDetailsDialog = false;
-        this.selectedCompetence = undefined;
-      },
-
       resetFilters() {
         this.selectedAge = [];
       },
-
       editCompetence(competence: CompetenceOutputDto) {
         this.isEditing = true;
         this.editingCompetenceId = competence.id;
@@ -663,17 +584,8 @@
 
       async loadCompetencies() {
         try {
-          console.log('Loading competencies...');
-          console.log('CompetenceResolver endpoint:', this.competenceResolver);
-          console.log('Access token:', localStorage.getItem("access_token"));
-          console.log('API endpoint:', 'https://api.career-seekers.ru/events-service/v1/directions');
-          console.log('About to make API call...');
+          this.isLoading = true
           const competenceResponse = await this.competenceResolver.getAll();
-          console.log('API call completed');
-          console.log('Competence response:', competenceResponse);
-          console.log('Competence response status:', competenceResponse.status);
-          console.log('Competence response message:', competenceResponse.message);
-          console.log('Competence response message type:', typeof competenceResponse.message);
           if (competenceResponse.status === 200 && typeof competenceResponse.message !== "string") {
             this.competencies = competenceResponse.message;
             console.log('Competencies loaded:', this.competencies);
@@ -692,19 +604,16 @@
           };
         }
 
-        console.log('Loading experts...');
         const expertResponse = await this.userResolver.getAll();
-        console.log('Expert response:', expertResponse);
-        console.log('Expert response status:', expertResponse.status);
         if (expertResponse.status == 200 && typeof expertResponse.message !== "string") {
           this.experts = expertResponse.message;
-          console.log('Experts loaded:', this.experts);
         } else {
           this.errors.toastPopup = {
             title: expertResponse.status.toString(),
             message: expertResponse.message.toString(),
           };
         }
+        this.isLoading = false
       },
 
       // Методы для управления местами
@@ -758,14 +667,6 @@
           };
         }
       },
-
-      getTotalPlaces(competence: CompetenceOutputDto) {
-        const totalPlaces = competence.ageCategories.reduce((sum, ageCategory) => {
-          return sum + (ageCategory.maxParticipantsCount || 0);
-        }, 0);
-        return totalPlaces > 0 ? totalPlaces : '-';
-      },
-
       getTotalParticipants(competence: CompetenceOutputDto) {
         const totalParticipants = competence.ageCategories.reduce((sum, ageCategory) => {
           return sum + (ageCategory.currentParticipantsCount || 0);
@@ -986,36 +887,6 @@
     line-height: 1.4;
   }
 
-  .competence-status {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: white;
-    color: #2c3e50;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  .status-active {
-    background: white;
-    color: #28a745;
-    border: 1px solid #28a745;
-  }
-
-  .status-paused {
-    background: white;
-    color: #ffc107;
-    border: 1px solid #ffc107;
-  }
-
-  .status-completed {
-    background: white;
-    color: #6c757d;
-    border: 1px solid #6c757d;
-  }
-
   .competence-stats {
     display: flex;
     justify-content: space-between;
@@ -1049,15 +920,6 @@
     flex-wrap: wrap;
   }
 
-  /* Диалог подробной информации */
-  .competence-details {
-    padding: 1rem 0;
-  }
-
-  .detail-section {
-    margin-bottom: 2rem;
-  }
-
   .detail-section h4 {
     color: #2c3e50;
     margin: 0 0 1rem 0;
@@ -1081,48 +943,6 @@
 
   .detail-section li {
     margin-bottom: 0.5rem;
-  }
-
-  .program-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .program-step {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-  }
-
-  .step-number {
-    width: 32px;
-    height: 32px;
-    background: #ff9800;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-  }
-
-  .step-content {
-    flex: 1;
-  }
-
-  .step-title {
-    color: #2c3e50;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-  }
-
-  .step-description {
-    color: #6c757d;
-    font-size: 0.9rem;
-    line-height: 1.4;
   }
 
   /* Стили для диалога управления местами */
@@ -1192,22 +1012,6 @@
     max-width: 80px !important;
   }
 
-  .place-input-group .p-button {
-    flex-shrink: 0;
-    white-space: nowrap;
-    min-width: 40px;
-    max-width: 40px;
-    width: 40px;
-    height: 40px;
-  }
-
-  .places-actions {
-    display: flex;
-    justify-content: center;
-    padding-top: 1rem;
-    border-top: 1px solid #e9ecef;
-  }
-
   @media (max-width: 768px) {
     .place-item {
       flex-direction: column;
@@ -1230,22 +1034,6 @@
       width: 70px !important;
       max-width: 70px !important;
     }
-
-    .place-input-group .p-button {
-      min-width: 35px;
-      max-width: 35px;
-      width: 35px;
-      height: 35px;
-      padding: 0;
-    }
-  }
-
-  .stats-grid {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
   }
 
   .stat-item {
@@ -1307,11 +1095,6 @@
       gap: 0.5rem;
     }
 
-    .stats-grid {
-      flex-wrap: wrap;
-      gap: 0.25rem;
-    }
-
     .stat-item {
       flex: 1 1 calc(50% - 0.125rem);
       min-width: 0;
@@ -1320,10 +1103,6 @@
 
   /* Промежуточные экраны */
   @media (max-width: 500px) {
-    .stats-grid {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
 
     .stat-item {
       flex: none;
