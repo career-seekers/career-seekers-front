@@ -348,7 +348,6 @@ import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver
 import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
 import ChildDetailsDialog from '@/components/ChildDetailsDialog.vue';
 import type { ChildDetailsDialogData } from '@/components/ChildDetailsDialog.vue';
-import type { UserStateInterface } from '@/state/UserState.types.ts';
 import ProgressSpinner from 'primevue/progressspinner';
 
 export default {
@@ -445,7 +444,7 @@ export default {
     FormatManager() {
       return FormatManager
     },
-    user(): UserStateInterface | null {
+    user() {
       return this.userStore.user
     },
     getSavedMentorIds() {
@@ -641,24 +640,15 @@ export default {
         })
         await this.addChildDocs()
         await this.userStore.fillChildren()
-        
-        // Обновляем данные в модалках, если они открыты
-        if (this.showChildDetailsDialog && this.selectedChildDetails) {
-          // Обновляем данные в модалке подробной информации
-          const updatedChild = this.userStore.user?.children.find(child => child.id === this.selectedChildDetails?.child.id)
-          if (updatedChild && this.selectedChildDetails) {
-            this.selectedChildDetails.child = updatedChild
-          }
-        }
+        await this.loadChildrenDetails()
+        this.selectedChildDetails = this.childrenDetails
+          .find(childDetails => childDetails.child.id === this.selectedChildDetails?.child.id) ?? null
         
         // Показываем тост об успехе
         this.toastPopup = {
           title: 'Успешно',
           message: 'Данные ребенка успешно обновлены'
         }
-        
-        // Закрываем модалку
-        this.showAddChildDialog = false
       } else {
         const response = await this.childPackResolver.create({
           userId: this.user.id,
@@ -697,11 +687,7 @@ export default {
         }
       }
       this.isLoading = false
-      
-      // Закрываем модалку только если это не было редактирование (для редактирования модалка уже закрыта выше)
-      if (!this.isEditing) {
-        this.showAddChildDialog = false
-      }
+      this.showAddChildDialog = false
     },
     async addChildDocs() {
       if (this.addBirthFile || this.addSnilsFile

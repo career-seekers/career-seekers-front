@@ -70,7 +70,7 @@
       showChildInfoProp() {
         this.showChildInfo = this.showChildInfoProp
       },
-      showChildInfo(oldVal, newVal) {
+      showChildInfo(newVal, oldVal) {
         if (oldVal !== newVal)
           this.$emit("show-child-info", this.showChildInfo)
       }
@@ -487,9 +487,6 @@
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
-  }
-
-  .docs-grid .doc-actions {
     flex: 1;
     min-width: 120px;
   }
