@@ -14,7 +14,7 @@
   import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
 
   export default {
-    name: 'CompetenceDialog',
+    name: 'CompetenceDetailsDialog',
     components: {
       Dialog,
     },

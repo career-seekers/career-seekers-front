@@ -45,8 +45,16 @@
       </div>
     </div>
 
+    <div
+      v-if="isLoading"
+    >
+      <ProgressSpinner style="width: 100%; height: 5rem; margin-top: 5rem" />
+    </div>
     <!-- Список компетенций -->
-    <div class="competencies-grid">
+    <div
+      v-else-if="filteredCompetencies.length > 0"
+      class="competencies-grid"
+    >
       <div
         v-for="competence in filteredCompetencies"
         :key="competence.id"
@@ -67,7 +75,11 @@
               </span>
             </div>
             <div class="competence-description">
-              {{ competence.description }}
+              {{
+                competence.description.length > 50
+                  ? competence.description.substring(0, 50) + "..."
+                  : competence.description
+              }}
             </div>
           </div>
         </div>
@@ -75,7 +87,7 @@
         <div class="competence-stats">
           <div class="stat-item">
             <div class="stat-number">
-              {{ getTotalParticipants(competence) }}
+              {{ competence.participantsCount }}
             </div>
             <div class="stat-label">
               Участников
@@ -153,6 +165,9 @@
           </div>
         </div>
       </div>
+    </div>
+    <div v-else>
+      <p>Компетенции не найдены</p>
     </div>
 
     <!-- Диалог добавления/редактирования эксперта -->
@@ -267,92 +282,12 @@
     </Dialog>
 
     <!-- Диалог подробной информации -->
-    <Dialog
-      v-model:visible="showDetailsDialog"
-      :header="selectedCompetence?.name || 'Компетенция'"
-      :modal="true"
-      :style="{ width: '800px' }"
-    >
-      <div
-        v-if="selectedCompetence"
-        class="competence-details"
-      >
-        <div class="detail-section">
-          <h4>Описание компетенции</h4>
-          <p>{{ selectedCompetence.description }}</p>
-        </div>
-
-        <div class="detail-section">
-          <h4>Главный эксперт</h4>
-          <p>
-            {{
-              competenceExpert(selectedCompetence)?.lastName +
-                " " +
-                competenceExpert(selectedCompetence)?.firstName +
-                " " +
-                competenceExpert(selectedCompetence)?.patronymic
-            }}
-          </p>
-        </div>
-
-        <div class="detail-section">
-          <h4>Статистика</h4>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-number">
-                {{ getTotalParticipants(selectedCompetence) }}
-              </div>
-              <div class="stat-label">
-                Участников
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">
-                {{
-                  selectedCompetence?.ageCategories
-                    .map(item => ageGroups.find(group => group.value === item.ageCategory)?.label?.split(" ")[0])
-                    .filter(Boolean)
-                    .join(', ')
-                }}
-              </div>
-              <div class="stat-label">
-                лет
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">
-                {{ 0 }}
-              </div>
-              <div class="stat-label">
-                Событий
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">
-                {{ selectedCompetence.documents.length }}
-              </div>
-              <div class="stat-label">
-                Документов
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <template #footer>
-        <Button
-          label="Закрыть"
-          icon="pi pi-times"
-          class="p-button-text"
-          @click="closeDetails"
-        />
-        <!--        <Button -->
-        <!--          label="Участники" -->
-        <!--          icon="pi pi-users" -->
-        <!--          class="p-button-primary"-->
-        <!--          @click="goToParticipants(selectedCompetence?.id)"-->
-        <!--        />-->
-      </template>
-    </Dialog>
+    <CompetenceDetailsDialog
+      v-if="selectedCompetence"
+      :selected-competence-prop="selectedCompetence"
+      :show-details-dialog-prop="showDetailsDialog"
+      @update:show-details-dialog="(val) => showDetailsDialog = val"
+    />
   </div>
 </template>
 
@@ -373,10 +308,13 @@ import {
 } from "@/api/resolvers/competence/competence.resolver";
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
+import ProgressSpinner from 'primevue/progressspinner';
 
 export default {
   name: "ExpertCompetencies",
   components: {
+    CompetenceDetailsDialog,
     ToastPopup,
     Button,
     Dialog,
@@ -384,6 +322,7 @@ export default {
     Textarea,
     Dropdown,
     MultiSelect,
+    ProgressSpinner
   },
   data() {
     return {
@@ -415,6 +354,7 @@ export default {
         ageCategory: [] as AgeCategories[],
         expert: undefined as UserOutputDto | undefined,
       },
+      isLoading: false,
       ageGroups: useAgeGroups,
       competencies: [] as CompetenceOutputDto[],
     };
@@ -439,30 +379,6 @@ export default {
   },
   methods: {
 
-    getTotalPlaces(competence: CompetenceOutputDto) {
-      const totalPlaces = competence.ageCategories.reduce((sum, ageCategory) => {
-        return sum + (ageCategory.maxParticipantsCount || 0);
-      }, 0);
-      return totalPlaces > 0 ? totalPlaces : '-';
-    },
-
-    getTotalParticipants(competence: CompetenceOutputDto) {
-      const totalParticipants = competence.ageCategories.reduce((sum, ageCategory) => {
-        return sum + (ageCategory.currentParticipantsCount || 0);
-      }, 0);
-      return totalParticipants > 0 ? totalParticipants : '-';
-    },
-
-    competenceExpert(selectedCompetence: CompetenceOutputDto) {
-      return this.experts.find(
-          (expert: UserOutputDto) => expert.id === selectedCompetence.expertId,
-      );
-    },
-
-    goToParticipants(competenceId: number) {
-      this.$router.push(`/expert/participants/${competenceId}`);
-    },
-
     goToDocuments(competence: CompetenceOutputDto) {
       this.$router.push(`/tutor/documents/${competence.id}`);
     },
@@ -472,11 +388,6 @@ export default {
           (c) => c.id === competenceId,
       );
       this.showDetailsDialog = true;
-    },
-
-    closeDetails() {
-      this.showDetailsDialog = false;
-      this.selectedCompetence = undefined;
     },
 
     resetFilters() {
@@ -577,6 +488,7 @@ export default {
     },
 
     async loadCompetencies() {
+      this.isLoading = true
       if (this.user !== null) {
         const competenceResponse = await this.competenceResolver.getAllByUserId(
           this.user.id,
@@ -600,6 +512,7 @@ export default {
           };
         }
       }
+      this.isLoading = false
     },
   },
 };

@@ -302,7 +302,7 @@
     </Dialog>
 
     <!-- Диалог подробной информации -->
-    <CompetenceDialog
+    <CompetenceDetailsDialog
       v-if="selectedCompetence"
       :selected-competence-prop="selectedCompetence"
       :show-details-dialog-prop="showDetailsDialog"
@@ -387,12 +387,12 @@
     UpdateCompetencePlacesInputDto
   } from "@/api/resolvers/competence/dto/input/competence-places-input.dto.ts";
   import ProgressSpinner from 'primevue/progressspinner';
-  import CompetenceDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
+  import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
 
   export default {
     name: "AdminCompetencies",
     components: {
-      CompetenceDialog,
+      CompetenceDetailsDialog,
       ToastPopup,
       Button,
       Dialog,
