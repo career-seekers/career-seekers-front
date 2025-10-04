@@ -198,11 +198,9 @@
       async loadCompetencies() {
         this.competencies = []
         if (this.selectedChild === null) return
-        const ageCategory = FormatManager.getAgeGroupByAge(
-          FormatManager.calculateAge(this.selectedChild.dateOfBirth), this.selectedChild?.childDocuments.learningClass
-        )
+        const ageCategory = this.selectedChild.childDocuments?.ageCategory
         if (!ageCategory) return
-        const response = await this.competenceResolver.getByAgeCategory(ageCategory.value)
+        const response = await this.competenceResolver.getByAgeCategory(ageCategory)
         if (typeof response.message === 'string' || response.status !== 200) return
         this.competencies = response.message
       },
@@ -262,13 +260,10 @@
       async assignToCompetencies() {
         this.selectedCompetencies.map(async childCompetencies => {
           if (this.selectedChild === null) return
-          const ageCategory = FormatManager.getAgeGroupByAge(
-            FormatManager.calculateAge(childCompetencies.child.dateOfBirth),
-            this.selectedChild.childDocuments!.learningClass
-          )
+          const ageCategory = FormatManager.getAgeGroupLabel(this.selectedChild.childDocuments?.ageCategory)
           for (const competence of childCompetencies.competencies) {
             const ageCategoryId = competence.ageCategories
-              .find(category => category.ageCategory === ageCategory?.value)?.id
+              .find(category => category.ageCategory === ageCategory)?.id
             if (!ageCategoryId) return
             const response = await this.childCompetenciesResolver.create({
               childId: childCompetencies.child.id,

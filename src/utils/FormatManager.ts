@@ -1,7 +1,7 @@
-import { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import { useGradeOptions } from '@/shared/UseGradeOptions.ts';
 import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
+import type { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
 
 export const FormatManager = {
   ageGroups: useAgeGroups,
@@ -48,21 +48,9 @@ export const FormatManager = {
     }
     return age;
   },
-  getAgeGroupByAge(age: number, learningClass: number) {
-    if (age === 7) {
-      return this.ageGroups
-        .find(group => learningClass > 0
-          ? group.value === AgeCategories.EARLY_SCHOOL
-          : group.value === AgeCategories.PRESCHOOL
-        )
-    }
-    const group = this.ageGroups.find(group => {
-      const edges = group.label.split(" ")[0].split("-");
-      const min = parseInt(edges[0]);
-      const max = parseInt(edges[1]);
-      return min <= age && age <= max;
-    });
-    return group ? group : undefined;
+  getAgeGroupLabel(ageCategory: AgeCategories | undefined) {
+    return this.ageGroups
+      .find(group => group.value === ageCategory)?.label
   },
   calculateGrade(child: ChildOutputDto) {
     return this.gradeOptions.find(grade => grade.value === child.childDocuments?.learningClass)?.label

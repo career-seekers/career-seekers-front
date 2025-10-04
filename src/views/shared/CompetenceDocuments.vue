@@ -725,60 +725,6 @@
     font-size: 1.1rem;
   }
 
-  .stats-section {
-    margin-bottom: 2rem;
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 1rem;
-  }
-
-  .stat-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: transform 0.3s ease;
-  }
-
-  .stat-card:hover {
-    transform: translateY(-2px);
-  }
-
-  .stat-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.2rem;
-  }
-
-  .stat-content {
-    flex: 1;
-  }
-
-  .stat-number {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 0.25rem;
-  }
-
-  .stat-label {
-    color: #6c757d;
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-
   .docs, .settings-section {
     display: grid;
     gap: 1.5rem;
@@ -789,44 +735,6 @@
       width: 100%;
       height: 57vh;
       margin-bottom: 2rem;
-    }
-  }
-
-  .download-content {
-    padding: 1.5rem 0.4rem;
-    height: 80%;
-    overflow: hidden;
-  }
-
-  .download-list {
-    height: 100%;
-    padding: 0 1.1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 1.5rem;
-    overflow: scroll;
-  }
-
-  .download-info {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    align-items: center;
-    padding: 1.5rem;
-    border-radius: 10px;
-    background: #f8f9fa;
-
-    .download-text {
-      font-size: 1rem;
-      width: 55%;
-      height: min-content;
-      margin: 0;
-    }
-
-    .download-link {
-      text-decoration: none;
-      font-weight: 500
     }
   }
 
@@ -892,25 +800,6 @@
     flex-wrap: wrap;
   }
 
-  .search-group {
-    position: relative;
-    flex: 1;
-    min-width: 250px;
-  }
-
-  .search-input {
-    width: 100%;
-    padding-right: 2.5rem;
-  }
-
-  .search-icon {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6c757d;
-    pointer-events: none;
-  }
 
   .filter-group {
     display: flex;
@@ -984,12 +873,6 @@
     margin: 0 0 0.25rem 0;
     font-size: 1.1rem;
     font-weight: 600;
-  }
-
-  .document-type {
-    margin: 0 0 0.5rem 0;
-    font-size: 0.9rem;
-    opacity: 0.9;
   }
 
   .document-meta {
@@ -1092,83 +975,14 @@
     font-size: 1rem;
   }
 
-  .document-description {
-    margin-bottom: 1.5rem;
-  }
-
   .document-description p {
     color: #6c757d;
     line-height: 1.5;
     margin: 0;
   }
 
-  .document-stats {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .stat-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #6c757d;
-    font-size: 0.9rem;
-  }
-
   .stat-item i {
     color: #ff9800;
-  }
-
-  .document-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .document-tag {
-    background: #f8f9fa;
-    color: #2c3e50;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    border: 1px solid #e9ecef;
-  }
-
-  /* Диалог предварительного просмотра */
-  .document-preview {
-    padding: 1rem 0;
-  }
-
-  .preview-info {
-    margin-bottom: 2rem;
-  }
-
-  .preview-meta {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .meta-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f1f3f4;
-  }
-
-  .meta-label {
-    color: #6c757d;
-    font-weight: 500;
-  }
-
-  .meta-value {
-    color: #2c3e50;
-    font-weight: 500;
   }
 
   .preview-description h4 {
@@ -1184,26 +998,11 @@
     margin: 0;
   }
 
-  .preview-content {
-    text-align: center;
-  }
-
   .image-preview img {
     max-width: 100%;
     max-height: 400px;
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .file-preview {
-    padding: 3rem;
-    color: #6c757d;
-  }
-
-  .preview-icon {
-    font-size: 4rem;
-    color: #ff9800;
-    margin-bottom: 1rem;
   }
 
   /* Мобильные стили */
@@ -1223,17 +1022,9 @@
       font-size: 1.5rem;
     }
 
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
     .filters-section {
       flex-direction: column;
       align-items: stretch;
-    }
-
-    .search-group {
-      min-width: auto;
     }
 
     .filter-group {
@@ -1248,14 +1039,6 @@
 
     .document-actions {
       justify-content: center;
-    }
-
-    .document-stats {
-      justify-content: center;
-    }
-
-    .preview-meta {
-      grid-template-columns: 1fr;
     }
   }
 
@@ -1275,22 +1058,8 @@
       font-size: 0.9rem;
     }
 
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .stat-card {
-      padding: 1rem;
-    }
-
     .document-content {
       padding: 1rem;
-    }
-
-    .document-stats {
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
     }
   }
 </style>

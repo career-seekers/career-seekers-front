@@ -62,7 +62,7 @@
             <div class="competence-meta">
               <span class="competence-ages">
                 <i class="pi pi-users" />
-                {{ competence.ageCategories.map(ac => getAgeGroupLabel(ac.ageCategory)).join(', ') }}
+                {{ competence.ageCategories.map(ac => FormatManager.getAgeGroupLabel(ac.ageCategory)).join(', ') }}
               </span>
               <span class="competence-docs-count">
                 <i class="pi pi-file-text" />
@@ -110,7 +110,7 @@
                   {{ getDocumentTypeLabel(document.documentType) }}
                 </h4>
                 <div class="document-meta">
-                  <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
+                  <span class="document-age">{{ FormatManager.getAgeGroupLabel(document.ageCategory) }}</span>
                   <span class="document-date">{{ formatDate(document.createdAt) }}</span>
                 </div>
               </div>
@@ -163,7 +163,7 @@
                   {{ getDocumentTypeLabel(document.documentType) }}
                 </h4>
                 <div class="document-meta">
-                  <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
+                  <span class="document-age">{{ FormatManager.getAgeGroupLabel(document.ageCategory) }}</span>
                   <span class="document-date">{{ formatDate(document.createdAt) }}</span>
                 </div>
               </div>
@@ -216,7 +216,7 @@
                   {{ getDocumentTypeLabel(document.documentType) }}
                 </h4>
                 <div class="document-meta">
-                  <span class="document-age">{{ getAgeGroupLabel(document.ageCategory) }}</span>
+                  <span class="document-age">{{ FormatManager.getAgeGroupLabel(document.ageCategory) }}</span>
                   <span class="document-date">{{ formatDate(document.createdAt) }}</span>
                 </div>
               </div>
@@ -252,11 +252,11 @@ import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/
 import { CompetenceDocumentsResolver } from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
 import { CompetenceResolver } from "@/api/resolvers/competence/competence.resolver";
 import { FileType } from "@/api/resolvers/files/file.resolver";
-import { AgeCategories } from "@/api/resolvers/competence/competence.resolver";
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
 import apiConf from '@/api/api.conf.ts';
+import { FormatManager } from '@/utils/FormatManager.ts';
 
 export default {
   name: "ExpertDocuments",
@@ -279,6 +279,9 @@ export default {
     };
   },
   computed: {
+    FormatManager() {
+      return FormatManager
+    },
     filteredDocuments() {
       if (this.selectedCompetence) {
         return this.allDocuments.filter(doc => doc.direction.id === this.selectedCompetence);
@@ -322,11 +325,6 @@ export default {
     getDocumentTypeLabel(documentType: FileType) {
       const type = this.DocumentTypes.find(t => t.value === documentType);
       return type ? type.label : documentType;
-    },
-
-    getAgeGroupLabel(ageCategory: AgeCategories) {
-      const group = this.ageGroups.find(g => g.value === ageCategory);
-      return group ? group.label : ageCategory;
     },
 
     formatDate(dateString: string) {
@@ -539,12 +537,6 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.document-type {
-  color: #6c757d;
-  margin: 0 0 0.5rem 0;
-  font-size: 0.9rem;
 }
 
 .document-meta {
