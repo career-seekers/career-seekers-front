@@ -45,6 +45,11 @@
         platform: null as PlatformOutputDto | null
       };
     },
+    computed: {
+      Roles() {
+        return Roles
+      }
+    },
     watch: {
       showDetailsDialogProp: {
         handler(newValue: boolean) {
@@ -208,6 +213,42 @@
             </div>
           </div>
         </div>
+
+        <div
+          v-if="userStore?.user?.role === Roles.ADMIN"
+          class="detail-section"
+        >
+          <div class="section-title">
+            <i class="pi pi-chart-line" />
+            Статистика
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-number">
+                {{ selectedCompetence.participantsCount }}
+              </div>
+              <div class="stat-label">
+                Участников
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">
+                {{ 0 }}
+              </div>
+              <div class="stat-label">
+                Событий
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">
+                {{ selectedCompetence.documents.length }}
+              </div>
+              <div class="stat-label">
+                Документов
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </Dialog>
@@ -218,13 +259,10 @@
     z-index: 1000;
   }
 
-  .competence-details {
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-
   .details-section {
     margin-bottom: 2.5rem;
+    max-height: 50vh;
+    overflow: hidden;
   }
 
   .details-section:last-child {
@@ -250,7 +288,7 @@
   }
 
   .competence-details {
-    padding: 1.5rem;
+    padding: 0 1.5rem;
     border-radius: 12px;
   }
 
@@ -267,6 +305,8 @@
     font-size: 1rem;
     margin-bottom: 0;
     line-height: 1.5;
+    max-height: 38vh;
+    overflow: scroll;
   }
 
   .mentor-info {
@@ -359,6 +399,31 @@
     width: 16px;
   }
 
+  .stats-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .stat-item {
+    flex: 1;
+    text-align: center;
+    min-width: 0;
+  }
+
+  .stat-number {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+  }
+
 
   /* Мобильные стили */
   @media (max-width: 768px) {
@@ -385,6 +450,15 @@
       margin-bottom: 0.75rem;
     }
 
+    .stats-grid {
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .stat-item {
+      flex: 1 1 calc(50% - 0.125rem);
+      min-width: 0;
+    }
 
     .details-header {
       flex-direction: column;
