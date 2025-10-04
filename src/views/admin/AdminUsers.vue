@@ -2,10 +2,10 @@
   <div class="mentors-page">
     <div class="page-header">
       <h1 class="page-title">
-        Родители
+        {{ mode === "USERS" ? 'Родители' : 'Наставники' }}
       </h1>
       <p class="page-subtitle">
-        Управление родителями
+        {{ mode === "USERS" ? 'Управление родителями' : 'Управление наставниками' }}
       </p>
     </div>
 
@@ -13,15 +13,21 @@
       <div class="search-group">
         <InputText
           v-model="searchQuery"
-          placeholder="Поиск по ФИО родителя, номеру телефона или электронной почте..."
+          :placeholder="`Поиск по ФИО ${mode === 'USERS' ? 'родителя' : 'наставника'}, номеру телефона или электронной почте...`"
           class="search-input"
         />
         <i class="pi pi-search search-icon" />
       </div>
     </div>
 
-    <!-- Список экспертов -->
-    <div class="experts-grid">
+    <div v-if="isLoading">
+      <ProgressSpinner style="width: 100%; height: 5rem; margin-top: 5rem" />
+    </div>
+    <!-- Список пользователей (родителей) -->
+    <div
+      v-else-if="filteredUsers.length > 0"
+      class="experts-grid"
+    >
       <div
         v-for="user in filteredUsers"
         :key="user.id"
@@ -74,30 +80,74 @@
             </div>
             <div class="detail-item">
               <span class="detail-label">Количество детей:</span>
-              <span class="detail-value">{{ user.children.length }}</span>
+              <span class="detail-value">{{ getUserChildren(user).length }}
+              </span>
             </div>
           </div>
           <div
             class="actions"
           >
-            <h3 class="expert-name">
-              Дети
+            <h3
+              v-if="getUserChildren(user).length > 0"
+              class="expert-name"
+            >
+              {{ mode === "USERS" ? 'Дети' : 'Прикреплённые участники' }}
             </h3>
             <div
-              v-for="child in user.children"
+              v-for="child in getUserChildren(user)"
               :key="child.id"
               class="detail-item"
             >
               <Button
                 :label="`${child.lastName} ${child.firstName} ${child.patronymic}`"
                 class="p-button-outlined detail-label"
-                @click="showChildDocs(child)"
+                @click="showChildDetails(child)"
               />
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div v-else>
+      <p>{{ mode === "USERS" ? 'Родители' : 'Наставники' }} не найдены</p>
+    </div>
+
+    <Dialog
+      v-model:visible="showAddChildDialog"
+      header="Редактировать ребёнка"
+      :modal="true"
+      :style="{ width: '600px', maxWidth: '90vw' }"
+    >
+      <form
+        class="child-form"
+        @submit.prevent="addChild"
+      >
+        <AddChildForm
+          :child-id="selectedChild?.id"
+          :is-editing="true"
+          :model-child-form="childForm"
+          :model-child-form-errors="childFormErrors"
+          @update:model-child-form="(form) => childForm = form"
+          @update:model-child-form-errors="(formErrors) => childFormErrors = formErrors"
+          @update:birth-file="(val) => addBirthFile = val"
+          @update:snils-file="(val) => addSnilsFile = val"
+          @update:school-file="(val) => addSchoolFile = val"
+          @update:platform-file="(val) => addPlatformFile = val"
+          @update:consent-file="(val) => addConsentFile = val"
+          @update:home-education="(val) => isHomeEducated = val"
+          @update:home-preparation="(val) => isHomePrepared = val"
+        />
+        <Button
+          label="Обновить данные о ребенке"
+          icon="pi pi-plus"
+          style="width: 100%"
+          class="p-button-primary"
+          type="submit"
+          :loading="isLoading"
+        />
+      </form>
+    </Dialog>
+
     <Dialog
       v-model:visible="showEditUserDialog"
       header="Редактировать родителя"
@@ -223,78 +273,12 @@
       </template>
     </Dialog>
 
-    <Dialog
-      v-if="selectedChild !== null"
-      v-model:visible="showChildDocsDialog"
-      header="Данные о ребенке"
-      :modal="true"
-      :style="{ width: '800px' }"
-    >
-      <div class="child-card">
-        <div class="child-header">
-          <div class="child-icon">
-            <i class="pi pi-user" />
-          </div>
-          <div class="child-info">
-            <h3 class="child-name">
-              {{ `${selectedChild.lastName} ${selectedChild.firstName} ${selectedChild.patronymic}` }}
-            </h3>
-          </div>
-        </div>
-
-        <div
-          v-if="selectedChild.childDocuments !== null"
-          class="child-content"
-        >
-          <div class="child-details">
-            <div class="detail-item">
-              <span class="detail-label">Дата рождения:</span>
-              <span class="detail-value">{{ FormatManager.formatBirthDateFromDTO(selectedChild.dateOfBirth) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">СНИЛС:</span>
-              <span class="detail-value">{{ FormatManager.formatSnilsFromDTO(selectedChild.childDocuments.snilsNumber) }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Класс обучения:</span>
-              <span class="detail-value">
-                {{ FormatManager.calculateGrade(selectedChild) }}
-              </span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Возрастная группа:</span>
-              <span class="detail-value">{{
-                FormatManager.getAgeGroupLabel(selectedChild.childDocuments.ageCategory)
-              }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Образовательное учреждение:</span>
-              <span class="detail-value">
-                {{ selectedChild.childDocuments?.studyingPlace }}
-              </span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Площадка подготовки:</span>
-              <span class="detail-value">
-                {{ selectedChild.childDocuments?.trainingGround }}
-              </span>
-            </div>
-          </div>
-
-          <div
-            v-if="selectedChild.mentor !== null"
-            class="mentor-info"
-          >
-            <h4 class="mentor-title">
-              Наставник:
-            </h4>
-            <p class="mentor-name">
-              {{ `${selectedChild.mentor.lastName} ${selectedChild.mentor.firstName} ${selectedChild.mentor.patronymic}` }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </Dialog>
+    <ChildDetailsDialog
+      :child-details="selectedChildDetails"
+      :show-child-info-prop="showChildDetailsDialog" 
+      @show-child-info="(val) => showChildDetailsDialog = val"
+      @edit-child="(child) => editChild(child)"
+    />
 
     <ToastPopup :content="errors.toastPopup" />
   </div>
@@ -313,26 +297,91 @@
   import Dialog from 'primevue/dialog';
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
+  import ProgressSpinner from 'primevue/progressspinner';
+  import ChildDetailsDialog, { type ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
+  import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+  import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
+  import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
+  import AddChildForm, { type ChildFormErrors, type ChildFormFields } from '@/components/AddChildForm.vue';
+  import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-documents.resolver.ts';
+  import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
+  import type { PropType } from 'vue';
+
+  export enum Mode {
+    USERS = "USERS",
+    MENTORS = "MENTORS"
+  }
 
   export default {
     name: 'AdminUsers',
     components: {
+      AddChildForm,
+      ChildDetailsDialog,
       ToastPopup,
       Button,
       InputText,
       InputMask,
       Checkbox,
-      Dialog
+      Dialog,
+      ProgressSpinner
+    },
+    props: {
+      mode: {
+        type: String as PropType<Mode>,
+        default: Mode.USERS
+      }
     },
     data() {
       return {
+        childCompetenciesResolver: new ChildCompetenciesResolver(),
+        childDocumentsResolver: new ChildDocumentsResolver(),
+        childResolver: new ChildResolver(),
         userResolver: new UserResolver(),
+        fileResolver: new FileResolver(),
 
         users: [] as UserOutputDto[],
         editingUserId: null as null | number,
-        oldMail: null as null | string,
 
+        isLoading: false,
+        addBirthFile: false,
+        addSnilsFile: false,
+        addConsentFile: false,
+        addSchoolFile: false,
+        addPlatformFile: false,
+        showAddChildDialog: false,
+        isHomeEducated: false,
+        isHomePrepared: false,
         searchQuery: "",
+
+        childForm: {
+          lastName: '',
+          firstName: '',
+          patronymic: '',
+          birthDate: '',
+          snilsNumber: '',
+          schoolName: '',
+          platform: '',
+          grade: null as number | null,
+          childConsentFile: null as null | File,
+          snilsScan: null as null | File,
+          birthCertificate: null as null | File,
+          schoolCertificate: null as null | File,
+          platformCertificate: null as null | File,
+        } as ChildFormFields,
+
+        childFormErrors: {
+          lastName: '',
+          firstName: '',
+          birthDate: '',
+          snilsNumber: '',
+          schoolName: '',
+          platform: '',
+          grade: '',
+          snilsScan: '',
+          schoolCertificate: '',
+          birthCertificate: '',
+          platformCertificate: '',
+        } as ChildFormErrors,
 
         userForm: {
           fullName: "",
@@ -353,9 +402,11 @@
           email: "",
         },
 
+
         selectedChild: null as ChildOutputDto | null,
+        selectedChildDetails: null as ChildDetailsDialogData | null,
         showEditUserDialog: false,
-        showChildDocsDialog: false,
+        showChildDetailsDialog: false,
       }
     },
     computed: {
@@ -377,8 +428,49 @@
         return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
       },
     },
-    async beforeMount() { await this.loadUsers(); },
+    async beforeMount() {
+      window.scrollTo(0, 0);
+      await this.loadUsers();
+      },
     methods: {
+      getUserChildren(user: UserOutputDto) {
+        return this.mode === Mode.USERS
+          ? user.children
+          : user.menteeChildren
+      },
+      async loadChildDetails() {
+        if (this.selectedChild === null) return
+        const child = this.selectedChild
+        const response = await this.childCompetenciesResolver.getByChildId(child.id)
+        const competencies = typeof response.message === "string"
+          ? []
+          : await Promise.all(response.message.map(async competence => {
+            const expertResponse = await this.userResolver.getById(competence.direction.expertId)
+            return {
+              ...competence.direction,
+              expert: typeof expertResponse.message === "string"
+                ? {
+                  lastName: "Эксперт",
+                  firstName: "не",
+                  patronymic: "указан"
+                }
+                : expertResponse.message
+            }
+          }))
+        this.selectedChildDetails = {
+          child: child,
+          childDocs: child.childDocuments !== null
+            ? {
+              birthFile: (await this.fileResolver.getById(child.childDocuments.birthCertificateId)) as DocsOutputFileUploadDto,
+              snilsFile: (await this.fileResolver.getById(child.childDocuments.snilsId)) as DocsOutputFileUploadDto,
+              schoolFile: (await this.fileResolver.getById(child.childDocuments.studyingCertificateId)) as DocsOutputFileUploadDto,
+              platformFile: (await this.fileResolver.getById(child.childDocuments.additionalStudyingCertificateId)) as DocsOutputFileUploadDto,
+              consentFile: (await this.fileResolver.getById(child.childDocuments.consentToChildPdpId)) as DocsOutputFileUploadDto,
+            }
+            : null,
+          competencies: competencies
+        }
+      },
       editUser(user: UserOutputDto) {
         this.editingUserId = user.id;
         this.userForm = {
@@ -388,12 +480,42 @@
           birthDate: FormatManager.formatBirthDateFromDTO(user.dateOfBirth),
           isMentor: user.isMentor
         };
-        this.oldMail = user.email;
         this.showEditUserDialog = true;
       },
-      showChildDocs(child: ChildOutputDto) {
+      async showChildDetails(child: ChildOutputDto) {
+        this.showChildDetailsDialog = true;
+        if (this.selectedChild?.id !== child.id) {
+          this.selectedChildDetails = null
+          this.selectedChild = child;
+          await this.loadChildDetails()
+        }
+      },
+      clearChildForm() {
+        this.childForm = {
+          birthCertificate: null,
+          birthDate: '',
+          childConsentFile: null,
+          lastName: '',
+          firstName: '',
+          patronymic: null,
+          grade: null,
+          platform: '',
+          platformCertificate: null,
+          schoolCertificate: null,
+          schoolName: '',
+          snilsNumber: '',
+          snilsScan: null,
+
+        };
+      },
+      editChild(child: ChildOutputDto) {
+        this.clearChildForm();
+        this.showAddChildDialog = true;
+        this.childForm.lastName = child.lastName;
+        this.childForm.firstName = child.firstName;
+        this.childForm.patronymic = child.patronymic;
+        this.childForm.birthDate = FormatManager.formatBirthDateFromDTO(child.dateOfBirth);
         this.selectedChild = child;
-        this.showChildDocsDialog = true;
       },
       async saveUser() {
         if (!this.validateForm()) {
@@ -435,6 +557,144 @@
         };
         this.showEditUserDialog = false;
       },
+      async addChild() {
+        if (!this.validateChildForm()) return;
+        this.isLoading = true;
+        if (this.selectedChild !== null) {
+          await this.childResolver.update({
+            id: this.selectedChild.id,
+            lastName: this.childForm.lastName,
+            firstName: this.childForm.firstName,
+            patronymic: this.childForm.patronymic,
+            dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
+            mentorId: null,
+          });
+          this.selectedChildDetails = null
+          await this.addChildDocs();
+          await this.loadUsers()
+          await this.loadChildDetails()
+
+          // Показываем тост об успехе
+          this.errors.toastPopup = {
+            title: 'Успешно',
+            message: 'Данные ребенка успешно обновлены',
+          };
+        }
+        this.isLoading = false;
+        this.showAddChildDialog = false;
+      },
+      async addChildDocs() {
+        if (this.addBirthFile || this.addSnilsFile
+          || this.addSchoolFile || this.addPlatformFile
+          || this.addConsentFile) {
+          await this.childDocumentsResolver.update({
+            id: this.selectedChild!.childDocuments!.id,
+            additionalStudyingCertificateFile: this.isHomePrepared
+              ? await this.getHomeFile('home_preparation.txt')
+              : this.childForm.platformCertificate,
+            birthCertificateFile: this.childForm.birthCertificate,
+            consentToChildPdpFile: this.childForm.childConsentFile,
+            learningClass: this.isHomeEducated
+              ? 0
+              : this.childForm.grade ?? this.selectedChild!.childDocuments!.learningClass,
+            parentRole: this.selectedChild!.childDocuments!.parentRole,
+            snilsFile: this.childForm.snilsScan,
+            snilsNumber: this.childForm.snilsNumber
+              ? FormatManager.formatSnilsToDTO(this.childForm.snilsNumber)
+              : this.selectedChild!.childDocuments!.snilsNumber,
+            studyingCertificateFile: this.isHomeEducated
+              ? await this.getHomeFile('home_education.txt')
+              : this.childForm.schoolCertificate,
+            studyingPlace: this.isHomeEducated
+              ? 'Домашнее обучение'
+              : this.childForm.schoolName ?? this.selectedChild!.childDocuments!.studyingPlace,
+            trainingGround: this.isHomePrepared
+              ? 'Домашнее обучение'
+              : this.childForm.platform ?? this.selectedChild!.childDocuments!.trainingGround,
+          });
+          const response = await this.childResolver.getById(this.selectedChild!.id)
+          if (typeof response.message !== "string") {
+            this.selectedChild = response.message
+          }
+
+        }
+      },
+      async getHomeFile(filename: string) {
+        const response = await fetch(`/docs/${filename}`);
+        const blob = await response.blob();
+        return new File([], filename, { type: blob.type });
+      },
+      validateChildForm() {
+        let isValid = true;
+        // Валидация данных ребенка
+        if (!this.childForm.lastName.trim()) {
+          this.childFormErrors.lastName = 'Фамилия ребенка обязательна';
+          isValid = false;
+        }
+
+        if (!this.childForm.firstName.trim()) {
+          this.childFormErrors.firstName = 'Имя ребенка обязательно';
+          isValid = false;
+        }
+
+        if (!this.childForm.birthDate) {
+          this.childFormErrors.birthDate = 'Дата рождения обязательна';
+          isValid = false;
+        } else if (!/^\d{2}\.\d{2}\.\d{4}$/.test(this.childForm.birthDate)) {
+          this.childFormErrors.birthDate = 'Введите дату в формате дд.мм.гггг';
+          isValid = false;
+        }
+
+        if (!this.childForm.birthCertificate && (this.addBirthFile)) {
+          this.childFormErrors.birthCertificate =
+            'Необходимо загрузить скан свидетельства о рождении';
+          isValid = false;
+        }
+
+        if (!this.childForm.snilsNumber && (this.addSnilsFile)) {
+          this.childFormErrors.snilsNumber = 'Номер СНИЛС обязателен';
+          isValid = false;
+        }
+
+        if (!this.childForm.snilsScan && (this.addSnilsFile)) {
+          this.childFormErrors.snilsScan = 'Необходимо загрузить скан СНИЛС';
+          isValid = false;
+        }
+
+        if (!this.childForm.schoolName && (this.addSchoolFile) && !this.isHomeEducated) {
+          this.childFormErrors.schoolName = 'Название учреждения обязательно';
+          isValid = false;
+        }
+
+        if (this.childForm.grade === null && (this.addSchoolFile) && !this.isHomeEducated) {
+          this.childFormErrors.grade = 'Класс обучения обязателен';
+          isValid = false;
+        }
+
+        if (!this.childForm.platform && (this.addPlatformFile) && !this.isHomePrepared) {
+          this.childFormErrors.platform = 'Выберите площадку подготовки';
+          isValid = false;
+        }
+
+        if (!this.childForm.schoolCertificate && (this.addSchoolFile) && !this.isHomeEducated) {
+          this.childFormErrors.schoolCertificate = 'Необходимо загрузить справку из ОУ';
+          isValid = false;
+        }
+
+        if (!this.childForm.platformCertificate && (this.addPlatformFile) && !this.isHomePrepared) {
+          this.childFormErrors.platformCertificate =
+            'Необходимо загрузить справку из площадки подготовки';
+          isValid = false;
+        }
+
+        if (!this.childForm.childConsentFile && (this.addConsentFile)) {
+          this.childFormErrors.childConsentFile =
+            'Необходимо загрузить согласие на обработку персональных данных';
+          isValid = false;
+        }
+
+        return isValid;
+      },
       validateForm() {
         let isValid = true;
 
@@ -461,10 +721,16 @@
         return isValid;
       },
       async loadUsers() {
-        const response = await this.userResolver.getAllByRole(Roles.USER)
+        this.isLoading = true
+        const response = await this.userResolver.getAllByRole(
+          this.mode === Mode.USERS
+            ? Roles.USER
+            : Roles.MENTOR
+        )
         if (typeof response.message !== "string") {
           this.users = response.message
         }
+        this.isLoading = false
       },
       async deleteUser(user: UserOutputDto) {
         if (
@@ -644,55 +910,6 @@
     font-weight: 500;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
-  }
-
-  .child-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    transition:
-      box-shadow 0.3s ease,
-      border-color 0.3s ease;
-  }
-
-  .child-header {
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-    color: white;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .child-icon {
-    width: 60px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    flex-shrink: 0;
-  }
-
-  .child-info {
-    flex: 1;
-  }
-
-  .child-name {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-
-  .child-content {
-    padding: 1.5rem;
-  }
-
-  .child-details {
-    margin-bottom: 1.5rem;
   }
 
   .detail-item {
