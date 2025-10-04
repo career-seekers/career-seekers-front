@@ -109,7 +109,7 @@
       </div>
     </div>
     <div v-else>
-      <p>Родители не найдены</p>
+      <p>{{ mode === "USERS" ? 'Родители' : 'Наставники' }} не найдены</p>
     </div>
 
     <Dialog
@@ -609,7 +609,7 @@
               ? 'Домашнее обучение'
               : this.childForm.schoolName ?? this.selectedChild!.childDocuments!.studyingPlace,
             trainingGround: this.isHomePrepared
-              ? 'Дамашнее обучение'
+              ? 'Домашнее обучение'
               : this.childForm.platform ?? this.selectedChild!.childDocuments!.trainingGround,
           });
           const response = await this.childResolver.getById(this.selectedChild!.id)
