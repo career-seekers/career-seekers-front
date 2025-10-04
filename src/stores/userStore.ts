@@ -164,7 +164,8 @@ export const useUserStore = defineStore("user", {
     async fillChildren() {
       if (this.user !== null) {
         const response = await new ChildResolver().getByUserId(this.user.id);
-        if (response.status === 200 && typeof response.message !== "string") this.user.children = response.message
+        if (response.status === 200 && typeof response.message !== "string")
+          this.user.children = response.message
       }
     }
   }
