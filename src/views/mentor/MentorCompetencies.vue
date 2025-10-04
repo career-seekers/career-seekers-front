@@ -260,10 +260,9 @@
       async assignToCompetencies() {
         this.selectedCompetencies.map(async childCompetencies => {
           if (this.selectedChild === null) return
-          const ageCategory = FormatManager.getAgeGroupLabel(this.selectedChild.childDocuments?.ageCategory)
           for (const competence of childCompetencies.competencies) {
             const ageCategoryId = competence.ageCategories
-              .find(category => category.ageCategory === ageCategory)?.id
+              .find(category => category.ageCategory === this.selectedChild?.childDocuments?.ageCategory)?.id
             if (!ageCategoryId) return
             const response = await this.childCompetenciesResolver.create({
               childId: childCompetencies.child.id,
