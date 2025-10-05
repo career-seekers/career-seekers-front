@@ -253,13 +253,15 @@
   }
 
   .stat-item {
+    flex: 1;
     text-align: center;
+    min-width: 0;
   }
 
   .stat-number {
-    font-size: 1.5rem;
-    font-weight: 700;
     color: #ff9800;
+    font-size: 1.2rem;
+    font-weight: 600;
     margin-bottom: 0.25rem;
   }
 
@@ -274,23 +276,6 @@
     gap: 0.5rem;
     padding: 1rem 1.5rem;
     flex-wrap: wrap;
-  }
-
-  .stat-item {
-    flex: 1;
-    text-align: center;
-    min-width: 0;
-  }
-
-  .stat-number {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-  }
-
-  .stat-label {
-    font-size: 0.8rem;
-    color: #6c757d;
   }
 
   /* Стили для отображения мест по возрастным категориям */
@@ -321,16 +306,6 @@
     align-items: center;
     padding: 0.25rem 0;
     font-size: 0.8rem;
-  }
-
-  .age-label {
-    color: #6c757d;
-    font-weight: 500;
-  }
-
-  .places-count {
-    color: #ff9800;
-    font-weight: 600;
   }
 
   .age-label {
