@@ -1,10 +1,15 @@
 import type {AgeCategories} from "@/api/resolvers/competence/competence.resolver.ts";
-import type {ChildOutputDto} from "@/api/resolvers/child/dto/output/child-output.dto.ts";
+import { type ParticipantStatus, QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
 
 export interface AgeCategoryOutputDto {
   id: number;
   ageCategory: AgeCategories;
   maxParticipantsCount: number | null;
   currentParticipantsCount: number | null;
-  participants: ChildOutputDto[];
+  participants: {
+    id: number;
+    childId: number;
+    status: ParticipantStatus;
+    queueStatus: QueueStatuses;
+  }[];
 }

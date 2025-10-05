@@ -6,8 +6,7 @@ export enum ParticipantStatus {
   WINNER = "WINNER"
 }
 
-export enum QueueStatus {
+export enum QueueStatuses {
   IN_QUEUE = "IN_QUEUE",
   PARTICIPATES = "PARTICIPATES",
-
 }

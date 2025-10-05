@@ -12,6 +12,7 @@
   import { Roles } from '@/state/UserState.types.ts';
   import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
   import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
+  import { useQueueStatuses } from '@/shared/UseQueueStatuses.ts';
 
   export default {
     name: 'CompetenceDetailsDialog',
@@ -34,6 +35,7 @@
         userStore: useUserStore(),
         showDetailsDialog: false,
         ageGroups: useAgeGroups,
+        queueStatuses: useQueueStatuses,
 
         userResolver: new UserResolver(),
         platformResolver: new PlatformResolver(),
@@ -227,26 +229,45 @@
           class="detail-section"
         >
           <div class="section-title">
-            <i class="pi pi-chart-line" />
+            <i class="pi pi-users" />
             Участники
           </div>
-          <div class="stats-grid">
+          <div
+            v-for="ageGroup in selectedCompetence.ageCategories"
+            :key="ageGroup.id"
+            class="stats-grid"
+          >
             <div
-              v-for="ageGroup in selectedCompetence.ageCategories"
-              :key="ageGroup.id"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ ageGroup.currentParticipantsCount }}
-                {{
-                  ageGroup.maxParticipantsCount === 0
-                    ? ''
-                    : '/ ' + ageGroup.maxParticipantsCount
-                }}
-                чел.
+                {{ ageGroups.find(group => group.value === ageGroup.ageCategory)?.label }}
               </div>
               <div class="stat-label">
-                {{ ageGroups.find(group => group.value === ageGroup.ageCategory)?.label }}
+                Максимум:
+                {{
+                  ageGroup.maxParticipantsCount === 0
+                    ? 'не ограничено'
+                    : ageGroup.maxParticipantsCount + " человек"
+                }}
+              </div>
+            </div>
+            <div
+              v-for="status in queueStatuses.sort(
+                (b, a) => a.value
+                  .toString()
+                  .localeCompare(b.value.toString()))"
+              :key="status.value"
+              class="stat-item"
+            >
+              <div class="stat-number">
+                {{
+                  ageGroup.participants
+                    .filter(participant => participant.queueStatus === status.value).length
+                }}
+              </div>
+              <div class="stat-label">
+                {{ queueStatuses.find(queueStatus => queueStatus.value === status.value)?.label }}
               </div>
             </div>
           </div>
@@ -443,6 +464,13 @@
     align-items: center;
     gap: 0.5rem;
     width: 100%;
+    border-bottom: solid 1px #6c757d;;
+    padding-bottom: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .stats-grid:last-child {
+    border-bottom: none;
   }
 
   .stat-item {
@@ -490,7 +518,7 @@
 
     .stats-grid {
       flex-wrap: wrap;
-      gap: 0.25rem;
+      gap: 1rem;
     }
 
     .stat-item {
