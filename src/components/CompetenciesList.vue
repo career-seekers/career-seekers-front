@@ -4,6 +4,8 @@
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import Button from 'primevue/button';
+  import { useUserStore } from '@/stores/userStore.ts';
+  import { Roles } from '@/state/UserState.types.ts';
 
   export default {
     name: 'CompetenciesList',
@@ -16,13 +18,25 @@
         required: true
       }
     },
-    emits: ["open-competence"],
+    emits: [
+      "open-competence",
+      "edit-competence",
+      "delete-competence"
+    ],
     data() {
       return {
+        userStore: useUserStore(),
         ageGroups: useAgeGroups,
       }
     },
+    computed: {
+      showEditButtons() {
+        if (this.userStore.user === null) return false
+        return [Roles.TUTOR, Roles.ADMIN].includes(this.userStore.user.role)
+      },
+    },
     methods: {
+      useUserStore,
       goToDocuments(competenceId: number) {
         this.$router.push(`/expert/documents/${competenceId}`);
       },
@@ -100,7 +114,7 @@
               {{
                 ageCategory.maxParticipantsCount === null || ageCategory.maxParticipantsCount === 0
                   ? 'не ограничено'
-                  : ageCategory.currentParticipantsCount + ' мест'
+                  : ageCategory.maxParticipantsCount + ' мест'
               }}
             </span>
           </div>
@@ -132,6 +146,20 @@
           class="p-button-primary"
           @click="$emit('open-competence', competence.id)"
         />
+        <div v-if="showEditButtons">
+          <Button
+            v-tooltip="'Редактировать'"
+            icon="pi pi-pencil"
+            class="p-button-text p-button-sm"
+            @click="$emit('edit-competence', competence)"
+          />
+          <Button
+            v-tooltip="'Удалить'"
+            icon="pi pi-trash"
+            class="p-button-text p-button-sm p-button-danger"
+            @click="$emit('delete-competence', competence)"
+          />
+        </div>
       </div>
     </div>
   </div>
