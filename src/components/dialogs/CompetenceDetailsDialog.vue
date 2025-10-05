@@ -48,6 +48,14 @@
     computed: {
       Roles() {
         return Roles
+      },
+      showParticipantsInfo() {
+        if (!this.userStore?.user) return false
+        return [Roles.ADMIN, Roles.TUTOR, Roles.EXPERT]
+          .includes(this.userStore.user.role)
+      },
+      showStatisticsInfo() {
+        return this.userStore?.user?.role === Roles.ADMIN
       }
     },
     watch: {
@@ -215,12 +223,42 @@
         </div>
 
         <div
-          v-if="userStore?.user?.role === Roles.ADMIN"
+          v-if="showParticipantsInfo"
           class="detail-section"
         >
           <div class="section-title">
             <i class="pi pi-chart-line" />
-            Статистика
+            Участники
+          </div>
+          <div class="stats-grid">
+            <div
+              v-for="ageGroup in selectedCompetence.ageCategories"
+              :key="ageGroup.id"
+              class="stat-item"
+            >
+              <div class="stat-number">
+                {{ ageGroup.currentParticipantsCount }}
+                {{
+                  ageGroup.maxParticipantsCount === 0
+                    ? ''
+                    : '/ ' + ageGroup.maxParticipantsCount
+                }}
+                чел.
+              </div>
+              <div class="stat-label">
+                {{ ageGroups.find(group => group.value === ageGroup.ageCategory)?.label }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-if="showStatisticsInfo"
+          class="detail-section"
+        >
+          <div class="section-title">
+            <i class="pi pi-chart-line" />
+            Общая статистика
           </div>
           <div class="stats-grid">
             <div class="stat-item">
