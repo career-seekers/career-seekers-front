@@ -21,7 +21,8 @@
     emits: [
       "open-competence",
       "edit-competence",
-      "delete-competence"
+      "delete-competence",
+      "manage-places"
     ],
     data() {
       return {
@@ -30,6 +31,9 @@
       }
     },
     computed: {
+      Roles() {
+        return Roles
+      },
       showEditButtons() {
         if (this.userStore.user === null) return false
         return [Roles.TUTOR, Roles.ADMIN].includes(this.userStore.user.role)
@@ -128,6 +132,13 @@
         <!--            class="p-button-outlined"-->
         <!--            @click="goToParticipants(competence.id)"-->
         <!--          />-->
+        <Button
+          v-if="userStore.user?.role === Roles.ADMIN"
+          label="Места"
+          icon="pi pi-users"
+          class="p-button-outlined"
+          @click="$emit('manage-places', competence)"
+        />
         <Button
           label="Документы"
           icon="pi pi-file-text"

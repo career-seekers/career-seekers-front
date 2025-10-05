@@ -275,7 +275,7 @@
 
         <div
           v-if="showStatisticsInfo"
-          class="detail-section"
+          class="detail-section statistics"
         >
           <div class="section-title">
             <i class="pi pi-chart-line" />
@@ -322,6 +322,10 @@
     margin-bottom: 2.5rem;
     max-height: 50vh;
     overflow: hidden;
+  }
+
+  .statistics {
+    margin-top: 2rem;
   }
 
   .details-section:last-child {
@@ -465,8 +469,8 @@
     gap: 0.5rem;
     width: 100%;
     border-bottom: solid 1px #6c757d;;
-    padding-bottom: 1.5rem;
-    margin-top: 1rem;
+    padding-bottom: 1rem;
+    margin-top: 1.5rem;
   }
 
   .stats-grid:last-child {

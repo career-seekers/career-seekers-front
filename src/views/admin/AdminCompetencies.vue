@@ -48,129 +48,14 @@
     >
       <ProgressSpinner style="width: 100%; height: 5rem; margin-top: 5rem" />
     </div>
-    <div
+    <CompetenciesList
       v-else-if="paginatedCompetencies.length > 0"
-      class="competencies-grid"
-    >
-      <div
-        v-for="competence in paginatedCompetencies"
-        :key="competence.id"
-        class="competence-card"
-      >
-        <div class="competence-header">
-          <div class="competence-info">
-            <h3 class="competence-name">
-              {{ competence.name }}
-            </h3>
-            <div class="competence-ages-container">
-              <span
-                v-for="item in competence.ageCategories"
-                :key="item.id"
-                class="competence-age"
-              >
-                {{ ageGroups.find(group => group.value === item.ageCategory)?.label }}
-              </span>
-            </div>
-            <div class="competence-description">
-              {{
-                competence.description.length > 50
-                  ? competence.description.substring(0, 50) + '...'
-                  : competence.description
-                    ? competence.description
-                    : "Без описания"
-              }}
-            </div>
-          </div>
-        </div>
-
-        <div class="competence-stats">
-          <div class="stat-item">
-            <div class="stat-number">
-              {{ getTotalParticipants(competence) }}
-            </div>
-            <div class="stat-label">
-              Участников
-            </div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">
-              -
-            </div>
-            <div class="stat-label">
-              Событий
-            </div>
-          </div>
-        </div>
-
-        <!-- Отображение мест по возрастным категориям -->
-        <div class="age-places-section">
-          <div class="age-places-title">
-            Места по возрастам:
-          </div>
-          <div class="age-places-list">
-            <div
-              v-for="ageCategory in competence.ageCategories"
-              :key="ageCategory.id"
-              class="age-place-item"
-            >
-              <span class="age-label">
-                {{ ageGroups.find(group => group.value === ageCategory.ageCategory)?.label }}
-              </span>
-              <span class="places-count">
-                {{ ageCategory.maxParticipantsCount || 0 }} мест
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div class="competence-actions">
-          <!--          <Button-->
-          <!--            label="Участники"-->
-          <!--            icon="pi pi-users"-->
-          <!--            class="p-button-outlined"-->
-          <!--            @click="goToParticipants(competence.id)"-->
-          <!--          />-->
-          <Button
-            label="Места"
-            icon="pi pi-users"
-            class="p-button-outlined"
-            @click="managePlaces(competence)"
-          />
-          <Button
-            label="Документы"
-            icon="pi pi-file-text"
-            class="p-button-outlined"
-            @click="goToDocuments(competence)"
-          />
-          <!--          <Button -->
-          <!--            label="События" -->
-          <!--            icon="pi pi-calendar"-->
-          <!--            class="p-button-outlined"-->
-          <!--            @click="goToEvents(competence.id)"-->
-          <!--          />-->
-          <Button
-            label="Подробнее"
-            icon="pi pi-eye"
-            class="p-button-primary"
-            @click="viewDetails(competence.id)"
-          />
-          <div>
-            <Button
-              v-tooltip="'Редактировать'"
-              icon="pi pi-pencil"
-              class="p-button-text p-button-sm"
-              @click="editCompetence(competence)"
-            />
-            <Button
-              v-tooltip="'Удалить'"
-              icon="pi pi-trash"
-              class="p-button-text p-button-sm p-button-danger"
-              @click="deleteCompetence(competence)"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+      :competencies="paginatedCompetencies"
+      @open-competence="(competenceId) => viewDetails(competenceId)"
+      @edit-competence="(competence) => editCompetence(competence)"
+      @delete-competence="(competence) => deleteCompetence(competence)"
+      @manage-places="(competence) => managePlaces(competence)"
+    />
     <div v-else>
       <p>Компетенции не найдены</p>
     </div>
@@ -366,32 +251,31 @@
 </template>
 
 <script lang="ts">
-  import Button from "primevue/button";
-  import Dialog from "primevue/dialog";
-  import Dropdown from "primevue/dropdown";
-  import InputNumber from "primevue/inputnumber";
+  import Button from 'primevue/button';
+  import Dialog from 'primevue/dialog';
+  import Dropdown from 'primevue/dropdown';
+  import InputNumber from 'primevue/inputnumber';
   import MultiSelect from 'primevue/multiselect';
-  import Paginator from "primevue/paginator";
-  import type {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
-  import {UserResolver} from "@/api/resolvers/user/user.resolver";
-  import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
-  import ToastPopup from "@/components/ToastPopup.vue";
-  import InputText from "primevue/inputtext";
-  import Textarea from "primevue/textarea";
-  import {
-    AgeCategories,
-    CompetenceResolver,
-  } from "@/api/resolvers/competence/competence.resolver";
+  import Paginator from 'primevue/paginator';
+  import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+  import { UserResolver } from '@/api/resolvers/user/user.resolver';
+  import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
+  import ToastPopup from '@/components/ToastPopup.vue';
+  import InputText from 'primevue/inputtext';
+  import Textarea from 'primevue/textarea';
+  import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type {
-    UpdateCompetencePlacesInputDto
-  } from "@/api/resolvers/competence/dto/input/competence-places-input.dto.ts";
+    UpdateCompetencePlacesInputDto,
+  } from '@/api/resolvers/competence/dto/input/competence-places-input.dto.ts';
   import ProgressSpinner from 'primevue/progressspinner';
   import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
+  import CompetenciesList from '@/components/CompetenciesList.vue';
 
   export default {
     name: "AdminCompetencies",
     components: {
+      CompetenciesList,
       CompetenceDetailsDialog,
       ToastPopup,
       Button,
@@ -469,13 +353,9 @@
       paginatedCompetencies() {
         const start = this.currentPage * this.itemsPerPage;
         const end = start + this.itemsPerPage;
-        const result = [...this.filteredCompetencies]
+        return [...this.filteredCompetencies]
           .sort((a, b) => a.name.localeCompare(b.name))
           .slice(start, end);
-        console.log('Paginated competencies:', result);
-        console.log('Total competencies:', this.competencies.length);
-        console.log('Filtered competencies:', this.filteredCompetencies.length);
-        return result;
       },
 
       totalRecords() {
@@ -490,9 +370,6 @@
         return this.experts.filter((expert) => {
           return expert.tutorId === competence.userId
         })
-      },
-      goToDocuments(competence: CompetenceOutputDto) {
-        this.$router.push(`/admin/documents/${competence.id}`);
       },
       viewDetails(competenceId: number) {
         this.selectedCompetence = this.competencies.find(
@@ -588,16 +465,13 @@
           const competenceResponse = await this.competenceResolver.getAll();
           if (competenceResponse.status === 200 && typeof competenceResponse.message !== "string") {
             this.competencies = competenceResponse.message;
-            console.log('Competencies loaded:', this.competencies);
           } else {
-            console.error('Failed to load competencies:', competenceResponse);
             this.errors.toastPopup = {
               title: competenceResponse.status.toString(),
               message: competenceResponse.message.toString(),
             };
           }
         } catch (error) {
-          console.error('Error loading competencies:', error);
           this.errors.toastPopup = {
             title: "Ошибка",
             message: "Не удалось загрузить компетенции",
@@ -667,13 +541,6 @@
           };
         }
       },
-      getTotalParticipants(competence: CompetenceOutputDto) {
-        const totalParticipants = competence.ageCategories.reduce((sum, ageCategory) => {
-          return sum + (ageCategory.currentParticipantsCount || 0);
-        }, 0);
-        return totalParticipants > 0 ? totalParticipants : '-';
-      },
-
       onPageChange(event: any) {
         this.currentPage = event.page;
         this.itemsPerPage = event.rows;
@@ -782,142 +649,11 @@
     width: 100%;
   }
 
-  .competencies-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 1.5rem;
-    width: 100%;
-  }
 
-  .competence-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    border: 2px solid transparent;
-    overflow: hidden;
-    transition: box-shadow 0.3s ease,
-    border-color 0.3s ease,
-    transform 0.3s ease;
-  }
-
-  .competence-card:hover {
-    box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2);
-    border: 2px solid #ff9800;
-    transform: translateY(-2px);
-  }
-
-  .competence-header {
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-    color: white;
-    padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-
-  .competence-info {
-    flex: 1;
-  }
-
-  .competence-name {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-
-  .competence-ages-container {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-  }
-
-  .competence-age {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    display: inline-block;
-    margin-bottom: 0.5rem;
-  }
-
-  .places-count {
-    color: #ff9800;
-    font-weight: 600;
-    margin-left: 0.25rem;
-  }
-
-  /* Стили для отображения мест по возрастным категориям */
-  .age-places-section {
-    margin: 1rem 0;
-    padding: 0.75rem;
-    background: #f8f9fa;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
-  }
-
-  .age-places-title {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-  }
-
-  .age-places-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .age-place-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.25rem 0;
-    font-size: 0.8rem;
-  }
 
   .age-label {
     color: #6c757d;
     font-weight: 500;
-  }
-
-  .competence-description {
-    font-size: 0.9rem;
-    opacity: 0.9;
-    line-height: 1.4;
-  }
-
-  .competence-stats {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.5rem;
-    background: #f8f9fa;
-  }
-
-  .stat-item {
-    text-align: center;
-  }
-
-  .stat-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ff9800;
-    margin-bottom: 0.25rem;
-  }
-
-  .stat-label {
-    color: #6c757d;
-    font-size: 0.8rem;
-    font-weight: 500;
-  }
-
-  .competence-actions {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: 1rem 1.5rem;
-    flex-wrap: wrap;
   }
 
   .detail-section h4 {
@@ -1036,34 +772,12 @@
     }
   }
 
-  .stat-item {
-    flex: 1;
-    text-align: center;
-    min-width: 0;
-  }
-
-  .stat-number {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-  }
-
-  .stat-label {
-    font-size: 0.8rem;
-    color: #6c757d;
-  }
-
   /* Мобильные стили */
   @media (max-width: 768px) {
     .competencies-page {
       padding: 0 1rem;
       max-width: 100%;
       width: 100%;
-    }
-
-    .competencies-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
     }
 
     .page-title {
@@ -1077,36 +791,6 @@
 
     .filter-group {
       min-width: auto;
-    }
-
-    .competence-header {
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .competence-stats {
-      flex-direction: column;
-      gap: 0.75rem;
-      padding: 1rem;
-    }
-
-    .competence-actions {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .stat-item {
-      flex: 1 1 calc(50% - 0.125rem);
-      min-width: 0;
-    }
-  }
-
-  /* Промежуточные экраны */
-  @media (max-width: 500px) {
-
-    .stat-item {
-      flex: none;
-      width: 100%;
     }
   }
 
@@ -1125,27 +809,6 @@
     .page-subtitle {
       font-size: 0.9rem;
     }
-
-    .competence-header {
-      padding: 1rem;
-    }
-
-    .competence-name {
-      font-size: 1.1rem;
-    }
-
-    .competence-stats {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .competence-actions {
-      padding: 0.75rem 1rem;
-    }
-
-    .stats-grid {
-      grid-template-columns: 1fr;
-    }
   }
 
 /* Стили для пагинации */
@@ -1157,16 +820,4 @@
   padding: 1rem;
   transition: opacity 0.3s ease;
 }
-
-
-
-  /* Простые анимации для карточек */
-  .competence-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .competence-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
 </style>
