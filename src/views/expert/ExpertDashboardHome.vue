@@ -97,7 +97,7 @@
                   </div>
                   <div class="stat-item">
                     <span class="stat-number">{{
-                      competence.documentsCount || 0
+                      competence.documents.length || 0
                     }}</span>
                     <span class="stat-label">Документов</span>
                   </div>
@@ -118,7 +118,11 @@
                         {{ ageGroups.find(group => group.value === ageCategory.ageCategory)?.label }}
                       </span>
                       <span class="places-count">
-                        {{ ageCategory.maxParticipantsCount || 0 }} мест
+                        {{
+                          ageCategory.maxParticipantsCount === null || ageCategory.maxParticipantsCount === 0
+                            ? 'Не ограничено'
+                            : ageCategory.maxParticipantsCount + ' мест'
+                        }}
                       </span>
                     </div>
                   </div>
@@ -410,7 +414,7 @@ import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import ToastPopup from '@/components/ToastPopup.vue';
-import { FormatManager } from '../../utils/FormatManager.ts';
+import { FormatManager } from '@/utils/FormatManager.ts';
 
 export default {
   name: "ExpertDashboardHome",
@@ -464,32 +468,11 @@ emits: ['openSettings'],
       const response = await competenceResolver.getAllByExpertId(this.user.id);
       if (response.status === 200 && typeof response.message !== "string") {
         this.competencies = response.message;
-        // Загружаем количество документов для каждой компетенции
-        await this.loadDocumentsCount();
       }
     }
   },
 
   methods: {
-    async loadDocumentsCount() {
-      if (this.user !== null) {
-        try {
-          const competenceDocumentsResolver = new CompetenceDocumentsResolver();
-          const response = await competenceDocumentsResolver.getByUserId(this.user.id);
-          if (response.status === 200 && typeof response.message !== "string") {
-            const allDocuments = response.message;
-            // Обновляем количество документов для каждой компетенции
-            this.competencies.forEach(competence => {
-              const documentsCount = allDocuments.filter(doc => doc.direction.id === competence.id).length;
-              competence.documentsCount = documentsCount;
-            });
-          }
-        } catch (error) {
-          console.error("Ошибка при загрузке количества документов:", error);
-        }
-      }
-    },
-
     async getCurrentExpert() {
       if (this.user !== null) {
         const res = await this.usersResolver.getById(this.user.id)
@@ -507,9 +490,6 @@ emits: ['openSettings'],
 
     goToCompetence(competenceId: number) {
       this.$router.push(`/expert/competencies/${competenceId}`);
-    },
-    goToParticipants(competenceId: number) {
-      this.$router.push(`/expert/participants/${competenceId}`);
     },
     goToDocuments(competenceId: number) {
       this.$router.push(`/expert/documents/${competenceId}`);
@@ -550,8 +530,6 @@ emits: ['openSettings'],
             message: response.message.toString(),
           };
         } else {
-          // Обновляем количество документов после успешной загрузки
-          await this.loadDocumentsCount();
           // Показываем уведомление об успешной загрузке
           this.errors.toastPopup = {
             title: "Успешно!",
@@ -598,13 +576,7 @@ emits: ['openSettings'],
       this.selectedDocument = null;
       this.errors.selectedDocument = "";
     },
-    getTotalPlaces(competence) {
-      if (!competence.ageCategories) return 0;
-      return competence.ageCategories.reduce((total, ageCategory) => {
-        return total + (ageCategory.maxParticipantsCount || 0);
-      }, 0);
-    },
-    getTotalParticipants(competence) {
+    getTotalParticipants(competence: CompetenceOutputDto) {
       if (!competence.ageCategories) return 0;
       return competence.ageCategories.reduce((total, ageCategory) => {
         return total + (ageCategory.currentParticipantsCount || 0);
@@ -707,6 +679,7 @@ emits: ['openSettings'],
   z-index: 10;
   flex-shrink: 0;
   display: flex;
+  justify-content: space-between;
 }
 
 .card-title {
@@ -906,13 +879,6 @@ emits: ['openSettings'],
   flex-shrink: 0;
 }
 
-/* Статистика */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
 .stat-item {
   text-align: center;
   padding: 1rem;
@@ -944,78 +910,6 @@ emits: ['openSettings'],
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-
-/* События */
-.events-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.event-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f1f3f4;
-}
-
-.event-item:last-child {
-  border-bottom: none;
-}
-
-.event-icon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #ff9800, #f57c00);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.event-content {
-  flex: 1;
-}
-
-.event-title {
-  color: #2c3e50;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.event-competence {
-  color: #6c757d;
-  font-size: 0.8rem;
-  margin-bottom: 0.25rem;
-}
-
-.event-date {
-  color: #6c757d;
-  font-size: 0.8rem;
-}
-
-.event-status {
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-planned {
-  background: rgba(255, 193, 7, 0.2);
-  color: #ffc107;
-}
-
-.status-completed {
-  background: rgba(40, 167, 69, 0.2);
-  color: #28a745;
 }
 
 /* Мобильные стили */
@@ -1076,12 +970,6 @@ emits: ['openSettings'],
     gap: 0.5rem;
   }
 
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
-
   .stat-number {
     font-size: 1rem;
   }
@@ -1117,10 +1005,6 @@ emits: ['openSettings'],
 
   .competence-card {
     height: 220px;
-  }
-
-  .stats-grid {
-    gap: 0.5rem;
   }
 
   .stat-item {
