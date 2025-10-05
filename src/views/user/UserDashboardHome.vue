@@ -60,6 +60,7 @@
               Мои дети
             </h3>
             <Button
+              :disabled="user.children.length >= 3"
               label="Добавить ребёнка"
               icon="pi pi-plus"
               class="p-button-sm header-button"
@@ -630,7 +631,7 @@ export default {
       if (this.user === null || !this.validateForm()) return;
       this.isLoading = true;
       if (this.isEditing && this.selectedChild !== null) {
-        await this.childResolver.update({
+        const response = await this.childResolver.update({
           id: this.selectedChild.id,
           lastName: this.childForm.lastName,
           firstName: this.childForm.firstName,
@@ -638,17 +639,26 @@ export default {
           dateOfBirth: FormatManager.formatBirthDateToDTO(this.childForm.birthDate),
           mentorId: null,
         });
-        await this.addChildDocs();
-        await this.userStore.fillChildren();
-        await this.loadChildrenDetails();
-        this.selectedChildDetails = this.childrenDetails
-          .find(childDetails => childDetails.child.id === this.selectedChildDetails?.child.id) ?? null;
-
-        // Показываем тост об успехе
-        this.toastPopup = {
-          title: 'Успешно',
-          message: 'Данные ребенка успешно обновлены',
-        };
+        if (response.status === 200) {
+          const childId = this.selectedChildDetails?.child.id
+          this.selectedChildDetails = null
+          await this.addChildDocs();
+          await this.userStore.fillChildren();
+          this.showAddChildDialog = false;
+          // Показываем тост об успехе
+          this.toastPopup = {
+            title: 'Успешно',
+            message: 'Данные ребенка успешно обновлены',
+          };
+          await this.loadChildrenDetails();
+          this.selectedChildDetails = this.childrenDetails
+            .find(childDetails => childDetails.child.id === childId) ?? null;
+        } else {
+          this.toastPopup = {
+            title: response.status.toString(),
+            message: response.message,
+          };
+        }
       } else {
         const response = await this.childPackResolver.create({
           userId: this.user.id,
@@ -680,14 +690,18 @@ export default {
             ? 'Домашнее обучение'
             : this.childForm.platform,
         });
-        if (typeof response.message !== 'string') await this.userStore.fillChildren();
-        else this.toastPopup = {
-          title: response.status.toString(),
-          message: response.message,
-        };
+        if (typeof response.message === 'string') {
+          this.toastPopup = {
+            title: response.status.toString(),
+            message: response.message,
+          };
+        } else {
+          await this.userStore.fillChildren();
+          this.showAddChildDialog = false;
+          await this.loadChildrenDetails();
+        }
       }
       this.isLoading = false;
-      this.showAddChildDialog = false;
     },
     async addChildDocs() {
       if (this.addBirthFile || this.addSnilsFile
@@ -715,7 +729,7 @@ export default {
             ? 'Домашнее обучение'
             : this.childForm.schoolName ?? this.selectedChild!.childDocuments!.studyingPlace,
           trainingGround: this.isHomePrepared
-            ? 'Дамашнее обучение'
+            ? 'Домашнее обучение'
             : this.childForm.platform ?? this.selectedChild!.childDocuments!.trainingGround,
         });
         if (typeof response.message !== 'string') await this.userStore.fillChildren();
