@@ -153,6 +153,10 @@
             </div>
           </div>
         </form>
+        <p class="footer-text">
+          <a href="https://t.me/career_seekers_help">Техническая поддержка</a><b>|</b>
+          <a href="tel:89675900328">8 (967) 590-03-28</a>
+        </p>
       </div>
     </div>
     <ToastPopup :content="errors.toastPopup" />
@@ -535,6 +539,31 @@ export default {
 .forgot-password-link {
   text-align: center;
   margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-text {
+  color: #6c757d;
+  margin: 1rem 0 0 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
+
+  b {
+    margin: 0 1rem;
+  }
+
+  a {
+    color: darkcyan;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  a:hover {
+    color: #ff9800;
+  }
 }
 
 .forgot-link {
@@ -566,6 +595,17 @@ export default {
 
 /* Мобильные стили */
 @media (max-width: 768px) {
+
+  .footer-text {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+
+    b {
+      display: none;
+    }
+  }
+
   .login-container {
     padding: 1rem;
   }
