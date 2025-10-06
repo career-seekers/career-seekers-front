@@ -99,7 +99,6 @@
     <!-- Обычная пагинация (скрывается при скролле) -->
     <div
       class="pagination-container"
-      :class="{ 'hidden': showFloatingPagination }"
     >
       <Paginator
         :first="currentPage * itemsPerPage"
@@ -331,14 +330,6 @@
         return this.filteredTutors.length;
       },
 
-      dateOfBirthFormatted() {
-        const [day, month, year] = this.tutorForm.birthDate.split(".");
-        const date = new Date(
-          Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day)),
-        );
-        return date.toISOString();
-      },
-
       mobileNumberFormatted() {
         return this.tutorForm.phone.replaceAll(/\s|-|\(|\)/g, "");
       },
@@ -377,17 +368,11 @@
           );
           if (tutor) {
             const editedTutor: UpdateUserInputDto = {
-              avatarId: tutor.avatarId,
-              dateOfBirth: this.dateOfBirthFormatted,
-              email: this.tutorForm.email,
               firstName: this.tutorForm.fullName.split(" ")[1],
               lastName: this.tutorForm.fullName.split(" ")[0],
               mobileNumber: this.mobileNumberFormatted,
-              password: tutor.password,
               patronymic: this.tutorForm.fullName.split(" ")[2],
-              role: Roles.TUTOR,
               id: this.editingTutorId!,
-              tutorId: null,
             };
 
             if (tutor.tutorDocuments != null) {
@@ -404,13 +389,7 @@
               }
             }
 
-            const response = await this.userResolver.update({
-              ...editedTutor,
-              email:
-                editedTutor.email === this.oldMail
-                  ? null
-                  : editedTutor.email,
-            });
+            const response = await this.userResolver.update(editedTutor);
             if (response.status === 200) {
               this.cancelEdit();
             } else {
@@ -510,13 +489,6 @@
 </script>
 
 <style scoped>
-  .experts-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    animation: slideInRight 0.4s ease-out;
-    width: 100%;
-    box-sizing: border-box;
-  }
 
   @keyframes slideInRight {
     from {
@@ -545,11 +517,6 @@
     color: #6c757d;
     margin: 0;
     font-size: 1.1rem;
-  }
-
-  .page-actions {
-    margin-bottom: 2rem;
-    text-align: right;
   }
 
   .experts-grid {
@@ -693,86 +660,15 @@
     text-align: right;
   }
 
-  .competencies-section {
-    margin-bottom: 1.5rem;
-  }
-
-  .competencies-title {
-    color: #2c3e50;
-    margin: 0 0 0.75rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-    border-bottom: 2px solid #ff9800;
-    padding-bottom: 0.25rem;
-  }
-
-  .competencies-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .competence-tag {
-    background: #f8f9fa;
-    color: #2c3e50;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    border: 1px solid #e9ecef;
-  }
-
-  .expert-status {
-    text-align: center;
-  }
-
-  .status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .status-active {
-    background: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-    border: 1px solid #28a745;
-  }
-
-  .status-pending {
-    background: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
-    border: 1px solid #ffc107;
-  }
-
-  .status-inactive {
-    background: rgba(108, 117, 125, 0.2);
-    color: #6c757d;
-    border: 1px solid #6c757d;
-  }
-
   /* Форма */
   .expert-form {
     padding: 1rem 0;
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
   }
 
   .form-field {
     display: flex;
     flex-direction: column;
     margin: 1rem 0;
-  }
-
-  .form-field.full-width {
-    grid-column: 1 / -1;
   }
 
   .form-field label {
@@ -784,11 +680,6 @@
 
   /* Мобильные стили */
   @media (max-width: 768px) {
-    .experts-page {
-      padding: 0 1rem;
-      max-width: 100%;
-      width: 100%;
-    }
 
     .experts-grid {
       grid-template-columns: 1fr;
@@ -815,11 +706,6 @@
       padding: 1rem;
     }
 
-    .form-row {
-      grid-template-columns: 1fr;
-      gap: 0.75rem;
-    }
-
     .detail-item {
       flex-direction: column;
       align-items: flex-start;
@@ -833,11 +719,6 @@
 
   /* Очень маленькие экраны */
   @media (max-width: 480px) {
-    .experts-page {
-      padding: 0 0.5rem;
-      max-width: 100%;
-      width: 100%;
-    }
 
     .page-title {
       font-size: 1.3rem;
@@ -867,11 +748,6 @@
 
     .expert-content {
       padding: 0.75rem;
-    }
-
-    .competence-tag {
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
     }
   }
 
