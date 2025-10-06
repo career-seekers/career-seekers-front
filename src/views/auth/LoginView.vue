@@ -539,8 +539,6 @@ export default {
 .forgot-password-link {
   text-align: center;
   margin: 1rem 0;
-  display: flex;
-  flex-direction: column;
 }
 
 .footer-text {
