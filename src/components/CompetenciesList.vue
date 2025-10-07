@@ -42,7 +42,7 @@
     methods: {
       useUserStore,
       goToDocuments(competenceId: number) {
-        this.$router.push(`/expert/documents/${competenceId}`);
+        this.$router.push(`/${this.userStore.user?.role.toString()}/documents/${competenceId}`);
       },
     }
   };
