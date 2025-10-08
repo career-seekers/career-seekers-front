@@ -75,8 +75,7 @@
   </div>
 
   <div 
-    v-if="isEditing &&
-      user?.children.find(child => child.id === childId)?.childDocuments === null"
+    v-if="isEditing"
     class="field"
   >
     <div class="flex align-items-center">
