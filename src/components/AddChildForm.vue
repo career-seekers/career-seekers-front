@@ -432,7 +432,7 @@
     >
       Скан согласия на ОПД ребенка*
       <a
-        href="/docs/child_consent_template.docx"
+        href="/docs/child_consent_template.pdf"
         download="Шаблон согласия на ОПД ребенка"
       >
         Шаблон
