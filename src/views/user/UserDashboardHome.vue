@@ -225,7 +225,7 @@
           <div
             class="mentor-item"
             :class="{ 'selected': selectedMentorId === user.id }"
-            @click="selectMentor(user.id)"
+            @click="selectMentor(user.id, user.menteeChildren)"
           >
             <div class="mentor-info">
               <div class="mentor-info-content">
@@ -252,8 +252,11 @@
             v-for="mentor in availableMentors" 
             :key="mentor.id"
             class="mentor-item"
-            :class="{ 'selected': selectedMentorId === mentor.id }"
-            @click="selectMentor(mentor.id)"
+            :class="{
+              'selected': selectedMentorId === mentor.id,
+              'disabled': isMentorDisabled(mentor)
+            }"
+            @click="selectMentor(mentor.id, mentor.menteeChildren)"
           >
             <div class="mentor-info">
               <div class="mentor-info-content">
@@ -277,6 +280,11 @@
               <i
                 v-if="selectedMentorId === mentor.id"
                 class="pi pi-check selected-icon"
+              />
+              <i
+                v-if="isMentorDisabled(mentor)"
+                v-tooltip.top="'У наставника нет мест'"
+                class="pi pi-question"
               />
             </div>
           </div>
@@ -391,6 +399,7 @@ export default {
         patronymic: string;
         email: string;
         mobileNumber: string;
+        menteeChildren: ChildOutputDto[]
       }[],
 
       isLoading: false,
@@ -484,6 +493,15 @@ export default {
     await this.loadAvailableMentors();
   },
   methods: {
+    isMentorDisabled(mentor: {
+      id: number,
+      menteeChildren: ChildOutputDto[]
+    }) {
+      if (mentor.menteeChildren.length < 3) return false
+      if (this.selectedMentorId === mentor.id) return false
+      return !(this.selectedChild !== null &&
+        mentor.menteeChildren.map(child => child.id).includes(this.selectedChild.id));
+    },
     async loadChildrenDetails() {
       this.isLoading = true;
       const details = [] as ChildDetailsDialogData[];
@@ -808,7 +826,7 @@ export default {
               // Добавляем внешнего наставника в список опций (проверяем на дублирование)
               const existingMentor = this.availableMentors.find(option => option.id === mentorId);
               if (!existingMentor) {
-                this.availableMentors.push(mentor);
+                this.availableMentors.push({...mentor});
               }
             }
           } catch (error) {
@@ -855,8 +873,11 @@ export default {
         };
       }
     },
-    selectMentor(mentorId: number) {
-      this.selectedMentorId = mentorId;
+    selectMentor(mentorId: number, menteeChildren: ChildOutputDto[]) {
+      if (!this.isMentorDisabled({
+        id: mentorId,
+        menteeChildren
+      })) this.selectedMentorId = mentorId;
     },
     closeMentorSelectionDialog() {
       this.showMentorSelectionDialog = false;
@@ -1611,11 +1632,28 @@ export default {
   box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
 }
 
+.mentor-item.disabled:hover {
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(86, 77, 79, 0.2);
+}
+
 .mentor-item.selected {
   background: #fff3cd;
   border-color: #ff9800;
   box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
 }
+
+.mentor-item.disabled {
+  background: rgba(236, 227, 230, 0.97);
+  border-color: #838080;
+  box-shadow: 0 4px 12px rgba(58, 57, 57, 0.2);
+
+  div, span {
+    color: rgba(0, 0, 0, 0.38);
+  }
+}
+
 
 .mentor-item.selected::before {
   content: '';
