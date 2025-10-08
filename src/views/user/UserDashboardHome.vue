@@ -68,8 +68,9 @@
       :children-details="childrenDetails"
       @edit-child="(child) => editChild(child)"
       @edit-mentor="(child) => openMentorSelectionDialog(child)"
+      @update-children="updateChildrenDetails"
     />
-    <div v-else>
+    <div v-else-if="isLoading">
       <ProgressSpinner
         style="width: 100%; height: 5rem; margin-top: 5rem"
       />
@@ -404,6 +405,10 @@ export default {
     await this.loadAvailableMentors();
   },
   methods: {
+    async updateChildrenDetails() {
+      this.childrenDetails = []
+      await this.loadChildrenDetails()
+    },
     isMentorDisabled(mentor: {
       id: number,
       menteeChildren: ChildOutputDto[]
@@ -554,6 +559,12 @@ export default {
         snilsNumber: '',
         snilsScan: null,
       };
+
+      this.addBirthFile = false
+      this.addSnilsFile = false
+      this.addSchoolFile = false
+      this.addPlatformFile = false
+      this.addConsentFile = false
     },
     fillNewChild() {
       this.selectedChild = null;

@@ -48,7 +48,8 @@
     emits: [
       "edit-child",
       "edit-mentor",
-      "update-toast-popup"
+      "update-toast-popup",
+      "update-children"
     ],
     data() {
       return {
@@ -77,6 +78,7 @@
           const response = await this.childResolver.deleteById(child.id)
           if (response.status === 200) {
             await this.userStore.fillChildren()
+            this.$emit("update-children")
           }
         }
       },
