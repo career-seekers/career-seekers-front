@@ -8,8 +8,6 @@
   import { useUserStore } from '@/stores/userStore.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
-  import TabPanel from 'primevue/tabpanel';
-  import TabView from 'primevue/tabview';
   import { Roles } from '@/state/UserState.types.ts';
   import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
   import { FileType } from '@/api/resolvers/files/file.resolver.ts';
@@ -40,8 +38,6 @@
     name: 'ChildrenList',
     components: {
       Button,
-      TabPanel,
-      TabView,
     },
     props: {
       childrenDetails: {
@@ -60,16 +56,6 @@
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
         userStore: useUserStore(),
         ageGroups: useAgeGroups,
-        showChildDetails: {
-          id: -1,
-          showDocs: false,
-          showCompetencies: false
-        } as {
-          id: number;
-          showDocs: boolean;
-          showCompetencies: boolean;
-        },
-        activeTab: 0,
       }
     },
     computed: {
@@ -129,28 +115,6 @@
         if (this.checkDocument(doc))
           window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.id}`;
       },
-      toggleDocsByChildId(id: number) {
-        if (this.showChildDetails.id !== id) {
-          this.showChildDetails = {
-            id: id,
-            showDocs: true,
-            showCompetencies: false
-          }
-        } else {
-          this.showChildDetails.showDocs = !this.showChildDetails.showDocs
-        }
-      },
-      toggleCompetenciesByChildId(id: number) {
-        if (this.showChildDetails.id !== id) {
-          this.showChildDetails = {
-            id: id,
-            showDocs: false,
-            showCompetencies: true
-          }
-        } else {
-          this.showChildDetails.showCompetencies = !this.showChildDetails.showCompetencies
-        }
-      }
     }
   };
 </script>
@@ -170,10 +134,10 @@
           <h3 class="expert-name">
             {{
               childDetails.child.lastName +
-              " " +
-              childDetails.child.firstName +
-              " " +
-              childDetails.child.patronymic
+                " " +
+                childDetails.child.firstName +
+                " " +
+                childDetails.child.patronymic
             }}
           </h3>
         </div>
@@ -181,15 +145,13 @@
           <Button
             v-tooltip="'Редактировать данные ребенка'"
             icon="pi pi-pencil"
-            style="background: white; margin-left: 0.5rem;"
-            class="p-button-outlined p-button-sm edit-button"
+            class="p-button-secondary p-button-sm edit-button"
             @click="$emit('edit-child', childDetails.child)"
           />
           <Button
             v-tooltip="'Удалить'"
             icon="pi pi-trash"
-            style="background: white; margin-left: 0.5rem;"
-            class="p-button-outlined p-button-sm"
+            class="p-button-secondary p-button-sm"
             @click="deleteChild(childDetails.child)"
           />
         </div>
@@ -251,20 +213,20 @@
               <div class="doc-info">
                 <span class="info-label">Скан свидетельства о рождении:</span>
                 <span class="info-value">
-                {{ `Статус: ${childDetails.childDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+                  {{ `Статус: ${childDetails.childDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
               </div>
               <div class="doc-actions">
                 <Button
                   label="Просмотреть"
                   icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
+                  class="p-button-secondary p-button-sm"
                   @click="viewDocument(childDetails.childDocs.birthFile)"
                 />
                 <Button
                   label="Скачать"
                   icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
+                  class="p-button-secondary p-button-sm"
                   @click="downloadDocument(childDetails.childDocs.birthFile)"
                 />
               </div>
@@ -273,20 +235,20 @@
               <div class="doc-info">
                 <span class="info-label">СНИЛС:</span>
                 <span class="info-value">
-                {{ `Статус: ${childDetails.childDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+                  {{ `Статус: ${childDetails.childDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
               </div>
               <div class="doc-actions">
                 <Button
                   label="Просмотреть"
                   icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
+                  class="p-button-secondary p-button-sm"
                   @click="viewDocument(childDetails.childDocs.snilsFile)"
                 />
                 <Button
                   label="Скачать"
                   icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
+                  class="p-button-secondary p-button-sm"
                   @click="downloadDocument(childDetails.childDocs.snilsFile)"
                 />
               </div>
@@ -295,20 +257,20 @@
               <div class="doc-info">
                 <span class="info-label">Скан справки из ОУ:</span>
                 <span class="info-value">
-                {{ `Статус: ${childDetails.childDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+                  {{ `Статус: ${childDetails.childDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
               </div>
               <div class="doc-actions">
                 <Button
                   label="Просмотреть"
                   icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
+                  class="p-button-secondary p-button-sm"
                   @click="viewDocument(childDetails.childDocs.schoolFile)"
                 />
                 <Button
                   label="Скачать"
                   icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
+                  class="p-button-secondary p-button-sm"
                   @click="downloadDocument(childDetails.childDocs.schoolFile)"
                 />
               </div>
@@ -317,20 +279,20 @@
               <div class="doc-info">
                 <span class="info-label">Скан справки из площадки подготовки:</span>
                 <span class="info-value">
-                {{ `Статус: ${childDetails.childDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+                  {{ `Статус: ${childDetails.childDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
               </div>
               <div class="doc-actions">
                 <Button
                   label="Просмотреть"
                   icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
+                  class="p-button-secondary p-button-sm"
                   @click="viewDocument(childDetails.childDocs.platformFile)"
                 />
                 <Button
                   label="Скачать"
                   icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
+                  class="p-button-secondary p-button-sm"
                   @click="downloadDocument(childDetails.childDocs.platformFile)"
                 />
               </div>
@@ -339,20 +301,20 @@
               <div class="doc-info">
                 <span class="info-label">Скан согласия на ОПД:</span>
                 <span class="info-value">
-                {{ `Статус: ${childDetails.childDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
-              </span>
+                  {{ `Статус: ${childDetails.childDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                </span>
               </div>
               <div class="doc-actions">
                 <Button
                   label="Просмотреть"
                   icon="pi pi-eye"
-                  class="p-button-outlined p-button-sm"
+                  class="p-button-secondary p-button-sm"
                   @click="viewDocument(childDetails.childDocs.consentFile)"
                 />
                 <Button
                   label="Скачать"
                   icon="pi pi-download"
-                  class="p-button-outlined p-button-sm"
+                  class="p-button-secondary p-button-sm"
                   @click="downloadDocument(childDetails.childDocs.consentFile)"
                 />
               </div>
@@ -395,6 +357,55 @@
                 `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
               }}
             </div>
+            <div class="competence-docs">
+              <div class="competence-name">
+                Опубликованные документы
+              </div>
+              <div class="doc-item">
+                <div class="doc-info">
+                  <span class="info-label">Полное описание компетенции:</span>
+                </div>
+                <div class="doc-actions">
+                  <Button
+                    label="Просмотреть"
+                    icon="pi pi-eye"
+                    class="p-button-secondary p-button-sm"
+                    @click="viewCompetenceDocument(competence.id, FileType.DESCRIPTION)"
+                  />
+                  <Button
+                    label="Скачать"
+                    icon="pi pi-download"
+                    class="p-button-secondary p-button-sm"
+                    @click="downloadCompetenceDocument(competence.id, FileType.DESCRIPTION)"
+                  />
+                </div>
+              </div>
+            </div>
+<!--            <div class="competence-docs">-->
+<!--              <div class="competence-name">-->
+<!--                Педагог, помогающий в подготовке к компетенции-->
+<!--              </div>-->
+<!--              <div class="expert-details">-->
+<!--                <div class="detail-item">-->
+<!--                  <span class="detail-label">Возрастная группа:</span>-->
+<!--                  <span class="detail-value">-->
+<!--                    {{ ageGroups.find(group => group.value === childDetails?.child.childDocuments?.ageCategory)?.label }}-->
+<!--                  </span>-->
+<!--                </div>-->
+<!--                <div class="detail-item">-->
+<!--                  <span class="detail-label">Возрастная группа:</span>-->
+<!--                  <span class="detail-value">-->
+<!--                    {{ ageGroups.find(group => group.value === childDetails?.child.childDocuments?.ageCategory)?.label }}-->
+<!--                  </span>-->
+<!--                </div>-->
+<!--                <div class="detail-item">-->
+<!--                  <span class="detail-label">Возрастная группа:</span>-->
+<!--                  <span class="detail-value">-->
+<!--                    {{ ageGroups.find(group => group.value === childDetails?.child.childDocuments?.ageCategory)?.label }}-->
+<!--                  </span>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
           </div>
         </div>
 
@@ -412,10 +423,10 @@
               <div class="detail-item">
                 <span class="detail-label">ФИО:</span>
                 <span class="detail-value">
-                {{
+                  {{
                     `${childDetails.child.mentor.lastName} ${childDetails.child.mentor.firstName} ${childDetails.child.mentor.patronymic}`
                   }}
-              </span>
+                </span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Email:</span>
@@ -424,8 +435,8 @@
               <div class="detail-item">
                 <span class="detail-label">Телефон:</span>
                 <span class="detail-value">
-                {{ FormatManager.formatMobileNumberFromDTO(childDetails.child.mentor.mobileNumber) }}
-              </span>
+                  {{ FormatManager.formatMobileNumberFromDTO(childDetails.child.mentor.mobileNumber) }}
+                </span>
               </div>
             </div>
             <div
@@ -435,7 +446,7 @@
               <Button
                 label="Изменить наставника"
                 icon="pi pi-pencil"
-                class="p-button-outlined p-button-sm"
+                class="p-button-primary p-button-sm"
                 @click="$emit('edit-mentor', childDetails.child)"
               />
             </div>
@@ -467,6 +478,8 @@
   .experts-grid {
     display: flex;
     flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
   }
 
   .expert-card {
@@ -608,6 +621,24 @@
     padding-bottom: 0.5rem;
   }
 
+  .competence-docs {
+    margin-top: 2rem;
+  }
+
+  .doc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .info-label {
+      font-size: 0.9rem;
+    }
+
+    .doc-actions {
+      display: flex;
+      gap: 1rem;
+    }
+  }
 
 
   .mentor-available-notice i {
@@ -668,6 +699,53 @@
 
   /* Мобильные стили для touch устройств */
   @media (max-width: 768px) {
+    .expert-header {
+      padding: 1rem
+    }
+
+    .expert-name {
+      font-size: 1.1rem;
+    }
+
+    .mentor-selection .mentor-info {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .mentor-selection .mentor-actions {
+      align-self: flex-end;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .docs-grid .info-item {
+      padding: 0.75rem;
+    }
+
+    .docs-grid .info-label {
+      font-size: 0.85rem;
+    }
+
+    .docs-grid .info-value {
+      font-size: 0.85rem;
+    }
+
+    .docs-grid .doc-actions {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .docs-grid .doc-actions {
+      min-width: auto;
+      width: 100%;
+    }
+
+    .edit-button {
+      margin-left: 0;
+      align-self: flex-end;
+    }
 
     .competence-item:active .competence-name {
       color: #2196f3;
@@ -728,13 +806,6 @@
     margin-bottom: 0;
   }
 
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-
   .section-title {
     color: #2c3e50;
     margin: 0;
@@ -751,12 +822,6 @@
   .edit-button {
     margin-left: 1rem;
     flex-shrink: 0;
-  }
-
-  .details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
   }
 
   .detail-item {
@@ -788,6 +853,7 @@
     padding: 1rem;
     border-radius: 8px;
     border-left: 3px solid #ff9800;
+    margin-bottom: 0.5rem;
   }
 
   .competence-details .competence-name {
@@ -876,57 +942,14 @@
     align-items: center;
     gap: 0.5rem;
   }
-  /* Мобильные стили для новых компонентов */
-  @media (max-width: 768px) {
 
-    .details-grid {
-      grid-template-columns: 1fr;
+  @media screen and (max-width: 480px) {
+    .expert-header {
+      padding: 0.75rem
     }
 
-    .mentor-selection .mentor-info {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .mentor-selection .mentor-actions {
-      align-self: flex-end;
-    }
-
-    .info-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .docs-grid .info-item {
-      padding: 0.75rem;
-    }
-
-    .docs-grid .info-label {
-      font-size: 0.85rem;
-    }
-
-    .docs-grid .info-value {
-      font-size: 0.85rem;
-    }
-
-    .docs-grid .doc-actions {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .docs-grid .doc-actions {
-      min-width: auto;
-      width: 100%;
-    }
-
-    .section-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.75rem;
-    }
-
-    .edit-button {
-      margin-left: 0;
-      align-self: flex-end;
+    .expert-name {
+      font-size: 1rem;
     }
   }
 
