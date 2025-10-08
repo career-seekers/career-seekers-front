@@ -14,16 +14,25 @@
       </div>
       
       <div v-else>
-        <div class="success-icon">
-          <i class="pi pi-check-circle" />
+        <div :class="{ 'success-icon' : hasSpace, 'fail-icon' : !hasSpace }">
+          <i :class="{ 'pi pi-check-circle': hasSpace, 'pi pi-times': !hasSpace }" />
         </div>
         
         <h1 class="confirmation-title">
-          Готово!
+          {{ hasSpace ? 'Готово!' : 'Ошибка!' }}
         </h1>
-        
-        <p class="confirmation-message">
+
+        <p
+          v-if="hasSpace"
+          class="confirmation-message"
+        >
           Теперь вы можете указать <strong>{{ mentorName }}</strong> в качестве наставника для своего ребенка.
+        </p>
+        <p
+          v-else
+          class="confirmation-message"
+        >
+          К сожалению, наставника <strong>{{ mentorName }}</strong> не могут выбрать больше чем 3 ребенка
         </p>
       
         <div class="mentor-info-card">
@@ -45,6 +54,7 @@
             @click="confirmMentorLink"
           />
           <Button
+            v-if="hasSpace"
             label="Отменить привязку"
             icon="pi pi-times"
             class="p-button-outlined w-full"
@@ -76,6 +86,7 @@ export default {
       mentorId: null as number | null,
       mentorName: "",
       isLoading: true,
+      hasSpace: true,
     };
   },
   async mounted() {
@@ -127,23 +138,16 @@ export default {
         
         if (response.status === 200) {
           const mentorLink = response.message;
-          
-          console.log('Full mentor data from API:', mentorLink);
-          
+
           // Сохраняем ID наставника
           this.mentorId = mentorLink.user.id;
           
           // Формируем полное имя наставника
           this.mentorName = `${mentorLink.user.lastName} ${mentorLink.user.firstName} ${mentorLink.user.patronymic}`;
           
-          console.log('Final mentor info:', {
-            id: this.mentorId,
-            name: this.mentorName
-          });
-          
-          // Наставник найден, переходим к подтверждению
-          console.log('Mentor found, proceeding to confirmation');
-          
+          if (mentorLink.user.menteeChildren.length === 3) {
+            this.hasSpace = false
+          }
         } else {
           console.log('API failed or returned string, redirecting to login');
           this.$router.push('/login');
@@ -181,19 +185,19 @@ export default {
       }
     },
     async confirmMentorLink() {
-      if (this.mentorId && this.userStore.user) {
+      if (this.mentorId && this.userStore.user && this.hasSpace) {
         try {
           const strMentorIds = localStorage.getItem("mentorIds")
           const mentorIds = (strMentorIds as string | null) !== null
             ? JSON.parse(strMentorIds as string) as number[]
             : []
           localStorage.setItem('mentorIds', JSON.stringify([...mentorIds, this.mentorId]));
-          this.$router.push('/user/dashboard');
         } catch (error) {
           console.error('Ошибка при подтверждении связи с наставником:', error);
           alert('Не удалось установить связь с наставником');
         }
       }
+      this.$router.push('/user/dashboard');
     },
   }
 };
@@ -231,7 +235,8 @@ export default {
   }
 }
 
-.success-icon {
+.success-icon,
+.fail-icon {
   width: 80px;
   height: 80px;
   background: linear-gradient(135deg, #4caf50, #45a049);
@@ -241,6 +246,10 @@ export default {
   justify-content: center;
   margin: 0 auto 2rem auto;
   animation: bounceIn 0.8s ease-out;
+}
+
+.fail-icon {
+  background: linear-gradient(135deg, #e33a3a, #e01212);
 }
 
 @keyframes bounceIn {
@@ -255,7 +264,8 @@ export default {
   }
 }
 
-.success-icon i {
+.success-icon i,
+.fail-icon i {
   font-size: 2.5rem;
   color: white;
 }
@@ -365,12 +375,12 @@ export default {
     font-size: 1rem;
   }
 
-  .success-icon {
+  .success-icon, .fail-icon {
     width: 60px;
     height: 60px;
   }
 
-  .success-icon i {
+  .success-icon i, .fail-icon i {
     font-size: 2rem;
   }
 
