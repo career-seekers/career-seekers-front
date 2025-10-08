@@ -20,13 +20,20 @@
             <i class="pi pi-user" />
             Персональные данные
           </h3>
-          <Button
-            v-tooltip="'Редактировать'"
-            icon="pi pi-pencil"
-            style="background: white;"
-            class="p-button-text p-button-sm"
-            @click="$emit('openSettings', true)"
-          />
+          <div class="user-actions">
+            <Button
+              label="Редактировать профиль"
+              icon="pi pi-pencil"
+              class="p-button-secondary p-button-sm"
+              @click="$emit('openSettings', true)"
+            />
+            <Button
+              label="Добавить ребенка"
+              icon="pi pi-plus"
+              class="p-button-secondary p-button-sm"
+              @click="fillNewChild"
+            />
+          </div>
         </div>
         <div class="card-content">
           <div class="data-section">
@@ -47,118 +54,27 @@
               <span class="data-label">Email:</span>
               <span class="data-value">{{ user.email }}</span>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Данные о детях -->
-      <div class="info-card">
-        <div class="card-header">
-          <div class="card-header-content">
-            <h3 class="card-title">
-              <i class="pi pi-users" />
-              Мои дети
-            </h3>
-            <Button
-              :disabled="user.children.length >= 3"
-              label="Добавить ребёнка"
-              icon="pi pi-plus"
-              class="p-button-sm header-button"
-              @click="fillNewChild"
-            />
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="participants-preview">
-            <p class="preview-text">
-              Всего детей: {{ user.children.length }}
-            </p>
-          </div>
-          <div
-            v-if="user.children && user.children.length > 0"
-            class="competencies-section competencies-scrollable"
-          >
-            <div 
-              v-for="child in user.children" 
-              :key="child.id"
-              class="child-competencies"
-            >
-              <h4 class="child-name">
-                {{ `${child.lastName} ${child.firstName} ${child.patronymic}` }}
-              </h4>
-              <div
-                v-if="isLoading"
-              >
-                <ProgressSpinner style="width: 100%; height: 5rem" />
-              </div>
-              <div
-                v-else-if="getCompetenciesByChildId(child.id).length > 0"
-                class="competencies-list"
-              >
-                <div
-                  v-for="competence in getCompetenciesByChildId(child.id)"
-                  :key="competence.id"
-                  class="competence-item"
-                  @click="openChildDetailsDialog(child)"
-                >
-                  <div class="competence-icon">
-                    <i class="pi pi-star" />
-                  </div>
-                  <div class="competence-info">
-                    <div class="competence-name">
-                      {{ competence.name }}
-                    </div>
-                    <div class="competence-description">
-                      {{ competence.description }}
-                    </div>
-                    <div class="competence-expert">
-                      <i class="pi pi-user" />
-                      Главный эксперт:
-                      {{
-                        `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
-                      }}
-                    </div>
-                    <div class="competence-mentor">
-                      <i class="pi pi-users" />
-                      Наставник: {{ getMentorName(child) }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                v-else
-                class="no-competencies clickable"
-                @click="openChildDetailsDialog(child)"
-              >
-                <div class="no-competencies-main">
-                  <i class="pi pi-info-circle" />
-                  <span>Ребенок пока не зарегистрирован ни на одну компетенцию</span>
-                  <i class="pi pi-arrow-right click-icon" />
-                </div>
-                
-                <!-- Простая строчка с наставником под основным текстом -->
-                <div class="mentor-simple">
-                  <i class="pi pi-users" />
-                  Наставник: {{ getMentorName(child) }}
-                </div>
-              </div>
+            <div class="data-item">
+              <span class="data-label">Всего детей:</span>
+              <span class="data-value">{{ user.children.length }}</span>
             </div>
-          </div>
-          <div
-            v-else
-            class="empty-state"
-          >
-            <i class="pi pi-users empty-icon" />
-            <p class="empty-text">
-              У вас пока нет детей
-            </p>
-            <p class="empty-subtitle">
-              Добавьте ребенка для участия в чемпионате
-            </p>
           </div>
         </div>
       </div>
     </div>
+
+    <ChildrenList
+      v-if="childrenDetails.length > 0"
+      :children-details="childrenDetails"
+      @edit-child="(child) => editChild(child)"
+      @edit-mentor="(child) => openMentorSelectionDialog(child)"
+    />
+    <div v-else>
+      <ProgressSpinner
+        style="width: 100%; height: 5rem; margin-top: 5rem"
+      />
+    </div>
+
 
     <Dialog
       v-model:visible="showAddChildDialog"
@@ -197,16 +113,6 @@
         />
       </form>
     </Dialog>
-
-    <!-- Диалог подробной информации о ребенке -->
-    <ChildDetailsDialog
-      :child-details="selectedChildDetails"
-      :show-child-info-prop="showChildDetailsDialog"
-      @edit-child="(child) => editChild(child)"
-      @show-child-info="(val) => showChildDetailsDialog = val"
-      @update-toast-popup="(val) => toastPopup = val"
-      @show-mentors-list="(child) => openMentorSelectionDialog(child)"
-    />
 
     <!-- Диалог выбора наставника -->
     <Dialog
@@ -355,14 +261,13 @@ import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
 import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
-import ChildDetailsDialog from '@/components/dialogs/ChildDetailsDialog.vue';
-import type { ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
 import ProgressSpinner from 'primevue/progressspinner';
+import ChildrenList, { type ChildDetailsDialogData } from '@/components/ChildrenList.vue';
 
 export default {
   name: 'UserDashboardHome',
   components: {
-    ChildDetailsDialog,
+    ChildrenList,
     ProgressSpinner,
     ToastPopup,
     AddChildForm,
@@ -417,7 +322,6 @@ export default {
       },
 
       childrenDetails: [] as ChildDetailsDialogData[],
-      selectedChildDetails: null as ChildDetailsDialogData | null,
 
       childForm: {
         lastName: '',
@@ -478,6 +382,13 @@ export default {
         snilsScan: '',
       };
     },
+    addBirthFile() { this.clearErrors() },
+    addSnilsFile() { this.clearErrors() },
+    addConsentFile() { this.clearErrors() },
+    addSchoolFile() { this.clearErrors() },
+    addPlatformFile() { this.clearErrors() },
+    isHomeEducated() { this.clearErrors() },
+    isHomePrepared() { this.clearErrors() },
   },
   async mounted() {
     // Проверяем, есть ли сохраненный наставник после перехода по ссылке
@@ -611,6 +522,22 @@ export default {
 
       return isValid;
     },
+    clearErrors() {
+      this.errors = {
+        birthCertificate: '',
+        birthDate: '',
+        childConsentFile: '',
+        firstName: '',
+        grade: '',
+        platform: '',
+        platformCertificate: '',
+        schoolCertificate: '',
+        schoolName: '',
+        snilsNumber: '',
+        snilsScan: '',
+        lastName: ""
+      }
+    },
     clearChildForm() {
       this.childForm = {
         birthCertificate: null,
@@ -626,7 +553,6 @@ export default {
         schoolName: '',
         snilsNumber: '',
         snilsScan: null,
-
       };
     },
     fillNewChild() {
@@ -637,6 +563,7 @@ export default {
     },
     editChild(child: ChildOutputDto) {
       this.clearChildForm();
+      this.clearErrors();
       this.isEditing = child.childDocuments !== null;
       this.showAddChildDialog = true;
       this.childForm.lastName = child.lastName;
@@ -658,8 +585,6 @@ export default {
           mentorId: null,
         });
         if (response.status === 200) {
-          const childId = this.selectedChildDetails?.child.id
-          this.selectedChildDetails = null
           await this.addChildDocs();
           await this.userStore.fillChildren();
           this.showAddChildDialog = false;
@@ -669,8 +594,6 @@ export default {
             message: 'Данные ребенка успешно обновлены',
           };
           await this.loadChildrenDetails();
-          this.selectedChildDetails = this.childrenDetails
-            .find(childDetails => childDetails.child.id === childId) ?? null;
         } else {
           this.toastPopup = {
             title: response.status.toString(),
@@ -758,32 +681,6 @@ export default {
       const blob = await response.blob();
       return new File([], filename, { type: blob.type });
     },
-    // Методы для работы с компетенциями
-    getCompetenciesByChildId(childId: number) {
-      const competencies = this.childrenDetails.find(childDetails => childDetails.child.id === childId)?.competencies;
-      return competencies ? competencies : [];
-    },
-    getMentorName(child: ChildOutputDto) {
-      if (child.mentor) {
-        return `${child.mentor.lastName} ${child.mentor.firstName} ${child.mentor.patronymic}`;
-      }
-      return 'Наставник не назначен';
-    },
-    // Методы для модальных окон
-    async openChildDetailsDialog(child: ChildOutputDto) {
-      // Скрываем все другие модалки
-      const selectedChild = this.childrenDetails.find(childDetails => childDetails.child.id === child.id);
-      if (selectedChild) {
-        this.hideAllDialogs();
-        this.selectedChildDetails = selectedChild;
-        this.showChildDetailsDialog = true;
-      } else {
-        this.toastPopup = {
-          title: 'Ошибка',
-          message: `Информация о ребенке ${child.firstName} не найдена`,
-        };
-      }
-    },
     async openMentorSelectionDialog(child: ChildOutputDto | null) {
       if (!child) return;
 
@@ -809,12 +706,9 @@ export default {
       // Проверяем localStorage на наличие ID наставника
       const strMentorIds = localStorage.getItem('mentorIds');
       const mentorIds = strMentorIds ? JSON.parse(strMentorIds) as number[] : [];
-      console.log('Loading available mentor from localStorage ID:', mentorIds);
 
       // Полностью очищаем и пересоздаем список опций наставников
       this.availableMentors = [];
-
-      console.log('Initial mentorOptions:', this.availableMentors);
 
       if (mentorIds.length > 0) {
         for (const mentorId of mentorIds) {
@@ -898,9 +792,6 @@ export default {
           mentorId = this.selectedMentorId as number;
         }
 
-        // Обновляем наставника для ребенка
-        console.log(this.availableMentors.find(mentor => mentor.id === mentorId) !== undefined
-          || mentorId === this.user?.id);
         await this.childResolver.update({
           id: this.selectedChild.id,
           mentorId: (this.availableMentors.find(mentor => mentor.id === mentorId) !== undefined
@@ -915,14 +806,7 @@ export default {
 
         // Обновляем данные пользователя
         await this.userStore.fillChildren();
-
-        if (this.selectedChildDetails) {
-          // Обновляем данные в selectedChildDetails
-          const updatedChild = this.userStore.user?.children.find(c => c.id === this.selectedChildDetails!.child.id);
-          if (updatedChild) {
-            this.selectedChildDetails.child = updatedChild;
-          }
-        }
+        await this.loadChildrenDetails()
 
         // Сохраняем связь родитель-наставник на сервере
         if (this.userStore.user && mentorId !== null) {
@@ -970,6 +854,11 @@ export default {
   }
 }
 
+.user-actions {
+  display: flex;
+  gap: 1rem;
+}
+
 .page-header {
   margin-bottom: 2rem;
 }
@@ -995,6 +884,7 @@ export default {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  margin-bottom: 2rem;
 }
 
 .info-card {
@@ -1024,14 +914,6 @@ export default {
   padding: 1.5rem;
 }
 
-.card-header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-}
-
 .card-title {
   margin: 0;
   font-size: 1.25rem;
@@ -1046,22 +928,6 @@ export default {
   font-size: 1.1rem;
 }
 
-.header-button {
-  background: white !important;
-  color: #ff9800 !important;
-  border: 2px solid white !important;
-  font-weight: 600 !important;
-  flex-shrink: 0;
-  margin-left: auto;
-}
-
-.header-button:hover {
-  background: #f8f9fa !important;
-  color: #f57c00 !important;
-  border-color: #f8f9fa !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
 
 .card-content {
   padding: 1.5rem;
@@ -1108,12 +974,6 @@ export default {
   text-align: right;
 }
 
-.preview-text {
-  color: #2c3e50;
-  margin: 0 0 1rem 0;
-  font-weight: 500;
-}
-
 /* Мобильные стили */
 @media (max-width: 768px) {
   .dashboard-home {
@@ -1131,6 +991,11 @@ export default {
     margin: 0;
   }
 
+  .user-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   .page-title {
     font-size: 1.5rem;
   }
@@ -1143,6 +1008,12 @@ export default {
 
   .card-header {
     padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .card-title {
+    gap: 0.5rem;
   }
 
   .card-content {
@@ -1157,6 +1028,30 @@ export default {
 
   .data-value {
     text-align: left;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+  }
+
+  .mentor-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .mentor-selection .mentor-info {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mentor-selection .mentor-actions {
+    align-self: flex-end;
+  }
+
+  .mentor-selection-actions {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
 
@@ -1217,71 +1112,9 @@ export default {
 }
 
 /* Стили для участников */
-.participants-preview {
-  text-align: center;
-}
-
-.preview-text {
-  color: #2c3e50;
-  margin: 0 0 1rem 0;
-  font-weight: 500;
-}
 
 .mentor-available-notice i {
   color: #28a745;
-}
-
-/* Стили для компетенций */
-.competencies-section {
-  margin-top: 1rem;
-}
-
-.competencies-scrollable {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 8px;
-}
-
-/* Кастомный скроллбар для WebKit браузеров */
-.competencies-scrollable::-webkit-scrollbar {
-  width: 6px;
-}
-
-.competencies-scrollable::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.competencies-scrollable::-webkit-scrollbar-thumb {
-  background: #ff9800;
-  border-radius: 3px;
-}
-
-.competencies-scrollable::-webkit-scrollbar-thumb:hover {
-  background: #f57c00;
-}
-
-.child-competencies {
-  margin-bottom: 2rem;
-}
-
-.child-competencies:last-child {
-  margin-bottom: 0;
-}
-
-.child-name {
-  color: #2c3e50;
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-bottom: 2px solid #ff9800;
-  padding-bottom: 0.5rem;
-}
-
-.competencies-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
 }
 
 /* Стили для диалога подтверждения удаления */
@@ -1316,220 +1149,9 @@ export default {
   margin-top: 1.5rem;
 }
 
-.competence-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 3px solid #ff9800;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.competence-item:hover {
-  background: #e3f2fd;
-  border-left-color: #2196f3;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
-}
-
-.competence-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #ff9800, #f57c00);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-}
-
-.competence-item:hover .competence-icon {
-  background: linear-gradient(135deg, #2196f3, #1976d2);
-  transform: scale(1.1);
-}
-
-.competence-info {
-  flex: 1;
-}
-
-.competence-name {
-  color: #2c3e50;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  transition: color 0.3s ease;
-}
-
-.competence-item:hover .competence-name {
-  color: #2196f3;
-}
-
-.competence-description {
-  color: #6c757d;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  transition: color 0.3s ease;
-}
-
-.competence-item:hover .competence-description {
-  color: #1976d2;
-}
-
-.competence-expert {
-  color: #ff9800;
-  font-size: 0.85rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: color 0.3s ease;
-}
-
-.competence-mentor {
-  color: #28a745;
-  font-size: 0.85rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: color 0.3s ease;
-  margin-top: 0.25rem;
-}
-
-.competence-item:hover .competence-expert {
-  color: #1976d2;
-}
-
-.competence-item:hover .competence-mentor {
-  color: #1976d2;
-}
-
-  /* Мобильные стили для touch устройств */
-  @media (max-width: 768px) {
-    .competence-item:active {
-      background: #e3f2fd;
-      border-left-color: #2196f3;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
-    }
-    
-    .competence-item:active .competence-icon {
-      background: linear-gradient(135deg, #2196f3, #1976d2);
-      transform: scale(1.05);
-    }
-    
-    .competence-item:active .competence-name {
-      color: #2196f3;
-    }
-    
-    .competence-item:active .competence-description {
-      color: #1976d2;
-    }
-    
-    .competence-item:active .competence-expert {
-      color: #1976d2;
-    }
-    
-    .competence-item:active .competence-mentor {
-      color: #1976d2;
-    }
-  }
-
-.no-competencies {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #6c757d;
-  font-size: 0.9rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 3px solid #6c757d;
-}
-
-.no-competencies.clickable {
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-left-color: #ff9800;
-  background: #fff3cd;
-}
-
-.no-competencies.clickable:hover {
-  background: #e3f2fd;
-  border-left-color: #2196f3;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
-}
-
-.click-icon {
-  margin-left: auto;
-  color: #ff9800;
-  transition: color 0.3s ease;
-}
-
-.no-competencies.clickable:hover .click-icon {
-  color: #2196f3;
-}
-
-.no-competencies.clickable {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  align-items: flex-start;
-}
-
-.no-competencies-main {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Простая строчка с наставником внутри блока */
-.mentor-simple {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #28a745;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e0e0e0;
-  justify-content: flex-start;
-}
-
 .mentor-simple i {
   color: #28a745;
   font-size: 0.9rem;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 2rem 1rem;
-  color: #6c757d;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: #dee2e6;
-}
-
-.empty-text {
-  font-size: 1rem;
-  margin: 0 0 0.5rem 0;
-  font-weight: 500;
-}
-
-.empty-subtitle {
-  font-size: 0.9rem;
-  margin: 0;
 }
 
 /* Стили для модальных окон */
@@ -1547,27 +1169,6 @@ export default {
   flex: 1;
 }
 
-.competence-details .competence-name {
-  color: #2c3e50;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.competence-details .competence-description {
-  color: #6c757d;
-  font-size: 0.9rem;
-  margin-bottom: 0.75rem;
-}
-
-.competence-details .competence-expert {
-  color: #ff9800;
-  font-size: 0.9rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 
 .info-section .mentor-info,
 .details-section .mentor-info {
@@ -1735,59 +1336,5 @@ export default {
   padding-top: 1rem;
   border-top: 1px solid #dee2e6;
   flex-wrap: wrap;
-}
-
-/* Мобильные стили для новых компонентов */
-@media (max-width: 768px) {
-  .competencies-scrollable {
-    max-height: 300px;
-  }
-  
-  .card-header-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .card-title {
-    font-size: 1.1rem;
-  }
-
-  .competence-item {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .competence-icon {
-    align-self: flex-start;
-  }
-  
-  .mentor-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-  
-  .mentor-selection .mentor-info {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .mentor-selection .mentor-actions {
-    align-self: flex-end;
-  }
-  
-  .mentor-selection-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-}
-
-/* Для очень маленьких экранов */
-@media (max-width: 480px) {
-  .competencies-scrollable {
-    max-height: 250px;
-  }
 }
 </style>

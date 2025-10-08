@@ -538,7 +538,7 @@
       'update:platform-file',
       'update:consent-file',
       'update:home-education',
-      'update:home-preparation'
+      'update:home-preparation',
     ],
     data() {
       return {
@@ -727,7 +727,6 @@
     color: #6c757d;
   }
 
-
   /* Стили для FileUpload на мобильных устройствах */
   @media (max-width: 768px) {
     :deep(.p-fileupload .p-button) {
@@ -797,7 +796,6 @@
     box-shadow: 0 0 0 0.2rem rgba(255, 152, 0, 0.25);
   }
 
-
   /* Общие мобильные стили */
   @media (max-width: 768px) {
 
@@ -815,6 +813,5 @@
       width: 95vw !important;
       margin: 1rem;
     }
-
   }
 </style>
