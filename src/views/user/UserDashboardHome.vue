@@ -47,118 +47,19 @@
               <span class="data-label">Email:</span>
               <span class="data-value">{{ user.email }}</span>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Данные о детях -->
-      <div class="info-card">
-        <div class="card-header">
-          <div class="card-header-content">
-            <h3 class="card-title">
-              <i class="pi pi-users" />
-              Мои дети
-            </h3>
-            <Button
-              :disabled="user.children.length >= 3"
-              label="Добавить ребёнка"
-              icon="pi pi-plus"
-              class="p-button-sm header-button"
-              @click="fillNewChild"
-            />
-          </div>
-        </div>
-        <div class="card-content">
-          <div class="participants-preview">
-            <p class="preview-text">
-              Всего детей: {{ user.children.length }}
-            </p>
-          </div>
-          <div
-            v-if="user.children && user.children.length > 0"
-            class="competencies-section competencies-scrollable"
-          >
-            <div 
-              v-for="child in user.children" 
-              :key="child.id"
-              class="child-competencies"
-            >
-              <h4 class="child-name">
-                {{ `${child.lastName} ${child.firstName} ${child.patronymic}` }}
-              </h4>
-              <div
-                v-if="isLoading"
-              >
-                <ProgressSpinner style="width: 100%; height: 5rem" />
-              </div>
-              <div
-                v-else-if="getCompetenciesByChildId(child.id).length > 0"
-                class="competencies-list"
-              >
-                <div
-                  v-for="competence in getCompetenciesByChildId(child.id)"
-                  :key="competence.id"
-                  class="competence-item"
-                  @click="openChildDetailsDialog(child)"
-                >
-                  <div class="competence-icon">
-                    <i class="pi pi-star" />
-                  </div>
-                  <div class="competence-info">
-                    <div class="competence-name">
-                      {{ competence.name }}
-                    </div>
-                    <div class="competence-description">
-                      {{ competence.description }}
-                    </div>
-                    <div class="competence-expert">
-                      <i class="pi pi-user" />
-                      Главный эксперт:
-                      {{
-                        `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
-                      }}
-                    </div>
-                    <div class="competence-mentor">
-                      <i class="pi pi-users" />
-                      Наставник: {{ getMentorName(child) }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                v-else
-                class="no-competencies clickable"
-                @click="openChildDetailsDialog(child)"
-              >
-                <div class="no-competencies-main">
-                  <i class="pi pi-info-circle" />
-                  <span>Ребенок пока не зарегистрирован ни на одну компетенцию</span>
-                  <i class="pi pi-arrow-right click-icon" />
-                </div>
-                
-                <!-- Простая строчка с наставником под основным текстом -->
-                <div class="mentor-simple">
-                  <i class="pi pi-users" />
-                  Наставник: {{ getMentorName(child) }}
-                </div>
-              </div>
+            <div class="data-item">
+              <span class="data-label">Всего детей:</span>
+              <span class="data-value">{{ user.children.length }}</span>
             </div>
-          </div>
-          <div
-            v-else
-            class="empty-state"
-          >
-            <i class="pi pi-users empty-icon" />
-            <p class="empty-text">
-              У вас пока нет детей
-            </p>
-            <p class="empty-subtitle">
-              Добавьте ребенка для участия в чемпионате
-            </p>
           </div>
         </div>
       </div>
     </div>
+    <ChildrenList
+      :children-details="childrenDetails"
+      @edit-child="(child) => editChild(child)"
+      @edit-mentor="(child) => openMentorSelectionDialog(child)"
+    />
 
     <Dialog
       v-model:visible="showAddChildDialog"
@@ -197,16 +98,6 @@
         />
       </form>
     </Dialog>
-
-    <!-- Диалог подробной информации о ребенке -->
-    <ChildDetailsDialog
-      :child-details="selectedChildDetails"
-      :show-child-info-prop="showChildDetailsDialog"
-      @edit-child="(child) => editChild(child)"
-      @show-child-info="(val) => showChildDetailsDialog = val"
-      @update-toast-popup="(val) => toastPopup = val"
-      @show-mentors-list="(child) => openMentorSelectionDialog(child)"
-    />
 
     <!-- Диалог выбора наставника -->
     <Dialog
@@ -347,14 +238,13 @@ import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
 import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.resolver.ts';
 import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
-import ChildDetailsDialog from '@/components/dialogs/ChildDetailsDialog.vue';
-import type { ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
 import ProgressSpinner from 'primevue/progressspinner';
+import ChildrenList, { type ChildDetailsDialogData } from '@/components/ChildrenList.vue';
 
 export default {
   name: 'UserDashboardHome',
   components: {
-    ChildDetailsDialog,
+    ChildrenList,
     ProgressSpinner,
     ToastPopup,
     AddChildForm,
@@ -408,7 +298,6 @@ export default {
       },
 
       childrenDetails: [] as ChildDetailsDialogData[],
-      selectedChildDetails: null as ChildDetailsDialogData | null,
 
       childForm: {
         lastName: '',
@@ -640,8 +529,6 @@ export default {
           mentorId: null,
         });
         if (response.status === 200) {
-          const childId = this.selectedChildDetails?.child.id
-          this.selectedChildDetails = null
           await this.addChildDocs();
           await this.userStore.fillChildren();
           this.showAddChildDialog = false;
@@ -651,8 +538,6 @@ export default {
             message: 'Данные ребенка успешно обновлены',
           };
           await this.loadChildrenDetails();
-          this.selectedChildDetails = this.childrenDetails
-            .find(childDetails => childDetails.child.id === childId) ?? null;
         } else {
           this.toastPopup = {
             title: response.status.toString(),
@@ -757,7 +642,6 @@ export default {
       const selectedChild = this.childrenDetails.find(childDetails => childDetails.child.id === child.id);
       if (selectedChild) {
         this.hideAllDialogs();
-        this.selectedChildDetails = selectedChild;
         this.showChildDetailsDialog = true;
       } else {
         this.toastPopup = {
@@ -791,12 +675,9 @@ export default {
       // Проверяем localStorage на наличие ID наставника
       const strMentorIds = localStorage.getItem('mentorIds');
       const mentorIds = strMentorIds ? JSON.parse(strMentorIds) as number[] : [];
-      console.log('Loading available mentor from localStorage ID:', mentorIds);
 
       // Полностью очищаем и пересоздаем список опций наставников
       this.availableMentors = [];
-
-      console.log('Initial mentorOptions:', this.availableMentors);
 
       if (mentorIds.length > 0) {
         for (const mentorId of mentorIds) {
@@ -877,9 +758,6 @@ export default {
           mentorId = this.selectedMentorId as number;
         }
 
-        // Обновляем наставника для ребенка
-        console.log(this.availableMentors.find(mentor => mentor.id === mentorId) !== undefined
-          || mentorId === this.user?.id);
         await this.childResolver.update({
           id: this.selectedChild.id,
           mentorId: (this.availableMentors.find(mentor => mentor.id === mentorId) !== undefined
@@ -894,14 +772,7 @@ export default {
 
         // Обновляем данные пользователя
         await this.userStore.fillChildren();
-
-        if (this.selectedChildDetails) {
-          // Обновляем данные в selectedChildDetails
-          const updatedChild = this.userStore.user?.children.find(c => c.id === this.selectedChildDetails!.child.id);
-          if (updatedChild) {
-            this.selectedChildDetails.child = updatedChild;
-          }
-        }
+        await this.loadChildrenDetails()
 
         // Сохраняем связь родитель-наставник на сервере
         if (this.userStore.user && mentorId !== null) {
@@ -974,6 +845,7 @@ export default {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  margin-bottom: 2rem;
 }
 
 .info-card {

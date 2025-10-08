@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { type PropType } from 'vue';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
@@ -11,27 +10,7 @@
   import Dialog from 'primevue/dialog';
   import ProgressSpinner from 'primevue/progressspinner';
   import { Roles } from '@/state/UserState.types.ts';
-
-  export type ChildDetailsDialogData = {
-    child: ChildOutputDto;
-    childDocs: {
-      birthFile: DocsOutputFileUploadDto,
-      snilsFile: DocsOutputFileUploadDto,
-      schoolFile: DocsOutputFileUploadDto,
-      platformFile: DocsOutputFileUploadDto,
-      consentFile: DocsOutputFileUploadDto,
-    } | null,
-    competencies: {
-      id: number;
-      name: string;
-      description: string;
-      expert: {
-        lastName: string;
-        firstName: string;
-        patronymic: string;
-      }
-    }[]
-  }
+  import type { ChildDetailsDialogData } from '@/components/ChildrenList.vue';
 
   export default {
     name: 'ChildDetailsDialog',
@@ -515,6 +494,8 @@
     border-bottom: 2px solid #ff9800;
     padding-bottom: 0.5rem;
   }
+
+
 
   .mentor-available-notice i {
     color: #28a745;

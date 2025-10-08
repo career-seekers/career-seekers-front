@@ -693,13 +693,6 @@
 </script>
 
 <style scoped>
-  .experts-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    animation: slideInRight 0.4s ease-out;
-    width: 100%;
-    box-sizing: border-box;
-  }
 
   @keyframes slideInRight {
     from {
@@ -728,11 +721,6 @@
     color: #6c757d;
     margin: 0;
     font-size: 1.1rem;
-  }
-
-  .page-actions {
-    margin-bottom: 2rem;
-    text-align: right;
   }
 
   .experts-grid {
@@ -787,12 +775,6 @@
     margin: 0 0 0.25rem 0;
     font-size: 1.1rem;
     font-weight: 600;
-  }
-
-  .expert-position {
-    margin: 0;
-    font-size: 0.9rem;
-    opacity: 0.9;
   }
 
   .expert-actions {
@@ -968,11 +950,6 @@
 
   /* Мобильные стили */
   @media (max-width: 768px) {
-    .experts-page {
-      padding: 0 1rem;
-      max-width: 100%;
-      width: 100%;
-    }
 
     .experts-grid {
       grid-template-columns: 1fr;
