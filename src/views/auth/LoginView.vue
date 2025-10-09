@@ -154,8 +154,8 @@
           </div>
         </form>
         <p class="footer-text">
-          <a href="https://t.me/career_seekers_help">Техническая поддержка</a><b>|</b>
-          <a href="tel:89675900328">8 (967) 590-03-28</a>
+          <a href="https://t.me/career_seekers_help">Техническая поддержка <strong>(10:00-20:00)</strong></a><b>|</b>
+          <a href="tel:89675900328">8 (967) 590-03-28 <strong>(10:00-18:00)</strong></a>
         </p>
       </div>
     </div>
