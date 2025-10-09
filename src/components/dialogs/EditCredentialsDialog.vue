@@ -1,6 +1,6 @@
 <script lang="ts">
 
-  import type { UserStateInterface } from '@/state/UserState.types.ts';
+  import { type UserStateInterface } from '@/state/UserState.types.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import { useAuthStore } from '@/stores/authStore.ts';
   import { useUserStore } from '@/stores/userStore.ts';
@@ -117,6 +117,7 @@
           firstName: this.userForm.firstName,
           patronymic: this.userForm.patronymic,
           mobileNumber: FormatManager.formatMobileNumberToDTO(this.userForm.mobileNumber),
+          email: this.userForm.email
         })
         const tgData = await this.authStore.loadByTokens()
         await this.telegramLinkResolver.update({

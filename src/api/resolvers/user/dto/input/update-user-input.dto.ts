@@ -4,4 +4,5 @@ export interface UpdateUserInputDto {
   lastName: string | null;
   patronymic: string | null;
   mobileNumber: string | null;
+  email: string | null;
 }

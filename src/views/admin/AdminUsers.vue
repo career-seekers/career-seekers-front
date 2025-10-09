@@ -298,7 +298,7 @@
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import ProgressSpinner from 'primevue/progressspinner';
-  import ChildDetailsDialog, { type ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
+  import ChildDetailsDialog from '@/components/dialogs/ChildDetailsDialog.vue';
   import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
   import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
   import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
@@ -306,6 +306,7 @@
   import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-documents.resolver.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import type { PropType } from 'vue';
+  import type { ChildDetailsDialogData } from '@/components/ChildrenList.vue';
 
   export enum Mode {
     USERS = "USERS",
@@ -531,6 +532,7 @@
             lastName: this.userForm.fullName.split(" ")[0],
             mobileNumber: FormatManager.formatMobileNumberToDTO(this.userForm.phone),
             patronymic: this.userForm.fullName.split(" ")[2],
+            email: this.userForm.email,
             id: this.editingUserId!,
           };
 
