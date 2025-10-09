@@ -154,7 +154,7 @@
           </div>
         </form>
         <p class="footer-text">
-          <a href="https://t.me/career_seekers_help">Техническая поддержка <strong>(10:00-20:00)</strong></a><b>|</b>
+          <a href="https://t.me/career_seekers_help">Техническая поддержка <strong>(10:00-20:00)</strong></a>
           <a href="tel:89675900328">8 (967) 590-03-28 <strong>(10:00-18:00)</strong></a>
         </p>
       </div>
@@ -547,11 +547,9 @@ export default {
   font-size: 0.9rem;
   font-weight: 500;
   display: flex;
-  justify-content: center;
-
-  b {
-    margin: 0 1rem;
-  }
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 
   a {
     color: darkcyan;
@@ -593,16 +591,6 @@ export default {
 
 /* Мобильные стили */
 @media (max-width: 768px) {
-
-  .footer-text {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-
-    b {
-      display: none;
-    }
-  }
 
   .login-container {
     padding: 1rem;
