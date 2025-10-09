@@ -138,7 +138,12 @@ export default {
       this.resendDisabled = true
       this.counter = this.resendCooldown
       const timerId = setInterval(() => {
-        this.counter--
+        if (this.counter > 0) {
+          this.counter--;
+          if (this.counter === 0) {
+            clearInterval(timerId);
+          }
+        }
       }, 1000)
       setTimeout(() => {
         localStorage.removeItem("resend_timeout");
