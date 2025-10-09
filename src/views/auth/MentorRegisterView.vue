@@ -16,6 +16,13 @@
       </div>
 
       <div class="register-content">
+        <div
+          class="return-notice"
+        >
+          <i class="pi pi-info-circle" />
+          <span>В настоящий момент могут возникнуть проблемы при регистрации с электронной почтой <b>@mail.ru</b>.
+            Рекомендуем использовать другой почтовый сервис</span>
+        </div>
         <form
           class="register-form"
           @submit.prevent="handleRegister"
@@ -358,8 +365,8 @@
           </div>
         </form>
         <p class="footer-text">
-          <a href="https://t.me/career_seekers_help">Техническая поддержка</a><b>|</b>
-          <a href="tel:89675900328">8 (967) 590-03-28</a>
+          <a href="https://t.me/career_seekers_help">Техническая поддержка <strong>(10:00-20:00)</strong></a>
+          <a href="tel:89675900328">8 (967) 590-03-28 <strong>(10:00-18:00)</strong></a>
         </p>
       </div>
     </div>
@@ -918,9 +925,22 @@ export default {
   font-family: "BIPS", sans-serif;
 }
 
-.register-subtitle {
-  color: #6c757d;
-  margin: 0;
+
+.return-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 6px;
+  color: #1976d2;
+  font-size: 0.9rem;
+  margin: 1rem 0;
+}
+
+.return-notice i {
+  color: #2196f3;
   font-size: 1rem;
 }
 
@@ -1090,11 +1110,9 @@ export default {
   font-size: 0.9rem;
   font-weight: 500;
   display: flex;
-  justify-content: center;
-
-  b {
-    margin: 0 1rem;
-  }
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 
   a {
     color: darkcyan;
@@ -1109,20 +1127,6 @@ export default {
 
 /* Мобильные стили */
 @media (max-width: 768px) {
-
-  .footer-text {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-
-    b {
-      display: none;
-    }
-  }
-
-  .register-container {
-    padding: 1rem;
-  }
 
   .register-card {
     margin: 0;
