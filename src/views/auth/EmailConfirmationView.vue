@@ -44,13 +44,22 @@
               Мы отправили код подтверждения на email:
               <strong>{{ userEmail }}</strong>
             </p>
-            <p class="confirmation-note">
+            <p
+              v-if="!resendDisabled"
+              class="confirmation-note"
+            >
               Если письмо не пришло, проверьте папку "Спам" или
               <a
                 href="#"
                 class="link"
                 @click.prevent="resendCode"
               >отправьте код повторно</a>
+            </p>
+            <p
+              v-else
+              class="confirmation-note"
+            >
+              Новый код через {{ counter }} сек
             </p>
           </div>
 
@@ -104,7 +113,10 @@ export default {
   },
   data() {
     return {
+      resendDisabled: false,
       isLoading: false,
+      counter: 0,
+      resendCooldown: 60,
       userEmail: "",
       confirmationForm: {
         code: "",
@@ -121,6 +133,19 @@ export default {
     };
   },
   mounted() {
+    const timeout = localStorage.getItem("resend_timeout")
+    if (timeout) {
+      this.resendDisabled = true
+      this.counter = this.resendCooldown
+      const timerId = setInterval(() => {
+        this.counter--
+      }, 1000)
+      setTimeout(() => {
+        localStorage.removeItem("resend_timeout");
+        clearInterval(timerId)
+        this.resendDisabled = false
+      }, 1000 * this.resendCooldown)
+    }
     this.registrationData = localStorage.getItem("dataToVerify")
       ? (JSON.parse(localStorage.getItem("dataToVerify") as string) as RegistrationData<
           UserWithChildRegistrationDto | UserRegistrationDto,
@@ -199,6 +224,18 @@ export default {
     },
 
     async resendCode() {
+      if (this.resendDisabled) return
+      this.counter = this.resendCooldown
+      this.resendDisabled = true
+      localStorage.setItem("resend_timeout", JSON.stringify(true));
+      const timerId = setInterval(() => {
+        this.counter--
+      }, 1000)
+      setTimeout(() => {
+        localStorage.removeItem("resend_timeout");
+        clearInterval(timerId)
+        this.resendDisabled = false
+      }, 1000 * this.resendCooldown)
       try {
         if (this.registrationData !== null) {
           const response = await this.authResolver.preRegister({
@@ -281,6 +318,15 @@ export default {
   padding: 0 2rem 2rem 2rem;
   scrollbar-width: thin;
   scrollbar-color: #ff9800 #f1f1f1;
+}
+
+.link.resend-disabled {
+  color: rgba(33, 150, 243, 0.25);
+}
+
+.link.resend-disabled:hover {
+  cursor: not-allowed;
+  text-decoration: none;
 }
 
 .divider {
