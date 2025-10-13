@@ -1,5 +1,5 @@
 import type { DocumentsOutputDto } from "@/api/resolvers/competence/dto/output/documents-output.dto.ts";
-import type {AgeCategoryOutputDto} from "@/api/resolvers/competence/dto/output/age-category-output.dto.ts";
+import type {AgeCategoryOutputDto} from "@/api/resolvers/ageCategory/age-category-output.dto.ts";
 
 export interface CompetenceOutputDto {
   id: number;

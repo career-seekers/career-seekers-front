@@ -263,7 +263,7 @@
   import ToastPopup from '@/components/ToastPopup.vue';
   import InputText from 'primevue/inputtext';
   import Textarea from 'primevue/textarea';
-  import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
+  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type {
     UpdateCompetencePlacesInputDto,
@@ -271,6 +271,7 @@
   import ProgressSpinner from 'primevue/progressspinner';
   import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
   import CompetenciesList from '@/components/CompetenciesList.vue';
+  import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
   export default {
     name: "AdminCompetencies",

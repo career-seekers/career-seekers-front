@@ -1,17 +1,13 @@
-import ApiResolver from "@/utils/ApiResolver";
-import type { CommonOutputDto } from "@/api/dto/common-output.dto.ts";
-import type { CompetenceInputDto } from "@/api/resolvers/competence/dto/input/competence-input.dto.ts";
-import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
-import type { CompetencePlacesInputDto, UpdateCompetencePlacesInputDto } from "@/api/resolvers/competence/dto/input/competence-places-input.dto.ts";
+import ApiResolver from '@/utils/ApiResolver';
+import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
+import type { CompetenceInputDto } from '@/api/resolvers/competence/dto/input/competence-input.dto.ts';
+import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+import type {
+  CompetencePlacesInputDto,
+  UpdateCompetencePlacesInputDto,
+} from '@/api/resolvers/competence/dto/input/competence-places-input.dto.ts';
 import type { CompetenceUpdateInputDto } from '@/api/resolvers/competence/dto/input/competence-update-input.dto.ts';
-
-export enum AgeCategories {
-  EARLY_PRESCHOOL = "PRESCHOOL_1",
-  PRESCHOOL = "PRESCHOOL_2",
-  EARLY_SCHOOL = "SCHOOL_1",
-  SCHOOL = "SCHOOL_2",
-  HIGH_SCHOOL = "SCHOOL_3",
-}
+import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
 export class CompetenceResolver {
   private apiResolver = new ApiResolver("events-service/v1/directions");

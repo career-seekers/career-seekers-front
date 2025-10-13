@@ -1,4 +1,4 @@
-import type {AgeCategories} from "@/api/resolvers/competence/competence.resolver.ts";
+import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
 export interface CompetenceInputDto {
   id: number | null;

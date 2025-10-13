@@ -61,7 +61,6 @@
 import Button from "primevue/button";
 import type { CompetenceOutputDto } from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
 import {
-  AgeCategories,
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
 import MultiSelect from 'primevue/multiselect';
@@ -70,6 +69,7 @@ import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import ProgressSpinner from 'primevue/progressspinner';
 import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
 import CompetenciesList from '@/components/CompetenciesList.vue';
+import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
 export default {
   name: "ExpertCompetencies",

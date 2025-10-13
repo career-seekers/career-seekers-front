@@ -120,7 +120,7 @@ import Dropdown from "primevue/dropdown";
 import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
 import {FileResolver, FileType} from "@/api/resolvers/files/file.resolver";
-import {AgeCategories, CompetenceResolver} from '@/api/resolvers/competence/competence.resolver';
+import {CompetenceResolver} from '@/api/resolvers/competence/competence.resolver';
 import ToastPopup from "@/components/ToastPopup.vue";
 import {UserResolver} from "@/api/resolvers/user/user.resolver";
 import type {
@@ -139,6 +139,7 @@ import {Roles} from "@/state/UserState.types.ts";
 import AutoComplete from "primevue/autocomplete";
 import ConfirmDialog from "primevue/confirmdialog";
 import { useConfirm } from "primevue/useconfirm";
+import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
 interface TabConfig {
   key: string;

@@ -443,7 +443,7 @@
   import { FileType } from '@/api/resolvers/files/file.resolver.ts';
   import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
   import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
-  import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
+  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import { ref } from 'vue';
   import apiConf from '@/api/api.conf.ts';
@@ -457,6 +457,7 @@
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import ToastPopup from '@/components/ToastPopup.vue';
   import ConfirmationModal from '@/components/ConfirmationModal.vue';
+  import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
   export default {
     name: "CompetenceDocuments",
