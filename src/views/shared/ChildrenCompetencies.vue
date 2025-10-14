@@ -437,7 +437,7 @@
       toggleCompetence(competence: CompetenceOutputDto) {
         if (this.selectedChildIndex < 0 || this.selectedChild === null ||
           competence.ageCategories
-            .find(category => category.ageCategory === this.selectedAgeCategory)?.isDisabled === true
+            .find(category => category.ageCategory === this.selectedAgeCategory)?.isDisabled
         ) return
         const competencies = this.assignedCompetencies[this.selectedChildIndex].competencies
         if (this.isSelected(competence.id)) {

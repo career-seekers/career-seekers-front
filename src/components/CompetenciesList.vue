@@ -49,7 +49,7 @@
         this.$router.push(`/${this.userStore.user?.role.toString()}/documents/${competenceId}`);
       },
       async toggleAgeCategory(competenceId: number, ageCategory: AgeCategoryOutputDto) {
-        const toggledCategory = ageCategory
+        const toggledCategory = {...ageCategory}
         toggledCategory.isDisabled = !toggledCategory.isDisabled
         const response = await this.ageCategoryResolver.toggle({
           id: toggledCategory.id,
