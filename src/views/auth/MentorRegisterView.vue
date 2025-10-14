@@ -16,13 +16,6 @@
       </div>
 
       <div class="register-content">
-        <div
-          class="return-notice"
-        >
-          <i class="pi pi-info-circle" />
-          <span>В настоящий момент могут возникнуть проблемы при регистрации с электронной почтой <b>@mail.ru</b>.
-            Рекомендуем использовать другой почтовый сервис</span>
-        </div>
         <form
           class="register-form"
           @submit.prevent="handleRegister"
@@ -923,25 +916,6 @@ export default {
   font-size: 1.75rem;
   font-weight: 600;
   font-family: "BIPS", sans-serif;
-}
-
-
-.return-notice {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: #e3f2fd;
-  border: 1px solid #2196f3;
-  border-radius: 6px;
-  color: #1976d2;
-  font-size: 0.9rem;
-  margin: 1rem 0;
-}
-
-.return-notice i {
-  color: #2196f3;
-  font-size: 1rem;
 }
 
 .register-form {
