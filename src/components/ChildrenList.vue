@@ -223,7 +223,7 @@
               <div class="doc-info">
                 <span class="info-label">Скан свидетельства о рождении:</span>
                 <span class="info-value">
-                  {{ `Статус: ${childDetails.childDocs.birthFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                  {{ `Статус: ${childDetails.childDocs.birthFile.verified ? 'Документ одобрен' : 'Документ на проверке'}` }}
                 </span>
               </div>
               <div class="doc-actions">
@@ -245,7 +245,7 @@
               <div class="doc-info">
                 <span class="info-label">СНИЛС:</span>
                 <span class="info-value">
-                  {{ `Статус: ${childDetails.childDocs.snilsFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                  {{ `Статус: ${childDetails.childDocs.snilsFile.verified ? 'Документ одобрен' : 'Документ на проверке'}` }}
                 </span>
               </div>
               <div class="doc-actions">
@@ -267,7 +267,7 @@
               <div class="doc-info">
                 <span class="info-label">Скан справки из ОУ:</span>
                 <span class="info-value">
-                  {{ `Статус: ${childDetails.childDocs.schoolFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                  {{ `Статус: ${childDetails.childDocs.schoolFile.verified ? 'Документ одобрен' : 'Документ на проверке'}` }}
                 </span>
               </div>
               <div class="doc-actions">
@@ -289,7 +289,7 @@
               <div class="doc-info">
                 <span class="info-label">Скан справки из площадки подготовки:</span>
                 <span class="info-value">
-                  {{ `Статус: ${childDetails.childDocs.platformFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                  {{ `Статус: ${childDetails.childDocs.platformFile.verified ? 'Документ одобрен' : 'Документ на проверке'}` }}
                 </span>
               </div>
               <div class="doc-actions">
@@ -311,7 +311,7 @@
               <div class="doc-info">
                 <span class="info-label">Скан согласия на ОПД:</span>
                 <span class="info-value">
-                  {{ `Статус: ${childDetails.childDocs.consentFile.verified ? 'Одобрен' : 'на проверке'}` }}
+                  {{ `Статус: ${childDetails.childDocs.consentFile.verified ? 'Документ одобрен' : 'Документ на проверке'}` }}
                 </span>
               </div>
               <div class="doc-actions">
