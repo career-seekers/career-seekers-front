@@ -12,6 +12,7 @@
   import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
   import { FileType } from '@/api/resolvers/files/file.resolver.ts';
   import apiConf from '@/api/api.conf.ts';
+  import type { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
 
   export type ChildDetailsDialogData = {
     child: ChildOutputDto;
@@ -87,15 +88,15 @@
         if (typeof response.message !== "string") return response.message
         return []
       },
-      async viewCompetenceDocument(competenceId: number, docType: FileType) {
+      async viewCompetenceDocument(competenceId: number, docType: FileType, ageCategory: AgeCategories | undefined) {
         const docs = await this.competenceDocuments(competenceId)
-        const doc = docs.find(d => d.documentType === docType)
+        const doc = docs.find(d => d.documentType === docType && d.ageCategory === ageCategory)
         if (doc)
           window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`, '_blank');
       },
-      async downloadCompetenceDocument(competenceId: number, docType: FileType) {
+      async downloadCompetenceDocument(competenceId: number, docType: FileType, ageCategory: AgeCategories | undefined) {
         const docs = await this.competenceDocuments(competenceId)
-        const doc = docs.find(d => d.documentType === docType)
+        const doc = docs.find(d => d.documentType === docType && d.ageCategory === ageCategory)
         if (doc)
           window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.documentId}`;
       },
@@ -372,13 +373,19 @@
                     label="Просмотреть"
                     icon="pi pi-eye"
                     class="p-button-secondary p-button-sm"
-                    @click="viewCompetenceDocument(competence.id, FileType.DESCRIPTION)"
+                    @click="viewCompetenceDocument(
+                      competence.id, FileType.DESCRIPTION,
+                      childDetails.child.childDocuments?.ageCategory
+                    )"
                   />
                   <Button
                     label="Скачать"
                     icon="pi pi-download"
                     class="p-button-secondary p-button-sm"
-                    @click="downloadCompetenceDocument(competence.id, FileType.DESCRIPTION)"
+                    @click="downloadCompetenceDocument(
+                      competence.id, FileType.DESCRIPTION,
+                      childDetails.child.childDocuments?.ageCategory
+                    )"
                   />
                 </div>
               </div>
