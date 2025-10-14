@@ -437,6 +437,7 @@ export default {
                   patronymic: 'указан',
                 }
                 : expertResponse.message,
+              queueStatus: competence.queueStatus
             };
           }));
         details.push({

@@ -13,6 +13,8 @@
   import { FileType } from '@/api/resolvers/files/file.resolver.ts';
   import apiConf from '@/api/api.conf.ts';
   import type { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
+  import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
+  import { useQueueStatuses } from '@/shared/UseQueueStatuses.ts';
 
   export type ChildDetailsDialogData = {
     child: ChildOutputDto;
@@ -27,6 +29,7 @@
       id: number;
       name: string;
       description: string;
+      queueStatus: QueueStatuses,
       expert: {
         lastName: string;
         firstName: string;
@@ -58,9 +61,13 @@
         competenceDocumentsResolver: new CompetenceDocumentsResolver(),
         userStore: useUserStore(),
         ageGroups: useAgeGroups,
+        queueStatuses: useQueueStatuses
       }
     },
     computed: {
+      QueueStatuses() {
+        return QueueStatuses
+      },
       FileType() {
         return FileType
       },
@@ -360,6 +367,23 @@
                 `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
               }}
             </div>
+            <div
+              class="competence-name competence-status"
+              :class="competence.queueStatus === QueueStatuses.PARTICIPATES
+                ? 'accepted' : 'denied'"
+            >
+              Статус:
+              <div class="status-message competence-expert">
+                {{
+                  competence.queueStatus === QueueStatuses.PARTICIPATES
+                    ? 'Заявка принята' : 'Заявка в листе ожидания'
+                }}
+                <i
+                  :class="competence.queueStatus === QueueStatuses.PARTICIPATES
+                    ? 'pi pi-check' : 'pi pi-clock'"
+                />
+              </div>
+            </div>
             <div class="competence-docs">
               <div class="competence-name">
                 Опубликованные документы
@@ -630,10 +654,6 @@
     padding-bottom: 0.5rem;
   }
 
-  .competence-docs {
-    margin-top: 2rem;
-  }
-
   .doc-item {
     display: flex;
     align-items: center;
@@ -872,6 +892,43 @@
     margin-bottom: 0.5rem;
   }
 
+  .competence-docs, .competence-status {
+    margin-top: 1rem;
+    padding: 1rem 1rem 1rem 0.8rem;
+    border-radius: 5px;
+    border-left: 3px solid #2196f3;
+    background: #daecfc;
+  }
+
+  .competence-status {
+    display: flex;
+    justify-content: space-between;
+
+    .competence-expert.status-message {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+  }
+
+  .competence-status.accepted {
+    border-color: #28a745;
+    background: #dcf8e3;
+
+    .status-message {
+      color: #28a745;
+    }
+  }
+
+  .competence-status.denied {
+    border-color: #cb9700;
+    background: #fff2c9;
+
+    .status-message {
+      color: #cb9700;
+    }
+  }
+
   .competence-details .competence-description {
     color: #6c757d;
     font-size: 0.9rem;
@@ -950,6 +1007,23 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+  }
+
+  @media screen and (max-width: 768px) {
+    .competence-status {
+      flex-direction: column;
+    }
+
+    .doc-item {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+
+      .doc-actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+    }
   }
 
   @media screen and (max-width: 480px) {
