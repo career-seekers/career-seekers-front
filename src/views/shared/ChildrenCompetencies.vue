@@ -95,11 +95,18 @@
           :class="{
             selected: isSelected(competence.id),
             disabled:
-              !isSelected(competence.id) &&
-              getSelectedCompetencies().length >= 3,
+              (!isSelected(competence.id) &&
+                getSelectedCompetencies().length >= 3) ||
+              isChildAgeCategoryDisabled(competence)
           }"
           @click="toggleCompetence(competence)"
         >
+          <div
+            v-if="isChildAgeCategoryDisabled(competence)"
+            class="closed"
+          >
+            Запись закрыта
+          </div>
           <div class="card-header">
             <div class="competence-icon">
               <i class="pi pi-briefcase" />
@@ -132,6 +139,7 @@
 
           <div class="card-footer">
             <Button
+              :disabled="isChildAgeCategoryDisabled(competence)"
               label="Подробнее"
               icon="pi pi-info-circle"
               class="p-button-text p-button-sm"
@@ -313,9 +321,6 @@
           .some(category => category.ageCategory === this.selectedAgeCategory)
         ).sort((a, b) => a.name.localeCompare(b.name))
       },
-
-
-      // Пагинация
       totalPages() {
         return Math.ceil(this.filteredCompetencies.length / this.itemsPerPage);
       },
@@ -362,6 +367,10 @@
         this.selectedCompetence = null
         this.searchQuery = ''
         this.filterCompetencies({ query: ""})
+      },
+      isChildAgeCategoryDisabled(competence: CompetenceOutputDto) {
+        return competence.ageCategories
+          .find(category => category.ageCategory === this.selectedAgeCategory)?.isDisabled ?? false
       },
       async fillAssigned() {
         this.selectedChild = this.children[0]
@@ -426,8 +435,10 @@
           ?.find(comp => comp.competenceId === competenceId)
       },
       toggleCompetence(competence: CompetenceOutputDto) {
-        if (this.selectedChildIndex < 0 ||
-          this.selectedChild === null) return
+        if (this.selectedChildIndex < 0 || this.selectedChild === null ||
+          competence.ageCategories
+            .find(category => category.ageCategory === this.selectedAgeCategory)?.isDisabled === true
+        ) return
         const competencies = this.assignedCompetencies[this.selectedChildIndex].competencies
         if (this.isSelected(competence.id)) {
           this.assignedCompetencies[this.selectedChildIndex] = {
@@ -654,8 +665,25 @@
   }
 
   .competence-card.disabled {
-    opacity: 0.6;
+    position: relative;
+    transform: none;
+    box-shadow: none;
     cursor: not-allowed;
+
+    div {
+      opacity: 0.6;
+    }
+
+    .closed {
+      opacity: 1;
+      position: absolute;
+      right: 0;
+      top: 0;
+      padding: 2rem;
+      color: #ff0000;
+      font-weight: bold;
+      z-index: 1;
+    }
   }
 
   .card-header {
