@@ -57,6 +57,7 @@
       @open-competence="(competenceId) => viewDetails(competenceId)"
       @edit-competence="(competence) => editCompetence(competence)"
       @delete-competence="(competence) => deleteCompetence(competence)"
+      @toggle-competence="(competenceId, ageCategory) => refreshCompetence(competenceId, ageCategory)"
     />
     <div v-else>
       <p>Компетенции не найдены</p>
@@ -195,7 +196,6 @@ import ToastPopup from "@/components/ToastPopup.vue";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import {
-  AgeCategories,
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
 import { useUserStore } from '@/stores/userStore.ts';
@@ -203,6 +203,8 @@ import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
 import ProgressSpinner from 'primevue/progressspinner';
 import CompetenciesList from '@/components/CompetenciesList.vue';
+import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
 
 export default {
   name: "ExpertCompetencies",
@@ -281,6 +283,13 @@ export default {
 
     resetFilters() {
       this.selectedAge = [];
+    },
+
+    refreshCompetence(competenceId: number, ageCategory: AgeCategoryOutputDto) {
+      const ageCategoryToRefresh = this.competencies
+        .find(competence => competence.id === competenceId)?.ageCategories
+        .find(category => category.id === ageCategory.id)
+      if (ageCategoryToRefresh) ageCategoryToRefresh.isDisabled = ageCategory.isDisabled
     },
 
     addCompetence() {

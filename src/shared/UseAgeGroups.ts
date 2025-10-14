@@ -1,4 +1,4 @@
-import { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
+import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
 export const useAgeGroups = [
   {value: AgeCategories.EARLY_PRESCHOOL, label: "4-5 лет"},

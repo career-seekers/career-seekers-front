@@ -417,7 +417,7 @@ import Dropdown from "primevue/dropdown";
 import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
 import { FileResolver, FileType } from "@/api/resolvers/files/file.resolver";
-import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
+import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
 import ToastPopup from "@/components/ToastPopup.vue";
 import { UserResolver } from "@/api/resolvers/user/user.resolver";
 import type { CompetenceDocumentsOutputDto } from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts";
@@ -430,6 +430,7 @@ import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
 import { useDocumentTemplates } from '@/shared/UseDocumentTemplates.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
+import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
 export default {
   name: "TutorDocuments",

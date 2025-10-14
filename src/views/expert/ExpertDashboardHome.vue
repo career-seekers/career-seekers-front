@@ -399,7 +399,6 @@
 <script lang="ts">
 import Button from "primevue/button";
 import {
-  AgeCategories,
   CompetenceResolver,
 } from "@/api/resolvers/competence/competence.resolver";
 import Dialog from "primevue/dialog";
@@ -415,6 +414,7 @@ import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import ToastPopup from '@/components/ToastPopup.vue';
 import { FormatManager } from '@/utils/FormatManager.ts';
+import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
 export default {
   name: "ExpertDashboardHome",

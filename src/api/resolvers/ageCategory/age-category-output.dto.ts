@@ -1,5 +1,5 @@
-import type {AgeCategories} from "@/api/resolvers/competence/competence.resolver.ts";
 import { type ParticipantStatus, QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
+import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
 export interface AgeCategoryOutputDto {
   id: number;
@@ -12,4 +12,5 @@ export interface AgeCategoryOutputDto {
     status: ParticipantStatus;
     queueStatus: QueueStatuses;
   }[];
+  isDisabled: boolean;
 }

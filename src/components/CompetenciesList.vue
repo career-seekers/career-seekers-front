@@ -6,6 +6,8 @@
   import Button from 'primevue/button';
   import { useUserStore } from '@/stores/userStore.ts';
   import { Roles } from '@/state/UserState.types.ts';
+  import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
+  import { AgeCategoryResolver } from '@/api/resolvers/age-category.resolver.ts';
 
   export default {
     name: 'CompetenciesList',
@@ -22,12 +24,14 @@
       "open-competence",
       "edit-competence",
       "delete-competence",
-      "manage-places"
+      "manage-places",
+      "toggle-competence",
     ],
     data() {
       return {
         userStore: useUserStore(),
         ageGroups: useAgeGroups,
+        ageCategoryResolver: new AgeCategoryResolver()
       }
     },
     computed: {
@@ -44,6 +48,15 @@
       goToDocuments(competenceId: number) {
         this.$router.push(`/${this.userStore.user?.role.toString()}/documents/${competenceId}`);
       },
+      async toggleAgeCategory(competenceId: number, ageCategory: AgeCategoryOutputDto) {
+        const toggledCategory = {...ageCategory}
+        toggledCategory.isDisabled = !toggledCategory.isDisabled
+        const response = await this.ageCategoryResolver.toggle({
+          id: toggledCategory.id,
+          status: toggledCategory.isDisabled
+        })
+        if (response.status === 200) this.$emit('toggle-competence', competenceId, toggledCategory)
+      }
     }
   };
 </script>
@@ -121,6 +134,14 @@
                   : ageCategory.maxParticipantsCount + ' мест'
               }}
             </span>
+            <Button
+              v-if="userStore.user?.role === Roles.ADMIN || userStore.user?.role === Roles.TUTOR"
+              v-tooltip.left="!ageCategory.isDisabled ? 'Закрыть для записи' : 'Открыть для записи'"
+              :icon="!ageCategory.isDisabled ? 'pi pi-ban' : 'pi pi-check'"
+              class="p-button-sm"
+              :severity="!ageCategory.isDisabled ? 'danger' : 'success'"
+              @click="toggleAgeCategory(competence.id, ageCategory)"
+            />
           </div>
         </div>
       </div>

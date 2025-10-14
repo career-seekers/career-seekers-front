@@ -55,6 +55,7 @@
       @edit-competence="(competence) => editCompetence(competence)"
       @delete-competence="(competence) => deleteCompetence(competence)"
       @manage-places="(competence) => managePlaces(competence)"
+      @toggle-competence="(competenceId, ageCategory) => refreshCompetence(competenceId, ageCategory)"
     />
     <div v-else>
       <p>Компетенции не найдены</p>
@@ -263,7 +264,7 @@
   import ToastPopup from '@/components/ToastPopup.vue';
   import InputText from 'primevue/inputtext';
   import Textarea from 'primevue/textarea';
-  import { AgeCategories, CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
+  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type {
     UpdateCompetencePlacesInputDto,
@@ -271,6 +272,8 @@
   import ProgressSpinner from 'primevue/progressspinner';
   import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
   import CompetenciesList from '@/components/CompetenciesList.vue';
+  import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+  import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
 
   export default {
     name: "AdminCompetencies",
@@ -379,6 +382,12 @@
       },
       resetFilters() {
         this.selectedAge = [];
+      },
+      refreshCompetence(competenceId: number, ageCategory: AgeCategoryOutputDto) {
+        const ageCategoryToRefresh = this.competencies
+          .find(competence => competence.id === competenceId)?.ageCategories
+          .find(category => category.id === ageCategory.id)
+        if (ageCategoryToRefresh) ageCategoryToRefresh.isDisabled = ageCategory.isDisabled
       },
       editCompetence(competence: CompetenceOutputDto) {
         this.isEditing = true;

@@ -1,7 +1,8 @@
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import { useGradeOptions } from '@/shared/UseGradeOptions.ts';
 import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
-import type { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
+
+import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
 export const FormatManager = {
   ageGroups: useAgeGroups,
