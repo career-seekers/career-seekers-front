@@ -88,6 +88,7 @@
 
           <div class="register-section">
             <div
+              v-if="false"
               class="register-toggle"
               @click="toggleRegisterOptions"
             >
@@ -105,6 +106,7 @@
               class="register-options"
             >
               <router-link
+                v-if="false"
                 to="/register/mentor"
                 class="register-option"
                 @click="closeRegisterOptions"
@@ -120,6 +122,7 @@
                 </div>
               </router-link>
               <router-link
+                v-if="false"
                 to="/register/user"
                 class="register-option"
                 @click="closeRegisterOptions"

@@ -64,11 +64,17 @@ const routes = [
     path: "/register/mentor",
     name: "mentor-register",
     component: MentorRegisterView,
+    meta: {
+      blocked: true,
+    }
   },
   {
     path: "/register/user",
     name: "user-register",
     component: ParentRegisterView,
+    meta: {
+      blocked: true,
+    }
   },
   {
     path: "/register/tutor",
