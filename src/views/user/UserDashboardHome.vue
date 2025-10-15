@@ -28,6 +28,7 @@
               @click="$emit('openSettings', true)"
             />
             <Button
+              disabled
               label="Добавить ребенка"
               icon="pi pi-plus"
               class="p-button-secondary p-button-sm"
