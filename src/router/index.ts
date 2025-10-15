@@ -15,7 +15,6 @@ import UserDashboardHome from "@/views/user/UserDashboardHome.vue";
 //expert views
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
 import ExpertCompetencies from "@/views/expert/ExpertCompetencies.vue";
-import ExpertParticipants from "@/views/expert/ExpertParticipants.vue";
 import ExpertEvents from "@/views/expert/ExpertEvents.vue";
 import ExpertDocuments from "@/views/expert/ExpertDocuments.vue";
 
@@ -201,8 +200,8 @@ const routes = [
       },
       {
         path: "participants/:competenceId",
-        name: "expert-participants",
-        component: ExpertParticipants,
+        component: CompetenceParticipants,
+        props: true
       },
       {
         path: "documents/:competenceId",
@@ -210,11 +209,6 @@ const routes = [
         component: CompetenceDocuments,
         props: true
       },
-      {
-        path: "participants/:competenceId",
-        component: CompetenceParticipants,
-        props: true
-      }
     ],
   },
   {
