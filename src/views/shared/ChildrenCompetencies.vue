@@ -373,10 +373,10 @@
         const selectedChildAssignsCopy = this.assignedCompetenciesCopy
           .find(assign => assign.child.id === childId)
 
-        return selectedChildAssignsCopy?.competencies
+        return (selectedChildAssignsCopy?.competencies || [])
           .filter(competence => !selectedChildAssigns?.competencies
             .find(comp => comp.competenceId === competence.competenceId)
-          ) || []
+          )
       },
       assignsToCreate(childId: number) {
         const selectedChildAssigns = this.assignedCompetencies
@@ -384,10 +384,10 @@
         const selectedChildAssignsCopy = this.assignedCompetenciesCopy
           .find(assign => assign.child.id === childId)
 
-        return selectedChildAssigns?.competencies
+        return (selectedChildAssigns?.competencies || [])
           .filter(competence => !selectedChildAssignsCopy?.competencies
             .find(comp => comp.competenceId === competence.competenceId)
-          ) || []
+          )
       },
       resetFilters() {
         this.selectedCompetence = null
@@ -541,15 +541,15 @@
                 }
               }
             } else {
-              const tempAssigns = [...this.assignedCompetencies]
-              tempAssigns.forEach(assign => {
+              const assign = this.assignedCompetencies.find(a => a.child.id === childAssign.child.id)
+              if (assign) {
                 assign.competencies.forEach(competence => {
                   competence.id = this.assignedCompetenciesCopy
                     .find(assignCopy => assignCopy.child.id === assign.child.id)
                     ?.competencies.find(competenceCopy => competenceCopy.competenceId === competence.competenceId)?.id ?? -1
                 })
-              })
-              this.assignedCompetenciesCopy = [...tempAssigns]
+              }
+              this.assignedCompetenciesCopy = [...this.assignedCompetencies]
             }
           }
           
