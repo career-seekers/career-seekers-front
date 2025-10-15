@@ -22,9 +22,12 @@
         </div>
         <Button
           class="p-button save-btn"
-          :label="assignedCompetenciesCopy.length !== 0 ? 'Изменение выбора временно недоступно' : 'Сохранить'"
+          :label="assignedCompetenciesCopy
+            .find(competence => competence.child.id === selectedChild?.id)?.competencies.length !== 0
+            ? 'Изменение выбора временно недоступно' : 'Сохранить'"
           icon="pi pi-save"
-          :disabled="assignedCompetenciesCopy.length !== 0"
+          :disabled="assignedCompetenciesCopy
+            .find(competence => competence.child.id === selectedChild?.id)?.competencies.length !== 0 "
           :loading="loading"
           @click="assignToCompetencies"
         />
