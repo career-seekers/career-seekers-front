@@ -12,7 +12,6 @@
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
   import ProgressSpinner from 'primevue/progressspinner';
   import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
-  import { useQueueStatuses } from '@/shared/UseQueueStatuses.ts';
   import TabPanel from 'primevue/tabpanel';
   import TabView from 'primevue/tabview';
   import CompetenceParticipantsList, { type Participant } from '@/components/lists/CompetenceParticipantsList.vue';
@@ -41,7 +40,6 @@
 
         userStore: useUserStore(),
         ageGroups: useAgeGroups,
-        queueStatuses: useQueueStatuses,
 
         children: [] as Participant[],
 
@@ -82,14 +80,17 @@
         });
       },
       participatedChildren() {
-        return this.children.filter(child => child.queueStatus === QueueStatuses.PARTICIPATES)
+        return this.filteredChildren.filter(child => child.queueStatus === QueueStatuses.PARTICIPATES)
       },
       queuedChildren() {
-        return this.children.filter(child => child.queueStatus === QueueStatuses.IN_QUEUE)
+        return this.filteredChildren.filter(child => child.queueStatus === QueueStatuses.IN_QUEUE)
       },
       competenceIdChecked() {
         const num = parseInt(this.competenceId)
-        if (isNaN(num)) router.go(-1)
+        if (isNaN(num)) {
+          router.go(-1)
+          return -1
+        }
         return num
       },
       availableAges() {
@@ -272,17 +273,6 @@
     color: #2c3e50;
     font-weight: 500;
     font-size: 0.9rem;
-  }
-
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
   }
 
   .page-header {

@@ -155,12 +155,14 @@
           <Button
             v-tooltip="'Редактировать данные ребенка'"
             icon="pi pi-pencil"
+            disabled
             class="p-button-secondary p-button-sm edit-button"
             @click="$emit('edit-child', childDetails.child)"
           />
           <Button
             v-tooltip="'Удалить'"
             icon="pi pi-trash"
+            disabled
             class="p-button-secondary p-button-sm"
             @click="deleteChild(childDetails.child)"
           />

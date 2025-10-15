@@ -69,7 +69,7 @@
         this.itemsPerPage = event.rows;
         // Плавная прокрутка к началу списка
         this.$nextTick(() => {
-          const grid = this.$el.querySelector('.documents-grid');
+          const grid = this.$el.querySelector('.experts-grid');
           if (grid) {
             grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
