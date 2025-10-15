@@ -22,12 +22,12 @@
         </div>
         <Button
           class="p-button save-btn"
-          :label="assignedCompetenciesCopy
-            .find(competence => competence.child.id === selectedChild?.id)?.competencies.length !== 0
-            ? 'Изменение выбора временно недоступно' : 'Сохранить'"
+          label="Сохранить"
+          :disabled="
+            assignsToDelete(selectedChild!.id).length === 0 &&
+              assignsToCreate(selectedChild!.id).length === 0
+          "
           icon="pi pi-save"
-          :disabled="assignedCompetenciesCopy
-            .find(competence => competence.child.id === selectedChild?.id)?.competencies.length !== 0 "
           :loading="loading"
           @click="assignToCompetencies"
         />
@@ -367,6 +367,28 @@
 
     },
     methods: {
+      assignsToDelete(childId: number) {
+        const selectedChildAssigns = this.assignedCompetencies
+          .find(assign => assign.child.id === childId)
+        const selectedChildAssignsCopy = this.assignedCompetenciesCopy
+          .find(assign => assign.child.id === childId)
+
+        return selectedChildAssignsCopy?.competencies
+          .filter(competence => !selectedChildAssigns?.competencies
+            .find(comp => comp.competenceId === competence.competenceId)
+          ) || []
+      },
+      assignsToCreate(childId: number) {
+        const selectedChildAssigns = this.assignedCompetencies
+          .find(assign => assign.child.id === childId)
+        const selectedChildAssignsCopy = this.assignedCompetenciesCopy
+          .find(assign => assign.child.id === childId)
+
+        return selectedChildAssigns?.competencies
+          .filter(competence => !selectedChildAssignsCopy?.competencies
+            .find(comp => comp.competenceId === competence.competenceId)
+          ) || []
+      },
       resetFilters() {
         this.selectedCompetence = null
         this.searchQuery = ''
@@ -427,10 +449,12 @@
       },
       async loadCompetencies() {
         this.loading = true
-        const response = await this.competenceResolver.getAll()
         this.competencies = []
-        if (typeof response.message === "string" || response.status !== 200) return
-        this.competencies = response.message
+        for (const child of this.children) {
+          const response = await this.competenceResolver.getByAgeCategory(child!.childDocuments!.ageCategory)
+          if (typeof response.message === "string" || response.status !== 200) continue
+          this.competencies.push(...response.message)
+        }
         this.filterCompetencies({ query: "" })
         this.loading = false
       },
@@ -479,24 +503,50 @@
       async assignToCompetencies() {
         this.loading = true
         try {
-          for (const assign of this.assignedCompetenciesCopy) {
-            for (const relation of assign.competencies) {
-              await this.childCompetenciesResolver.deleteById(relation.id)
+          for (const childAssign of this.assignedCompetencies) {
+            for (const assign of this.assignsToDelete(childAssign.child.id)) {
+              await this.childCompetenciesResolver.deleteById(assign.id)
             }
-          }
-          for (const assign of this.assignedCompetencies) {
-            for (const relation of assign.competencies) {
-              const response = await this.childCompetenciesResolver.create({
-                childId: assign.child.id,
-                directionId: relation.competenceId,
-                directionAgeCategoryId: relation.ageCategoryId
-              })
-              if (typeof response.message !== "string" && response.status === 200) {
-                relation.id = response.message.id
+            const newAssigns = this.assignsToCreate(childAssign.child.id)
+            if (newAssigns.length > 0) {
+              for (const assign of newAssigns) {
+                const response = await this.childCompetenciesResolver.create({
+                  childId: childAssign.child.id,
+                  directionId: assign.competenceId,
+                  directionAgeCategoryId: assign.ageCategoryId
+                })
+                if (typeof response.message !== "string") {
+                  const data = {
+                    ageCategoryId: response.message.directionAgeCategory.id,
+                    competenceId: response.message.direction.id,
+                    id: response.message.id
+                  }
+                  const assign = this.assignedCompetencies.find(
+                    a => a.child.id === childAssign.child.id
+                  );
+                  if (assign) {
+                    const competence = assign.competencies.find(
+                      c => c.competenceId === data.competenceId
+                    );
+                    if (competence) {
+                      competence.id = data.id;
+                    }
+                  }
+                  this.assignedCompetenciesCopy = [...this.assignedCompetencies]
+                }
               }
+            } else {
+              const tempAssigns = [...this.assignedCompetencies]
+              tempAssigns.forEach(assign => {
+                assign.competencies.forEach(competence => {
+                  competence.id = this.assignedCompetenciesCopy
+                    .find(assignCopy => assignCopy.child.id === assign.child.id)
+                    ?.competencies.find(competenceCopy => competenceCopy.competenceId === competence.competenceId)?.id ?? -1
+                })
+              })
+              this.assignedCompetenciesCopy = [...tempAssigns]
             }
           }
-          this.assignedCompetenciesCopy = [...this.assignedCompetencies]
           
           // Показываем уведомление об успешном сохранении
           this.toastContent = {
