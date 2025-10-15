@@ -331,11 +331,9 @@
         return this.filteredCompetencies.slice(start, end);
       },
       assignmentUpdated() {
-        const result = !this.children.some(child => {
+        return !this.children.some(child => {
           return this.assignsToCreate(child.id).length > 0 || this.assignsToDelete(child.id).length > 0;
         })
-        console.log(result)
-        return result
       },
 
       visiblePages() {
@@ -516,7 +514,6 @@
               await this.childCompetenciesResolver.deleteById(assign.id)
             }
             const newAssigns = this.assignsToCreate(childAssign.child.id)
-            console.log(newAssigns)
             if (newAssigns.length > 0) {
               for (const assign of newAssigns) {
                 const response = await this.childCompetenciesResolver.create({
