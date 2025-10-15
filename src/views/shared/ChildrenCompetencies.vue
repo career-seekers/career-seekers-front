@@ -23,10 +23,7 @@
         <Button
           class="p-button save-btn"
           label="Сохранить"
-          :disabled="
-            assignsToDelete(selectedChild!.id).length === 0 &&
-              assignsToCreate(selectedChild!.id).length === 0
-          "
+          :disabled="assignmentUpdated"
           icon="pi pi-save"
           :loading="loading"
           @click="assignToCompetencies"
@@ -42,7 +39,6 @@
             v-model="selectedChild"
             :options="children"
             class="filter-dropdown"
-            @change="loadCompetencies"
           >
             <template #option="slotProps">
               {{ slotProps.option.lastName }} {{ slotProps.option.firstName }}
@@ -334,6 +330,11 @@
         const end = start + this.itemsPerPage;
         return this.filteredCompetencies.slice(start, end);
       },
+      assignmentUpdated() {
+        return !this.children.some(child => {
+          return this.assignsToCreate(child.id).length > 0 || this.assignsToDelete(child.id).length > 0;
+        })
+      },
 
       visiblePages() {
         const pages = [];
@@ -540,16 +541,6 @@
                   this.assignedCompetenciesCopy = [...this.assignedCompetencies]
                 }
               }
-            } else {
-              const assign = this.assignedCompetencies.find(a => a.child.id === childAssign.child.id)
-              if (assign) {
-                assign.competencies.forEach(competence => {
-                  competence.id = this.assignedCompetenciesCopy
-                    .find(assignCopy => assignCopy.child.id === assign.child.id)
-                    ?.competencies.find(competenceCopy => competenceCopy.competenceId === competence.competenceId)?.id ?? -1
-                })
-              }
-              this.assignedCompetenciesCopy = [...this.assignedCompetencies]
             }
           }
           
