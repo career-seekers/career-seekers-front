@@ -12,9 +12,9 @@
   import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
   import { FileType } from '@/api/resolvers/files/file.resolver.ts';
   import apiConf from '@/api/api.conf.ts';
-  import type { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
   import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
   import { useQueueStatuses } from '@/shared/UseQueueStatuses.ts';
+  import type { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
   export type ChildDetailsDialogData = {
     child: ChildOutputDto;

@@ -49,6 +49,7 @@ import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
 import { Roles } from '@/state/UserState.types.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAuthStore } from '@/stores/authStore.ts';
+import CompetenceParticipants from '@/views/shared/CompetenceParticipants.vue';
 
 const routes = [
   {
@@ -209,6 +210,11 @@ const routes = [
         component: CompetenceDocuments,
         props: true
       },
+      {
+        path: "participants/:competenceId",
+        component: CompetenceParticipants,
+        props: true
+      }
     ],
   },
   {
@@ -273,6 +279,11 @@ const routes = [
         component: CompetenceDocuments,
         props: true
       },
+      {
+        path: "participants/:competenceId",
+        component: CompetenceParticipants,
+        props: true
+      }
     ],
   },
   {
@@ -364,6 +375,11 @@ const routes = [
         component: CompetenceDocuments,
         props: true
       },
+      {
+        path: "participants/:competenceId",
+        component: CompetenceParticipants,
+        props: true
+      }
     ]
   },
   {

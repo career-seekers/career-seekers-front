@@ -8,6 +8,7 @@
   import { Roles } from '@/state/UserState.types.ts';
   import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
   import { AgeCategoryResolver } from '@/api/resolvers/age-category.resolver.ts';
+  import router from '@/router';
 
   export default {
     name: 'CompetenciesList',
@@ -44,6 +45,9 @@
       },
     },
     methods: {
+      router() {
+        return router
+      },
       useUserStore,
       goToDocuments(competenceId: number) {
         this.$router.push(`/${this.userStore.user?.role.toString()}/documents/${competenceId}`);
@@ -147,12 +151,12 @@
       </div>
 
       <div class="competence-actions">
-        <!--          <Button -->
-        <!--            label="Участники" -->
-        <!--            icon="pi pi-users"-->
-        <!--            class="p-button-outlined"-->
-        <!--            @click="goToParticipants(competence.id)"-->
-        <!--          />-->
+        <Button
+          label="Участники"
+          icon="pi pi-users"
+          class="p-button-outlined"
+          @click="router().push(`/${userStore.user?.role.toLowerCase()}/participants/${competence.id}`)"
+        />
         <Button
           v-if="userStore.user?.role === Roles.ADMIN"
           label="Места"
