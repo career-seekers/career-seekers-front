@@ -450,10 +450,15 @@
       async loadCompetencies() {
         this.loading = true
         this.competencies = []
-        for (const child of this.children) {
-          const response = await this.competenceResolver.getByAgeCategory(child!.childDocuments!.ageCategory)
+        const promises = this.children.map(child =>
+          this.competenceResolver.getByAgeCategory(child!.childDocuments!.ageCategory)
+        );
+        const responses = await Promise.all(promises);
+        for (const response of responses) {
           if (typeof response.message === "string" || response.status !== 200) continue
-          this.competencies.push(...response.message)
+          this.competencies.push(...response.message
+            .filter(competence => !this.competencies.some(comp => comp.id === competence.id))
+          )
         }
         this.filterCompetencies({ query: "" })
         this.loading = false
