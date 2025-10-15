@@ -116,7 +116,7 @@ import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
 import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
 import { useChildrenDocumentTypes } from '@/shared/UseChildrenDocumentTypes.ts';
 import { useConfirm } from 'primevue/useconfirm';
-import ChildrenDocsToVerifyList, { type DocPerChild } from '@/components/ChildrenDocsToVerifyList.vue';
+import ChildrenDocsToVerifyList, { type DocPerChild } from '@/components/lists/ChildrenDocsToVerifyList.vue';
 import Dropdown from 'primevue/dropdown';
 import AutoComplete from 'primevue/autocomplete';
 import TabView from 'primevue/tabview';

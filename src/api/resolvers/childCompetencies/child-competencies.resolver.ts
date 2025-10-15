@@ -11,6 +11,18 @@ export class ChildCompetenciesResolver {
   private apiResolver = new ApiResolver("events-service/v1/childToDirection");
   private token = localStorage.getItem("access_token");
 
+  public async getByCompetenceId(id: number) {
+    return this.apiResolver.request<
+      null,
+      CommonOutputDto<ChildCompetenciesOutputDto[] | string>
+    >(
+      `getByDirectionId/${id.toString()}`,
+      "GET",
+      null,
+      this.token ? this.token : undefined
+    )
+  }
+
   public async getByChildId(id: number) {
     return this.apiResolver.request<
       null,

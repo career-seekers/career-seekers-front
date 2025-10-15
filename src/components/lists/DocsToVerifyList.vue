@@ -1,7 +1,7 @@
 <script lang="ts">
   import { type PropType } from 'vue';
   import type {
-    CompetenceDocumentsOutputDto
+    CompetenceDocumentsOutputDto,
   } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
   import apiConf from '@/api/api.conf.ts';
   import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
@@ -46,23 +46,10 @@
       }
     },
     computed: {
-      statusTitle() {
-        switch (this.$props.verifyStatus) {
-          case 'ACCEPTED': return "Принятые"
-          case 'REJECTED': return "Отклоненные"
-          default: return "Необработанные"
-        }
-      },
-
       paginatedDocuments() {
         const start = this.currentPage * this.itemsPerPage;
         const end = start + this.itemsPerPage;
-        const result = this.documents.slice(start, end);
-        console.log('DocsToVerifyList - paginatedDocuments:', result);
-        console.log('DocsToVerifyList - total documents:', this.documents.length);
-        console.log('DocsToVerifyList - currentPage:', this.currentPage);
-        console.log('DocsToVerifyList - itemsPerPage:', this.itemsPerPage);
-        return result;
+        return this.documents.slice(start, end);
       },
 
       totalRecords() {
@@ -257,17 +244,6 @@
 </template>
 
 <style scoped>
-  .documents-grid-header {
-    margin-bottom: 2rem;
-  }
-
-  .documents-grid-title {
-    color: #2c3e50;
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
-    font-weight: 500;
-    font-family: "BIPS", sans-serif;
-  }
 
   .documents-grid {
     display: grid;
@@ -376,8 +352,6 @@
     padding: 1rem;
     transition: opacity 0.3s ease;
   }
-
-
 
   /* Простые анимации для карточек */
   .document-card {

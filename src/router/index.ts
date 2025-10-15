@@ -15,7 +15,6 @@ import UserDashboardHome from "@/views/user/UserDashboardHome.vue";
 //expert views
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
 import ExpertCompetencies from "@/views/expert/ExpertCompetencies.vue";
-import ExpertParticipants from "@/views/expert/ExpertParticipants.vue";
 import ExpertEvents from "@/views/expert/ExpertEvents.vue";
 import ExpertDocuments from "@/views/expert/ExpertDocuments.vue";
 
@@ -49,6 +48,7 @@ import { RouterGuardManager } from '@/utils/RouterGuardManager.ts';
 import { Roles } from '@/state/UserState.types.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAuthStore } from '@/stores/authStore.ts';
+import CompetenceParticipants from '@/views/shared/CompetenceParticipants.vue';
 
 const routes = [
   {
@@ -206,8 +206,8 @@ const routes = [
       },
       {
         path: "participants/:competenceId",
-        name: "expert-participants",
-        component: ExpertParticipants,
+        component: CompetenceParticipants,
+        props: true
       },
       {
         path: "documents/:competenceId",
@@ -279,6 +279,11 @@ const routes = [
         component: CompetenceDocuments,
         props: true
       },
+      {
+        path: "participants/:competenceId",
+        component: CompetenceParticipants,
+        props: true
+      }
     ],
   },
   {
@@ -370,6 +375,11 @@ const routes = [
         component: CompetenceDocuments,
         props: true
       },
+      {
+        path: "participants/:competenceId",
+        component: CompetenceParticipants,
+        props: true
+      }
     ]
   },
   {

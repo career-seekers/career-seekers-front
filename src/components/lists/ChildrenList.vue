@@ -3,7 +3,7 @@
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import type { PropType } from 'vue';
   import Button from 'primevue/button';
-  import { FormatManager } from '../utils/FormatManager.ts';
+  import { FormatManager } from '../../utils/FormatManager.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import { useUserStore } from '@/stores/userStore.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
@@ -12,9 +12,9 @@
   import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
   import { FileType } from '@/api/resolvers/files/file.resolver.ts';
   import apiConf from '@/api/api.conf.ts';
-  import type { AgeCategories } from '@/api/resolvers/competence/competence.resolver.ts';
   import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
   import { useQueueStatuses } from '@/shared/UseQueueStatuses.ts';
+  import type { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 
   export type ChildDetailsDialogData = {
     child: ChildOutputDto;
@@ -155,12 +155,14 @@
           <Button
             v-tooltip="'Редактировать данные ребенка'"
             icon="pi pi-pencil"
+            disabled
             class="p-button-secondary p-button-sm edit-button"
             @click="$emit('edit-child', childDetails.child)"
           />
           <Button
             v-tooltip="'Удалить'"
             icon="pi pi-trash"
+            disabled
             class="p-button-secondary p-button-sm"
             @click="deleteChild(childDetails.child)"
           />

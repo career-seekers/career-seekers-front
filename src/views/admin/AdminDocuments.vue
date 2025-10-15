@@ -133,7 +133,7 @@ import {useDocumentTemplates} from '@/shared/UseDocumentTemplates.ts';
 import {useDocumentTypes} from '@/shared/UseDocumentTypes.ts';
 import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
 import {useAgeGroups} from '@/shared/UseAgeGroups.ts';
-import DocsToVerifyList from '@/components/DocsToVerifyList.vue';
+import DocsToVerifyList from '@/components/lists/DocsToVerifyList.vue';
 import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import {Roles} from "@/state/UserState.types.ts";
 import AutoComplete from "primevue/autocomplete";
@@ -585,13 +585,6 @@ export default {
   font-size: 1.1rem;
 }
 
-.page-actions {
-  margin-bottom: 2rem;
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-}
-
 .filters-section {
   display: flex;
   gap: 1rem;
@@ -637,19 +630,6 @@ export default {
   width: 100%;
 }
 
-/* Формы */
-.upload-form,
-.link-form {
-  padding: 1rem 0;
-}
-
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
 .form-field label {
   color: #2c3e50;
   font-weight: 500;
@@ -671,11 +651,6 @@ export default {
 
   .page-title {
     font-size: 1.5rem;
-  }
-
-  .page-actions {
-    flex-direction: column;
-    align-items: stretch;
   }
 
   .filters-section {
