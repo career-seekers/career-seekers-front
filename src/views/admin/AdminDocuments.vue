@@ -133,7 +133,7 @@ import {useDocumentTemplates} from '@/shared/UseDocumentTemplates.ts';
 import {useDocumentTypes} from '@/shared/UseDocumentTypes.ts';
 import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
 import {useAgeGroups} from '@/shared/UseAgeGroups.ts';
-import DocsToVerifyList from '@/components/DocsToVerifyList.vue';
+import DocsToVerifyList from '@/components/lists/DocsToVerifyList.vue';
 import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
 import {Roles} from "@/state/UserState.types.ts";
 import AutoComplete from "primevue/autocomplete";

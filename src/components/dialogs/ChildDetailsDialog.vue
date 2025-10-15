@@ -10,7 +10,7 @@
   import Dialog from 'primevue/dialog';
   import ProgressSpinner from 'primevue/progressspinner';
   import { Roles } from '@/state/UserState.types.ts';
-  import type { ChildDetailsDialogData } from '@/components/ChildrenList.vue';
+  import type { ChildDetailsDialogData } from '@/components/lists/ChildrenList.vue';
 
   export default {
     name: 'ChildDetailsDialog',

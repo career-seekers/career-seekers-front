@@ -3,7 +3,7 @@
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import type { PropType } from 'vue';
   import Button from 'primevue/button';
-  import { FormatManager } from '../utils/FormatManager.ts';
+  import { FormatManager } from '../../utils/FormatManager.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import { useUserStore } from '@/stores/userStore.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';

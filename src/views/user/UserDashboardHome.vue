@@ -263,7 +263,7 @@ import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.re
 import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
 import ProgressSpinner from 'primevue/progressspinner';
-import ChildrenList, { type ChildDetailsDialogData } from '@/components/ChildrenList.vue';
+import ChildrenList, { type ChildDetailsDialogData } from '@/components/lists/ChildrenList.vue';
 
 export default {
   name: 'UserDashboardHome',

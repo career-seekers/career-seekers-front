@@ -306,7 +306,7 @@
   import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-documents.resolver.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import type { PropType } from 'vue';
-  import type { ChildDetailsDialogData } from '@/components/ChildrenList.vue';
+  import type { ChildDetailsDialogData } from '@/components/lists/ChildrenList.vue';
 
   export enum Mode {
     USERS = "USERS",

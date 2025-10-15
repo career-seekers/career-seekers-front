@@ -15,14 +15,18 @@
   import { useQueueStatuses } from '@/shared/UseQueueStatuses.ts';
   import TabPanel from 'primevue/tabpanel';
   import TabView from 'primevue/tabview';
+  import CompetenceParticipantsList, { type Participant } from '@/components/lists/CompetenceParticipantsList.vue';
+  import { useUserStore } from '@/stores/userStore.ts';
+  import { Roles } from '@/state/UserState.types.ts';
 
   export default {
     name: 'CompetenceParticipants',
     components: {
+      CompetenceParticipantsList,
       TabView,
       TabPanel,
       Button,
-      ProgressSpinner
+      ProgressSpinner,
     },
     props: {
       competenceId: {
@@ -35,35 +39,11 @@
         competenceResolver: new CompetenceResolver(),
         competence: null as CompetenceOutputDto | null,
 
+        userStore: useUserStore(),
         ageGroups: useAgeGroups,
         queueStatuses: useQueueStatuses,
 
-        children: [] as {
-          id: number,
-          lastName: string,
-          firstName: string,
-          patronymic: string,
-          queueStatus: QueueStatuses,
-          childDocuments: {
-            ageCategory: AgeCategories,
-            studyingPlace: string,
-            trainingGround: string,
-          } | null,
-          mentor: {
-            lastName: string,
-            firstName: string,
-            patronymic: string,
-            mobileNumber: string,
-            email: string,
-          } | null,
-          user: {
-            lastName: string,
-            firstName: string,
-            patronymic: string,
-            mobileNumber: string,
-            email: string,
-          } | null
-        }[],
+        children: [] as Participant[],
 
         userResolver: new UserResolver(),
         childCompetenceResolver: new ChildCompetenciesResolver(),
@@ -82,7 +62,7 @@
         const tabs = [
           {
             key: 'participates',
-            header: 'Участвую',
+            header: 'Участвуют',
             children: this.participatedChildren,
             hasChildren: this.participatedChildren.length > 0
           },
@@ -90,7 +70,7 @@
             key: 'in_queue',
             header: 'В очереди',
             children: this.queuedChildren,
-            hasChildren: this.participatedChildren.length > 0
+            hasChildren: this.queuedChildren.length > 0
           }
         ];
 
@@ -121,15 +101,21 @@
       filteredChildren() {
         if (this.selectedAge === null) return this.children
         return this.children.filter(child => child.childDocuments?.ageCategory === this.selectedAge)
-      }
+      },
     },
     async mounted() {
       window.scrollTo(0, 0);
       this.isLoading = true;
       const response = await this.competenceResolver.getById(this.competenceIdChecked)
       if (typeof response.message !== "string") {
-        this.competence = response.message
-        await this.loadChildren()
+        if (this.userStore?.user?.id !== response.message.userId &&
+        this.userStore?.user?.id !== response.message.expertId &&
+        this.userStore?.user?.role !== Roles.ADMIN) {
+          await router.push("/")
+        } else {
+          this.competence = response.message
+          await this.loadChildren()
+        }
       }
       this.isLoading = false
     },
@@ -187,7 +173,7 @@
           <Button
             v-for="age in availableAges"
             :key="age"
-            :class="selectedAge === age ? 'p-button' : 'p-button-outlined'"
+            :class="selectedAge === age || availableAges.length < 2 ? 'p-button' : 'p-button-outlined'"
             :label="ageGroups.find(group => group.value === age)?.label"
             size="small"
             @click="selectedAge = age"
@@ -195,6 +181,7 @@
           <Button
             label="Сбросить возраст"
             icon="pi pi-refresh"
+            :disabled="availableAges.length < 2"
             class="p-button-text p-button-sm"
             @click="resetAge"
           />
@@ -216,93 +203,13 @@
           :disabled="!tab.hasChildren"
           :class="{ 'disabled-tab': !tab.hasChildren }"
         >
-          <div
-            class="experts-grid"
-          >
-            <div
-              v-for="child in tab.children"
-              :key="child.id"
-              class="expert-card"
-            >
-              <div class="expert-header">
-                <div class="expert-avatar">
-                  <i class="pi pi-user" />
-                </div>
-                <div class="expert-info">
-                  <h3 class="expert-name">
-                    {{
-                      child.lastName +
-                        " " +
-                        child.firstName +
-                        " "
-                    }}
-                    {{
-                      child.patronymic !== "null" ? child.patronymic : ""
-                    }}
-                  </h3>
-                </div>
-              </div>
-
-              <div
-                v-if="child.childDocuments !== null"
-                class="expert-content"
-              >
-                <div class="expert-details">
-                  <div class="detail-item">
-                    <span class="detail-label">Образовательное учреждение:</span>
-                    <span class="detail-value">{{ child.childDocuments.studyingPlace }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Площадка подготовки:</span>
-                    <span class="detail-value">{{ child.childDocuments.trainingGround }}</span>
-                  </div>
-                </div>
-                <h3
-                  v-if="child.mentor !== null || child.user !== null"
-                  class="expert-name"
-                >
-                  {{ child.mentor !== null ? 'Наставник' : 'Родитель' }}
-                </h3>
-                <div
-                  v-if="child.mentor !== null || child.user !== null"
-                  class="expert-details"
-                >
-                  <div class="detail-item">
-                    <span class="detail-label">ФИО:</span>
-                    <span class="detail-value">
-                      {{ child.mentor !== null ? child.mentor.lastName : child.user?.lastName }}
-                      {{ child.mentor !== null ? child.mentor.firstName : child.user?.firstName }}
-                      {{ child.mentor !== null ? child.mentor.patronymic : child.user?.patronymic }}
-                    </span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Телефон:</span>
-                    <span class="detail-value">
-                      {{
-                        child.mentor !== null
-                          ? FormatManager.formatMobileNumberFromDTO(child.mentor.mobileNumber)
-                          : FormatManager.formatMobileNumberFromDTO(child.user?.mobileNumber ?? "")
-                      }}
-                    </span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Адрес электронной почты:</span>
-                    <span class="detail-value">
-                      {{
-                        child.mentor !== null
-                          ? child.mentor.email
-                          : child.user?.email
-                      }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CompetenceParticipantsList
+            :participants="tab.children"
+          />
         </TabPanel>
       </TabView>
       <div v-else>
-        <p>В данной {{ selectedAge === null ? 'компетенции' : 'возрастной категории' }} еще нет участников</p>
+        <p>В данной компетенции еще нет участников</p>
       </div>
     </div>
   </Transition>
@@ -450,92 +357,6 @@
     order: 999; /* Перемещаем в конец */
   }
 
-  .experts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 1.5rem;
-    width: 100%;
-  }
-
-  .expert-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    border: 2px solid transparent;
-    overflow: hidden;
-    transition:
-      box-shadow 0.3s ease,
-      border-color 0.3s ease;
-  }
-
-  .expert-card:hover {
-    box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2);
-    border: 2px solid #ff9800;
-  }
-
-  .expert-header {
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-    color: white;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .expert-avatar {
-    width: 60px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    flex-shrink: 0;
-  }
-
-  .expert-info {
-    flex: 1;
-  }
-
-  .expert-name {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-
-  .expert-content {
-    padding: 1.5rem;
-  }
-
-  .expert-details {
-    margin-bottom: 1.5rem;
-  }
-
-  .detail-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f1f3f4;
-  }
-
-  .detail-item:last-child {
-    border-bottom: none;
-  }
-
-  .detail-label {
-    color: #6c757d;
-    font-weight: 500;
-    min-width: 100px;
-  }
-
-  .detail-value {
-    color: #2c3e50;
-    font-weight: 500;
-    text-align: right;
-  }
-
   .form-field label {
     color: #2c3e50;
     font-weight: 500;
@@ -543,65 +364,10 @@
     font-size: 0.9rem;
   }
 
-  .detail-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f1f3f4;
-  }
-
-  .detail-item:last-child {
-    border-bottom: none;
-  }
-
-  .detail-label {
-    color: #6c757d;
-    font-weight: 500;
-    min-width: 100px;
-  }
-
-  .detail-value {
-    color: #2c3e50;
-    font-weight: 500;
-    text-align: right;
-  }
-
   /* Мобильные стили */
   @media (max-width: 768px) {
     .page-title {
       font-size: 1.5rem;
-    }
-
-    .experts-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    .expert-header {
-      padding: 1rem;
-      flex-direction: column;
-      text-align: center;
-    }
-
-    .expert-avatar {
-      width: 50px;
-      height: 50px;
-      font-size: 1.2rem;
-    }
-
-    .expert-content {
-      padding: 1rem;
-    }
-
-    .detail-item {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.25rem;
-    }
-
-    .detail-value {
-      text-align: left;
     }
   }
 
@@ -613,20 +379,6 @@
 
     .page-subtitle {
       font-size: 0.9rem;
-    }
-
-    .expert-header {
-      padding: 0.75rem;
-    }
-
-    .expert-avatar {
-      width: 40px;
-      height: 40px;
-      font-size: 1rem;
-    }
-
-    .expert-name {
-      font-size: 1rem;
     }
   }
 
