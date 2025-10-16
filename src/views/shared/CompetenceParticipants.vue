@@ -142,7 +142,7 @@
         }
       },
       refreshParticipants(participant: Participant) {
-        this.children.filter(child => child.id !== participant.id)
+        this.children = this.children.filter(child => child.id !== participant.id)
       },
       resetAge() {
         this.selectedAge = null
