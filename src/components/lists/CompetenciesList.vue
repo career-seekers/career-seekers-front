@@ -50,7 +50,7 @@
       },
       useUserStore,
       goToDocuments(competenceId: number) {
-        this.$router.push(`/${this.userStore.user?.role.toString()}/documents/${competenceId}`);
+        this.$router.push(`/${this.userStore.user?.role.toLowerCase()}/documents/${competenceId}`);
       },
       async toggleAgeCategory(competenceId: number, ageCategory: AgeCategoryOutputDto) {
         const toggledCategory = {...ageCategory}
