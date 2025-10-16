@@ -5,6 +5,7 @@
   import { FormatManager } from '@/utils/FormatManager.ts';
   import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
   import Paginator from 'primevue/paginator';
+  import Button from 'primevue/button';
   
   export interface Participant {
     id: number,
@@ -36,6 +37,7 @@
   export default {
     name: 'CompetenceParticipantsList',
     components: {
+      Button,
       Paginator
     },
     props: {
@@ -75,6 +77,9 @@
           }
         });
       },
+      unassignParticipant(participant) {
+
+      }
     }
   };
 </script>
@@ -100,6 +105,14 @@
               participant.patronymic !== "null" ? participant.patronymic : ""
             }}
           </h3>
+        </div>
+        <div class="expert-actions">
+          <Button
+            v-tooltip.left="'Снять с компетенции'"
+            icon="pi pi-ban"
+            severity="danger"
+            @click="unassignParticipant(participant)"
+          />
         </div>
       </div>
 
@@ -270,6 +283,12 @@
     margin-bottom: 2rem;
     padding: 1rem;
     transition: opacity 0.3s ease;
+  }
+
+  @media screen and (max-width: 768px) {
+    .experts-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
 </style>
