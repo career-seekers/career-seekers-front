@@ -192,11 +192,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-              v-if="venues.length > 0"
+              v-if="venuesCount != null"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ venues.length }}
+                {{ venuesCount }}
               </div>
               <div class="stat-label">
                 Всего площадок
@@ -212,11 +212,11 @@
               />
             </div>
             <div
-              v-if="venues.length > 0"
+              v-if="venuesCount != null"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ venues.filter(venue => venue.verified).length }}
+                {{ verifiedVenuesCount }}
               </div>
               <div class="stat-label">
                 Верифицированных
@@ -254,11 +254,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-              v-if="competencies.length > 0"
+              v-if=" directionsCount != null"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ competencies.length }}
+                {{ directionsCount }}
               </div>
               <div class="stat-label">
                 Всего компетенций
@@ -274,11 +274,11 @@
               />
             </div>
             <div
-              v-if="competencies.length > 0"
+              v-if="directionsWithoutDocs != null"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ competencies.filter(competence => competence.documents.length === 0).length }}
+                {{ directionsWithoutDocs }}
               </div>
               <div class="stat-label">
                 Без документов
@@ -378,11 +378,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-              v-if="documents.length > 0"
+              v-if="directionDocsCount != null"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ documents.length }}
+                {{ directionDocsCount }}
               </div>
               <div class="stat-label">
                 Всего документов
@@ -398,11 +398,11 @@
               />
             </div>
             <div
-              v-if="recentDoc"
+              v-if="lastDocumentUpload != null"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ recentDoc.createdAt.substring(0, 10) }}
+                {{ lastDocumentUpload.toString().substring(0, 10) }}
               </div>
               <div class="stat-label">
                 Последняя загрузка
@@ -498,22 +498,15 @@
 <script lang="ts">
   import Button from 'primevue/button';
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
-  import { PlatformResolver } from '@/api/resolvers/platform/platform.resolver.ts';
-  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
-  import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
-  import type { PlatformOutputDto } from '@/api/resolvers/platform/dto/output/platform-output.dto.ts';
   import { Roles } from '@/state/UserState.types.ts';
   import router from '@/router';
-  import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
-  import type {
-    CompetenceDocumentsOutputDto
-  } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
-  import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import ProgressSpinner from 'primevue/progressspinner';
+  import {StatisticsResolver} from "@/api/resolvers/statistic/statistics.resolver.ts";
+  import type {ChildOutputDto} from "@/api/resolvers/child/dto/output/child-output.dto.ts";
 
   export default {
     name: 'AdminDashboardHome',
@@ -527,18 +520,20 @@ emits: ['openSettings'],
         userStore: useUserStore(),
         userResolver: new UserResolver(),
         childResolver: new ChildResolver(),
-        platformResolver: new PlatformResolver(),
-        competenceResolver: new CompetenceResolver(),
-        competenceDocumentsResolver: new CompetenceDocumentsResolver(),
+        statisticsResolver: new StatisticsResolver(),
 
         users: [] as UserOutputDto[],
         tutors: [] as UserOutputDto[],
         mentors: [] as UserOutputDto[],
-        competencies: [] as CompetenceOutputDto[],
         experts: [] as UserOutputDto[],
         children: [] as ChildOutputDto[],
-        documents: [] as CompetenceDocumentsOutputDto[],
-        venues: [] as PlatformOutputDto[]
+
+        venuesCount: null as number | null,
+        verifiedVenuesCount: null as number | null,
+        directionsCount: null as number | null,
+        directionsWithoutDocs: null as number | null,
+        directionDocsCount: null as number | null,
+        lastDocumentUpload: null as Date | null,
       };
     },
     computed: {
@@ -548,14 +543,15 @@ emits: ['openSettings'],
       user() {
         return this.userStore.user
       },
-      recentDoc() {
-        if (this.documents.length === 0) return null
-        return this.documents.toSorted((a, b) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        })[0]
-      }
     },
     async beforeMount() {
+      this.venuesCount = await this.statisticsResolver.getPlatformsCount()
+      this.verifiedVenuesCount = await this.statisticsResolver.getVerifiedPlatformsCount()
+      this.directionsCount = await this.statisticsResolver.getDirectionsCount()
+      this.directionsWithoutDocs = await this.statisticsResolver.getDirectionsWithoutDocsCount()
+      this.directionDocsCount = await this.statisticsResolver.getDirectionDocsCount()
+      this.lastDocumentUpload = await this.statisticsResolver.getLastDocumentUpload()
+
       let response
       response = await this.userResolver.getAllByRole(Roles.TUTOR)
       if (typeof response.message !== 'string') {
@@ -573,21 +569,9 @@ emits: ['openSettings'],
       if (typeof response.message !== 'string') {
         this.users = response.message
       }
-      response = await this.competenceResolver.getAll()
-      if (typeof response.message !== 'string') {
-        this.competencies = response.message
-      }
-      response = await this.platformResolver.getAll()
-      if (typeof response.message !== 'string') {
-        this.venues = response.message
-      }
       response = await this.childResolver.getAll()
       if (typeof response.message !== 'string') {
         this.children = response.message
-      }
-      response = await this.competenceDocumentsResolver.getByAll()
-      if (typeof response.message !== 'string') {
-        this.documents = response.message
       }
     },
     methods: {
