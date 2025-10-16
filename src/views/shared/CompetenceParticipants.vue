@@ -141,6 +141,9 @@
           }
         }
       },
+      refreshParticipants(participant: Participant) {
+        this.children.filter(child => child.id !== participant.id)
+      },
       resetAge() {
         this.selectedAge = null
       }
@@ -206,6 +209,7 @@
         >
           <CompetenceParticipantsList
             :participants="tab.children"
+            @refresh-participants="(participant) => refreshParticipants(participant)"
           />
         </TabPanel>
       </TabView>

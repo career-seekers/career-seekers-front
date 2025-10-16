@@ -6,6 +6,7 @@
   import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
   import Paginator from 'primevue/paginator';
   import Button from 'primevue/button';
+  import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
   
   export interface Participant {
     id: number,
@@ -46,11 +47,13 @@
         required: true,
       },
     },
-    data() {
+    emits: ['refresh-participants'],
+    data: function() {
       return {
+        childCompetenceResolver: new ChildCompetenciesResolver(),
         currentPage: 0,
         itemsPerPage: 8,
-      }
+      };
     },
     computed: {
       FormatManager() {
@@ -77,8 +80,13 @@
           }
         });
       },
-      unassignParticipant(participant) {
-
+      async unassignParticipant(participant: Participant) {
+        if (confirm(`Вы уверены, что хотите снять с компетенции ребенка ${participant.firstName}`)) {
+          const response = await this.childCompetenceResolver.deleteById(participant.id)
+          if (response.status === 200) {
+            this.$emit("refresh-participants", participant);
+          }
+        }
       }
     }
   };
