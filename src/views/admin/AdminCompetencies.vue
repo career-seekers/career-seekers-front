@@ -274,6 +274,7 @@
   import CompetenciesList from '@/components/lists/CompetenciesList.vue';
   import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
   import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
+  import {AgeCategoriesResolver} from "@/api/resolvers/ageCategory/age-categories.resolver.ts";
 
   export default {
     name: "AdminCompetencies",
@@ -294,6 +295,7 @@
     data() {
       return {
         competenceResolver: new CompetenceResolver(),
+        ageCategoriesResolver: new AgeCategoriesResolver(),
         userResolver: new UserResolver(),
         experts: [] as UserOutputDto[],
         selectedAge: [] as AgeCategories[],
@@ -374,10 +376,15 @@
           return expert.tutorId === competence.userId
         })
       },
-      viewDetails(competenceId: number) {
-        this.selectedCompetence = this.competencies.find(
-          (c) => c.id === competenceId,
-        );
+      async viewDetails(competenceId: number) {
+        const res = await this.ageCategoriesResolver.getByDirectionId(competenceId);
+        const competence = this.competencies.find((c) => c.id === competenceId);
+
+        if (competence) {
+          this.selectedCompetence = competence;
+          competence.ageCategories = res.message;
+        }
+
         this.showDetailsDialog = true;
       },
       resetFilters() {
@@ -389,7 +396,12 @@
           .find(category => category.id === ageCategory.id)
         if (ageCategoryToRefresh) ageCategoryToRefresh.isDisabled = ageCategory.isDisabled
       },
-      editCompetence(competence: CompetenceOutputDto) {
+      async editCompetence(competence: CompetenceOutputDto) {
+        const res = await this.ageCategoriesResolver.getByDirectionId(competence.id);
+        if (competence) {
+          competence.ageCategories = res.message;
+        }
+
         this.isEditing = true;
         this.editingCompetenceId = competence.id;
         this.selectedCompetence = competence;
@@ -500,7 +512,12 @@
       },
 
       // Методы для управления местами
-      managePlaces(competence: CompetenceOutputDto) {
+      async managePlaces(competence: CompetenceOutputDto) {
+        const res = await this.ageCategoriesResolver.getByDirectionId(competence.id);
+        if (competence) {
+          competence.ageCategories = res.message;
+        }
+
         this.selectedCompetence = competence;
         this.placesForm = {} as Record<AgeCategories, number>;
         // Инициализируем форму текущими значениями
