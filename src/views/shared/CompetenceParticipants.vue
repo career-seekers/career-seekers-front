@@ -211,7 +211,7 @@
           </div>
         </div>
         <div
-          v-if="children.length > 0 && userStore.user?.role === Roles.EXPERT"
+          v-if="children.length > 0"
           class="filter-group"
         >
           <Button
