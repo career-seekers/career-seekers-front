@@ -505,7 +505,7 @@
           return this.ageGroups.find(group => group.value === category.ageCategory)?.label
         }).join(", ")
       },
-      
+
       async assignToCompetencies() {
         this.loading = true
         try {
@@ -540,15 +540,21 @@
                   }
                   this.assignedCompetenciesCopy = [...this.assignedCompetencies]
                 }
+
+                if (response.status === 200) {
+                  this.toastContent = {
+                    title: 'Успешно сохранено',
+                    message: 'Компетенции успешно назначены ребёнку'
+                  };
+                } else {
+                  this.toastContent = {
+                    title: 'Ошибка!',
+                    message: response.message as string
+                  };
+                }
               }
             }
           }
-          
-          // Показываем уведомление об успешном сохранении
-          this.toastContent = {
-            title: 'Успешно сохранено',
-            message: 'Компетенции успешно назначены ребёнку'
-          };
         } catch (error) {
           // Показываем уведомление об ошибке
           this.toastContent = {
