@@ -53,6 +53,9 @@
       };
     },
     computed: {
+      Roles() {
+        return Roles
+      },
       FormatManager() {
         return FormatManager
       },
@@ -144,6 +147,9 @@
       refreshParticipants(participant: Participant) {
         this.children = this.children.filter(child => child.id !== participant.id)
       },
+      downloadCompetenceReport() {
+
+      },
       resetAge() {
         this.selectedAge = null
       }
@@ -168,26 +174,39 @@
           Управление участниками компетенции <b>{{ competence.name }}</b>
         </p>
       </div>
-      <div
-        v-if="availableAges.length > 0"
-        class="filter-group"
-      >
-        <label>Возрастные группы:</label>
-        <div class="age-buttons">
+      <div class="filters">
+        <div
+          v-if="availableAges.length > 0"
+          class="filter-group"
+        >
+          <label>Возрастные группы:</label>
+          <div class="age-buttons">
+            <Button
+              v-for="age in availableAges"
+              :key="age"
+              :class="selectedAge === age || availableAges.length < 2 ? 'p-button' : 'p-button-outlined'"
+              :label="ageGroups.find(group => group.value === age)?.label"
+              size="small"
+              @click="selectedAge = age"
+            />
+            <Button
+              label="Сбросить возраст"
+              icon="pi pi-refresh"
+              :disabled="availableAges.length < 2"
+              class="p-button-text p-button-sm"
+              @click="resetAge"
+            />
+          </div>
+        </div>
+        <div
+          v-if="children.length > 0 && userStore.user?.role === Roles.EXPERT"
+          class="filter-group"
+        >
           <Button
-            v-for="age in availableAges"
-            :key="age"
-            :class="selectedAge === age || availableAges.length < 2 ? 'p-button' : 'p-button-outlined'"
-            :label="ageGroups.find(group => group.value === age)?.label"
+            label="Скачать список участников"
             size="small"
-            @click="selectedAge = age"
-          />
-          <Button
-            label="Сбросить возраст"
-            icon="pi pi-refresh"
-            :disabled="availableAges.length < 2"
-            class="p-button-text p-button-sm"
-            @click="resetAge"
+            icon="pi pi-download"
+            @click="downloadCompetenceReport"
           />
         </div>
       </div>
@@ -297,6 +316,12 @@
     font-size: 1.1rem;
   }
 
+  .filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
   .documents-tabs {
     margin-top: 2rem;
   }
@@ -362,6 +387,15 @@
   @media (max-width: 768px) {
     .page-title {
       font-size: 1.5rem;
+    }
+
+    .filters {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .filter-group {
+        width: 100%;
+      }
     }
   }
 
