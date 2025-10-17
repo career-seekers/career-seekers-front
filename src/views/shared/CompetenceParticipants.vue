@@ -17,6 +17,8 @@
   import CompetenceParticipantsList, { type Participant } from '@/components/lists/CompetenceParticipantsList.vue';
   import { useUserStore } from '@/stores/userStore.ts';
   import { Roles } from '@/state/UserState.types.ts';
+  import { ReportResolver } from '@/api/resolvers/reports/report.resolver.ts';
+  import { getExtensionFromMimeType } from '@/shared/UseMimeTypes.ts';
 
   export default {
     name: 'CompetenceParticipants',
@@ -37,6 +39,7 @@
       return {
         competenceResolver: new CompetenceResolver(),
         competence: null as CompetenceOutputDto | null,
+        reportResolver: new ReportResolver(),
 
         userStore: useUserStore(),
         ageGroups: useAgeGroups,
@@ -147,8 +150,17 @@
       refreshParticipants(participant: Participant) {
         this.children = this.children.filter(child => child.id !== participant.id)
       },
-      downloadCompetenceReport() {
-
+      async downloadCompetenceReport() {
+        const blobResponse = await this.reportResolver.getChildrenAssignmentsByCompetenceId(this.competenceIdChecked)
+        const url = window.URL.createObjectURL(blobResponse);
+        const extension = getExtensionFromMimeType(blobResponse.type)
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Список_участников_компетенции_${this.competence?.name}.${extension}`
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
       },
       resetAge() {
         this.selectedAge = null
