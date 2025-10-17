@@ -18,6 +18,7 @@ class ApiResolverUtil {
     method: string,
     data?: U,
     jwt?: string,
+    responseType?: AxiosResponse["request"]["responseType"],
   ): Promise<S> {
     const fullUrl = `${apiConf.endpoint}/${this.endpoint}/${url}`;
 
@@ -28,6 +29,7 @@ class ApiResolverUtil {
       headers: {
         Authorization: jwt ? `Bearer ${jwt}` : undefined,
       },
+      responseType: (responseType || "json") as never,
     };
 
     try {
@@ -35,7 +37,7 @@ class ApiResolverUtil {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        
+
         return {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
           status: error.response?.status || error.response?.data?.status || 500,
@@ -44,7 +46,7 @@ class ApiResolverUtil {
           message: error.response?.data?.message?.split?.(':')?.[1]
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             ? error.response.data.message.split(":")[1]
-             
+
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             : error.response?.data?.message || error.message || "Ошибка сервера",
         } as S;
