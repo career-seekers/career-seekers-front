@@ -5,6 +5,8 @@
   import { FormatManager } from '@/utils/FormatManager.ts';
   import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
   import Paginator from 'primevue/paginator';
+  import Button from 'primevue/button';
+  import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
   
   export interface Participant {
     id: number,
@@ -36,6 +38,7 @@
   export default {
     name: 'CompetenceParticipantsList',
     components: {
+      Button,
       Paginator
     },
     props: {
@@ -44,11 +47,13 @@
         required: true,
       },
     },
-    data() {
+    emits: ['refresh-participants'],
+    data: function() {
       return {
+        childCompetenceResolver: new ChildCompetenciesResolver(),
         currentPage: 0,
         itemsPerPage: 8,
-      }
+      };
     },
     computed: {
       FormatManager() {
@@ -75,6 +80,14 @@
           }
         });
       },
+      async unassignParticipant(participant: Participant) {
+        if (confirm(`Вы уверены, что хотите снять с компетенции ребенка ${participant.firstName}`)) {
+          const response = await this.childCompetenceResolver.deleteById(participant.id)
+          if (response.status === 200) {
+            this.$emit("refresh-participants", participant);
+          }
+        }
+      }
     }
   };
 </script>
@@ -100,6 +113,14 @@
               participant.patronymic !== "null" ? participant.patronymic : ""
             }}
           </h3>
+        </div>
+        <div class="expert-actions">
+          <Button
+            v-tooltip.left="'Снять с компетенции'"
+            icon="pi pi-ban"
+            severity="danger"
+            @click="unassignParticipant(participant)"
+          />
         </div>
       </div>
 
@@ -270,6 +291,12 @@
     margin-bottom: 2rem;
     padding: 1rem;
     transition: opacity 0.3s ease;
+  }
+
+  @media screen and (max-width: 768px) {
+    .experts-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
 </style>
