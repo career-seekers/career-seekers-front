@@ -205,6 +205,7 @@ import ProgressSpinner from 'primevue/progressspinner';
 import CompetenciesList from '@/components/lists/CompetenciesList.vue';
 import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
+import {AgeCategoriesResolver} from "@/api/resolvers/ageCategory/age-categories.resolver.ts";
 
 export default {
   name: "ExpertCompetencies",
@@ -222,6 +223,7 @@ export default {
   },
   data() {
     return {
+      ageCategoriesResolver: new AgeCategoriesResolver(),
       user: useUserStore().user,
       competenceResolver: new CompetenceResolver(),
       userResolver: new UserResolver(),
@@ -274,10 +276,14 @@ export default {
     await this.loadCompetencies();
   },
   methods: {
-    viewDetails(competenceId: number) {
-      this.selectedCompetence = this.competencies.find(
-          (c) => c.id === competenceId,
-      );
+    async viewDetails(competenceId: number) {
+      const res = await this.ageCategoriesResolver.getByDirectionId(competenceId);
+      const competence = this.competencies.find((c) => c.id === competenceId);
+
+      if (competence) {
+        this.selectedCompetence = competence;
+        competence.ageCategories = res.message;
+      }
       this.showDetailsDialog = true;
     },
 
@@ -303,7 +309,12 @@ export default {
       this.showAddCompetenceDialog = true;
     },
 
-    editCompetence(competence: CompetenceOutputDto) {
+    async editCompetence(competence: CompetenceOutputDto) {
+      const res = await this.ageCategoriesResolver.getByDirectionId(competence.id);
+      if (competence) {
+        competence.ageCategories = res.message;
+      }
+
       this.isEditing = true;
       this.editingCompetenceId = competence.id;
       this.oldAgeCategories = competence.ageCategories.map(item => item.ageCategory)

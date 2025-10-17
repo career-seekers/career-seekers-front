@@ -70,6 +70,7 @@ import ProgressSpinner from 'primevue/progressspinner';
 import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
 import CompetenciesList from '@/components/lists/CompetenciesList.vue';
 import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+import {AgeCategoriesResolver} from "@/api/resolvers/ageCategory/age-categories.resolver.ts";
 
 export default {
   name: "ExpertCompetencies",
@@ -82,6 +83,8 @@ export default {
   },
   data() {
     return {
+      ageCategoriesResolver: new AgeCategoriesResolver(),
+
       user: useUserStore().user,
       selectedAge: [] as AgeCategories[],
       showDetailsDialog: false,
@@ -107,10 +110,14 @@ export default {
     await this.loadCompetencies();
   },
   methods: {
-    viewDetails(competenceId: number) {
-      this.selectedCompetence = this.competencies.find(
-        (c) => c.id === competenceId,
-      );
+    async viewDetails(competenceId: number) {
+      const res = await this.ageCategoriesResolver.getByDirectionId(competenceId);
+      const competence = this.competencies.find((c) => c.id === competenceId);
+
+      if (competence) {
+        this.selectedCompetence = competence;
+        competence.ageCategories = res.message;
+      }
       this.showDetailsDialog = true;
     },
     resetFilters() {
