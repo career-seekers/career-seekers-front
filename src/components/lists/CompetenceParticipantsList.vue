@@ -81,12 +81,12 @@
         });
       },
       async unassignParticipant(participant: Participant) {
-        if (confirm(`Вы уверены, что хотите снять с компетенции ребенка ${participant.firstName}`)) {
-          const response = await this.childCompetenceResolver.deleteById(participant.id)
-          if (response.status === 200) {
-            this.$emit("refresh-participants", participant);
-          }
-        }
+        // if (confirm(`Вы уверены, что хотите снять с компетенции ребенка ${participant.firstName}`)) {
+        //   const response = await this.childCompetenceResolver.deleteById(participant.id)
+        //   if (response.status === 200) {
+        //     this.$emit("refresh-participants", participant);
+        //   }
+        // }
       }
     }
   };
