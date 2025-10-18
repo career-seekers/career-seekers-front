@@ -7,6 +7,9 @@
   import Paginator from 'primevue/paginator';
   import Button from 'primevue/button';
   import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+  import type {
+    ChildCompetenciesOutputDto
+  } from "@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts";
   
   export interface Participant {
     id: number,
@@ -46,6 +49,10 @@
         type: Array as PropType<Participant[]>,
         required: true,
       },
+      childrenRecords: {
+        type: Array as PropType<ChildCompetenciesOutputDto[]>,
+        required: true,
+      }
     },
     emits: ['refresh-participants'],
     data: function() {
@@ -81,12 +88,13 @@
         });
       },
       async unassignParticipant(participant: Participant) {
-        // if (confirm(`Вы уверены, что хотите снять с компетенции ребенка ${participant.firstName}`)) {
-        //   const response = await this.childCompetenceResolver.deleteById(participant.id)
-        //   if (response.status === 200) {
-        //     this.$emit("refresh-participants", participant);
-        //   }
-        // }
+        const record = this.childrenRecords.find(record => record.childId === participant.id)
+        if (confirm(`Вы уверены, что хотите снять с компетенции ребенка ${participant.firstName}`)) {
+          const response = await this.childCompetenceResolver.deleteById(record?.id!!)
+          if (response.status === 200) {
+            this.$emit("refresh-participants", participant);
+          }
+        }
       }
     }
   };

@@ -19,6 +19,9 @@
   import { Roles } from '@/state/UserState.types.ts';
   import { ReportResolver } from '@/api/resolvers/reports/report.resolver.ts';
   import { getExtensionFromMimeType } from '@/shared/UseMimeTypes.ts';
+  import type {
+    ChildCompetenciesOutputDto
+  } from "@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts";
 
   export default {
     name: 'CompetenceParticipants',
@@ -45,6 +48,7 @@
         ageGroups: useAgeGroups,
 
         children: [] as Participant[],
+        childrenRecords: [] as ChildCompetenciesOutputDto[],
 
         userResolver: new UserResolver(),
         childCompetenceResolver: new ChildCompetenciesResolver(),
@@ -115,6 +119,9 @@
       this.isLoading = true;
       const response = await this.competenceResolver.getById(this.competenceIdChecked)
       if (typeof response.message !== "string") {
+
+        console.log(response.message)
+
         if (this.userStore?.user?.id !== response.message.userId &&
         this.userStore?.user?.id !== response.message.expertId &&
         this.userStore?.user?.role !== Roles.ADMIN) {
@@ -129,7 +136,11 @@
     methods: {
       async loadChildren() {
         const childCompetenceResponse = await this.childCompetenceResolver.getByCompetenceId(this.competenceIdChecked)
+
+        console.log(childCompetenceResponse.message)
+
         if (typeof childCompetenceResponse.message !== "string") {
+          this.childrenRecords = childCompetenceResponse.message
           const promises = childCompetenceResponse.message.map(async childCompetence => {
             return {
               child: await this.childResolver.getById(childCompetence.childId),
@@ -240,6 +251,7 @@
         >
           <CompetenceParticipantsList
             :participants="tab.children"
+            :children-records="childrenRecords"
             @refresh-participants="(participant) => refreshParticipants(participant)"
           />
         </TabPanel>
