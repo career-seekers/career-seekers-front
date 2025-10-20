@@ -36,6 +36,7 @@ export type ChildDetailsDialogData = {
       firstName: string;
       patronymic: string;
     },
+    assignId: number;
     teacherName: string | null;
     institution: string | null;
     post: string | null;
@@ -134,13 +135,27 @@ export default {
         window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.id}`;
     },
     compareDetails(childId: number, competenceId: number) {
-      const competenceInfo = this.childrenDetails
+      const competenceInfo = JSON.parse(JSON.stringify(this.childrenDetails
         .find(childDetails => childDetails.child.id === childId)?.competencies
-        ?.find(competence => competence.id === competenceId)
-      const originalCompetenceInfo = this.originalChildrenDetails
+        ?.find(competence => competence.id === competenceId)))
+      const originalCompetenceInfo = JSON.parse(JSON.stringify(this.originalChildrenDetails
         .find(childDetails => childDetails.child.id === childId)?.competencies
-        ?.find(competence => competence.id === competenceId)
+        ?.find(competence => competence.id === competenceId)))
       return JSON.stringify(competenceInfo) === JSON.stringify(originalCompetenceInfo);
+    },
+    updateTeacherInfo(competence: {
+      assignId: number;
+      teacherName: string | null;
+      institution: string | null;
+      post: string | null;
+    }) {
+      this.$emit('update-preparation-info', {
+        id: competence.assignId,
+        teacherName: competence.teacherName,
+        institution: competence.institution,
+        post: competence.post
+      })
+      this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails))
     }
   }
 };
@@ -485,11 +500,11 @@ export default {
               <div class="preparation-details">
                 <div class="field">
                   <label
-                    for="email"
+                    for="teacher-name"
                     class="field-label"
                   >ФИО (через пробел)</label>
                   <InputText
-                    id="email"
+                    id="teacher-name"
                     v-model="competence.teacherName"
                     placeholder="Иванов Иван Иванович"
                     type="text"
@@ -498,11 +513,11 @@ export default {
                 </div>
                 <div class="field">
                   <label
-                    for="email"
+                    for="institution"
                     class="field-label"
                   >Образовательное учреждение</label>
                   <InputText
-                    id="email"
+                    id="institution"
                     v-model="competence.institution"
                     placeholder="Государственное общеобразовательное учреждение"
                     type="text"
@@ -511,11 +526,11 @@ export default {
                 </div>
                 <div class="field">
                   <label
-                    for="email"
+                    for="post"
                     class="field-label"
                   >Должность</label>
                   <InputText
-                    id="email"
+                    id="post"
                     v-model="competence.post"
                     placeholder="Должность в ОУ"
                     type="text"
@@ -525,7 +540,7 @@ export default {
                 <Button
                   label="Сохранить"
                   :disabled="compareDetails(childDetails.child.id, competence.id)"
-                  @click="$emit('update-preparation-info', competence)"
+                  @click="updateTeacherInfo(competence)"
                 />
               </div>
             </div>

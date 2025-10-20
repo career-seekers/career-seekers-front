@@ -6,6 +6,7 @@ import type {
 import type {
   ChildCompetenciesInputDto
 } from '@/api/resolvers/childCompetencies/dto/input/child-competencies-input.dto.ts';
+import type { TeacherInfoInputDto } from '@/api/resolvers/childCompetencies/dto/input/teacher-info-input.dto.ts';
 
 export class ChildCompetenciesResolver {
   private apiResolver = new ApiResolver("events-service/v1/childToDirection");
@@ -53,6 +54,18 @@ export class ChildCompetenciesResolver {
       CommonOutputDto<string>
     >(
       ``,
+      "PATCH",
+      data,
+      this.token ? this.token : undefined
+    )
+  }
+
+  public async setTeacherInfo(data: TeacherInfoInputDto) {
+    return this.apiResolver.request<
+      TeacherInfoInputDto,
+      CommonOutputDto<string>
+    >(
+      "setTeacherInfo",
       "PATCH",
       data,
       this.token ? this.token : undefined

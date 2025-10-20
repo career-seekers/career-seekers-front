@@ -7,7 +7,4 @@ export interface CompetenceUpdateInputDto {
   ageCategory: AgeCategories[] | null;
   userId: number | null;
   expertId: number | null;
-  teacherName: string | null;
-  institutionName: string | null;
-  post: string | null;
 }

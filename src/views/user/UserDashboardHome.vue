@@ -70,6 +70,7 @@
       @edit-child="(child) => editChild(child)"
       @edit-mentor="(child) => openMentorSelectionDialog(child)"
       @update-children="updateChildrenDetails"
+      @update-preparation-info="(teacherInfo) => updateCompetenceTeacherInfo(teacherInfo)"
     />
     <div v-else-if="isLoading">
       <ProgressSpinner
@@ -393,19 +394,26 @@ export default {
     isHomePrepared() { this.clearErrors() },
   },
   async mounted() {
-    // Проверяем, есть ли сохраненный наставник после перехода по ссылке
-    // Загружаем компетенции для всех детей
-    // Загружаем доступных наставников
     await this.loadChildrenDetails();
     await this.loadAvailableMentors();
   },
 
   async activated() {
-    // Обновляем список наставников при активации компонента
-    // Это поможет обновить список после возврата с подтверждения ссылки
     await this.loadAvailableMentors();
   },
   methods: {
+    async updateCompetenceTeacherInfo(teacherInfo: {
+      assignmentId: number;
+      teacherName: string;
+      institution: string;
+      post: string;
+    }) {
+      const response = await this.childCompetenciesResolver.setTeacherInfo(teacherInfo)
+      this.toastPopup = {
+        title: response.status,
+        message: response.message,
+      }
+    },
     async updateChildrenDetails() {
       this.childrenDetails = []
       await this.loadChildrenDetails()
@@ -438,7 +446,11 @@ export default {
                   patronymic: 'указан',
                 }
                 : expertResponse.message,
-              queueStatus: competence.queueStatus
+              queueStatus: competence.queueStatus,
+              assignId: competence.id,
+              teacherName: competence.teacherName,
+              institution: competence.institution,
+              post: competence.post,
             };
           }));
         details.push({
