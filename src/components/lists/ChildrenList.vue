@@ -547,7 +547,7 @@ export default {
                   <label
                     :for="'teacher-name'+competence.assignId"
                     class="field-label"
-                  >ФИО (через пробел)</label>
+                  >ФИО полностью *</label>
                   <InputText
                     :id="'teacher-name'+competence.assignId"
                     v-model="competence.teacherName"
@@ -566,7 +566,7 @@ export default {
                   <label
                     :for="'institution'+competence.assignId"
                     class="field-label"
-                  >Образовательное учреждение</label>
+                  >Образовательное учреждение *</label>
                   <InputText
                     :id="'institution'+competence.assignId"
                     v-model="competence.institution"
@@ -585,7 +585,7 @@ export default {
                   <label
                     :for="'post'+competence.assignId"
                     class="field-label"
-                  >Должность</label>
+                  >Должность *</label>
                   <InputText
                     :id="'post'+competence.assignId"
                     v-model="competence.post"
