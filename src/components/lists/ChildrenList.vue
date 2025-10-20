@@ -428,30 +428,30 @@ export default {
               </div>
 
               <div class="doc-item" v-if="!(competence.id in blockedCompetencesId)">
-                <div class="doc-info">
-                  <span class="info-label">Конкурсное задание отборочного этапа:</span>
-                </div>
-                <div class="doc-actions">
-                  <Button
-                      label="Просмотреть"
-                      icon="pi pi-eye"
-                      class="p-button-secondary p-button-sm"
-                      @click="viewCompetenceDocument(
-                      competence.id,
-                      (childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_1' || childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_2') ? FileType.FINAL_TASK : FileType.TASK,
-                      childDetails.child.childDocuments?.ageCategory
-                    )"
-                  />
-                  <Button
-                      label="Скачать"
-                      icon="pi pi-download"
-                      class="p-button-secondary p-button-sm"
-                      @click="downloadCompetenceDocument(
-                      competence.id,
-                      (childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_1' || childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_2') ? FileType.FINAL_TASK : FileType.TASK,
-                      childDetails.child.childDocuments?.ageCategory
-                    )"
-                  />
+<!--                <div class="doc-info">-->
+<!--                  <span class="info-label">Конкурсное задание отборочного этапа:</span>-->
+<!--                </div>-->
+<!--                <div class="doc-actions">-->
+<!--                  <Button-->
+<!--                      label="Просмотреть"-->
+<!--                      icon="pi pi-eye"-->
+<!--                      class="p-button-secondary p-button-sm"-->
+<!--                      @click="viewCompetenceDocument(-->
+<!--                      competence.id,-->
+<!--                      (childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_1' || childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_2') ? FileType.FINAL_TASK : FileType.TASK,-->
+<!--                      childDetails.child.childDocuments?.ageCategory-->
+<!--                    )"-->
+<!--                  />-->
+<!--                  <Button-->
+<!--                      label="Скачать"-->
+<!--                      icon="pi pi-download"-->
+<!--                      class="p-button-secondary p-button-sm"-->
+<!--                      @click="downloadCompetenceDocument(-->
+<!--                      competence.id,-->
+<!--                      (childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_1' || childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_2') ? FileType.FINAL_TASK : FileType.TASK,-->
+<!--                      childDetails.child.childDocuments?.ageCategory-->
+<!--                    )"-->
+<!--                  />-->
                 </div>
               </div>
             </div>
