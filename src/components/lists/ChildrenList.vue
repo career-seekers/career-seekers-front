@@ -88,6 +88,11 @@ export default {
       return FormatManager
     },
   },
+  watch: {
+    childrenDetails() {
+      this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsDialogData[]
+    },
+  },
   methods: {
     async deleteChild(child: ChildOutputDto) {
       if (confirm(
