@@ -506,10 +506,7 @@ export default {
                 </div>
               </div>
 
-              <div
-                v-if="blockedCompetencesId.includes(competence.id)"
-                class="doc-item"
-              >
+              <div class="doc-item" v-if="!blockedCompetencesId.includes(competence.id)">
                 <div class="doc-info">
                   <span class="info-label">Конкурсное задание отборочного этапа:</span>
                 </div>
