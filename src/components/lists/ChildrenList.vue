@@ -141,13 +141,18 @@ export default {
         window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.id}`;
     },
     compareDetails(childId: number, competenceId: number) {
-      const competenceInfo = JSON.parse(JSON.stringify(this.childrenDetails
+      const competenceInfo = this.childrenDetails
         .find(childDetails => childDetails.child.id === childId)?.competencies
-        ?.find(competence => competence.id === competenceId)))
-      const originalCompetenceInfo = JSON.parse(JSON.stringify(this.originalChildrenDetails
+        ?.find(competence => competence.id === competenceId);
+      const originalCompetenceInfo = this.originalChildrenDetails
         .find(childDetails => childDetails.child.id === childId)?.competencies
-        ?.find(competence => competence.id === competenceId)))
-      return JSON.stringify(competenceInfo) === JSON.stringify(originalCompetenceInfo);
+        ?.find(competence => competence.id === competenceId);
+      if (!competenceInfo || !originalCompetenceInfo) return false;
+      return (
+        competenceInfo.teacherName === originalCompetenceInfo.teacherName &&
+        competenceInfo.institution === originalCompetenceInfo.institution &&
+        competenceInfo.post === originalCompetenceInfo.post
+      );
     },
     async updateTeacherInfo(teacherInfo: {
       assignId: number;
