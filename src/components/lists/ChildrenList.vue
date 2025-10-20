@@ -502,11 +502,11 @@ export default {
               <div class="preparation-details">
                 <div class="field">
                   <label
-                    for="teacher-name"
+                    :for="'teacher-name'+competence.assignId"
                     class="field-label"
                   >ФИО (через пробел)</label>
                   <InputText
-                    id="teacher-name"
+                    :id="'teacher-name'+competence.assignId"
                     v-model="competence.teacherName"
                     placeholder="Иванов Иван Иванович"
                     type="text"
@@ -515,11 +515,11 @@ export default {
                 </div>
                 <div class="field">
                   <label
-                    for="institution"
+                    :for="'institution'+competence.assignId"
                     class="field-label"
                   >Образовательное учреждение</label>
                   <InputText
-                    id="institution"
+                    :id="'institution'+competence.assignId"
                     v-model="competence.institution"
                     placeholder="Государственное общеобразовательное учреждение"
                     type="text"
@@ -528,11 +528,11 @@ export default {
                 </div>
                 <div class="field">
                   <label
-                    for="post"
+                    :for="'post'+competence.assignId"
                     class="field-label"
                   >Должность</label>
                   <InputText
-                    id="post"
+                    :id="'post'+competence.assignId"
                     v-model="competence.post"
                     placeholder="Должность в ОУ"
                     type="text"
