@@ -70,7 +70,7 @@
       @edit-child="(child) => editChild(child)"
       @edit-mentor="(child) => openMentorSelectionDialog(child)"
       @update-children="updateChildrenDetails"
-      @update-preparation-info="(teacherInfo) => updateCompetenceTeacherInfo(teacherInfo)"
+      @update-toast-popup="(title, message) => toastPopup = { title, message }"
     />
     <div v-else-if="isLoading">
       <ProgressSpinner
@@ -402,18 +402,6 @@ export default {
     await this.loadAvailableMentors();
   },
   methods: {
-    async updateCompetenceTeacherInfo(teacherInfo: {
-      assignmentId: number;
-      teacherName: string;
-      institution: string;
-      post: string;
-    }) {
-      const response = await this.childCompetenciesResolver.setTeacherInfo(teacherInfo)
-      this.toastPopup = {
-        title: response.status,
-        message: response.message,
-      }
-    },
     async updateChildrenDetails() {
       this.childrenDetails = []
       await this.loadChildrenDetails()

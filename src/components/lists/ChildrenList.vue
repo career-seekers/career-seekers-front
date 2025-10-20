@@ -16,6 +16,7 @@ import {QueueStatuses} from '@/api/resolvers/childCompetencies/types.ts';
 import {useQueueStatuses} from '@/shared/UseQueueStatuses.ts';
 import type {AgeCategories} from '@/api/resolvers/ageCategory/ageCategories.ts';
 import InputText from 'primevue/inputtext';
+import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
 
 export type ChildDetailsDialogData = {
   child: ChildOutputDto;
@@ -60,12 +61,12 @@ export default {
     "edit-mentor",
     "update-toast-popup",
     "update-children",
-    'update-preparation-info'
   ],
   data() {
     return {
       childResolver: new ChildResolver(),
       competenceDocumentsResolver: new CompetenceDocumentsResolver(),
+      childCompetenceResolver: new ChildCompetenciesResolver(),
       userStore: useUserStore(),
       ageGroups: useAgeGroups,
       queueStatuses: useQueueStatuses,
@@ -143,20 +144,21 @@ export default {
         ?.find(competence => competence.id === competenceId)))
       return JSON.stringify(competenceInfo) === JSON.stringify(originalCompetenceInfo);
     },
-    updateTeacherInfo(competence: {
+    async updateTeacherInfo(teacherInfo: {
       assignId: number;
       teacherName: string | null;
       institution: string | null;
       post: string | null;
     }) {
-      this.$emit('update-preparation-info', {
-        id: competence.assignId,
-        teacherName: competence.teacherName,
-        institution: competence.institution,
-        post: competence.post
+      const response = await this.childCompetenceResolver.setTeacherInfo({
+        ...teacherInfo,
+        id: teacherInfo.assignId,
       })
-      this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails))
-    }
+      if (response.status === 200) {
+        this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails))
+      }
+      this.$emit('update-toast-popup', response.status, response.message)
+    },
   }
 };
 </script>
