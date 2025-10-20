@@ -15,6 +15,8 @@ import apiConf from '@/api/api.conf.ts';
 import {QueueStatuses} from '@/api/resolvers/childCompetencies/types.ts';
 import {useQueueStatuses} from '@/shared/UseQueueStatuses.ts';
 import type {AgeCategories} from '@/api/resolvers/ageCategory/ageCategories.ts';
+import InputText from 'primevue/inputtext';
+import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
 
 export type ChildDetailsDialogData = {
   child: ChildOutputDto;
@@ -35,13 +37,25 @@ export type ChildDetailsDialogData = {
       firstName: string;
       patronymic: string;
     },
+    assignId: number;
+    teacherName: string | null;
+    institution: string | null;
+    post: string | null;
   }[]
+}
+
+type TeacherInfo = {
+  assignId: number;
+  teacherName: string | null;
+  institution: string | null;
+  post: string | null;
 }
 
 export default {
   name: 'ChildrenList',
   components: {
     Button,
+    InputText
   },
   props: {
     childrenDetails: {
@@ -53,16 +67,23 @@ export default {
     "edit-child",
     "edit-mentor",
     "update-toast-popup",
-    "update-children"
+    "update-children",
   ],
   data() {
     return {
       childResolver: new ChildResolver(),
       competenceDocumentsResolver: new CompetenceDocumentsResolver(),
+      childCompetenceResolver: new ChildCompetenciesResolver(),
       userStore: useUserStore(),
       ageGroups: useAgeGroups,
       queueStatuses: useQueueStatuses,
-      blockedCompetencesId: [30, 38, 39, 44, 48, 52, 53, 66, 69, 78, 79, 90, 99, 105, 106, 107, 108, 119, 121, 126]
+      blockedCompetencesId: [30, 38, 39, 44, 48, 52, 53, 66, 69, 78, 79, 90, 99, 105, 106, 107, 108, 119, 121, 126],
+      originalChildrenDetails: JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsDialogData[],
+      teacherFormErrors: {
+        teacherName: "",
+        institution: "",
+        post: "",
+      }
     }
   },
   computed: {
@@ -77,6 +98,11 @@ export default {
     },
     FormatManager() {
       return FormatManager
+    },
+  },
+  watch: {
+    childrenDetails() {
+      this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsDialogData[]
     },
   },
   methods: {
@@ -126,6 +152,59 @@ export default {
       if (this.checkDocument(doc))
         window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.id}`;
     },
+    compareDetails(childId: number, competenceId: number) {
+      const competenceInfo = this.childrenDetails
+        .find(childDetails => childDetails.child.id === childId)?.competencies
+        ?.find(competence => competence.id === competenceId);
+      const originalCompetenceInfo = this.originalChildrenDetails
+        .find(childDetails => childDetails.child.id === childId)?.competencies
+        ?.find(competence => competence.id === competenceId);
+      if (!competenceInfo || !originalCompetenceInfo) return false;
+      return (
+        competenceInfo.teacherName === originalCompetenceInfo.teacherName &&
+        competenceInfo.institution === originalCompetenceInfo.institution &&
+        competenceInfo.post === originalCompetenceInfo.post
+      );
+    },
+    validateForm(teacherInfo: TeacherInfo) {
+      let isValid = true
+      if (!(teacherInfo.teacherName === null &&
+        teacherInfo.institution === null &&
+        teacherInfo.post === null)
+      ) {
+        teacherInfo.teacherName = teacherInfo.teacherName ?? ""
+        teacherInfo.institution = teacherInfo.institution ?? ""
+        teacherInfo.post = teacherInfo.post ?? ""
+      }
+      if (teacherInfo.teacherName === "") {
+        this.teacherFormErrors.teacherName = "ФИО педагога не может быть пустым!"
+        isValid = false
+      } else this.teacherFormErrors.teacherName = ""
+
+      if (teacherInfo.institution === "") {
+        this.teacherFormErrors.institution = "Образовательное учреждение не может быть пустым!"
+        isValid = false
+      } else this.teacherFormErrors.institution = ""
+
+      if (teacherInfo.post === "") {
+        this.teacherFormErrors.post = "Должность педагога не может быть пустой!"
+        isValid = false
+      } else this.teacherFormErrors.post = ""
+
+      return isValid
+    },
+    async updateTeacherInfo(teacherInfo: TeacherInfo) {
+      if (this.validateForm(teacherInfo)) {
+        const response = await this.childCompetenceResolver.setTeacherInfo({
+          ...teacherInfo,
+          id: teacherInfo.assignId,
+        })
+        if (response.status === 200) {
+          this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails))
+        }
+        this.$emit('update-toast-popup', response.status, response.message)
+      }
+    },
   }
 };
 </script>
@@ -133,39 +212,39 @@ export default {
 <template>
   <div class="experts-grid">
     <div
-        v-for="childDetails in childrenDetails"
-        :key="childDetails.child.id"
-        class="expert-card"
+      v-for="childDetails in childrenDetails"
+      :key="childDetails.child.id"
+      class="expert-card"
     >
       <div class="expert-header">
         <div class="expert-avatar">
-          <i class="pi pi-user"/>
+          <i class="pi pi-user" />
         </div>
         <div class="expert-info">
           <h3 class="expert-name">
             {{
               childDetails.child.lastName +
-              " " +
-              childDetails.child.firstName +
-              " " +
-              childDetails.child.patronymic
+                " " +
+                childDetails.child.firstName +
+                " " +
+                childDetails.child.patronymic
             }}
           </h3>
         </div>
         <div class="expert-actions">
           <Button
-              v-tooltip="'Редактировать данные ребенка'"
-              icon="pi pi-pencil"
-              disabled
-              class="p-button-secondary p-button-sm edit-button"
-              @click="$emit('edit-child', childDetails.child)"
+            v-tooltip="'Редактировать данные ребенка'"
+            icon="pi pi-pencil"
+            disabled
+            class="p-button-secondary p-button-sm edit-button"
+            @click="$emit('edit-child', childDetails.child)"
           />
           <Button
-              v-tooltip="'Удалить'"
-              icon="pi pi-trash"
-              disabled
-              class="p-button-secondary p-button-sm"
-              @click="deleteChild(childDetails.child)"
+            v-tooltip="'Удалить'"
+            icon="pi pi-trash"
+            disabled
+            class="p-button-secondary p-button-sm"
+            @click="deleteChild(childDetails.child)"
           />
         </div>
       </div>
@@ -195,15 +274,15 @@ export default {
             <span class="detail-value">
               {{
                 childDetails.child.childDocuments !== null
-                    ? FormatManager.formatSnilsFromDTO(childDetails.child.childDocuments.snilsNumber)
-                    : 'Не указан'
+                  ? FormatManager.formatSnilsFromDTO(childDetails.child.childDocuments.snilsNumber)
+                  : 'Не указан'
               }}
             </span>
           </div>
           <div
-              v-if="childDetails.child.childDocuments !== null &&
+            v-if="childDetails.child.childDocuments !== null &&
               childDetails.child.childDocuments?.learningClass > 0"
-              class="detail-item"
+            class="detail-item"
           >
             <span class="detail-label">Класс:</span>
             <span class="detail-value">
@@ -215,12 +294,12 @@ export default {
         <!-- Информация о документах -->
         <div class="info-section">
           <h4 class="section-title">
-            <i class="pi pi-file"/>
+            <i class="pi pi-file" />
             Документы
           </h4>
           <div
-              v-if="childDetails.childDocs !== null"
-              class="info-grid docs-grid"
+            v-if="childDetails.childDocs !== null"
+            class="info-grid docs-grid"
           >
             <div class="info-item">
               <div class="doc-info">
@@ -233,16 +312,16 @@ export default {
               </div>
               <div class="doc-actions">
                 <Button
-                    label="Просмотреть"
-                    icon="pi pi-eye"
-                    class="p-button-secondary p-button-sm"
-                    @click="viewDocument(childDetails.childDocs.birthFile)"
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-secondary p-button-sm"
+                  @click="viewDocument(childDetails.childDocs.birthFile)"
                 />
                 <Button
-                    label="Скачать"
-                    icon="pi pi-download"
-                    class="p-button-secondary p-button-sm"
-                    @click="downloadDocument(childDetails.childDocs.birthFile)"
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-secondary p-button-sm"
+                  @click="downloadDocument(childDetails.childDocs.birthFile)"
                 />
               </div>
             </div>
@@ -257,16 +336,16 @@ export default {
               </div>
               <div class="doc-actions">
                 <Button
-                    label="Просмотреть"
-                    icon="pi pi-eye"
-                    class="p-button-secondary p-button-sm"
-                    @click="viewDocument(childDetails.childDocs.snilsFile)"
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-secondary p-button-sm"
+                  @click="viewDocument(childDetails.childDocs.snilsFile)"
                 />
                 <Button
-                    label="Скачать"
-                    icon="pi pi-download"
-                    class="p-button-secondary p-button-sm"
-                    @click="downloadDocument(childDetails.childDocs.snilsFile)"
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-secondary p-button-sm"
+                  @click="downloadDocument(childDetails.childDocs.snilsFile)"
                 />
               </div>
             </div>
@@ -281,16 +360,16 @@ export default {
               </div>
               <div class="doc-actions">
                 <Button
-                    label="Просмотреть"
-                    icon="pi pi-eye"
-                    class="p-button-secondary p-button-sm"
-                    @click="viewDocument(childDetails.childDocs.schoolFile)"
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-secondary p-button-sm"
+                  @click="viewDocument(childDetails.childDocs.schoolFile)"
                 />
                 <Button
-                    label="Скачать"
-                    icon="pi pi-download"
-                    class="p-button-secondary p-button-sm"
-                    @click="downloadDocument(childDetails.childDocs.schoolFile)"
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-secondary p-button-sm"
+                  @click="downloadDocument(childDetails.childDocs.schoolFile)"
                 />
               </div>
             </div>
@@ -305,16 +384,16 @@ export default {
               </div>
               <div class="doc-actions">
                 <Button
-                    label="Просмотреть"
-                    icon="pi pi-eye"
-                    class="p-button-secondary p-button-sm"
-                    @click="viewDocument(childDetails.childDocs.platformFile)"
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-secondary p-button-sm"
+                  @click="viewDocument(childDetails.childDocs.platformFile)"
                 />
                 <Button
-                    label="Скачать"
-                    icon="pi pi-download"
-                    class="p-button-secondary p-button-sm"
-                    @click="downloadDocument(childDetails.childDocs.platformFile)"
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-secondary p-button-sm"
+                  @click="downloadDocument(childDetails.childDocs.platformFile)"
                 />
               </div>
             </div>
@@ -329,25 +408,25 @@ export default {
               </div>
               <div class="doc-actions">
                 <Button
-                    label="Просмотреть"
-                    icon="pi pi-eye"
-                    class="p-button-secondary p-button-sm"
-                    @click="viewDocument(childDetails.childDocs.consentFile)"
+                  label="Просмотреть"
+                  icon="pi pi-eye"
+                  class="p-button-secondary p-button-sm"
+                  @click="viewDocument(childDetails.childDocs.consentFile)"
                 />
                 <Button
-                    label="Скачать"
-                    icon="pi pi-download"
-                    class="p-button-secondary p-button-sm"
-                    @click="downloadDocument(childDetails.childDocs.consentFile)"
+                  label="Скачать"
+                  icon="pi pi-download"
+                  class="p-button-secondary p-button-sm"
+                  @click="downloadDocument(childDetails.childDocs.consentFile)"
                 />
               </div>
             </div>
           </div>
           <div
-              v-else
+            v-else
           >
             <p class="no-mentor-text">
-              <i class="pi pi-info-circle"/>
+              <i class="pi pi-info-circle" />
               Нет загруженных документов
             </p>
           </div>
@@ -355,16 +434,16 @@ export default {
 
         <!-- Информация о компетенциях -->
         <h4
-            v-if="childDetails.competencies.length > 0"
-            class="section-title"
+          v-if="childDetails.competencies.length > 0"
+          class="section-title"
         >
-          <i class="pi pi-star"/>
+          <i class="pi pi-star" />
           Компетенции
         </h4>
         <div
-            v-for="competence in childDetails.competencies"
-            :key="competence.id"
-            class="details-section"
+          v-for="competence in childDetails.competencies"
+          :key="competence.id"
+          class="details-section"
         >
           <div class="competence-details">
             <div class="competence-name">
@@ -374,25 +453,25 @@ export default {
               {{ competence.description }}
             </div>
             <div class="competence-expert">
-              <i class="pi pi-user"/>
+              <i class="pi pi-user" />
               Главный эксперт:
               {{
                 `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
               }}
             </div>
             <div
-                class="competence-name competence-status"
-                :class="competence.queueStatus === QueueStatuses.PARTICIPATES
+              class="competence-name competence-status"
+              :class="competence.queueStatus === QueueStatuses.PARTICIPATES
                 ? 'accepted' : 'denied'"
             >
               Статус:
               <div class="status-message competence-expert">
                 {{
                   competence.queueStatus === QueueStatuses.PARTICIPATES
-                      ? 'Заявка принята' : 'Заявка в листе ожидания'
+                    ? 'Заявка принята' : 'Заявка в листе ожидания'
                 }}
                 <i
-                    :class="competence.queueStatus === QueueStatuses.PARTICIPATES
+                  :class="competence.queueStatus === QueueStatuses.PARTICIPATES
                     ? 'pi pi-check' : 'pi pi-clock'"
                 />
               </div>
@@ -407,19 +486,19 @@ export default {
                 </div>
                 <div class="doc-actions">
                   <Button
-                      label="Просмотреть"
-                      icon="pi pi-eye"
-                      class="p-button-secondary p-button-sm"
-                      @click="viewCompetenceDocument(
+                    label="Просмотреть"
+                    icon="pi pi-eye"
+                    class="p-button-secondary p-button-sm"
+                    @click="viewCompetenceDocument(
                       competence.id, FileType.DESCRIPTION,
                       childDetails.child.childDocuments?.ageCategory
                     )"
                   />
                   <Button
-                      label="Скачать"
-                      icon="pi pi-download"
-                      class="p-button-secondary p-button-sm"
-                      @click="downloadCompetenceDocument(
+                    label="Скачать"
+                    icon="pi pi-download"
+                    class="p-button-secondary p-button-sm"
+                    @click="downloadCompetenceDocument(
                       competence.id, FileType.DESCRIPTION,
                       childDetails.child.childDocuments?.ageCategory
                     )"
@@ -433,65 +512,113 @@ export default {
                 </div>
                 <div class="doc-actions">
                   <Button
-                      label="Просмотреть"
-                      icon="pi pi-eye"
-                      class="p-button-secondary p-button-sm"
-                      @click="viewCompetenceDocument(
+                    label="Просмотреть"
+                    icon="pi pi-eye"
+                    class="p-button-secondary p-button-sm"
+                    @click="viewCompetenceDocument(
                       competence.id,
-                      (childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_1' || childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_2') ? FileType.FINAL_TASK : FileType.TASK,
+                      (childDetails.child.childDocuments?.ageCategory! == 'PRESCHOOL_1' ||
+                        childDetails.child.childDocuments?.ageCategory! == 'PRESCHOOL_2')
+                        ? FileType.FINAL_TASK : FileType.TASK,
                       childDetails.child.childDocuments?.ageCategory
                     )"
                   />
                   <Button
-                      label="Скачать"
-                      icon="pi pi-download"
-                      class="p-button-secondary p-button-sm"
-                      @click="downloadCompetenceDocument(
+                    label="Скачать"
+                    icon="pi pi-download"
+                    class="p-button-secondary p-button-sm"
+                    @click="downloadCompetenceDocument(
                       competence.id,
-                      (childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_1' || childDetails.child.childDocuments?.ageCategory == 'PRESCHOOL_2') ? FileType.FINAL_TASK : FileType.TASK,
+                      (childDetails.child.childDocuments?.ageCategory! == 'PRESCHOOL_1' ||
+                        childDetails.child.childDocuments?.ageCategory! == 'PRESCHOOL_2')
+                        ? FileType.FINAL_TASK : FileType.TASK,
                       childDetails.child.childDocuments?.ageCategory
                     )"
                   />
                 </div>
               </div>
             </div>
-            <!--            <div class="competence-docs">-->
-            <!--              <div class="competence-name">-->
-            <!--                Педагог, помогающий в подготовке к компетенции-->
-            <!--              </div>-->
-            <!--              <div class="expert-details">-->
-            <!--                <div class="detail-item">-->
-            <!--                  <span class="detail-label">Возрастная группа:</span>-->
-            <!--                  <span class="detail-value">-->
-            <!--                    {{ ageGroups.find(group => group.value === childDetails?.child.childDocuments?.ageCategory)?.label }}-->
-            <!--                  </span>-->
-            <!--                </div>-->
-            <!--                <div class="detail-item">-->
-            <!--                  <span class="detail-label">Возрастная группа:</span>-->
-            <!--                  <span class="detail-value">-->
-            <!--                    {{ ageGroups.find(group => group.value === childDetails?.child.childDocuments?.ageCategory)?.label }}-->
-            <!--                  </span>-->
-            <!--                </div>-->
-            <!--                <div class="detail-item">-->
-            <!--                  <span class="detail-label">Возрастная группа:</span>-->
-            <!--                  <span class="detail-value">-->
-            <!--                    {{ ageGroups.find(group => group.value === childDetails?.child.childDocuments?.ageCategory)?.label }}-->
-            <!--                  </span>-->
-            <!--                </div>-->
-            <!--              </div>-->
-            <!--            </div>-->
+            <div class="competence-docs">
+              <div class="competence-name">
+                Педагог, помогающий в подготовке к компетенции
+              </div>
+              <div class="preparation-details">
+                <div class="field">
+                  <label
+                    :for="'teacher-name'+competence.assignId"
+                    class="field-label"
+                  >ФИО полностью *</label>
+                  <InputText
+                    :id="'teacher-name'+competence.assignId"
+                    v-model="competence.teacherName"
+                    placeholder="Иванов Иван Иванович"
+                    type="text"
+                    class="w-full"
+                    :class="{ 'p-invalid': teacherFormErrors.teacherName }"
+                    @blur="validateForm(competence)"
+                  />
+                  <small
+                    v-if="teacherFormErrors.teacherName"
+                    class="p-error"
+                  >{{ teacherFormErrors.teacherName }}</small>
+                </div>
+                <div class="field">
+                  <label
+                    :for="'institution'+competence.assignId"
+                    class="field-label"
+                  >Образовательное учреждение *</label>
+                  <InputText
+                    :id="'institution'+competence.assignId"
+                    v-model="competence.institution"
+                    placeholder="Государственное общеобразовательное учреждение"
+                    type="text"
+                    class="w-full"
+                    :class="{ 'p-invalid': teacherFormErrors.institution }"
+                    @blur="validateForm(competence)"
+                  />
+                  <small
+                    v-if="teacherFormErrors.institution"
+                    class="p-error"
+                  >{{ teacherFormErrors.institution }}</small>
+                </div>
+                <div class="field">
+                  <label
+                    :for="'post'+competence.assignId"
+                    class="field-label"
+                  >Должность *</label>
+                  <InputText
+                    :id="'post'+competence.assignId"
+                    v-model="competence.post"
+                    placeholder="Должность в ОУ"
+                    type="text"
+                    class="w-full"
+                    :class="{ 'p-invalid': teacherFormErrors.post }"
+                    @blur="validateForm(competence)"
+                  />
+                  <small
+                    v-if="teacherFormErrors.post"
+                    class="p-error"
+                  >{{ teacherFormErrors.post }}</small>
+                </div>
+                <Button
+                  label="Сохранить"
+                  :disabled="compareDetails(childDetails.child.id, competence.id) || !validateForm(competence)"
+                  @click="updateTeacherInfo(competence)"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Информация о наставнике -->
         <div class="details-section">
           <h4 class="section-title">
-            <i class="pi pi-users"/>
+            <i class="pi pi-users" />
             Наставник
           </h4>
           <div
-              v-if="childDetails.child.mentor !== null"
-              class="mentor-info"
+            v-if="childDetails.child.mentor !== null"
+            class="mentor-info"
           >
             <div class="mentor-details">
               <div class="detail-item">
@@ -514,31 +641,31 @@ export default {
               </div>
             </div>
             <div
-                v-if="userStore.user?.role === Roles.USER"
-                class="mentor-actions"
+              v-if="userStore.user?.role === Roles.USER"
+              class="mentor-actions"
             >
               <Button
-                  label="Изменить наставника"
-                  icon="pi pi-pencil"
-                  class="p-button-primary p-button-sm"
-                  @click="$emit('edit-mentor', childDetails.child)"
+                label="Изменить наставника"
+                icon="pi pi-pencil"
+                class="p-button-primary p-button-sm"
+                @click="$emit('edit-mentor', childDetails.child)"
               />
             </div>
           </div>
           <div
-              v-else
-              class="no-mentor"
+            v-else
+            class="no-mentor"
           >
             <p class="no-mentor-text">
-              <i class="pi pi-info-circle"/>
+              <i class="pi pi-info-circle" />
               Наставник не выбран
             </p>
             <Button
-                v-if="userStore.user?.role === Roles.USER"
-                label="Выбрать наставника"
-                icon="pi pi-plus"
-                class="p-button-primary p-button-sm"
-                @click="$emit('edit-mentor', childDetails.child)"
+              v-if="userStore.user?.role === Roles.USER"
+              label="Выбрать наставника"
+              icon="pi pi-plus"
+              class="p-button-primary p-button-sm"
+              @click="$emit('edit-mentor', childDetails.child)"
             />
           </div>
         </div>
@@ -764,6 +891,17 @@ export default {
 
 .competence-item:hover .competence-expert {
   color: #1976d2;
+}
+
+.preparation-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: space-between;
+
+  .field {
+    margin-bottom: 0;
+  }
 }
 
 /* Мобильные стили для touch устройств */

@@ -70,6 +70,7 @@
       @edit-child="(child) => editChild(child)"
       @edit-mentor="(child) => openMentorSelectionDialog(child)"
       @update-children="updateChildrenDetails"
+      @update-toast-popup="(title, message) => toastPopup = { title, message }"
     />
     <div v-else-if="isLoading">
       <ProgressSpinner
@@ -393,16 +394,11 @@ export default {
     isHomePrepared() { this.clearErrors() },
   },
   async mounted() {
-    // Проверяем, есть ли сохраненный наставник после перехода по ссылке
-    // Загружаем компетенции для всех детей
-    // Загружаем доступных наставников
     await this.loadChildrenDetails();
     await this.loadAvailableMentors();
   },
 
   async activated() {
-    // Обновляем список наставников при активации компонента
-    // Это поможет обновить список после возврата с подтверждения ссылки
     await this.loadAvailableMentors();
   },
   methods: {
@@ -438,7 +434,11 @@ export default {
                   patronymic: 'указан',
                 }
                 : expertResponse.message,
-              queueStatus: competence.queueStatus
+              queueStatus: competence.queueStatus,
+              assignId: competence.id,
+              teacherName: competence.teacherName,
+              institution: competence.institution,
+              post: competence.post,
             };
           }));
         details.push({

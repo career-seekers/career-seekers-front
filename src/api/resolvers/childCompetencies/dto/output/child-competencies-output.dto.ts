@@ -22,4 +22,7 @@ export interface ChildCompetenciesOutputDto {
     maxParticipantsCount: number;
     currentParticipantsCount: number;
   };
+  teacherName: string | null;
+  institution: string | null;
+  post: string | null;
 }
