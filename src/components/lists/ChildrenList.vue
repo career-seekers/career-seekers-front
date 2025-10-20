@@ -44,6 +44,13 @@ export type ChildDetailsDialogData = {
   }[]
 }
 
+type TeacherInfo = {
+  assignId: number;
+  teacherName: string | null;
+  institution: string | null;
+  post: string | null;
+}
+
 export default {
   name: 'ChildrenList',
   components: {
@@ -72,6 +79,11 @@ export default {
       queueStatuses: useQueueStatuses,
       blockedCompetencesId: [30, 38, 39, 44, 48, 52, 53, 66, 69, 78, 79, 90, 99, 105, 106, 107, 108, 119, 121, 126],
       originalChildrenDetails: JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsDialogData[],
+      teacherFormErrors: {
+        teacherName: "",
+        institution: "",
+        post: "",
+      }
     }
   },
   computed: {
@@ -154,20 +166,44 @@ export default {
         competenceInfo.post === originalCompetenceInfo.post
       );
     },
-    async updateTeacherInfo(teacherInfo: {
-      assignId: number;
-      teacherName: string | null;
-      institution: string | null;
-      post: string | null;
-    }) {
-      const response = await this.childCompetenceResolver.setTeacherInfo({
-        ...teacherInfo,
-        id: teacherInfo.assignId,
-      })
-      if (response.status === 200) {
-        this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails))
+    validateForm(teacherInfo: TeacherInfo) {
+      let isValid = true
+      if (!(teacherInfo.teacherName === null &&
+        teacherInfo.institution === null &&
+        teacherInfo.post === null)
+      ) {
+        teacherInfo.teacherName = teacherInfo.teacherName ?? ""
+        teacherInfo.institution = teacherInfo.institution ?? ""
+        teacherInfo.post = teacherInfo.post ?? ""
       }
-      this.$emit('update-toast-popup', response.status, response.message)
+      if (teacherInfo.teacherName === "") {
+        this.teacherFormErrors.teacherName = "ФИО педагога не может быть пустым!"
+        isValid = false
+      } else this.teacherFormErrors.teacherName = ""
+
+      if (teacherInfo.institution === "") {
+        this.teacherFormErrors.institution = "Образовательное учреждение не может быть пустым!"
+        isValid = false
+      } else this.teacherFormErrors.institution = ""
+
+      if (teacherInfo.post === "") {
+        this.teacherFormErrors.post = "Должность педагога не может быть пустой!"
+        isValid = false
+      } else this.teacherFormErrors.post = ""
+
+      return isValid
+    },
+    async updateTeacherInfo(teacherInfo: TeacherInfo) {
+      if (this.validateForm(teacherInfo)) {
+        const response = await this.childCompetenceResolver.setTeacherInfo({
+          ...teacherInfo,
+          id: teacherInfo.assignId,
+        })
+        if (response.status === 200) {
+          this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails))
+        }
+        this.$emit('update-toast-popup', response.status, response.message)
+      }
     },
   }
 };
@@ -471,7 +507,7 @@ export default {
               </div>
 
               <div
-                v-if="!(competence.id in blockedCompetencesId)"
+                v-if="blockedCompetencesId.includes(competence.id)"
                 class="doc-item"
               >
                 <div class="doc-info">
@@ -521,7 +557,13 @@ export default {
                     placeholder="Иванов Иван Иванович"
                     type="text"
                     class="w-full"
+                    :class="{ 'p-invalid': teacherFormErrors.teacherName }"
+                    @blur="validateForm(competence)"
                   />
+                  <small
+                    v-if="teacherFormErrors.teacherName"
+                    class="p-error"
+                  >{{ teacherFormErrors.teacherName }}</small>
                 </div>
                 <div class="field">
                   <label
@@ -534,7 +576,13 @@ export default {
                     placeholder="Государственное общеобразовательное учреждение"
                     type="text"
                     class="w-full"
+                    :class="{ 'p-invalid': teacherFormErrors.institution }"
+                    @blur="validateForm(competence)"
                   />
+                  <small
+                    v-if="teacherFormErrors.institution"
+                    class="p-error"
+                  >{{ teacherFormErrors.institution }}</small>
                 </div>
                 <div class="field">
                   <label
@@ -547,11 +595,17 @@ export default {
                     placeholder="Должность в ОУ"
                     type="text"
                     class="w-full"
+                    :class="{ 'p-invalid': teacherFormErrors.post }"
+                    @blur="validateForm(competence)"
                   />
+                  <small
+                    v-if="teacherFormErrors.post"
+                    class="p-error"
+                  >{{ teacherFormErrors.post }}</small>
                 </div>
                 <Button
                   label="Сохранить"
-                  :disabled="compareDetails(childDetails.child.id, competence.id)"
+                  :disabled="compareDetails(childDetails.child.id, competence.id) || !validateForm(competence)"
                   @click="updateTeacherInfo(competence)"
                 />
               </div>
