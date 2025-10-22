@@ -209,14 +209,22 @@ export default {
 
       return isValid
     },
-    async updateTeacherInfo(teacherInfo: TeacherInfo) {
+    async updateTeacherInfo(childId: number, teacherInfo: TeacherInfo) {
       if (this.validateForm(teacherInfo)) {
         const response = await this.childCompetenceResolver.setTeacherInfo({
           ...teacherInfo,
           id: teacherInfo.assignId,
         })
         if (response.status === 200) {
-          this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails))
+          const originalCompetenceInfo = this.originalChildrenDetails
+            .find(origChildDetails => origChildDetails.child.id === childId)?.competencies
+            .find(competence => competence.assignId === teacherInfo.assignId)
+          if (originalCompetenceInfo) {
+            console.log("lki")
+            originalCompetenceInfo.teacherName = teacherInfo.teacherName
+            originalCompetenceInfo.institution = teacherInfo.institution
+            originalCompetenceInfo.post = teacherInfo.post
+          }
         }
         this.$emit('update-toast-popup', response.status, response.message)
       }
@@ -622,7 +630,7 @@ export default {
                 <Button
                   label="Сохранить"
                   :disabled="compareDetails(childDetails.child.id, competence.id) || !validateForm(competence)"
-                  @click="updateTeacherInfo(competence)"
+                  @click="updateTeacherInfo(childDetails.child.id, competence)"
                 />
               </div>
             </div>
