@@ -129,7 +129,6 @@ import type {
 import type {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
 import {CompetenceDocumentsResolver} from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
 import type {DocumentsOutputDto} from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
-import {useDocumentTemplates} from '@/shared/UseDocumentTemplates.ts';
 import {useDocumentTypes} from '@/shared/UseDocumentTypes.ts';
 import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
 import {useAgeGroups} from '@/shared/UseAgeGroups.ts';
@@ -172,7 +171,6 @@ export default {
       experts: [] as UserOutputDto[],
       competencies: [] as CompetenceOutputDto[],
       filteredCompetencies: [] as CompetenceOutputDto[],
-      DocumentTemplates: useDocumentTemplates,
       DocumentTypes: useDocumentTypes,
       errors: {
         toastPopup: {
