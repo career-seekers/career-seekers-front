@@ -71,7 +71,7 @@
             </p>
             <a
               class="p-button p-button-primary download-link"
-              :href="`/docs/${template.link}`"
+              :href="`/docs/templates/${template.link}`"
               :download="`${template.label}.${template.link.split('.')[1]}`"
             >
               Скачать

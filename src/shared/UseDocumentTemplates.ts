@@ -5,4 +5,5 @@ export const useDocumentTemplates = [
   { label: "Критерии оценки", link: "criteria_template.xlsx" },
   { label: "Описание компетенции", link: "competence_description_template.docx" },
   { label: "Конкурсное задание ФИНАЛА дошкольных компетенций", link: "task_final_preschool_competence_template.docx" },
+  { label: "Итоговая ведомость отборочного этапа", link: "total_qualifying_statement.xlsx" },
 ]

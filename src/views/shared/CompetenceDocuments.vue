@@ -451,7 +451,6 @@
     CompetenceDocumentsOutputDto
   } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
   import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
-  import { useDocumentTemplates } from '@/shared/UseDocumentTemplates.ts';
   import { useUserStore } from '@/stores/userStore.ts';
   import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
@@ -481,7 +480,6 @@
       return {
         user: useUserStore().user,
         DocumentTypes: useDocumentTypes,
-        DocumentTemplates: useDocumentTemplates,
         uploadKey: ref(0),
         selectedType: null as null | FileType,
         selectedDocument: null as null | DocumentsOutputDto,
