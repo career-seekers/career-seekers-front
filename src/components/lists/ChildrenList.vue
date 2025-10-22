@@ -220,7 +220,6 @@ export default {
             .find(origChildDetails => origChildDetails.child.id === childId)?.competencies
             .find(competence => competence.assignId === teacherInfo.assignId)
           if (originalCompetenceInfo) {
-            console.log("lki")
             originalCompetenceInfo.teacherName = teacherInfo.teacherName
             originalCompetenceInfo.institution = teacherInfo.institution
             originalCompetenceInfo.post = teacherInfo.post
