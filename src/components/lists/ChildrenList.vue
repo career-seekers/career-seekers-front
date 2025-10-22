@@ -79,11 +79,12 @@ export default {
       queueStatuses: useQueueStatuses,
       blockedCompetencesId: [30, 38, 39, 44, 48, 52, 53, 66, 69, 78, 79, 90, 99, 105, 106, 107, 108, 119, 121, 126],
       originalChildrenDetails: JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsDialogData[],
-      teacherFormErrors: {
-        teacherName: "",
-        institution: "",
-        post: "",
-      }
+      teacherFormsErrors: [] as {
+        assignId: number;
+        teacherName: string,
+        institution: string,
+        post: string,
+      }[]
     }
   },
   computed: {
@@ -166,8 +167,23 @@ export default {
         competenceInfo.post === originalCompetenceInfo.post
       );
     },
+    getTeacherFormErrorsByAssignId(id: number) {
+      let formErrors = this.teacherFormsErrors.find(form => form.assignId === id)
+      if (!formErrors) {
+        formErrors = {
+          assignId: id,
+          teacherName: "",
+          institution: "",
+          post: ""
+        }
+        this.teacherFormsErrors.push(formErrors)
+      }
+      return formErrors
+    },
     validateForm(teacherInfo: TeacherInfo) {
       let isValid = true
+      const formErrors = this.getTeacherFormErrorsByAssignId(teacherInfo.assignId)
+
       if (!(teacherInfo.teacherName === null &&
         teacherInfo.institution === null &&
         teacherInfo.post === null)
@@ -177,19 +193,19 @@ export default {
         teacherInfo.post = teacherInfo.post ?? ""
       }
       if (teacherInfo.teacherName === "") {
-        this.teacherFormErrors.teacherName = "ФИО педагога не может быть пустым!"
+        formErrors.teacherName = "ФИО педагога не может быть пустым!"
         isValid = false
-      } else this.teacherFormErrors.teacherName = ""
+      } else formErrors.teacherName = ""
 
       if (teacherInfo.institution === "") {
-        this.teacherFormErrors.institution = "Образовательное учреждение не может быть пустым!"
+        formErrors.institution = "Образовательное учреждение не может быть пустым!"
         isValid = false
-      } else this.teacherFormErrors.institution = ""
+      } else formErrors.institution = ""
 
       if (teacherInfo.post === "") {
-        this.teacherFormErrors.post = "Должность педагога не может быть пустой!"
+        formErrors.post = "Должность педагога не может быть пустой!"
         isValid = false
-      } else this.teacherFormErrors.post = ""
+      } else formErrors.post = ""
 
       return isValid
     },
@@ -506,7 +522,10 @@ export default {
                 </div>
               </div>
 
-              <div class="doc-item" v-if="!blockedCompetencesId.includes(competence.id)">
+              <div
+                v-if="!blockedCompetencesId.includes(competence.id)"
+                class="doc-item"
+              >
                 <div class="doc-info">
                   <span class="info-label">Конкурсное задание отборочного этапа:</span>
                 </div>
@@ -554,13 +573,13 @@ export default {
                     placeholder="Иванов Иван Иванович"
                     type="text"
                     class="w-full"
-                    :class="{ 'p-invalid': teacherFormErrors.teacherName }"
+                    :class="{ 'p-invalid': getTeacherFormErrorsByAssignId(competence.assignId).teacherName }"
                     @blur="validateForm(competence)"
                   />
                   <small
-                    v-if="teacherFormErrors.teacherName"
+                    v-if="getTeacherFormErrorsByAssignId(competence.assignId).teacherName"
                     class="p-error"
-                  >{{ teacherFormErrors.teacherName }}</small>
+                  >{{ getTeacherFormErrorsByAssignId(competence.assignId).teacherName }}</small>
                 </div>
                 <div class="field">
                   <label
@@ -573,13 +592,13 @@ export default {
                     placeholder="Государственное общеобразовательное учреждение"
                     type="text"
                     class="w-full"
-                    :class="{ 'p-invalid': teacherFormErrors.institution }"
+                    :class="{ 'p-invalid': getTeacherFormErrorsByAssignId(competence.assignId).institution }"
                     @blur="validateForm(competence)"
                   />
                   <small
-                    v-if="teacherFormErrors.institution"
+                    v-if="getTeacherFormErrorsByAssignId(competence.assignId).institution"
                     class="p-error"
-                  >{{ teacherFormErrors.institution }}</small>
+                  >{{ getTeacherFormErrorsByAssignId(competence.assignId).institution }}</small>
                 </div>
                 <div class="field">
                   <label
@@ -592,13 +611,13 @@ export default {
                     placeholder="Должность в ОУ"
                     type="text"
                     class="w-full"
-                    :class="{ 'p-invalid': teacherFormErrors.post }"
+                    :class="{ 'p-invalid': getTeacherFormErrorsByAssignId(competence.assignId).post }"
                     @blur="validateForm(competence)"
                   />
                   <small
-                    v-if="teacherFormErrors.post"
+                    v-if="getTeacherFormErrorsByAssignId(competence.assignId).post"
                     class="p-error"
-                  >{{ teacherFormErrors.post }}</small>
+                  >{{ getTeacherFormErrorsByAssignId(competence.assignId).post }}</small>
                 </div>
                 <Button
                   label="Сохранить"
