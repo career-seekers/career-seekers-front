@@ -77,7 +77,7 @@ export default {
       userStore: useUserStore(),
       ageGroups: useAgeGroups,
       queueStatuses: useQueueStatuses,
-      blockedCompetencesId: [30, 38, 39, 44, 48, 52, 53, 66, 69, 78, 79, 90, 99, 105, 106, 107, 108, 119, 121, 126],
+      blockedCompetencesId: [30, 38, 39, 44, 48, 52, 53, 63, 66, 69, 78, 79, 90, 99, 105, 106, 107, 108, 119, 121, 126],
       originalChildrenDetails: JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsDialogData[],
       teacherFormsErrors: [] as {
         assignId: number;
