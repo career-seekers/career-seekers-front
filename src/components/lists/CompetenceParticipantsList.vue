@@ -79,7 +79,6 @@
       onPageChange(event: any) {
         this.currentPage = event.page;
         this.itemsPerPage = event.rows;
-        // Плавная прокрутка к началу списка
         this.$nextTick(() => {
           const grid = this.$el.querySelector('.experts-grid');
           if (grid) {
@@ -89,8 +88,8 @@
       },
       async unassignParticipant(participant: Participant) {
         const record = this.childrenRecords.find(record => record.childId === participant.id)
-        if (confirm(`Вы уверены, что хотите снять с компетенции ребенка ${participant.firstName}`)) {
-          const response = await this.childCompetenceResolver.deleteById(record?.id!!)
+        if (confirm(`Вы уверены, что хотите снять с компетенции ребенка ${participant.firstName}`) && record) {
+          const response = await this.childCompetenceResolver.deleteById(record.id)
           if (response.status === 200) {
             this.$emit("refresh-participants", participant);
           }

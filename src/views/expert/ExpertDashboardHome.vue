@@ -354,7 +354,7 @@
           <FileUpload
             id="competenceDocument"
             mode="basic"
-            accept=".pdf, .docx"
+            accept=".pdf, .docx, .xlsx"
             :max-file-size="5000000"
             choose-label="Выберите файл"
             class="w-full"
@@ -368,7 +368,7 @@
           >{{
             errors.competenceDocument
           }}</small>
-          <small class="p-text-secondary">Поддерживаемые форматы: PDF, DOCX (максимум 5 МБ)</small>
+          <small class="p-text-secondary">Поддерживаемые форматы: PDF, DOCX, XLSX (максимум 5 МБ)</small>
         </div>
       </div>
 
