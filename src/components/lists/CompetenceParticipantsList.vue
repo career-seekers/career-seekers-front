@@ -88,8 +88,9 @@
       },
       async unassignParticipant(participant: Participant) {
         const record = this.childrenRecords.find(record => record.childId === participant.id)
-        if (confirm(`Вы уверены, что хотите снять с компетенции ребенка ${participant.firstName}`) && record) {
-          const response = await this.childCompetenceResolver.deleteById(record.id)
+        if (!record) return;
+        if (confirm(`Вы уверены, что хотите снять с компетенции ребенка ${participant.firstName}`)) {
+          const response = await this.childCompetenceResolver.deleteById(record.id);
           if (response.status === 200) {
             this.$emit("refresh-participants", participant);
           }
