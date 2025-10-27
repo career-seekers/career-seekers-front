@@ -354,7 +354,7 @@
           <FileUpload
             id="competenceDocument"
             mode="basic"
-            accept=".pdf, .docx"
+            accept=".pdf, .docx, .xlsx"
             :max-file-size="5000000"
             choose-label="Выберите файл"
             class="w-full"
@@ -368,7 +368,7 @@
           >{{
             errors.competenceDocument
           }}</small>
-          <small class="p-text-secondary">Поддерживаемые форматы: PDF, DOCX (максимум 5 МБ)</small>
+          <small class="p-text-secondary">Поддерживаемые форматы: PDF, DOCX, XLSX (максимум 5 МБ)</small>
         </div>
       </div>
 
@@ -530,15 +530,11 @@ emits: ['openSettings'],
             message: response.message.toString(),
           };
         } else {
-          // Показываем уведомление об успешной загрузке
           this.errors.toastPopup = {
             title: "Успешно!",
             message: "Документ был успешно загружен"
           };
-          console.log("Toast показан:", this.errors.toastPopup);
-          // Закрываем модальное окно, но не очищаем уведомление сразу
           this.showCompetenceDocModal = false;
-          // Очищаем уведомление через 6 секунд (после того, как тост исчезнет)
           setTimeout(() => {
             this.errors.toastPopup = {
               title: "",
@@ -550,7 +546,6 @@ emits: ['openSettings'],
     },
     cancelLoad() {
       this.showCompetenceDocModal = false;
-      // Очищаем уведомление при закрытии модального окна только если оно пустое
       if (!this.errors.toastPopup.title && !this.errors.toastPopup.message) {
         this.errors.toastPopup = {
           title: "",
@@ -559,7 +554,6 @@ emits: ['openSettings'],
       }
     },
     addDocument() {
-      // Очищаем предыдущие уведомления при открытии модального окна
       this.errors.toastPopup = {
         title: "",
         message: "",

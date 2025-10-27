@@ -137,8 +137,6 @@
       async loadChildren() {
         const childCompetenceResponse = await this.childCompetenceResolver.getByCompetenceId(this.competenceIdChecked)
 
-        console.log(childCompetenceResponse.message)
-
         if (typeof childCompetenceResponse.message !== "string") {
           this.childrenRecords = childCompetenceResponse.message
           const promises = childCompetenceResponse.message.map(async childCompetence => {
