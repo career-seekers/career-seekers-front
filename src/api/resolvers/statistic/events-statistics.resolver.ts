@@ -1,6 +1,6 @@
 import ApiResolver from "@/utils/ApiResolver.ts";
 
-export class StatisticsResolver {
+export class EventsStatisticsResolver {
   private apiResolver = new ApiResolver("events-service/v1/statistics");
   private token = localStorage.getItem("access_token");
 

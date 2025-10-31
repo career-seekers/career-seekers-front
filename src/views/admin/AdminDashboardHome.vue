@@ -68,11 +68,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-              v-if="tutors.length > 0"
+              v-if="tutorsStatistics"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ tutors.length }}
+                {{ tutorsStatistics.count }}
               </div>
               <div class="stat-label">
                 Всего кураторов
@@ -88,11 +88,11 @@
               />
             </div>
             <div
-              v-if="tutors.length > 0"
+              v-if="tutorsStatistics"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ tutors.filter(tutor => tutor.verified).length }}
+                {{ tutorsStatistics.verified }}
               </div>
               <div class="stat-label">
                 Верифицированных
@@ -130,11 +130,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-              v-if="mentors.length > 0"
+              v-if="mentorsStatistics"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ mentors.length }}
+                {{ mentorsStatistics.count }}
               </div>
               <div class="stat-label">
                 Всего наставников
@@ -150,11 +150,11 @@
               />
             </div>
             <div
-              v-if="mentors.length > 0"
+              v-if="mentorsStatistics"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ mentors.filter(mentor => mentor.verified).length }}
+                {{ mentorsStatistics.verified }}
               </div>
               <div class="stat-label">
                 Верифицированных
@@ -316,11 +316,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-              v-if="experts.length > 0"
+              v-if="expertsStatistics"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ experts.length }}
+                {{ expertsStatistics.count }}
               </div>
               <div class="stat-label">
                 Всего экспертов
@@ -336,11 +336,11 @@
               />
             </div>
             <div
-              v-if="experts.length > 0"
+              v-if="expertsStatistics"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ experts.filter(expert => expert.verified).length }}
+                {{ expertsStatistics.verified }}
               </div>
               <div class="stat-label">
                 Верифицированных
@@ -440,11 +440,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-              v-if="users.length > 0"
+              v-if="usersStatistics"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ users.length }}
+                {{ usersStatistics.count }}
               </div>
               <div class="stat-label">
                 Родителей
@@ -460,11 +460,11 @@
               />
             </div>
             <div
-              v-if="children.length > 0"
+              v-if="childrenCount"
               class="stat-item"
             >
               <div class="stat-number">
-                {{ children.length }}
+                {{ childrenCount }}
               </div>
               <div class="stat-label">
                 Детей
@@ -497,16 +497,13 @@
 
 <script lang="ts">
   import Button from 'primevue/button';
-  import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
-  import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
-  import { Roles } from '@/state/UserState.types.ts';
   import router from '@/router';
   import { useUserStore } from '@/stores/userStore.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
-  import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import ProgressSpinner from 'primevue/progressspinner';
-  import {StatisticsResolver} from "@/api/resolvers/statistic/statistics.resolver.ts";
-  import type {ChildOutputDto} from "@/api/resolvers/child/dto/output/child-output.dto.ts";
+  import {EventsStatisticsResolver} from "@/api/resolvers/statistic/events-statistics.resolver.ts";
+  import {UsersStatisticsResolver} from "@/api/resolvers/statistic/users-statistics.resolver.ts";
+  import type {UsersStatisticsOutputDto} from "@/api/resolvers/statistic/dto/output/users-statistics-output.dto.ts";
 
   export default {
     name: 'AdminDashboardHome',
@@ -518,15 +515,14 @@ emits: ['openSettings'],
     data: function() {
       return {
         userStore: useUserStore(),
-        userResolver: new UserResolver(),
-        childResolver: new ChildResolver(),
-        statisticsResolver: new StatisticsResolver(),
+        eventsStatisticsResolver: new EventsStatisticsResolver(),
+        usersStatisticsResolver: new UsersStatisticsResolver(),
 
-        users: [] as UserOutputDto[],
-        tutors: [] as UserOutputDto[],
-        mentors: [] as UserOutputDto[],
-        experts: [] as UserOutputDto[],
-        children: [] as ChildOutputDto[],
+        tutorsStatistics: null as null | UsersStatisticsOutputDto,
+        expertsStatistics: null as null | UsersStatisticsOutputDto,
+        mentorsStatistics: null as null | UsersStatisticsOutputDto,
+        usersStatistics: null as null | UsersStatisticsOutputDto,
+        childrenCount: null as null | number,
 
         venuesCount: null as number | null,
         verifiedVenuesCount: null as number | null,
@@ -545,34 +541,44 @@ emits: ['openSettings'],
       },
     },
     async beforeMount() {
-      this.venuesCount = await this.statisticsResolver.getPlatformsCount()
-      this.verifiedVenuesCount = await this.statisticsResolver.getVerifiedPlatformsCount()
-      this.directionsCount = await this.statisticsResolver.getDirectionsCount()
-      this.directionsWithoutDocs = await this.statisticsResolver.getDirectionsWithoutDocsCount()
-      this.directionDocsCount = await this.statisticsResolver.getDirectionDocsCount()
-      this.lastDocumentUpload = await this.statisticsResolver.getLastDocumentUpload()
+      const [
+        tutorsInfo,
+        expertsInfo,
+        mentorsInfo,
+        usersInfo,
+        childrenCount,
+        venuesCount,
+        verifiedVenuesCount,
+        directionsCount,
+        directionsWithoutDocs,
+        directionDocsCount,
+        lastDocumentUpload,
+      ] = await Promise.all([
+        this.usersStatisticsResolver.getTutorsInfo(),
+        this.usersStatisticsResolver.getExpertsInfo(),
+        this.usersStatisticsResolver.getMentorsInfo(),
+        this.usersStatisticsResolver.getUsersInfo(),
+        this.usersStatisticsResolver.getChildrenCount(),
+        this.eventsStatisticsResolver.getPlatformsCount(),
+        this.eventsStatisticsResolver.getVerifiedPlatformsCount(),
+        this.eventsStatisticsResolver.getDirectionsCount(),
+        this.eventsStatisticsResolver.getDirectionsWithoutDocsCount(),
+        this.eventsStatisticsResolver.getDirectionDocsCount(),
+        this.eventsStatisticsResolver.getLastDocumentUpload(),
+      ]);
 
-      let response
-      response = await this.userResolver.getAllByRole(Roles.TUTOR)
-      if (typeof response.message !== 'string') {
-        this.tutors = response.message
-      }
-      response = await this.userResolver.getAllByRole(Roles.MENTOR)
-      if (typeof response.message !== 'string') {
-        this.mentors = response.message
-      }
-      response = await this.userResolver.getAllByRole(Roles.EXPERT)
-      if (typeof response.message !== 'string') {
-        this.experts = response.message
-      }
-      response = await this.userResolver.getAllByRole(Roles.USER)
-      if (typeof response.message !== 'string') {
-        this.users = response.message
-      }
-      response = await this.childResolver.getAll()
-      if (typeof response.message !== 'string') {
-        this.children = response.message
-      }
+      this.tutorsStatistics = tutorsInfo.message;
+      this.expertsStatistics = expertsInfo.message;
+      this.mentorsStatistics = mentorsInfo.message;
+      this.usersStatistics = usersInfo.message;
+      this.childrenCount = childrenCount.message;
+
+      this.venuesCount = venuesCount;
+      this.verifiedVenuesCount = verifiedVenuesCount;
+      this.directionsCount = directionsCount;
+      this.directionsWithoutDocs = directionsWithoutDocs;
+      this.directionDocsCount = directionDocsCount;
+      this.lastDocumentUpload = lastDocumentUpload;
     },
     methods: {
       router() {
