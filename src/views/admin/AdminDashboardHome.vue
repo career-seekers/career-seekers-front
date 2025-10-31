@@ -505,7 +505,7 @@
   import { FormatManager } from '@/utils/FormatManager.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import ProgressSpinner from 'primevue/progressspinner';
-  import {StatisticsResolver} from "@/api/resolvers/statistic/statistics.resolver.ts";
+  import {EventsStatisticsResolver} from "@/api/resolvers/statistic/events-statistics.resolver.ts";
   import type {ChildOutputDto} from "@/api/resolvers/child/dto/output/child-output.dto.ts";
 
   export default {
@@ -520,7 +520,7 @@ emits: ['openSettings'],
         userStore: useUserStore(),
         userResolver: new UserResolver(),
         childResolver: new ChildResolver(),
-        statisticsResolver: new StatisticsResolver(),
+        eventsStatisticsResolver: new EventsStatisticsResolver(),
 
         users: [] as UserOutputDto[],
         tutors: [] as UserOutputDto[],
@@ -545,12 +545,12 @@ emits: ['openSettings'],
       },
     },
     async beforeMount() {
-      this.venuesCount = await this.statisticsResolver.getPlatformsCount()
-      this.verifiedVenuesCount = await this.statisticsResolver.getVerifiedPlatformsCount()
-      this.directionsCount = await this.statisticsResolver.getDirectionsCount()
-      this.directionsWithoutDocs = await this.statisticsResolver.getDirectionsWithoutDocsCount()
-      this.directionDocsCount = await this.statisticsResolver.getDirectionDocsCount()
-      this.lastDocumentUpload = await this.statisticsResolver.getLastDocumentUpload()
+      this.venuesCount = await this.eventsStatisticsResolver.getPlatformsCount()
+      this.verifiedVenuesCount = await this.eventsStatisticsResolver.getVerifiedPlatformsCount()
+      this.directionsCount = await this.eventsStatisticsResolver.getDirectionsCount()
+      this.directionsWithoutDocs = await this.eventsStatisticsResolver.getDirectionsWithoutDocsCount()
+      this.directionDocsCount = await this.eventsStatisticsResolver.getDirectionDocsCount()
+      this.lastDocumentUpload = await this.eventsStatisticsResolver.getLastDocumentUpload()
 
       let response
       response = await this.userResolver.getAllByRole(Roles.TUTOR)
