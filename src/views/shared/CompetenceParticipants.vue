@@ -22,6 +22,9 @@
   import type {
     ChildCompetenciesOutputDto
   } from "@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts";
+  import { useParticipantStatuses } from '@/shared/UseParticipantStatuses.ts';
+  import { useConfirm } from 'primevue/useconfirm';
+  import ConfirmDialog from 'primevue/confirmdialog';
 
   export default {
     name: 'CompetenceParticipants',
@@ -31,12 +34,17 @@
       TabPanel,
       Button,
       ProgressSpinner,
+      ConfirmDialog
     },
     props: {
       competenceId: {
         type: String,
         required: true,
       }
+    },
+    setup() {
+      const confirm = useConfirm();
+      return { confirm };
     },
     data: function() {
       return {
@@ -46,6 +54,8 @@
 
         userStore: useUserStore(),
         ageGroups: useAgeGroups,
+
+        useParticipantStatuses: useParticipantStatuses,
 
         children: [] as Participant[],
         childrenRecords: [] as ChildCompetenciesOutputDto[],
@@ -120,8 +130,6 @@
       const response = await this.competenceResolver.getById(this.competenceIdChecked)
       if (typeof response.message !== "string") {
 
-        console.log(response.message)
-
         if (this.userStore?.user?.id !== response.message.userId &&
         this.userStore?.user?.id !== response.message.expertId &&
         this.userStore?.user?.role !== Roles.ADMIN) {
@@ -160,10 +168,21 @@
       },
       handleStatusUpdate(participantId: number, newStatus: ParticipantStatus) {
         const child = this.children.find(child => child.id === participantId)
-        if (child && confirm(`Изменить статус ребенка '${child.firstName}' с
-          '${child.status}' на '${newStatus}'`)
-        ) {
-          // child.status = newStatus
+        if (child) {
+          this.confirm.require({
+            header: 'Confirmation',
+            message: `Изменить статус ребенка '${child.firstName}' с
+              '${this.useParticipantStatuses.find(status => status.value === child.status)?.label}' на
+              '${this.useParticipantStatuses.find(status => status.value === newStatus)?.label}'?`,
+            icon: 'pi pi-exclamation-circle',
+            acceptLabel: 'Подтвердить',
+            rejectLabel: 'Отменить',
+            acceptClass: 'p-button-success',
+            rejectClass: 'p-button-danger',
+            accept: () => {
+              child.status = newStatus
+            },
+          });
         }
       },
       refreshParticipants(participant: Participant) {
@@ -270,6 +289,8 @@
       </div>
     </div>
   </Transition>
+
+  <ConfirmDialog />
 </template>
 
 <style scoped>
