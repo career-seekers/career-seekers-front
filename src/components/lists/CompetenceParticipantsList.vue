@@ -12,6 +12,8 @@
   } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
   import Dropdown from 'primevue/dropdown';
   import { useParticipantStatuses } from '@/shared/UseParticipantStatuses';
+  import { useUserStore } from '@/stores/userStore.ts';
+  import { Roles } from '@/state/UserState.types.ts';
 
   export interface Participant {
     id: number,
@@ -64,6 +66,7 @@
     ],
     data: function() {
       return {
+        userStore: useUserStore(),
         useParticipantStatuses: useParticipantStatuses,
         childCompetenceResolver: new ChildCompetenciesResolver(),
         currentPage: 0,
@@ -71,6 +74,9 @@
       };
     },
     computed: {
+      Roles() {
+        return Roles
+      },
       QueueStatuses() {
         return QueueStatuses
       },
@@ -209,7 +215,10 @@
           </div>
         </div>
         <div
-          v-if="participant.queueStatus === QueueStatuses.PARTICIPATES"
+          v-if="
+            participant.queueStatus === QueueStatuses.PARTICIPATES &&
+              [Roles.ADMIN, Roles.EXPERT].includes(userStore.user?.role ?? Roles.USER)
+          "
           class="participant-status"
         >
           <h3 class="expert-name">
