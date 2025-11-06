@@ -8,10 +8,11 @@
   import Button from 'primevue/button';
   import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
   import type {
-    ChildCompetenciesOutputDto
-  } from "@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts";
+    ChildCompetenciesOutputDto,
+  } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
   import Dropdown from 'primevue/dropdown';
-  
+  import { useParticipantStatuses } from '@/shared/UseParticipantStatuses';
+
   export interface Participant {
     id: number,
     lastName: string,
@@ -60,12 +61,19 @@
     emits: ['refresh-participants'],
     data: function() {
       return {
+        useParticipantStatuses: useParticipantStatuses,
         childCompetenceResolver: new ChildCompetenciesResolver(),
         currentPage: 0,
         itemsPerPage: 8,
       };
     },
     computed: {
+      QueueStatuses() {
+        return QueueStatuses
+      },
+      ParticipantStatus() {
+        return ParticipantStatus
+      },
       FormatManager() {
         return FormatManager
       },
@@ -76,6 +84,13 @@
       },
       totalRecords() {
         return this.participants.length;
+      },
+      allowedStatuses() {
+        return [...this.useParticipantStatuses].filter(
+          status =>
+            status.value === ParticipantStatus.PARTICIPANT ||
+            status.value === ParticipantStatus.FINALIST
+        )
       }
     },
     methods: {
@@ -188,14 +203,22 @@
             </span>
           </div>
         </div>
-        <div class="participant-status">
+        <div
+          v-if="participant.queueStatus === QueueStatuses.PARTICIPATES"
+          class="participant-status"
+        >
           <h3 class="expert-name">
             Статус участника
           </h3>
           <Dropdown
-            class="w-full"
-            :model-value="participant.status"
-            :options="[]"
+            v-model="participant.status"
+            :options="
+              participant.status === ParticipantStatus.NOT_STATED
+                ? [...allowedStatuses, { value: ParticipantStatus.NOT_STATED, label: 'Не указан' }]
+                : allowedStatuses
+            "
+            option-value="value"
+            option-label="label"
           />
         </div>
       </div>
