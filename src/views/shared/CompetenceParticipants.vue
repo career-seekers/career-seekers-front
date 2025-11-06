@@ -11,7 +11,7 @@
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
   import ProgressSpinner from 'primevue/progressspinner';
-  import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
+  import { ParticipantStatus, QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
   import TabPanel from 'primevue/tabpanel';
   import TabView from 'primevue/tabview';
   import CompetenceParticipantsList, { type Participant } from '@/components/lists/CompetenceParticipantsList.vue';
@@ -158,6 +158,14 @@
           }
         }
       },
+      handleStatusUpdate(participantId: number, newStatus: ParticipantStatus) {
+        const child = this.children.find(child => child.id === participantId)
+        if (child && confirm(`Изменить статус ребенка '${child.firstName}' с
+          '${child.status}' на '${newStatus}'`)
+        ) {
+          // child.status = newStatus
+        }
+      },
       refreshParticipants(participant: Participant) {
         this.children = this.children.filter(child => child.id !== participant.id)
       },
@@ -253,6 +261,7 @@
             :participants="tab.children"
             :children-records="childrenRecords"
             @refresh-participants="(participant) => refreshParticipants(participant)"
+            @update-participant-status="(id, status) => handleStatusUpdate(id, status)"
           />
         </TabPanel>
       </TabView>

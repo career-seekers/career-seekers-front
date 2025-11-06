@@ -58,7 +58,10 @@
         required: true,
       }
     },
-    emits: ['refresh-participants'],
+    emits: [
+      'refresh-participants',
+      'update-participant-status'
+    ],
     data: function() {
       return {
         useParticipantStatuses: useParticipantStatuses,
@@ -211,7 +214,7 @@
             Статус участника
           </h3>
           <Dropdown
-            v-model="participant.status"
+            :model-value="participant.status"
             :options="
               participant.status === ParticipantStatus.NOT_STATED
                 ? [...allowedStatuses, { value: ParticipantStatus.NOT_STATED, label: 'Не указан' }]
@@ -219,6 +222,10 @@
             "
             option-value="value"
             option-label="label"
+            @update:model-value="
+              (newStatus: ParticipantStatus) =>
+                $emit('update-participant-status', participant.id, newStatus)
+            "
           />
         </div>
       </div>
