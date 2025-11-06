@@ -186,11 +186,11 @@
             acceptClass: 'p-button-success',
             rejectClass: 'p-button-danger',
             accept: async () => {
-              child.status = newStatus
               const response = await this.childCompetenceResolver.update({
                 id: assignId,
                 status: newStatus
               })
+              if (response.status === 200) child.status = newStatus
               this.toastPopup = {
                 title: response.status.toString(),
                 message: response.message,

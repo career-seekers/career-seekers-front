@@ -86,11 +86,13 @@
       FormatManager() {
         return FormatManager
       },
+      sortedParticipants() {
+        return [...this.participants].sort((a, b) => a.id - b.id);
+      },
       paginatedParticipants() {
-        const sorted = [...this.participants].sort((a, b) => a.id - b.id);
         const start = this.currentPage * this.itemsPerPage;
         const end = start + this.itemsPerPage;
-        return sorted.slice(start, end)
+        return this.sortedParticipants.slice(start, end)
       },
       totalRecords() {
         return this.participants.length;
