@@ -25,10 +25,12 @@
   import { useParticipantStatuses } from '@/shared/UseParticipantStatuses.ts';
   import { useConfirm } from 'primevue/useconfirm';
   import ConfirmDialog from 'primevue/confirmdialog';
+  import ToastPopup from '@/components/ToastPopup.vue';
 
   export default {
     name: 'CompetenceParticipants',
     components: {
+      ToastPopup,
       CompetenceParticipantsList,
       TabView,
       TabPanel,
@@ -67,6 +69,10 @@
 
         isLoading: false,
         activeTab: 0,
+        toastPopup: {
+          title: "",
+          message: "",
+        },
       };
     },
     computed: {
@@ -166,7 +172,7 @@
           }
         }
       },
-      handleStatusUpdate(participantId: number, newStatus: ParticipantStatus) {
+      handleStatusUpdate(assignId: number, participantId: number, newStatus: ParticipantStatus) {
         const child = this.children.find(child => child.id === participantId)
         if (child) {
           this.confirm.require({
@@ -179,8 +185,16 @@
             rejectLabel: 'Отменить',
             acceptClass: 'p-button-success',
             rejectClass: 'p-button-danger',
-            accept: () => {
+            accept: async () => {
               child.status = newStatus
+              const response = await this.childCompetenceResolver.update({
+                id: assignId,
+                status: newStatus
+              })
+              this.toastPopup = {
+                title: response.status.toString(),
+                message: response.message,
+              }
             },
           });
         }
@@ -280,7 +294,8 @@
             :participants="tab.children"
             :children-records="childrenRecords"
             @refresh-participants="(participant) => refreshParticipants(participant)"
-            @update-participant-status="(id, status) => handleStatusUpdate(id, status)"
+            @update-participant-status="(assignId, participantId, status) =>
+              handleStatusUpdate(assignId, participantId, status)"
           />
         </TabPanel>
       </TabView>
@@ -290,6 +305,7 @@
     </div>
   </Transition>
 
+  <ToastPopup :content="toastPopup" />
   <ConfirmDialog />
 </template>
 

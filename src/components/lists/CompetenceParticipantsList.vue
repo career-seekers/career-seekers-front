@@ -83,7 +83,9 @@
       paginatedParticipants() {
         const start = this.currentPage * this.itemsPerPage;
         const end = start + this.itemsPerPage;
-        return this.participants.slice(start, end);
+        return this.participants
+          .slice(start, end)
+          .sort((a, b) => a.id - b.id);
       },
       totalRecords() {
         return this.participants.length;
@@ -224,7 +226,12 @@
             option-label="label"
             @update:model-value="
               (newStatus: ParticipantStatus) =>
-                $emit('update-participant-status', participant.id, newStatus)
+                $emit(
+                  'update-participant-status',
+                  childrenRecords.find(record => record.childId === participant.id)?.id,
+                  participant.id,
+                  newStatus
+                )
             "
           />
         </div>
