@@ -11,7 +11,7 @@
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
   import ProgressSpinner from 'primevue/progressspinner';
-  import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
+  import { ParticipantStatus, QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
   import TabPanel from 'primevue/tabpanel';
   import TabView from 'primevue/tabview';
   import CompetenceParticipantsList, { type Participant } from '@/components/lists/CompetenceParticipantsList.vue';
@@ -22,21 +22,31 @@
   import type {
     ChildCompetenciesOutputDto
   } from "@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts";
+  import { useParticipantStatuses } from '@/shared/UseParticipantStatuses.ts';
+  import { useConfirm } from 'primevue/useconfirm';
+  import ConfirmDialog from 'primevue/confirmdialog';
+  import ToastPopup from '@/components/ToastPopup.vue';
 
   export default {
     name: 'CompetenceParticipants',
     components: {
+      ToastPopup,
       CompetenceParticipantsList,
       TabView,
       TabPanel,
       Button,
       ProgressSpinner,
+      ConfirmDialog
     },
     props: {
       competenceId: {
         type: String,
         required: true,
       }
+    },
+    setup() {
+      const confirm = useConfirm();
+      return { confirm };
     },
     data: function() {
       return {
@@ -46,6 +56,8 @@
 
         userStore: useUserStore(),
         ageGroups: useAgeGroups,
+
+        useParticipantStatuses: useParticipantStatuses,
 
         children: [] as Participant[],
         childrenRecords: [] as ChildCompetenciesOutputDto[],
@@ -57,6 +69,10 @@
 
         isLoading: false,
         activeTab: 0,
+        toastPopup: {
+          title: "",
+          message: "",
+        },
       };
     },
     computed: {
@@ -120,8 +136,6 @@
       const response = await this.competenceResolver.getById(this.competenceIdChecked)
       if (typeof response.message !== "string") {
 
-        console.log(response.message)
-
         if (this.userStore?.user?.id !== response.message.userId &&
         this.userStore?.user?.id !== response.message.expertId &&
         this.userStore?.user?.role !== Roles.ADMIN) {
@@ -143,6 +157,7 @@
             return {
               child: await this.childResolver.getById(childCompetence.childId),
               queueStatus: childCompetence.queueStatus,
+              status: childCompetence.status
             }
           })
           const responses = await Promise.all(promises);
@@ -150,10 +165,38 @@
             if (typeof response.child.message !== "string") {
               this.children.push({
                 ...response.child.message,
-                queueStatus: response.queueStatus
+                queueStatus: response.queueStatus,
+                status: response.status
               })
             }
           }
+        }
+      },
+      handleStatusUpdate(assignId: number, participantId: number, newStatus: ParticipantStatus) {
+        const child = this.children.find(child => child.id === participantId)
+        if (child) {
+          this.confirm.require({
+            header: 'Confirmation',
+            message: `Изменить статус ребенка '${child.firstName}' с
+              '${this.useParticipantStatuses.find(status => status.value === child.status)?.label}' на
+              '${this.useParticipantStatuses.find(status => status.value === newStatus)?.label}'?`,
+            icon: 'pi pi-exclamation-circle',
+            acceptLabel: 'Подтвердить',
+            rejectLabel: 'Отменить',
+            acceptClass: 'p-button-success',
+            rejectClass: 'p-button-danger',
+            accept: async () => {
+              const response = await this.childCompetenceResolver.update({
+                id: assignId,
+                status: newStatus
+              })
+              if (response.status === 200) child.status = newStatus
+              this.toastPopup = {
+                title: response.status.toString(),
+                message: response.message,
+              }
+            },
+          });
         }
       },
       refreshParticipants(participant: Participant) {
@@ -251,6 +294,8 @@
             :participants="tab.children"
             :children-records="childrenRecords"
             @refresh-participants="(participant) => refreshParticipants(participant)"
+            @update-participant-status="(assignId, participantId, status) =>
+              handleStatusUpdate(assignId, participantId, status)"
           />
         </TabPanel>
       </TabView>
@@ -259,6 +304,9 @@
       </div>
     </div>
   </Transition>
+
+  <ToastPopup :content="toastPopup" />
+  <ConfirmDialog />
 </template>
 
 <style scoped>

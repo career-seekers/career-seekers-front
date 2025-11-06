@@ -3,20 +3,25 @@
   import type { PropType } from 'vue';
   import type { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
-  import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
+  import { ParticipantStatus, QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
   import Paginator from 'primevue/paginator';
   import Button from 'primevue/button';
   import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
   import type {
-    ChildCompetenciesOutputDto
-  } from "@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts";
-  
+    ChildCompetenciesOutputDto,
+  } from '@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts';
+  import Dropdown from 'primevue/dropdown';
+  import { useParticipantStatuses } from '@/shared/UseParticipantStatuses';
+  import { useUserStore } from '@/stores/userStore.ts';
+  import { Roles } from '@/state/UserState.types.ts';
+
   export interface Participant {
     id: number,
     lastName: string,
     firstName: string,
     patronymic: string,
     queueStatus: QueueStatuses,
+    status: ParticipantStatus,
     childDocuments: {
       ageCategory: AgeCategories,
       studyingPlace: string,
@@ -42,7 +47,8 @@
     name: 'CompetenceParticipantsList',
     components: {
       Button,
-      Paginator
+      Paginator,
+      Dropdown
     },
     props: {
       participants: {
@@ -54,25 +60,49 @@
         required: true,
       }
     },
-    emits: ['refresh-participants'],
+    emits: [
+      'refresh-participants',
+      'update-participant-status'
+    ],
     data: function() {
       return {
+        userStore: useUserStore(),
+        useParticipantStatuses: useParticipantStatuses,
         childCompetenceResolver: new ChildCompetenciesResolver(),
         currentPage: 0,
         itemsPerPage: 8,
       };
     },
     computed: {
+      Roles() {
+        return Roles
+      },
+      QueueStatuses() {
+        return QueueStatuses
+      },
+      ParticipantStatus() {
+        return ParticipantStatus
+      },
       FormatManager() {
         return FormatManager
+      },
+      sortedParticipants() {
+        return [...this.participants].sort((a, b) => a.id - b.id);
       },
       paginatedParticipants() {
         const start = this.currentPage * this.itemsPerPage;
         const end = start + this.itemsPerPage;
-        return this.participants.slice(start, end);
+        return this.sortedParticipants.slice(start, end)
       },
       totalRecords() {
         return this.participants.length;
+      },
+      allowedStatuses() {
+        return [...this.useParticipantStatuses].filter(
+          status =>
+            status.value === ParticipantStatus.PARTICIPANT ||
+            status.value === ParticipantStatus.FINALIST
+        )
       }
     },
     methods: {
@@ -184,6 +214,40 @@
               }}
             </span>
           </div>
+        </div>
+        <div
+          v-if="
+            participant.queueStatus === QueueStatuses.PARTICIPATES &&
+              [Roles.ADMIN, Roles.EXPERT].includes(userStore.user?.role ?? Roles.USER)
+          "
+          class="participant-status"
+        >
+          <h3 class="expert-name">
+            Статус участника
+          </h3>
+          <Dropdown
+            :model-value="participant.status"
+            :options="
+              participant.status === ParticipantStatus.NOT_STATED
+                ? [...allowedStatuses, { value: ParticipantStatus.NOT_STATED, label: 'Не указан' }]
+                : allowedStatuses
+            "
+            option-value="value"
+            option-label="label"
+            @update:model-value="
+              (newStatus: ParticipantStatus) => {
+                const assignId = childrenRecords.find(record => record.childId === participant.id)?.id
+                if (assignId) {
+                  $emit(
+                    'update-participant-status',
+                    assignId,
+                    participant.id,
+                    newStatus
+                  )
+                }
+              }
+            "
+          />
         </div>
       </div>
     </div>
@@ -301,9 +365,23 @@
     transition: opacity 0.3s ease;
   }
 
+  .participant-status {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 35% 60%;
+    column-gap: 5%;
+  }
+
   @media screen and (max-width: 768px) {
     .experts-grid {
       grid-template-columns: 1fr;
+    }
+
+    .participant-status {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
     }
   }
 
