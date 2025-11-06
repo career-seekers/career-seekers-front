@@ -143,6 +143,7 @@
             return {
               child: await this.childResolver.getById(childCompetence.childId),
               queueStatus: childCompetence.queueStatus,
+              status: childCompetence.status
             }
           })
           const responses = await Promise.all(promises);
@@ -150,7 +151,8 @@
             if (typeof response.child.message !== "string") {
               this.children.push({
                 ...response.child.message,
-                queueStatus: response.queueStatus
+                queueStatus: response.queueStatus,
+                status: response.status
               })
             }
           }

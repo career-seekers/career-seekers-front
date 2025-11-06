@@ -3,13 +3,14 @@
   import type { PropType } from 'vue';
   import type { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
-  import { QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
+  import { ParticipantStatus, QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
   import Paginator from 'primevue/paginator';
   import Button from 'primevue/button';
   import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
   import type {
     ChildCompetenciesOutputDto
   } from "@/api/resolvers/childCompetencies/dto/output/child-competencies-output.dto.ts";
+  import Dropdown from 'primevue/dropdown';
   
   export interface Participant {
     id: number,
@@ -17,6 +18,7 @@
     firstName: string,
     patronymic: string,
     queueStatus: QueueStatuses,
+    status: ParticipantStatus,
     childDocuments: {
       ageCategory: AgeCategories,
       studyingPlace: string,
@@ -42,7 +44,8 @@
     name: 'CompetenceParticipantsList',
     components: {
       Button,
-      Paginator
+      Paginator,
+      Dropdown
     },
     props: {
       participants: {
@@ -185,6 +188,16 @@
             </span>
           </div>
         </div>
+        <div class="participant-status">
+          <h3 class="expert-name">
+            Статус участника
+          </h3>
+          <Dropdown
+            class="w-full"
+            :model-value="participant.status"
+            :options="[]"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -301,9 +314,23 @@
     transition: opacity 0.3s ease;
   }
 
+  .participant-status {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 35% 60%;
+    column-gap: 5%;
+  }
+
   @media screen and (max-width: 768px) {
     .experts-grid {
       grid-template-columns: 1fr;
+    }
+
+    .participant-status {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
     }
   }
 
