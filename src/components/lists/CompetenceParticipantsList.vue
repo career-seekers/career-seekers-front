@@ -87,11 +87,10 @@
         return FormatManager
       },
       paginatedParticipants() {
+        const sorted = [...this.participants].sort((a, b) => a.id - b.id);
         const start = this.currentPage * this.itemsPerPage;
         const end = start + this.itemsPerPage;
-        return this.participants
-          .slice(start, end)
-          .sort((a, b) => a.id - b.id);
+        return sorted.slice(start, end)
       },
       totalRecords() {
         return this.participants.length;
@@ -234,13 +233,17 @@
             option-value="value"
             option-label="label"
             @update:model-value="
-              (newStatus: ParticipantStatus) =>
-                $emit(
-                  'update-participant-status',
-                  childrenRecords.find(record => record.childId === participant.id)?.id,
-                  participant.id,
-                  newStatus
-                )
+              (newStatus: ParticipantStatus) => {
+                const assignId = childrenRecords.find(record => record.childId === participant.id)?.id
+                if (assignId) {
+                  $emit(
+                    'update-participant-status',
+                    assignId,
+                    participant.id,
+                    newStatus
+                  )
+                }
+              }
             "
           />
         </div>
