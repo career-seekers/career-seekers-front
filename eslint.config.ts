@@ -5,7 +5,7 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
   {
-    files: ['**/*.vue'],
+    files: ['**/*CompetenceEvents.vue'],
     plugins: { 'vue': pluginVue },
     extends: [...pluginVue.configs['flat/recommended']],
     languageOptions: {

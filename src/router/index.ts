@@ -15,7 +15,6 @@ import UserDashboardHome from "@/views/user/UserDashboardHome.vue";
 //expert views
 import ExpertDashboardHome from "@/views/expert/ExpertDashboardHome.vue";
 import ExpertCompetencies from "@/views/expert/ExpertCompetencies.vue";
-import ExpertEvents from "@/views/expert/ExpertEvents.vue";
 import ExpertDocuments from "@/views/expert/ExpertDocuments.vue";
 
 // mentor views
@@ -189,11 +188,6 @@ const routes = [
           title: "Компетенции",
           icon: "pi pi-briefcase"
         }
-      },
-      {
-        path: "events",
-        name: "expert-events",
-        component: ExpertEvents,
       },
       {
         path: "documents",
