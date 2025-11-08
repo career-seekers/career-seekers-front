@@ -103,7 +103,6 @@
 </script>
 
 <template>
-  <!-- Заголовок убран, так как теперь используется в табах -->
 
   <div
     v-if="documents.length > 0"
@@ -303,6 +302,8 @@
   .document-actions {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .document-content {
@@ -431,5 +432,11 @@
     background: #f8f9fa;
     border-color: #adb5bd;
     color: #495057;
+  }
+
+  @media screen and (max-width: 768px) {
+    .documents-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
