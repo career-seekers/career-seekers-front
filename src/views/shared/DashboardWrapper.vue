@@ -10,62 +10,57 @@
     </div>
 
     <!-- Сайдбар -->
-    <transition
-      name="fade"
-      appear
+    <div
+      class="sidebar"
+      :class="{ 'sidebar-open': sidebarOpen }"
     >
-      <div
-        class="sidebar"
-        :class="{ 'sidebar-open': sidebarOpen }"
-      >
-        <div class="sidebar-header">
-          <img
-            src="@/assets/logo.png"
-            alt="Logo"
-            class="sidebar-logo"
-          >
-          <h2 class="sidebar-title">
-            Личный кабинет {{ asideText() }}
-          </h2>
-          <button
-            v-if="isMobile"
-            class="sidebar-close"
-            @click="toggleSidebar"
-          >
-            <i class="pi pi-times" />
-          </button>
-        </div>
-
-        <nav class="sidebar-nav">
-          <ul class="nav-list">
-            <li
-              v-for="routeLink in routeLinks"
-              :key="routeLink.path"
-              class="nav-item"
-            >
-              <router-link
-                :to="routeLink"
-                class="nav-link"
-                :class="{ active: $route.path === routeLink.path }"
-                @click="closeSidebarOnMobile"
-              >
-                <i :class="routeLink.icon" />
-                <span>{{ routeLink.title }}</span>
-              </router-link>
-            </li>
-          </ul>
-        </nav>
-
-        <div class="sidebar-footer">
-          <Button
-            label="Выйти"
-            icon="pi pi-sign-out"
-            class="p-button-text p-button-danger"
-            @click="logout"
-          />
-        </div>
+      <div class="sidebar-header">
+        <img
+          src="@/assets/logo.png"
+          alt="Logo"
+          class="sidebar-logo"
+        >
+        <h2 class="sidebar-title">
+          Личный кабинет {{ asideText() }}
+        </h2>
+        <button
+          v-if="isMobile"
+          class="sidebar-close"
+          @click="toggleSidebar"
+        >
+          <i class="pi pi-times" />
+        </button>
       </div>
-    </transition>
+
+      <nav class="sidebar-nav">
+        <ul class="nav-list">
+          <li
+            v-for="routeLink in routeLinks"
+            :key="routeLink.path"
+            class="nav-item"
+          >
+            <router-link
+              :to="routeLink"
+              class="nav-link"
+              :class="{ active: $route.path === routeLink.path }"
+              @click="closeSidebarOnMobile"
+            >
+              <i :class="routeLink.icon" />
+              <span>{{ routeLink.title }}</span>
+            </router-link>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <Button
+          label="Выйти"
+          icon="pi pi-sign-out"
+          class="p-button-text p-button-danger"
+          @click="logout"
+        />
+      </div>
+    </div>
 
     <!-- Основной контент -->
     <div class="main-content">
@@ -78,7 +73,10 @@
           <component
             :is="Component"
             :key="route.name"
-            @open-settings="showSettingsDialog = true"
+            v-bind="supportsOpenSettings(route.path)
+              ? { 'onOpen-settings': () => showSettingsDialog = true }
+              : {}
+            "
           />
         </transition>
       </router-view>
@@ -131,7 +129,6 @@
         new Map(router
           .getRoutes()
           .filter(route => {
-            console.log(route.path);
             return route.meta.title && route.path.startsWith(
               this.userStore.user
                 ? `/${this.userStore.user.role.toLowerCase()}/`
@@ -168,6 +165,13 @@
           case Roles.USER: return "родителя"
           default: return "пользователя"
         }
+      },
+      supportsOpenSettings(path: string) {
+        const paths = [
+          "/admin/dashboard",
+          "/admin/tutors",
+        ]
+        return paths.includes(path)
       },
       toggleSidebar() {
         this.sidebarOpen = !this.sidebarOpen;
