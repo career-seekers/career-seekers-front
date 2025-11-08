@@ -20,8 +20,11 @@
       </div>
     </div>
 
-    <!-- Список экспертов -->
-    <div class="experts-grid">
+    <!-- Список кураторов -->
+    <div
+      class="experts-grid"
+      v-if="paginatedTutors.length > 0"
+    >
       <div
         v-for="tutor in paginatedTutors"
         :key="tutor.id"
@@ -96,9 +99,15 @@
       </div>
     </div>
 
+    <ProgressSpinner
+      v-else
+      style="width: 100%; margin-top: 10rem"
+    />
+
     <!-- Обычная пагинация (скрывается при скролле) -->
     <div
       class="pagination-container"
+      v-if="paginatedTutors.length > 0"
     >
       <Paginator
         :first="currentPage * itemsPerPage"
@@ -252,6 +261,7 @@
   import InputMask from 'primevue/inputmask';
   import Paginator from 'primevue/paginator';
   import { TutorDocumentsResolver } from '@/api/resolvers/tutorDocuments/tutor-documents.resolver.ts';
+  import ProgressSpinner from 'primevue/progressspinner';
 
   export default {
     name: 'AdminTutors',
@@ -262,6 +272,7 @@
       InputText,
       InputMask,
       Paginator,
+      ProgressSpinner
     },
     data() {
       return {
@@ -371,6 +382,7 @@
               firstName: this.tutorForm.fullName.split(" ")[1],
               lastName: this.tutorForm.fullName.split(" ")[0],
               mobileNumber: this.mobileNumberFormatted,
+              email: this.tutorForm.email,
               patronymic: this.tutorForm.fullName.split(" ")[2],
               id: this.editingTutorId!,
             };
