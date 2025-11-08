@@ -138,7 +138,6 @@ export default {
   directives: {
     'tooltip': Tooltip
   },
-  emits: ['openSettings'],
   data() {
     return {
       childrenDocumentsTypes: useChildrenDocumentTypes,

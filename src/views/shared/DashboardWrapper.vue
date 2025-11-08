@@ -73,7 +73,7 @@
           <component
             :is="Component"
             :key="route.name"
-            v-bind="supportsOpenSettings(route.path)
+            v-bind="route.path.includes('dashboard')
               ? { 'onOpen-settings': () => showSettingsDialog = true }
               : {}
             "
@@ -165,13 +165,6 @@
           case Roles.USER: return "родителя"
           default: return "пользователя"
         }
-      },
-      supportsOpenSettings(path: string) {
-        const paths = [
-          "/admin/dashboard",
-          "/admin/tutors",
-        ]
-        return paths.includes(path)
       },
       toggleSidebar() {
         this.sidebarOpen = !this.sidebarOpen;
