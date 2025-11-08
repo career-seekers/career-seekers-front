@@ -65,20 +65,14 @@
     <!-- Основной контент -->
     <div class="main-content">
       <router-view v-slot="{ Component, route }">
-        <transition
-          name="dashboard-page"
-          mode="out-in"
-          appear
-        >
-          <component
-            :is="Component"
-            :key="route.name"
-            v-bind="route.path.includes('dashboard')
+        <component
+          :is="Component"
+          :key="route.name"
+          v-bind="route.path.includes('dashboard')
               ? { 'onOpen-settings': () => showSettingsDialog = true }
               : {}
             "
-          />
-        </transition>
+        />
       </router-view>
 
       <EditCredentialsDialog
@@ -478,19 +472,10 @@
     }
   }
 
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.4s ease;
-  }
-  .fade-enter-from, .fade-leave-to {
-    opacity: 0;
-  }
-  .fade-enter-to, .fade-leave-from {
-    opacity: 1;
-  }
 
   /* Анимации переходов между страницами дашборда */
   .dashboard-page-enter-active {
-    transition: all 0.4s ease-out;
+    transition: all 0.3s ease-out;
   }
 
   .dashboard-page-leave-active {

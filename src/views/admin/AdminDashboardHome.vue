@@ -597,17 +597,6 @@ emits: ['openSettings'],
     box-sizing: border-box;
   }
 
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
   .page-header {
     margin-bottom: 2rem;
   }
@@ -674,33 +663,6 @@ emits: ['openSettings'],
   .card-title i {
     margin-right: 0.75rem;
     font-size: 1.1rem;
-  }
-
-  .status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .status-pending {
-    background: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
-    border: 1px solid #ffc107;
-  }
-
-  .status-approved {
-    background: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-    border: 1px solid #28a745;
-  }
-
-  .status-rejected {
-    background: rgba(220, 53, 69, 0.2);
-    color: #dc3545;
-    border: 1px solid #dc3545;
   }
 
   .card-content {
@@ -784,74 +746,11 @@ emits: ['openSettings'],
     margin-top: 1rem;
   }
 
-  /* Быстрые действия */
-  .quick-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .form-field {
-    display: flex;
-    flex-direction: column;
-    margin: 1rem 0;
-  }
-
-  .form-field.full-width {
-    grid-column: 1 / -1;
-  }
-
   .form-field label {
     color: #2c3e50;
     font-weight: 500;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
-  }
-
-  /* Обновления */
-  .updates-list {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-
-  .update-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f1f3f4;
-  }
-
-  .update-item:last-child {
-    border-bottom: none;
-  }
-
-  .update-icon {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-  }
-
-  .update-content {
-    flex: 1;
-  }
-
-  .update-text {
-    color: #2c3e50;
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .update-time {
-    color: #6c757d;
-    font-size: 0.8rem;
   }
 
   /* Мобильные стили */
@@ -909,20 +808,6 @@ emits: ['openSettings'],
 
     .stat-number {
       font-size: 1.5rem;
-    }
-
-    .quick-actions {
-      gap: 0.5rem;
-    }
-
-    .update-item {
-      padding: 0.5rem 0;
-    }
-
-    .update-icon {
-      width: 28px;
-      height: 28px;
-      font-size: 0.8rem;
     }
   }
 
@@ -995,28 +880,6 @@ emits: ['openSettings'],
 
     .stat-label {
       font-size: 0.8rem;
-    }
-
-    .quick-actions {
-      gap: 0.4rem;
-    }
-
-    .update-item {
-      padding: 0.4rem 0;
-    }
-
-    .update-icon {
-      width: 24px;
-      height: 24px;
-      font-size: 0.7rem;
-    }
-
-    .update-text {
-      font-size: 0.8rem;
-    }
-
-    .update-time {
-      font-size: 0.7rem;
     }
   }
 </style>

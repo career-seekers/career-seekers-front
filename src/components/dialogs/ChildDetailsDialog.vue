@@ -10,7 +10,28 @@
   import Dialog from 'primevue/dialog';
   import ProgressSpinner from 'primevue/progressspinner';
   import { Roles } from '@/state/UserState.types.ts';
-  import type { ChildDetailsDialogData } from '@/components/lists/ChildrenList.vue';
+  import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
+
+  export type ChildDetailsDialogData = {
+    child: ChildOutputDto;
+    childDocs: {
+      birthFile: DocsOutputFileUploadDto,
+      snilsFile: DocsOutputFileUploadDto,
+      schoolFile: DocsOutputFileUploadDto,
+      platformFile: DocsOutputFileUploadDto,
+      consentFile: DocsOutputFileUploadDto,
+    } | null,
+    competencies: {
+      id: number;
+      name: string;
+      description: string;
+      expert: {
+        lastName: string;
+        firstName: string;
+        patronymic: string;
+      },
+    }[]
+  }
 
   export default {
     name: 'ChildDetailsDialog',

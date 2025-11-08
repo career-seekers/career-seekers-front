@@ -7,7 +7,7 @@
       >
         <component
           :is="Component"
-          :key="route.path"
+          :key="getTopLevelPath(route.path)"
         />
       </transition>
     </router-view>
@@ -42,6 +42,12 @@ export default {
     );
   },
   methods: {
+    getTopLevelPath(path: string) {
+      const segments = path.split('/').filter(Boolean);
+      const res = segments[0] || 'root';
+      console.log(path, res)
+      return res
+    },
     shouldAnimate(path: string) {
       // Анимируем только страницы входа/регистрации, не дашборд
       return (

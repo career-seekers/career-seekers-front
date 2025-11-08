@@ -17,32 +17,18 @@ import {useQueueStatuses} from '@/shared/UseQueueStatuses.ts';
 import type {AgeCategories} from '@/api/resolvers/ageCategory/ageCategories.ts';
 import InputText from 'primevue/inputtext';
 import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+import type { ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
 
-export type ChildDetailsDialogData = {
-  child: ChildOutputDto;
-  childDocs: {
-    birthFile: DocsOutputFileUploadDto,
-    snilsFile: DocsOutputFileUploadDto,
-    schoolFile: DocsOutputFileUploadDto,
-    platformFile: DocsOutputFileUploadDto,
-    consentFile: DocsOutputFileUploadDto,
-  } | null,
-  competencies: {
-    id: number;
-    name: string;
-    description: string;
-    queueStatus: QueueStatuses,
-    expert: {
-      lastName: string;
-      firstName: string;
-      patronymic: string;
-    },
-    assignId: number;
-    teacherName: string | null;
-    institution: string | null;
-    post: string | null;
-  }[]
+type CompetenceExtended = ChildDetailsDialogData['competencies'][number] & {
+  assignId: number;
+  teacherName: string | null;
+  institution: string | null;
+  post: string | null;
+  queueStatus: QueueStatuses;
 }
+export type ChildDetailsData = Omit<ChildDetailsDialogData, 'competencies'> & {
+  competencies: CompetenceExtended[];
+};
 
 type TeacherInfo = {
   assignId: number;
@@ -59,7 +45,7 @@ export default {
   },
   props: {
     childrenDetails: {
-      type: Array as PropType<ChildDetailsDialogData[]>,
+      type: Array as PropType<ChildDetailsData[]>,
       required: true
     }
   },
@@ -78,7 +64,7 @@ export default {
       ageGroups: useAgeGroups,
       queueStatuses: useQueueStatuses,
       blockedCompetencesId: [30, 38, 39, 44, 48, 52, 53, 63, 66, 69, 78, 79, 90, 99, 105, 106, 107, 108, 119, 121, 126],
-      originalChildrenDetails: JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsDialogData[],
+      originalChildrenDetails: JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsData[],
       teacherFormsErrors: [] as {
         assignId: number;
         teacherName: string,
@@ -103,7 +89,7 @@ export default {
   },
   watch: {
     childrenDetails() {
-      this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsDialogData[]
+      this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsData[]
     },
   },
   methods: {

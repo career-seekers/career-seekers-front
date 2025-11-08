@@ -265,7 +265,7 @@ import { MentorLinksResolver } from '@/api/resolvers/mentorLinks/mentor-links.re
 import { ChildPackResolver } from '@/api/resolvers/childPack/child-pack.resolver.ts';
 import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
 import ProgressSpinner from 'primevue/progressspinner';
-import ChildrenList, { type ChildDetailsDialogData } from '@/components/lists/ChildrenList.vue';
+import ChildrenList, { type ChildDetailsData } from '@/components/lists/ChildrenList.vue';
 
 export default {
   name: 'UserDashboardHome',
@@ -324,7 +324,7 @@ export default {
         message: '',
       },
 
-      childrenDetails: [] as ChildDetailsDialogData[],
+      childrenDetails: [] as ChildDetailsData[],
 
       childForm: {
         lastName: '',
@@ -417,7 +417,7 @@ export default {
     },
     async loadChildrenDetails() {
       this.isLoading = true;
-      const details = [] as ChildDetailsDialogData[];
+      const details = [] as ChildDetailsData[];
       const children = this.user?.children ?? [];
       for (const child of children) {
         const response = await this.childCompetenciesResolver.getByChildId(child.id);

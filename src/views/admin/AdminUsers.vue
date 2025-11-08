@@ -298,7 +298,7 @@
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import ProgressSpinner from 'primevue/progressspinner';
-  import ChildDetailsDialog from '@/components/dialogs/ChildDetailsDialog.vue';
+  import ChildDetailsDialog, { type ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
   import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
   import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
   import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
@@ -306,7 +306,6 @@
   import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-documents.resolver.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import type { PropType } from 'vue';
-  import type { ChildDetailsDialogData } from '@/components/lists/ChildrenList.vue';
 
   export enum Mode {
     USERS = "USERS",
@@ -402,7 +401,6 @@
           phone: "",
           email: "",
         },
-
 
         selectedChild: null as ChildOutputDto | null,
         selectedChildDetails: null as ChildDetailsDialogData | null,
@@ -754,17 +752,6 @@
 </script>
 
 <style scoped>
-
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
 
   .page-header {
     margin-bottom: 2rem;
