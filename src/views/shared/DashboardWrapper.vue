@@ -65,14 +65,20 @@
     <!-- Основной контент -->
     <div class="main-content">
       <router-view v-slot="{ Component, route }">
-        <component
-          :is="Component"
-          :key="route.name"
-          v-bind="route.path.includes('dashboard')
+        <transition
+          name="dashboard-page"
+          mode="out-in"
+          appear
+        >
+          <component
+            :is="Component"
+            :key="route.path"
+            v-bind="route.path.includes('dashboard')
               ? { 'onOpen-settings': () => showSettingsDialog = true }
               : {}
             "
-        />
+          />
+        </transition>
       </router-view>
 
       <EditCredentialsDialog

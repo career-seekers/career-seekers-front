@@ -431,7 +431,7 @@ export default {
 .competencies-page {
   max-width: 1200px;
   margin: 0 auto;
-  animation: slideInRight 0.4s ease-out;
+
   width: 100%;
   box-sizing: border-box;
 }
@@ -449,16 +449,7 @@ export default {
   font-size: 0.9rem;
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+
 
 .page-header {
   margin-bottom: 2rem;

@@ -587,7 +587,6 @@
   .competencies-page {
     max-width: 1200px;
     margin: 0 auto;
-    animation: slideInRight 0.4s ease-out;
     width: 100%;
     box-sizing: border-box;
   }
@@ -603,17 +602,6 @@
     font-weight: 500;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
-  }
-
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
   }
 
   .page-header {

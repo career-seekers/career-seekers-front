@@ -745,17 +745,6 @@ export default {
   margin-bottom: 1.5rem;
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 .card-title i {
   margin-right: 0.75rem;
   font-size: 1.1rem;

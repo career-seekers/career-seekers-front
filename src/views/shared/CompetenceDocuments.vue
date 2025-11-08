@@ -652,7 +652,7 @@
   .documents-page {
     max-width: 1200px;
     margin: 0 auto;
-    animation: slideInRight 0.4s ease-out;
+
     width: 100%;
     box-sizing: border-box;
   }
