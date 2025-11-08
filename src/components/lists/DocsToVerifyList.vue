@@ -85,7 +85,6 @@
       deleteDocument(document: CompetenceDocumentsOutputDto) {
         this.$emit('delete', document);
       },
-
       onPageChange(event: any) {
         this.currentPage = event.page;
         this.itemsPerPage = event.rows;
@@ -97,7 +96,6 @@
           }
         });
       },
-
     }
   };
 </script>
