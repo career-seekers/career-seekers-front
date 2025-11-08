@@ -22,7 +22,10 @@
     </div>
 
     <!-- Список площадок -->
-    <div class="venues-grid">
+    <div
+      v-if="paginatedVenues.length > 0"
+      class="venues-grid"
+    >
       <div
         v-for="venue in paginatedVenues"
         :key="venue.id"
@@ -79,15 +82,11 @@
                 </a>
               </span>
             </div>
-            <!-- <div class="detail-item">
-              <span class="detail-label">Статус:</span>
-              <span class="detail-value">{{ venue.verified ? 'Верифицирована' : 'Не верифицирована' }}</span>
-            </div> -->
           </div>
 
           <div
-            v-if="venueTutor(venue)"
             class="mentor-info"
+            :class="venueTutor(venue) ? '' : 'transparent'"
           >
             <h4 class="mentor-title">
               Связанный куратор:
@@ -105,10 +104,15 @@
       </div>
     </div>
 
+    <ProgressSpinner
+      v-else
+      style="width: 100%; margin-top: 10rem"
+    />
+
     <!-- Обычная пагинация (скрывается при скролле) -->
     <div
+      v-if="paginatedVenues.length > 0"
       class="pagination-container"
-      :class="{ 'hidden': showFloatingPagination }"
     >
       <Paginator
         :first="currentPage * itemsPerPage"
@@ -132,6 +136,7 @@
   import type { PlatformOutputDto } from '@/api/resolvers/platform/dto/output/platform-output.dto.ts';
   import { PlatformResolver } from '@/api/resolvers/platform/platform.resolver.ts';
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
+  import ProgressSpinner from 'primevue/progressspinner';
 
   export default {
     name: "AdminVenues",
@@ -140,6 +145,7 @@
       Button,
       InputText,
       Paginator,
+      ProgressSpinner
     },
     data() {
       return {
@@ -241,14 +247,7 @@
         }
       },
       async loadVenues() {
-        console.log('Loading venues...');
-        console.log('PlatformResolver:', this.platformResolver);
-        console.log('Access token for venues:', localStorage.getItem("access_token"));
-        console.log('API endpoint for venues:', 'https://api.career-seekers.ru/events-service/v1/platforms');
         const response = await this.platformResolver.getAll();
-        console.log('Venues response:', response);
-        console.log('Venues response status:', response.status);
-        console.log('Venues response message:', response.message);
         if (response.status === 200 && typeof response.message !== "string") {
           this.venues = response.message;
           console.log('Venues loaded:', this.venues);
@@ -289,14 +288,6 @@
 </script>
 
 <style scoped>
-  .venues-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    animation: slideInRight 0.4s ease-out;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
   @keyframes slideInRight {
     from {
       opacity: 0;
@@ -324,11 +315,6 @@
     color: #6c757d;
     margin: 0;
     font-size: 1.1rem;
-  }
-
-  .page-actions {
-    margin-bottom: 2rem;
-    text-align: right;
   }
 
   .venues-grid {
@@ -385,12 +371,6 @@
     font-weight: 600;
   }
 
-  .venue-position {
-    margin: 0;
-    font-size: 0.9rem;
-    opacity: 0.9;
-  }
-
   .venue-actions {
     display: flex;
     gap: 0.5rem;
@@ -428,6 +408,13 @@
     text-align: right;
   }
 
+  .mentor-info {
+    transition: all 0.3s
+  }
+
+  .mentor-info.transparent {
+    opacity: 0;
+  }
 
   .filters-section {
     display: flex;
@@ -473,88 +460,6 @@
     pointer-events: none;
   }
 
-  .competencies-section {
-    margin-bottom: 1.5rem;
-  }
-
-  .competencies-title {
-    color: #2c3e50;
-    margin: 0 0 0.75rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-    border-bottom: 2px solid #ff9800;
-    padding-bottom: 0.25rem;
-  }
-
-  .competencies-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .competence-tag {
-    background: #f8f9fa;
-    color: #2c3e50;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    border: 1px solid #e9ecef;
-  }
-
-  .venue-status {
-    text-align: center;
-  }
-
-  .status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .status-active {
-    background: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-    border: 1px solid #28a745;
-  }
-
-  .status-pending {
-    background: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
-    border: 1px solid #ffc107;
-  }
-
-  .status-inactive {
-    background: rgba(108, 117, 125, 0.2);
-    color: #6c757d;
-    border: 1px solid #6c757d;
-  }
-
-  /* Форма */
-  .venue-form {
-    padding: 1rem 0;
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .form-field {
-    display: flex;
-    flex-direction: column;
-    margin: 1rem 0;
-  }
-
-  .form-field.full-width {
-    grid-column: 1 / -1;
-  }
-
   .form-field label {
     color: #2c3e50;
     font-weight: 500;
@@ -564,11 +469,6 @@
 
   /* Мобильные стили */
   @media (max-width: 768px) {
-    .venues-page {
-      padding: 0 1rem;
-      max-width: 100%;
-      width: 100%;
-    }
 
     .venues-grid {
       grid-template-columns: 1fr;
@@ -595,11 +495,6 @@
       padding: 1rem;
     }
 
-    .form-row {
-      grid-template-columns: 1fr;
-      gap: 0.75rem;
-    }
-
     .detail-item {
       flex-direction: column;
       align-items: flex-start;
@@ -613,11 +508,6 @@
 
   /* Очень маленькие экраны */
   @media (max-width: 480px) {
-    .venues-page {
-      padding: 0 0.5rem;
-      max-width: 100%;
-      width: 100%;
-    }
 
     .page-title {
       font-size: 1.3rem;
@@ -641,17 +531,8 @@
       font-size: 1rem;
     }
 
-    .venue-position {
-      font-size: 0.8rem;
-    }
-
     .venue-content {
       padding: 0.75rem;
-    }
-
-    .competence-tag {
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
     }
   }
 
@@ -664,7 +545,6 @@
     padding: 1rem;
     transition: opacity 0.3s ease;
   }
-
 
 
   /* Простые анимации для карточек */
