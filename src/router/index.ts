@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory } from 'vue-router';
 import { titleManager } from "@/utils/titleManager.ts";
 
 // Auth views
@@ -48,10 +48,34 @@ import { Roles } from '@/state/UserState.types.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import { useAuthStore } from '@/stores/authStore.ts';
 import CompetenceParticipants from '@/views/shared/CompetenceParticipants.vue';
+import CompetenciesEvents from '@/views/shared/CompetenciesEvents.vue';
+import { setPrefix } from '@/router/types.d';
 
-const routes = [
+const sharedRoutes = [
+  {
+    path: "participants/:competenceId",
+    name: "competence-participants",
+    component: CompetenceParticipants,
+    props: true
+  },
+  {
+    path: "documents/:competenceId",
+    name: "competence-documents",
+    component: CompetenceDocuments,
+    props: true
+  },
+  {
+    path: "events/:competenceId",
+    name: "competence-events",
+    component: CompetenciesEvents,
+    props: true
+  }
+]
+
+const authRoutes = [
   {
     path: "/",
+    name: "main",
     redirect: "/login",
   },
   {
@@ -93,193 +117,9 @@ const routes = [
     name: "forgot-password",
     component: ForgotPasswordView,
   },
-  {
-    path: "/link/:id",
-    name: "mentor-link-confirmation",
-    component: MentorLinkConfirmation,
-  },
-  {
-    path: "/user",
-    component: DashboardWrapper,
-    meta: {
-      allowedRole: Roles.USER
-    },
-    children: [
-      {
-        path: "",
-        redirect: "/user/dashboard",
-      },
-      {
-        path: "dashboard",
-        name: "user-dashboard",
-        component: UserDashboardHome,
-        meta: {
-          title: "Главная",
-          icon: "pi pi-home"
-        }
-      },
-      {
-        path: "competencies",
-        name: "user-competencies",
-        component: ChildrenCompetencies,
-        meta: {
-          title: "Компетенции",
-          icon: "pi pi-briefcase"
-        }
-      },
-    ],
-  },
-  {
-    path: "/mentor",
-    component: DashboardWrapper,
-    meta: {
-      allowedRole: Roles.MENTOR
-    },
-    children: [
-      {
-        path: "",
-        redirect: "/mentor/dashboard",
-      },
-      {
-        path: "dashboard",
-        name: "mentor-dashboard",
-        component: MentorDashboardHome,
-        meta: {
-          title: "Главная",
-          icon: "pi pi-home"
-        }
-      },
-      {
-        path: "competencies",
-        name: "mentor-competencies",
-        component: ChildrenCompetencies,
-        meta: {
-          title: "Компетенции",
-          icon: "pi pi-briefcase"
-        }
-      },
-    ],
-  },
-  {
-    path: "/expert",
-    component: DashboardWrapper,
-    meta: {
-      allowedRole: Roles.EXPERT
-    },
-    children: [
-      {
-        path: "",
-        redirect: "/expert/dashboard",
-      },
-      {
-        path: "dashboard",
-        name: "expert-dashboard",
-        component: ExpertDashboardHome,
-        meta: {
-          title: "Главная",
-          icon: "pi pi-home"
-        }
-      },
-      {
-        path: "competencies",
-        name: "expert-competencies",
-        component: ExpertCompetencies,
-        meta: {
-          title: "Компетенции",
-          icon: "pi pi-briefcase"
-        }
-      },
-      {
-        path: "documents",
-        name: "expert-documents",
-        component: ExpertDocuments,
-        meta: {
-          title: "Документы",
-          icon: "pi pi-folder"
-        }
-      },
-      {
-        path: "participants/:competenceId",
-        component: CompetenceParticipants,
-        props: true
-      },
-      {
-        path: "documents/:competenceId",
-        name: "expert-competence-documents",
-        component: CompetenceDocuments,
-        props: true
-      },
-    ],
-  },
-  {
-    path: "/tutor",
-    component: DashboardWrapper,
-    meta: {
-      allowedRole: Roles.TUTOR
-    },
-    children: [
-      {
-        path: "",
-        redirect: "/tutor/dashboard",
-      },
-      {
-        path: "dashboard",
-        name: "tutor-dashboard",
-        component: TutorDashboardHome,
-        meta: {
-          title: "Главная",
-          icon: "pi pi-home",
-        }
-      },
-      {
-        path: "experts",
-        name: "tutor-experts",
-        component: TutorExperts,
-        meta: {
-          title: "Главные эксперты",
-          icon: "pi pi-users",
-        }
-      },
-      {
-        path: "competencies",
-        name: "tutor-competencies",
-        component: TutorCompetencies,
-        meta: {
-          title: "Компетенции",
-          icon: "pi pi-briefcase",
-        }
-      },
-      {
-        path: "documents/",
-        name: "tutor-documents",
-        component: TutorDocuments,
-        meta: {
-          title: "Документы",
-          icon: "pi pi-file",
-        }
-      },
-      {
-        path: "venue-info",
-        name: "tutor-venue-info",
-        component: TutorVenueInfo,
-        meta: {
-          title: "Информация о площадке",
-          icon: "pi pi-building",
-        }
-      },
-      {
-        path: "documents/:competenceId",
-        name: "tutor-competence-documents",
-        component: CompetenceDocuments,
-        props: true
-      },
-      {
-        path: "participants/:competenceId",
-        component: CompetenceParticipants,
-        props: true
-      }
-    ],
-  },
+]
+
+const adminRoutes = setPrefix([
   {
     path: "/admin",
     component: DashboardWrapper,
@@ -365,17 +205,210 @@ const routes = [
         }
       },
       {
-        path: "documents/:competenceId",
-        component: CompetenceDocuments,
-        props: true
+        path: "events",
+        component: CompetenciesEvents,
+        meta: {
+          title: "События",
+          icon: "pi pi-calendar",
+        }
       },
-      {
-        path: "participants/:competenceId",
-        component: CompetenceParticipants,
-        props: true
-      }
+      ...sharedRoutes
     ]
   },
+], 'admin')
+
+const tutorRoutes = setPrefix([
+  {
+    path: "/tutor",
+    component: DashboardWrapper,
+    meta: {
+      allowedRole: Roles.TUTOR
+    },
+    children: [
+      {
+        path: "",
+        redirect: "/tutor/dashboard",
+      },
+      {
+        path: "dashboard",
+        component: TutorDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home",
+        }
+      },
+      {
+        path: "experts",
+        component: TutorExperts,
+        meta: {
+          title: "Главные эксперты",
+          icon: "pi pi-users",
+        }
+      },
+      {
+        path: "competencies",
+        component: TutorCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase",
+        }
+      },
+      {
+        path: "documents",
+        component: TutorDocuments,
+        meta: {
+          title: "Документы",
+          icon: "pi pi-file",
+        }
+      },
+      {
+        path: "venue-info",
+        component: TutorVenueInfo,
+        meta: {
+          title: "Информация о площадке",
+          icon: "pi pi-building",
+        }
+      },
+      {
+        path: "events",
+        component: CompetenciesEvents,
+        meta: {
+          title: "События",
+          icon: "pi pi-calendar",
+        }
+      },
+      ...sharedRoutes
+    ],
+  },
+], 'tutor')
+
+const expertRoutes = setPrefix([
+  {
+    path: "/expert",
+    component: DashboardWrapper,
+    meta: {
+      allowedRole: Roles.EXPERT
+    },
+    children: [
+      {
+        path: "",
+        redirect: "/expert/dashboard",
+      },
+      {
+        path: "dashboard",
+        component: ExpertDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home"
+        }
+      },
+      {
+        path: "competencies",
+        component: ExpertCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase"
+        }
+      },
+      {
+        path: "documents",
+        component: ExpertDocuments,
+        meta: {
+          title: "Документы",
+          icon: "pi pi-folder"
+        }
+      },
+      {
+        path: "events",
+        component: CompetenciesEvents,
+        meta: {
+          title: "События",
+          icon: "pi pi-calendar",
+        }
+      },
+      ...sharedRoutes
+    ],
+  },
+], 'expert')
+
+const mentorRoutes = setPrefix([
+  {
+    path: "/mentor",
+    component: DashboardWrapper,
+    meta: {
+      allowedRole: Roles.MENTOR
+    },
+    children: [
+      {
+        path: "",
+        redirect: "/mentor/dashboard",
+      },
+      {
+        path: "dashboard",
+        component: MentorDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home"
+        }
+      },
+      {
+        path: "competencies",
+        component: ChildrenCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase"
+        }
+      },
+      ...sharedRoutes
+    ],
+  },
+], 'mentor')
+
+const userRoutes = setPrefix([
+  {
+    path: "/user",
+    component: DashboardWrapper,
+    meta: {
+      allowedRole: Roles.USER
+    },
+    children: [
+      {
+        path: "",
+        redirect: "/user/dashboard",
+      },
+      {
+        path: "dashboard",
+        component: UserDashboardHome,
+        meta: {
+          title: "Главная",
+          icon: "pi pi-home"
+        }
+      },
+      {
+        path: "competencies",
+        component: ChildrenCompetencies,
+        meta: {
+          title: "Компетенции",
+          icon: "pi pi-briefcase"
+        }
+      },
+      ...sharedRoutes
+    ],
+  },
+], 'user')
+
+const routes = [
+  ...authRoutes,
+  {
+    path: "/link/:id",
+    name: "mentor-link-confirmation",
+    component: MentorLinkConfirmation,
+  },
+  ...adminRoutes,
+  ...tutorRoutes,
+  ...expertRoutes,
+  ...mentorRoutes,
+  ...userRoutes,
   {
     path: '/:pathMatch(.*)*',
     redirect: "/login"
@@ -386,6 +419,8 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+console.log(router.getRoutes().map(route => [route.path, route.name]))
 
 export const historyStack: string[] = []
 

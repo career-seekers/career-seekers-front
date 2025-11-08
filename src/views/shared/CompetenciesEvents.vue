@@ -310,7 +310,7 @@
   import Editor from 'primevue/editor'
 
   export default {
-    name: 'CompetenceEvents',
+    name: 'CompetenciesEvents',
     components: {
       Button,
       Dialog,

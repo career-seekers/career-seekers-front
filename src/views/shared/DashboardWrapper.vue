@@ -10,57 +10,62 @@
     </div>
 
     <!-- Сайдбар -->
-    <div
-      class="sidebar"
-      :class="{ 'sidebar-open': sidebarOpen }"
+    <transition
+      name="fade"
+      appear
     >
-      <div class="sidebar-header">
-        <img
-          src="@/assets/logo.png"
-          alt="Logo"
-          class="sidebar-logo"
-        >
-        <h2 class="sidebar-title">
-          Личный кабинет {{ asideText() }}
-        </h2>
-        <button
-          v-if="isMobile"
-          class="sidebar-close"
-          @click="toggleSidebar"
-        >
-          <i class="pi pi-times" />
-        </button>
-      </div>
-
-      <nav class="sidebar-nav">
-        <ul class="nav-list">
-          <li
-            v-for="routeLink in routeLinks"
-            :key="routeLink.path"
-            class="nav-item"
+      <div
+        class="sidebar"
+        :class="{ 'sidebar-open': sidebarOpen }"
+      >
+        <div class="sidebar-header">
+          <img
+            src="@/assets/logo.png"
+            alt="Logo"
+            class="sidebar-logo"
           >
-            <router-link
-              :to="routeLink"
-              class="nav-link"
-              :class="{ active: $route.path === routeLink.path }"
-              @click="closeSidebarOnMobile"
-            >
-              <i :class="routeLink.icon" />
-              <span>{{ routeLink.title }}</span>
-            </router-link>
-          </li>
-        </ul>
-      </nav>
+          <h2 class="sidebar-title">
+            Личный кабинет {{ asideText() }}
+          </h2>
+          <button
+            v-if="isMobile"
+            class="sidebar-close"
+            @click="toggleSidebar"
+          >
+            <i class="pi pi-times" />
+          </button>
+        </div>
 
-      <div class="sidebar-footer">
-        <Button
-          label="Выйти"
-          icon="pi pi-sign-out"
-          class="p-button-text p-button-danger"
-          @click="logout"
-        />
+        <nav class="sidebar-nav">
+          <ul class="nav-list">
+            <li
+              v-for="routeLink in routeLinks"
+              :key="routeLink.path"
+              class="nav-item"
+            >
+              <router-link
+                :to="routeLink"
+                class="nav-link"
+                :class="{ active: $route.path === routeLink.path }"
+                @click="closeSidebarOnMobile"
+              >
+                <i :class="routeLink.icon" />
+                <span>{{ routeLink.title }}</span>
+              </router-link>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+          <Button
+            label="Выйти"
+            icon="pi pi-sign-out"
+            class="p-button-text p-button-danger"
+            @click="logout"
+          />
+        </div>
       </div>
-    </div>
+    </transition>
 
     <!-- Основной контент -->
     <div class="main-content">
@@ -125,11 +130,14 @@
       this.routeLinks = Array.from(
         new Map(router
           .getRoutes()
-          .filter(route => route.meta.title && route.path.startsWith(
-            this.userStore.user
-              ? `/${this.userStore.user.role.toLowerCase()}/`
-              : "/logged-out"
-          ))
+          .filter(route => {
+            console.log(route.path);
+            return route.meta.title && route.path.startsWith(
+              this.userStore.user
+                ? `/${this.userStore.user.role.toLowerCase()}/`
+                : "/logged-out"
+            )
+          })
           .sort((a, b) => (a.meta.title as string).localeCompare(b.meta.title as string))
           .map(route => {
             return [
@@ -267,8 +275,7 @@
   .main-content {
     flex: 1;
     margin-left: 280px;
-    padding: 2rem;
-    padding-bottom: 80px;
+    padding: 2rem 2rem 80px;
     min-height: 100vh;
     background-color: white;
     background-image: url("@/assets/bg2.png");
@@ -382,9 +389,7 @@
 
     .main-content {
       margin-left: 0;
-      padding: 1rem;
-      padding-top: 4rem;
-      padding-bottom: 70px;
+      padding: 4rem 1rem 70px;
       background-attachment: scroll;
       width: 100%;
       max-width: 100vw;
@@ -440,9 +445,7 @@
     }
 
     .main-content {
-      padding: 0.75rem;
-      padding-top: 3.5rem;
-      padding-bottom: 60px;
+      padding: 3.5rem 0.75rem 60px;
       max-width: 100vw;
       overflow-x: hidden;
     }
@@ -476,6 +479,16 @@
     .sidebar-footer {
       padding: 0.75rem;
     }
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 0.4s ease;
+  }
+  .fade-enter-from, .fade-leave-to {
+    opacity: 0;
+  }
+  .fade-enter-to, .fade-leave-from {
+    opacity: 1;
   }
 
   /* Анимации переходов между страницами дашборда */

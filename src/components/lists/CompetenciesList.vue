@@ -48,10 +48,6 @@
       router() {
         return router
       },
-      useUserStore,
-      goToDocuments(competenceId: number) {
-        this.$router.push(`/${this.userStore.user?.role.toLowerCase()}/documents/${competenceId}`);
-      },
       async toggleAgeCategory(competenceId: number, ageCategory: AgeCategoryOutputDto) {
         const toggledCategory = {...ageCategory}
         toggledCategory.isDisabled = !toggledCategory.isDisabled
@@ -168,7 +164,7 @@
           label="Документы"
           icon="pi pi-file-text"
           class="p-button-outlined"
-          @click="goToDocuments(competence.id)"
+          @click="router().push(`/${userStore.user?.role.toLowerCase()}/documents/${competence.id}`);"
         />
         <!--          <Button -->
         <!--            label="События" -->
