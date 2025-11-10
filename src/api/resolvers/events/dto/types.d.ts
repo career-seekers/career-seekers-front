@@ -13,3 +13,15 @@ export enum SortFields {
   NAME = "name",
   SHORT_DESCRIPTION = "shortDescription",
 }
+
+namespace EventTypes {
+  export function getAlias(type: EventTypes): string {
+    return type;
+  }
+}
+
+namespace EventFormats {
+  export function getAlias(type: EventFormats): string {
+    return type;
+  }
+}

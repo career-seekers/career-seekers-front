@@ -1,20 +1,15 @@
 <script lang="ts">
   import { type PropType } from 'vue';
-  import type {
-    CompetenceDocumentsOutputDto,
-  } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
-  import apiConf from '@/api/api.conf.ts';
-  import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
-  import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
-  import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
   import Button from 'primevue/button';
   import Paginator from 'primevue/paginator';
+  import type { EventOutputDto } from '@/api/resolvers/events/dto/output/event-output.dto.ts';
+  import { EventFormats, EventTypes } from '@/api/resolvers/events/dto/types.d';
 
   export type VerifyStatus = "ACCEPTED" | "REJECTED" | "UNCHECKED";
   export default {
-    name: 'DocsToVerifyList',
+    name: 'EventsToVerifyList',
     components: {
       Button,
       Paginator,
@@ -24,8 +19,8 @@
         type: String as PropType<VerifyStatus>,
         required: true,
       },
-      documents: {
-        type: Array as PropType<CompetenceDocumentsOutputDto[]>,
+      events: {
+        type: Array as PropType<EventOutputDto[]>,
         required: true,
       },
       experts: {
@@ -36,57 +31,44 @@
     emits: ['update', 'delete', 'verify'],
     data() {
       return {
+        eventTypes: EventTypes,
+        eventFormats: EventFormats,
         userResolver: new UserResolver(),
-        competenceDocumentsResolver: new CompetenceDocumentsResolver(),
-        documentTypes: useDocumentTypes,
-        ageGroups: useAgeGroups,
         // Пагинация
         currentPage: 0,
         itemsPerPage: 8,
       }
     },
     computed: {
-      paginatedDocuments() {
-        const start = this.currentPage * this.itemsPerPage;
-        const end = start + this.itemsPerPage;
-        return this.documents.slice(start, end);
-      },
-
       totalRecords() {
-        return this.documents.length;
+        return this.events.length;
       }
     },
     methods: {
-      viewDocument(doc: CompetenceDocumentsOutputDto) {
-        window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`, "_blank");
+      eventExpert(event: EventOutputDto) {
+        return this.experts.find((expert) => expert.id === event.directionExpertId);
       },
-      downloadDocument(doc: CompetenceDocumentsOutputDto) {
-        window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.documentId}`;
-      },
-      documentExpert(document: CompetenceDocumentsOutputDto) {
-        return this.experts.find((expert) => expert.id === document.userId);
-      },
-      verifyDocument(doc: CompetenceDocumentsOutputDto, status: boolean) {
+      verifyEvent(event: EventOutputDto, status: boolean) {
         const action = status ? 'принять' : 'отклонить';
         const actionPast = status ? 'принят' : 'отклонен';
-        
-        this.$emit('verify', { 
-          document: doc, 
-          status, 
+
+        this.$emit('verify', {
+          event,
+          status,
           action,
           actionPast,
-          showConfirm: true 
+          showConfirm: true
         });
       },
-      deleteDocument(document: CompetenceDocumentsOutputDto) {
-        this.$emit('delete', document);
+      deleteEvent(event: EventOutputDto) {
+        this.$emit('delete', event);
       },
       onPageChange(event: any) {
         this.currentPage = event.page;
         this.itemsPerPage = event.rows;
         // Плавная прокрутка к началу списка
         this.$nextTick(() => {
-          const grid = this.$el.querySelector('.documents-grid');
+          const grid = this.$el.querySelector('.events-grid');
           if (grid) {
             grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
@@ -99,76 +81,68 @@
 <template>
 
   <div
-    v-if="documents.length > 0"
-    class="documents-grid"
+    v-if="events.length > 0"
+    class="events-grid"
   >
     <div
-      v-for="document in paginatedDocuments"
-      :key="document.id"
-      class="document-card"
+      v-for="event in events"
+      :key="event.id"
+      class="event-card"
     >
-      <div class="document-header">
-        <div class="document-icon">
+      <div class="event-header">
+        <div class="event-icon">
           <i class="pi pi-file" />
         </div>
-        <div class="document-info">
-          <h3 class="document-name">
-            Документ №{{ document.documentId }}
+        <div class="event-info">
+          <h3 class="event-name">
+            Событие №{{ event.id }}
           </h3>
         </div>
-        <div class="document-actions">
-          <Button
-            v-tooltip="'Просмотреть'"
-            icon="pi pi-eye"
-            style="background: white;"
-            class="p-button-text p-button-sm"
-            @click="viewDocument(document)"
-          />
-          <Button
-            v-tooltip="'Скачать'"
-            icon="pi pi-download"
-            style="background: white"
-            class="p-button-text p-button-sm"
-            @click="downloadDocument(document)"
-          />
+        <div class="event-actions">
           <Button
             v-tooltip="'Удалить'"
             icon="pi pi-trash"
             style="background: white"
             class="p-button-text p-button-sm p-button-danger"
-            @click="deleteDocument(document)"
+            @click="deleteEvent(event)"
           />
         </div>
       </div>
 
-      <div class="document-content">
-        <div class="document-details">
+      <div class="event-content">
+        <div class="event-details">
           <div class="detail-item">
             <span class="detail-label">Тип:</span>
             <span class="detail-value">{{
-              documentTypes.find((type) => type.value === document.documentType)?.label
-            }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Возрастная группа:</span>
-            <span class="detail-value">
-              {{
-                ageGroups.find(group => document.ageCategory === group.value)?.label
+                eventTypes.getAlias(event.eventType)
               }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Дата загрузки:</span>
+            <span class="detail-label">Формат:</span>
+            <span class="detail-value">
+              {{
+                eventFormats.getAlias(event.eventFormat)
+              }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Начало:</span>
             <span class="detail-value">{{
-              document.createdAt.substring(0, 10)
-            }}</span>
+                event.startDateTime
+              }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Окончание:</span>
+            <span class="detail-value">{{
+                event.endDateTime
+              }}</span>
           </div>
           <div
             class="detail-item"
           >
             <span class="detail-label">Компетенция:</span>
             <span class="detail-value">{{
-              document.direction?.name
-            }}</span>
+                event.directionId
+              }}</span>
           </div>
         </div>
 
@@ -179,15 +153,15 @@
             Связанный эксперт:
           </h4>
           <p
-            v-if="documentExpert(document)"
+            v-if="eventExpert(event)"
             class="mentor-name"
           >
             {{
-              documentExpert(document)?.lastName +
-                " " +
-                documentExpert(document)?.firstName +
-                " " +
-                documentExpert(document)?.patronymic
+              eventExpert(event)?.lastName +
+              " " +
+              eventExpert(event)?.firstName +
+              " " +
+              eventExpert(event)?.patronymic
             }}
           </p>
           <p
@@ -198,7 +172,7 @@
           </p>
         </div>
         <div
-          v-if="document.verified === null"
+          v-if="event.verified === null"
           class="verify"
         >
           <Button
@@ -206,14 +180,14 @@
             style="background: white"
             label="Принять"
             class="p-button-text p-button-sm p-button-success"
-            @click="verifyDocument(document, true)"
+            @click="verifyEvent(event, true)"
           />
           <Button
             icon="pi pi-times"
             style="background: white"
             label="Отклонить"
             class="p-button-text p-button-sm p-button-danger"
-            @click="verifyDocument(document, false)"
+            @click="verifyEvent(event, false)"
           />
         </div>
       </div>
@@ -222,7 +196,7 @@
 
   <!-- Обычная пагинация (скрывается при скролле) -->
   <div
-    v-if="documents.length > 0"
+    v-if="events.length > 0"
     class="pagination-container"
   >
     <Paginator
@@ -238,7 +212,7 @@
 
 <style scoped>
 
-  .documents-grid {
+  .events-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
     gap: 1.5rem;
@@ -246,7 +220,7 @@
     margin-bottom: 4rem;
   }
 
-  .document-card {
+  .event-card {
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -257,12 +231,12 @@
       border-color 0.3s ease;
   }
 
-  .document-card:hover {
+  .event-card:hover {
     box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2);
     border: 2px solid #ff9800;
   }
 
-  .document-header {
+  .event-header {
     background: linear-gradient(135deg, #ff9800, #f57c00);
     color: white;
     padding: 1.5rem;
@@ -271,7 +245,7 @@
     gap: 1rem;
   }
 
-  .document-icon {
+  .event-icon {
     width: 60px;
     height: 60px;
     background: rgba(255, 255, 255, 0.2);
@@ -283,28 +257,28 @@
     flex-shrink: 0;
   }
 
-  .document-info {
+  .event-info {
     flex: 1;
   }
 
-  .document-name {
+  .event-name {
     margin: 0 0 0.25rem 0;
     font-size: 1.1rem;
     font-weight: 600;
   }
 
-  .document-actions {
+  .event-actions {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
     justify-content: flex-end;
   }
 
-  .document-content {
+  .event-content {
     padding: 1.5rem;
   }
 
-  .document-details {
+  .event-details {
     margin-bottom: 1.5rem;
   }
 
@@ -349,11 +323,11 @@
   }
 
   /* Простые анимации для карточек */
-  .document-card {
+  .event-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .document-card:hover {
+  .event-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
@@ -429,7 +403,7 @@
   }
 
   @media screen and (max-width: 768px) {
-    .documents-grid {
+    .events-grid {
       grid-template-columns: 1fr;
     }
   }
