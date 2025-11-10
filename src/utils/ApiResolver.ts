@@ -67,6 +67,14 @@ class ApiResolverUtil {
     });
     return formData;
   }
+
+  DTOToURLSearchParams(dto: never) {
+    const params = new URLSearchParams();
+    Object.keys(dto).forEach((key) => {
+      params.append(key, dto[key]);
+    });
+    return params;
+  }
 }
 
 export default ApiResolverUtil;
