@@ -1,12 +1,20 @@
 <template>
   <div class="documents-page">
     <div class="page-header">
-      <h1 class="page-title">
-        События
-      </h1>
-      <p class="page-subtitle">
-        Управление событиями
-      </p>
+      <div class="header-text">
+        <h1 class="page-title">
+          События
+        </h1>
+        <p class="page-subtitle">
+          Управление событиями
+        </p>
+      </div>
+      <Button
+        label="Создать событие"
+        icon="pi pi-plus"
+        class="p-button-sm"
+        @click="addEvent"
+      />
     </div>
     
     <!-- Фильтры -->
@@ -46,6 +54,7 @@
           placeholder="Все компетенции"
           class="filter-dropdown"
           :disabled="isLoading"
+          force-selection
           @complete="filterCompetencies"
         >
           <template #item="slotProps">
@@ -89,8 +98,8 @@
             :experts="experts"
             :verify-status="tab.key === 'unchecked' ? 'UNCHECKED' : tab.key === 'accepted' ? 'ACCEPTED' : 'REJECTED'"
             @update="loadCompetencies"
-            @delete="handleDeleteEvent"
-            @verify="handleVerifyDocument"
+            @delete="deleteEvent"
+            @verify="verifyEvent"
           />
           <div v-else-if="!isLoading">
             <p>Нет событий</p>
@@ -101,12 +110,152 @@
           />
         </TabPanel>
       </TabView>
-
-      <ToastPopup :content="errors.toastPopup" />
-
-      <!-- Диалог подтверждения удаления -->
-      <ConfirmDialog />
     </div>
+
+    <ToastPopup :content="errors.toastPopup" />
+
+    <!-- Диалог подтверждения удаления -->
+    <ConfirmDialog />
+
+    <!-- Диалог добавления/редактирования события -->
+    <Dialog
+      v-model:visible="showAddEventDialog"
+      :header="
+        isEditing ? 'Редактировать событие' : 'Добавить событие'
+      "
+      :modal="true"
+      :style="{ width: '550px' }"
+    >
+      <div class="expert-form">
+        <div class="form-field">
+          <label for="name">Название *</label>
+          <InputText
+            id="name"
+            v-model="eventForm.name"
+            placeholder="Введите заголовок для нового события"
+            :class="{ 'p-invalid': errors.name }"
+          />
+          <small
+            v-if="errors.name"
+            class="p-error"
+          >
+            {{ errors.name }}
+          </small>
+        </div>
+
+        <div class="form-field">
+          <label for="short-description">Краткое описание *</label>
+          <Textarea
+            id="short-description"
+            v-model="eventForm.shortDescription"
+            placeholder="Введите краткое описание нового события"
+            auto-resize
+            rows="2"
+            :class="{ 'p-invalid': errors.shortDescription }"
+          />
+          <small
+            v-if="errors.shortDescription"
+            class="p-error"
+          >{{ errors.shortDescription }}</small>
+        </div>
+
+        <div class="form-field">
+          <label
+            for="start-datetime"
+            class="field-label"
+          >Дата начала *</label>
+          <Calendar
+            id="start-datetime"
+            v-model="eventForm.startDateTime"
+            placeholder="Выберите дату начала"
+            show-icon
+            show-time
+            show-seconds
+            :manual-input="false"
+          />
+          <small
+            v-if="errors.startDateTime"
+            class="p-error"
+          >{{ errors.startDateTime }}</small>
+        </div>
+        <div class="form-field">
+          <label
+            for="end-datetime"
+            class="field-label"
+          >Дата окончания *</label>
+          <Calendar
+            id="end-datetime"
+            v-model="eventForm.endDateTime"
+            placeholder="Выберите дату окончания"
+            show-icon
+            show-time
+            show-seconds
+            :manual-input="false"
+          />
+          <small
+            v-if="errors.endDateTime"
+            class="p-error"
+          >{{ errors.startDateTime }}</small>
+        </div>
+
+        <div class="form-field">
+          <label
+            for="competence"
+            class="field-label"
+          >Компетенция *</label>
+          <AutoComplete
+            id="competence"
+            v-model="eventForm.competence"
+            :suggestions="filteredCompetencies"
+            dropdown
+            field="name"
+            placeholder="Все компетенции"
+            class="filter-dropdown"
+            force-selection
+            @complete="filterCompetencies"
+          >
+            <template #item="slotProps">
+              {{ slotProps ? formatCompetenceName(slotProps.item) : "Не выбран" }}
+            </template>
+            <template #option="slotProps">
+              {{ slotProps ? formatCompetenceName(slotProps.option) : "Не выбран" }}
+            </template>
+          </AutoComplete>
+          <small
+            v-if="errors.competence"
+            class="p-error"
+          >
+            {{ errors.competence }}
+          </small>
+        </div>
+
+        <div class="form-field">
+          <label for="description">Полное описание</label>
+          <Textarea
+            id="description"
+            v-model="eventForm.description"
+            auto-resize
+            rows="5"
+            placeholder="Введите полное описание нового события"
+          />
+        </div>
+      </div>
+
+      <template #footer>
+        <Button
+          label="Отмена"
+          icon="pi pi-times"
+          class="p-button-text"
+          @click="showAddEventDialog = false"
+        />
+        <Button
+          :label="isEditing ? 'Сохранить' : 'Добавить'"
+          icon="pi pi-check"
+          class="p-button-primary"
+          @click="saveEvent"
+        />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -130,6 +279,10 @@
   import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
   import { EventResolver } from '@/api/resolvers/events/event.resolver.ts';
   import type { EventsUrlParamsInputDto } from '@/api/resolvers/events/dto/input/events-url-params-input.dto.ts';
+  import Calendar from 'primevue/calendar';
+  import Dialog from 'primevue/dialog';
+  import Textarea from 'primevue/textarea';
+  import InputText from 'primevue/inputtext';
 
   interface TabConfig {
     key: string;
@@ -149,7 +302,11 @@
       TabPanel,
       AutoComplete,
       ConfirmDialog,
-      ProgressSpinner
+      ProgressSpinner,
+      Calendar,
+      Dialog,
+      Textarea,
+      InputText
     },
     data() {
       return {
@@ -158,22 +315,48 @@
         selectedCompetence: localStorage.getItem("selectedCompetence")
           ? JSON.parse(localStorage.getItem("selectedCompetence") as string)
           : (null as CompetenceOutputDto | null),
+
         events: [] as EventOutputDto[],
         competencies: [] as CompetenceOutputDto[],
         experts: [] as UserOutputDto[],
         filteredCompetencies: [] as CompetenceOutputDto[],
+
         errors: {
           toastPopup: {
             title: "",
             message: "",
           },
+          name: "",
+          shortDescription: "",
+          eventType: "",
+          eventFormat: "",
+          startDateTime: "",
+          endDateTime: "",
+          competence: ""
         },
+        eventForm: {
+          name: "",
+          shortDescription: "",
+          eventType: null as EventTypes | null,
+          eventFormat: null as EventFormats | null,
+          startDateTime: null as Date | null,
+          endDateTime: null as Date | null,
+          eventVenue: null as string | null,
+          description: null as string | null,
+          competence: null as CompetenceOutputDto | null,
+        },
+
         competenceResolver: new CompetenceResolver(),
         userResolver: new UserResolver(),
         eventResolver: new EventResolver(),
+
         activeTab: 0,
+
         isSticky: false,
         isLoading: false,
+        isEditing: false,
+        showAddEventDialog: false,
+
         confirm: useConfirm(),
       };
     },
@@ -326,8 +509,7 @@
           this.experts = this.experts.concat(tutResponse.message);
         }
       },
-
-      handleDeleteEvent(event: EventOutputDto) {
+      deleteEvent(event: EventOutputDto) {
         this.confirm.require({
           message: `Вы уверены, что хотите удалить документ №${event.id}?`,
           header: 'Подтверждение удаления',
@@ -373,8 +555,7 @@
           }
         });
       },
-
-      handleVerifyDocument(data: {
+      verifyEvent(data: {
         event: EventOutputDto,
         status: boolean,
         success?: boolean,
@@ -462,9 +643,24 @@
           };
         }
       },
+      addEvent() {
+        this.eventForm = {
+          name: "",
+          shortDescription: "",
+          eventType: null,
+          eventFormat: null,
+          startDateTime: null,
+          endDateTime: null,
+          eventVenue: "",
+          description: "",
+          competence: null,
+        };
+        this.showAddEventDialog = true;
+      },
+      saveEvent() {
 
+      }
     },
-
   };
 </script>
 
@@ -477,6 +673,9 @@
   }
 
   .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
     margin-bottom: 2rem;
   }
 
@@ -529,6 +728,9 @@
   }
 
   .filter-dropdown {
+    width: 100%;
+  }
+  .p-autocomplete-panel {
     width: 100%;
   }
 
@@ -708,4 +910,22 @@
     border-color: #adb5bd;
     color: #495057;
   }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+
+  .form-field:last-child {
+    margin: 0
+  }
+
+  .form-field label {
+    color: #2c3e50;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
 </style>
