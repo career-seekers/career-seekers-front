@@ -130,7 +130,7 @@
         <div class="card-content">
           <div>
             <Button
-              label="Полная выгрузка данных обо участниках чемпионата"
+              label="Полная выгрузка данных об участниках чемпионата"
               icon="pi pi-download"
               :loading="isLoading"
               @click="downloadAllChildrenReport"
@@ -612,18 +612,24 @@ emits: ['openSettings'],
         return router
       },
       async downloadAllChildrenReport() {
-        this.isLoading = true;
-        const blobResponse = await this.reportResolver.getAllChildrenReports()
-        const url = window.URL.createObjectURL(blobResponse);
-        const extension = getExtensionFromMimeType(blobResponse.type)
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Полная выгрузка данных обо участниках чемпионата.${extension}`
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        this.isLoading = false;
+        this.isLoading = true
+        try {
+          const blobResponse = await this.reportResolver.getAllChildrenReports()
+          const url = window.URL.createObjectURL(blobResponse);
+          const extension = getExtensionFromMimeType(blobResponse.type)
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Полная выгрузка данных об участниках чемпионата.${extension}`
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error('Ошибка при загрузке отчета:', error);
+          alert('Не удалось загрузить отчет. Пожалуйста, попробуйте еще раз позже.');
+        } finally {
+          this.isLoading = false;
+        }
       }
     },
   }
