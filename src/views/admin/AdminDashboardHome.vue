@@ -132,7 +132,8 @@
             <Button
               label="Полная выгрузка данных обо участниках чемпионата"
               icon="pi pi-download"
-              :disabled="isLoading"
+              :loading="isLoading"
+              @click="downloadAllChildrenReport"
             />
           </div>
         </div>
@@ -522,6 +523,8 @@
   import {EventsStatisticsResolver} from "@/api/resolvers/statistic/events-statistics.resolver.ts";
   import {UsersStatisticsResolver} from "@/api/resolvers/statistic/users-statistics.resolver.ts";
   import type {UsersStatisticsOutputDto} from "@/api/resolvers/statistic/dto/output/users-statistics-output.dto.ts";
+  import { getExtensionFromMimeType } from '@/shared/UseMimeTypes.ts';
+  import { ReportResolver } from '@/api/resolvers/reports/report.resolver.ts';
 
   export default {
     name: 'AdminDashboardHome',
@@ -535,6 +538,7 @@ emits: ['openSettings'],
         userStore: useUserStore(),
         eventsStatisticsResolver: new EventsStatisticsResolver(),
         usersStatisticsResolver: new UsersStatisticsResolver(),
+        reportResolver: new ReportResolver(),
 
         tutorsStatistics: null as null | UsersStatisticsOutputDto,
         expertsStatistics: null as null | UsersStatisticsOutputDto,
@@ -606,6 +610,20 @@ emits: ['openSettings'],
     methods: {
       router() {
         return router
+      },
+      async downloadAllChildrenReport() {
+        this.isLoading = true;
+        const blobResponse = await this.reportResolver.getAllChildrenReports()
+        const url = window.URL.createObjectURL(blobResponse);
+        const extension = getExtensionFromMimeType(blobResponse.type)
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Полная выгрузка данных обо участниках чемпионата.${extension}`
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        this.isLoading = false;
       }
     },
   }
