@@ -142,8 +142,8 @@
   import AutoComplete from 'primevue/autocomplete';
   import ConfirmDialog from 'primevue/confirmdialog';
   import { useConfirm } from 'primevue/useconfirm';
-  import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
   import ProgressSpinner from 'primevue/progressspinner';
+  import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
   interface TabConfig {
   key: string;

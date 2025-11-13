@@ -1,0 +1,30 @@
+import { EventFormats, type EventTypes } from '@/api/resolvers/events/dto/types';
+import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+
+import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
+
+export interface EventFormNullable {
+  name: string,
+  shortDescription: string,
+  eventType: EventTypes | null,
+  eventFormat: EventFormats | null,
+  startDateTime: Date | null,
+  endDateTime: Date | null,
+  competence: CompetenceOutputDto | null,
+  ageCategory: AgeCategoryOutputDto | null,
+  eventVenue: string | null,
+  description: string | null,
+}
+
+export interface EventForm {
+  name: string,
+  shortDescription: string,
+  eventType: EventTypes,
+  eventFormat: EventFormats,
+  startDateTime: Date,
+  endDateTime: Date ,
+  competence: CompetenceOutputDto,
+  ageCategory: AgeCategoryOutputDto,
+  eventVenue: string | null,
+  description: string | null,
+}

@@ -10,6 +10,7 @@ export interface EventOutputDto {
   endDateTime: string;
   eventVenue: string;
   verified: boolean | null;
+  description: string | null;
   directionExpertId: number;
   directionTutorId: number;
   directionId: number;

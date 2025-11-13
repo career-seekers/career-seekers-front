@@ -14,10 +14,10 @@ import {FileType} from '@/api/resolvers/files/file.resolver.ts';
 import apiConf from '@/api/api.conf.ts';
 import {QueueStatuses} from '@/api/resolvers/childCompetencies/types.ts';
 import {useQueueStatuses} from '@/shared/UseQueueStatuses.ts';
-import type {AgeCategories} from '@/api/resolvers/ageCategory/ageCategories.ts';
 import InputText from 'primevue/inputtext';
 import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
 import type { ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
+import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
 type CompetenceExtended = ChildDetailsDialogData['competencies'][number] & {
   assignId: number;

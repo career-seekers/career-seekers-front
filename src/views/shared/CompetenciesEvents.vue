@@ -20,9 +20,9 @@
     <!-- Фильтры -->
     <div class="filters-section sticky-filters">
       <div class="filter-group">
-        <label for="typeFilter">Тип события:</label>
+        <label for="event-type-filter">Тип события:</label>
         <Dropdown
-          id="typeFilter"
+          id="event-type-filter"
           v-model="selectedType"
           option-label="label"
           option-value="value"
@@ -32,21 +32,21 @@
         />
       </div>
       <div class="filter-group">
-        <label for="typeFilter">Формат события:</label>
+        <label for="event-format-filter">Формат события:</label>
         <Dropdown
-          id="typeFilter"
+          id="event-format-filter"
           v-model="selectedFormat"
           option-label="label"
           option-value="value"
-          placeholder="Все типы"
+          placeholder="Все форматы"
           :disabled="isLoading"
           class="filter-dropdown"
         />
       </div>
       <div class="filter-group">
-        <label for="statusFilter">Компетенция:</label>
+        <label for="event-competence-filter">Компетенция:</label>
         <AutoComplete
-          id="statusFilter"
+          id="event-competence-filter"
           v-model="selectedCompetence"
           :suggestions="filteredCompetencies"
           dropdown
@@ -65,10 +65,25 @@
           </template>
         </AutoComplete>
       </div>
-      
+      <div class="filter-group">
+        <label
+          for="event-age-category-filter"
+          class="field-label"
+        >Возрастная группа</label>
+        <Dropdown
+          id="event-age-category-filter"
+          v-model="selectedAgeCategory"
+          :options="competenceAgeCategories(null)"
+          :disabled="isLoading"
+          dropdown
+          option-label="label"
+          placeholder="Все группы"
+          class="filter-dropdown"
+        />
+      </div>
       <div class="filter-group">
         <Button
-          label="Сбросить фильтры"
+          label="Сбросить"
           icon="pi pi-refresh"
           class="p-button-text p-button-sm"
           @click="resetFilters"
@@ -112,7 +127,7 @@
       </TabView>
     </div>
 
-    <ToastPopup :content="errors.toastPopup" />
+    <ToastPopup :content="toastPopup" />
 
     <!-- Диалог подтверждения удаления -->
     <ConfirmDialog />
@@ -128,9 +143,9 @@
     >
       <div class="expert-form">
         <div class="form-field">
-          <label for="name">Название *</label>
+          <label for="event-name-input">Название *</label>
           <InputText
-            id="name"
+            id="event-name-input"
             v-model="eventForm.name"
             placeholder="Введите заголовок для нового события"
             :class="{ 'p-invalid': errors.name }"
@@ -144,9 +159,9 @@
         </div>
 
         <div class="form-field">
-          <label for="short-description">Краткое описание *</label>
+          <label for="event-short-description-input">Краткое описание *</label>
           <Textarea
-            id="short-description"
+            id="event-short-description-input"
             v-model="eventForm.shortDescription"
             placeholder="Введите краткое описание нового события"
             auto-resize
@@ -161,17 +176,18 @@
 
         <div class="form-field">
           <label
-            for="start-datetime"
+            for="event-start-datetime-input"
             class="field-label"
           >Дата начала *</label>
           <Calendar
-            id="start-datetime"
+            id="event-start-datetime-input"
             v-model="eventForm.startDateTime"
             placeholder="Выберите дату начала"
             show-icon
             show-time
             show-seconds
             :manual-input="false"
+            :class="{ 'p-invalid': errors.startDateTime }"
           />
           <small
             v-if="errors.startDateTime"
@@ -180,17 +196,18 @@
         </div>
         <div class="form-field">
           <label
-            for="end-datetime"
+            for="event-end-datetime-input"
             class="field-label"
           >Дата окончания *</label>
           <Calendar
-            id="end-datetime"
+            id="event-end-datetime-input"
             v-model="eventForm.endDateTime"
             placeholder="Выберите дату окончания"
             show-icon
             show-time
             show-seconds
             :manual-input="false"
+            :class="{ 'p-invalid': errors.endDateTime }"
           />
           <small
             v-if="errors.endDateTime"
@@ -200,13 +217,14 @@
 
         <div class="form-field">
           <label
-            for="competence"
+            for="event-competence-input"
             class="field-label"
           >Компетенция *</label>
           <AutoComplete
-            id="competence"
+            id="event-competence-input"
             v-model="eventForm.competence"
             :suggestions="filteredCompetencies"
+            :class="{ 'p-invalid': errors.competence }"
             dropdown
             field="name"
             placeholder="Все компетенции"
@@ -230,13 +248,48 @@
         </div>
 
         <div class="form-field">
-          <label for="description">Полное описание</label>
+          <label
+            for="event-age-category-input"
+            class="field-label"
+          >Возрастная группа *</label>
+          <Dropdown
+            id="event-age-category-input"
+            v-model="eventForm.ageCategory"
+            :options="competenceAgeCategories(eventForm.competence)"
+            :disabled="eventForm.competence === null"
+            :class="{ 'p-invalid': errors.ageCategory }"
+            dropdown
+            option-label="label"
+            placeholder="Все компетенции"
+            class="filter-dropdown"
+          />
+          <small
+            v-if="errors.ageCategory"
+            class="p-error"
+          >
+            {{ errors.ageCategory }}
+          </small>
+        </div>
+
+        <div class="form-field">
+          <label for="event-description-input">Полное описание</label>
           <Textarea
-            id="description"
+            id="event-description-input"
             v-model="eventForm.description"
             auto-resize
             rows="5"
             placeholder="Введите полное описание нового события"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="event-venue-input">Место проведения</label>
+          <Textarea
+            id="event-venue-input"
+            v-model="eventForm.eventVenue"
+            auto-resize
+            rows="2"
+            placeholder="Введите место проведения события"
           />
         </div>
       </div>
@@ -283,6 +336,11 @@
   import Dialog from 'primevue/dialog';
   import Textarea from 'primevue/textarea';
   import InputText from 'primevue/inputtext';
+  import type { EventFormNullable } from '@/utils/validation/forms.types';
+  import type { EventFormErrors } from '@/utils/validation/forms-errors.types';
+  import { ValidationManager } from '@/utils/validation/ValidationManager.ts';
+  import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+  import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
 
   interface TabConfig {
     key: string;
@@ -310,47 +368,33 @@
     },
     data() {
       return {
+        selectedEvent: null as null | EventOutputDto,
         selectedType: null as null | EventTypes,
         selectedFormat: null as null | EventFormats,
         selectedCompetence: localStorage.getItem("selectedCompetence")
           ? JSON.parse(localStorage.getItem("selectedCompetence") as string)
           : (null as CompetenceOutputDto | null),
+        selectedAgeCategory: null as AgeCategoryOutputDto | null,
 
         events: [] as EventOutputDto[],
         competencies: [] as CompetenceOutputDto[],
         experts: [] as UserOutputDto[],
         filteredCompetencies: [] as CompetenceOutputDto[],
 
-        errors: {
-          toastPopup: {
-            title: "",
-            message: "",
-          },
-          name: "",
-          shortDescription: "",
-          eventType: "",
-          eventFormat: "",
-          startDateTime: "",
-          endDateTime: "",
-          competence: ""
+        toastPopup: {
+          title: "",
+          message: "",
         },
-        eventForm: {
-          name: "",
-          shortDescription: "",
-          eventType: null as EventTypes | null,
-          eventFormat: null as EventFormats | null,
-          startDateTime: null as Date | null,
-          endDateTime: null as Date | null,
-          eventVenue: null as string | null,
-          description: null as string | null,
-          competence: null as CompetenceOutputDto | null,
-        },
+
+        errors: {} as EventFormErrors,
+        eventForm: {} as EventFormNullable,
 
         competenceResolver: new CompetenceResolver(),
         userResolver: new UserResolver(),
         eventResolver: new EventResolver(),
 
         activeTab: 0,
+        ageGroups: useAgeGroups,
 
         isSticky: false,
         isLoading: false,
@@ -358,6 +402,7 @@
         showAddEventDialog: false,
 
         confirm: useConfirm(),
+        validationManager: ValidationManager
       };
     },
     computed: {
@@ -376,7 +421,6 @@
           .filter(event => event.verified === null)
           .sort((a, b) => b.id - a.id);
       },
-      // Определяем доступность табов на основе наличия документов
       tabsConfig() {
         const tabs = [
           {
@@ -399,13 +443,12 @@
           }
         ];
 
-        // Сортируем табы: сначала с документами, потом без документов
         return tabs.sort((a, b) => {
           if (a.hasEvents && !b.hasEvents) return -1;
           if (!a.hasEvents && b.hasEvents) return 1;
           return 0;
         });
-      }
+      },
     },
     watch: {
       // Автоматически переключаемся на первый доступный таб, если текущий стал недоступным
@@ -431,6 +474,12 @@
       this.isLoading = false
     },
     methods: {
+      competenceAgeCategories(competence: CompetenceOutputDto | null) {
+        if (competence === null) return this.ageGroups
+        return [...this.ageGroups]
+          .filter(group => competence.ageCategories
+            .some((category: AgeCategoryOutputDto) => category.ageCategory === group.value))
+      },
       filterCompetencies(event: { query: string }) {
         const query = event.query ? event.query.toLowerCase() : '';
         let filtered = [];
@@ -477,13 +526,12 @@
 
         return filteredEvents;
       },
-
       resetFilters() {
         this.selectedType = null;
         this.selectedFormat = null;
         this.selectedCompetence = null;
+        this.selectedAgeCategory = null;
       },
-      
       async loadCompetencies() {
         const response = await this.competenceResolver.getAll();
         if (response.status === 200 && typeof response.message !== "string") {
@@ -540,14 +588,14 @@
                 this.competencies = this.competencies.filter(competence => competence.documents.length > 0);
 
                 // Показываем уведомление об успешном удалении
-                this.errors.toastPopup = {
+                this.toastPopup = {
                   title: "Успешно",
                   message: "Документ удален успешно",
                 };
               }
             } catch (error) {
               console.error('Ошибка при удалении документа:', error);
-              this.errors.toastPopup = {
+              this.toastPopup = {
                 title: "Ошибка",
                 message: "Не удалось удалить документ",
               };
@@ -593,21 +641,21 @@
                     });
 
                     // Показываем уведомление об успешной верификации
-                    this.errors.toastPopup = {
+                    this.toastPopup = {
                       title: "Успешно",
                       message: `Документ ${data.actionPast} успешно`,
                     };
                   }
                 } else {
                   // Показываем уведомление об ошибке
-                  this.errors.toastPopup = {
+                  this.toastPopup = {
                     title: "Ошибка",
                     message: "Не удалось обновить статус документа",
                   };
                 }
               } catch (error) {
                 console.error('Ошибка при верификации документа:', error);
-                this.errors.toastPopup = {
+                this.toastPopup = {
                   title: "Ошибка",
                   message: "Не удалось обновить статус документа",
                 };
@@ -631,13 +679,13 @@
 
           // Показываем уведомление об успешной верификации
           const action = data.status ? 'принят' : 'отклонен';
-          this.errors.toastPopup = {
+          this.toastPopup = {
             title: "Успешно",
             message: `Документ ${action} успешно`,
           };
         } else {
           // Показываем уведомление об ошибке
-          this.errors.toastPopup = {
+          this.toastPopup = {
             title: "Ошибка",
             message: "Не удалось обновить статус документа",
           };
@@ -654,12 +702,37 @@
           eventVenue: "",
           description: "",
           competence: null,
+          ageCategory: null,
         };
         this.showAddEventDialog = true;
       },
-      saveEvent() {
-
-      }
+      async saveEvent() {
+        const validationResult = ValidationManager.validateEventForm(this.eventForm)
+        const form = validationResult.form
+        this.errors  = validationResult.errors
+        if (!validationResult.isValid) return
+        if (this.isEditing && this.selectedEvent !== null) {
+          const response = await this.eventResolver.update({
+            id: this.selectedEvent.id,
+            name: form.name !== this.selectedEvent.name ? form.name : undefined,
+            shortDescription: form.shortDescription !== this.selectedEvent.shortDescription ? form.shortDescription : undefined,
+            eventType: form.eventType !== this.selectedEvent.eventType ? form.eventType : undefined,
+            eventFormat: form.eventFormat !== this.selectedEvent.eventFormat ? form.eventFormat : undefined,
+            startDateTime: form.startDateTime !== this.selectedEvent.startDateTime ? form.startDateTime : undefined,
+            endDateTime: form.endDateTime !== this.selectedEvent.endDateTime ? form.endDateTime : undefined,
+            eventVenue: form.eventVenue !== this.selectedEvent.eventVenue ? form.eventVenue : undefined,
+            description: form.description !== this.selectedEvent.description ? form.description : undefined,
+            directionId: form.competence.id !== this.selectedEvent.directionId ? form.competence.id : undefined,
+            directionAgeCategoryId: form.ageCategory.id !== this.selectedEvent.directionAgeCategoryId ? form.ageCategory.id : undefined,
+          })
+        } else {
+          const response = await this.eventResolver.create({
+            ...validation.form,
+            directionId: validation.form.competence.id,
+            directionAgeCategoryId: validation.form.competence.ageCategories.find(a => a.id === this.selectedAgeCategory.id),
+          })
+        }
+      },
     },
   };
 </script>
@@ -696,7 +769,7 @@
   .filters-section {
     display: flex;
     gap: 1rem;
-    align-items: end;
+    align-items: flex-end;
     margin-bottom: 2rem;
     padding: 1rem;
     background: #f8f9fa;
@@ -717,14 +790,22 @@
   .filter-group {
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
     gap: 0.5rem;
     min-width: 150px;
+    flex: 1;
   }
 
   .filter-group label {
     color: #2c3e50;
     font-weight: 500;
     font-size: 0.9rem;
+  }
+
+  .filter-group:last-child {
+    margin-left: auto;
+    flex: 0.5;
+    margin-bottom: 3px;
   }
 
   .filter-dropdown {

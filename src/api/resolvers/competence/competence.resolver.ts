@@ -7,7 +7,8 @@ import type {
   UpdateCompetencePlacesInputDto,
 } from '@/api/resolvers/competence/dto/input/competence-places-input.dto.ts';
 import type { CompetenceUpdateInputDto } from '@/api/resolvers/competence/dto/input/competence-update-input.dto.ts';
-import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+
+import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
 export class CompetenceResolver {
   private apiResolver = new ApiResolver("events-service/v1/directions");

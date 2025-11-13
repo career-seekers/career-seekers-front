@@ -1,5 +1,6 @@
 import { EventFormats, type EventTypes, SortFields } from '@/api/resolvers/events/dto/types';
-import type { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+
+import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
 export interface EventsUrlParamsInputDto {
   page: number | null;

@@ -456,7 +456,8 @@
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import ToastPopup from '@/components/ToastPopup.vue';
   import ConfirmationModal from '@/components/ConfirmationModal.vue';
-  import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+
+  import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
   export default {
     name: "CompetenceDocuments",

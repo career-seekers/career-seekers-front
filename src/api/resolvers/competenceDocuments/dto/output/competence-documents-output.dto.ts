@@ -1,7 +1,8 @@
 import { FileType } from "@/api/resolvers/files/file.resolver";
 import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
 
-import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+
+import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
 export interface CompetenceDocumentsOutputDto {
   id: number;

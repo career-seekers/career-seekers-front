@@ -69,8 +69,8 @@ import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import ProgressSpinner from 'primevue/progressspinner';
 import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
 import CompetenciesList from '@/components/lists/CompetenciesList.vue';
-import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 import {AgeCategoriesResolver} from "@/api/resolvers/ageCategory/age-categories.resolver.ts";
+import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
 export default {
   name: "ExpertCompetencies",

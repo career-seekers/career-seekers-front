@@ -414,7 +414,8 @@ import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import ToastPopup from '@/components/ToastPopup.vue';
 import { FormatManager } from '@/utils/FormatManager.ts';
-import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+
+import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
 export default {
   name: "ExpertDashboardHome",

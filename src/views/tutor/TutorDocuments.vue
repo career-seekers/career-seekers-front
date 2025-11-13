@@ -429,7 +429,8 @@ import apiConf from '@/api/api.conf.ts';
 import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
 import { useUserStore } from '@/stores/userStore.ts';
 import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
-import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+
+import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
 export default {
   name: "TutorDocuments",
