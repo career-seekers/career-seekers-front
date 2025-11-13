@@ -61,16 +61,140 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
+            <i class="pi pi-file" />
+            Данные о документах
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="stats-grid">
+            <div
+              v-if="directionDocsCount != null"
+              class="stat-item"
+            >
+              <div class="stat-number">
+                {{ directionDocsCount }}
+              </div>
+              <div class="stat-label">
+                Всего документов
+              </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+            <div
+              v-if="lastDocumentUpload != null"
+              class="stat-item"
+            >
+              <div class="stat-number">
+                {{ lastDocumentUpload.toString().substring(0, 10) }}
+              </div>
+              <div class="stat-label">
+                Последняя загрузка
+              </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <Button
+              label="Управление документами"
+              icon="pi pi-cog"
+              class="p-button-outlined"
+              @click="router().push('/admin/documents')"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-header">
+          <h3 class="card-title">
             <i class="pi pi-book" />
             Отчеты
           </h3>
         </div>
         <div class="card-content">
+          <div>
+            <Button
+              label="Полная выгрузка данных обо участниках чемпионата"
+              icon="pi pi-download"
+              :disabled="isLoading"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="pi pi-users" />
+            Данные об экспертах
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="stats-grid">
+            <div
+              v-if="expertsStatistics"
+              class="stat-item"
+            >
+              <div class="stat-number">
+                {{ expertsStatistics.count }}
+              </div>
+              <div class="stat-label">
+                Всего экспертов
+              </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+            <div
+              v-if="expertsStatistics"
+              class="stat-item"
+            >
+              <div class="stat-number">
+                {{ expertsStatistics.verified }}
+              </div>
+              <div class="stat-label">
+                Верифицированных
+              </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+          </div>
+
           <div class="card-actions">
             <Button
-              label="Полная выгрузка данных обо всех детях"
-              icon="pi pi-download"
-              @click="router().push('/admin/users')"
+              label="Управление экспертами"
+              icon="pi pi-cog"
+              class="p-button-outlined"
+              @click="router().push('/admin/experts')"
             />
           </div>
         </div>
@@ -133,68 +257,6 @@
               icon="pi pi-cog"
               class="p-button-outlined"
               @click="router().push('/admin/tutors')"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-users" />
-            Данные о наставниках
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-              v-if="mentorsStatistics"
-              class="stat-item"
-            >
-              <div class="stat-number">
-                {{ mentorsStatistics.count }}
-              </div>
-              <div class="stat-label">
-                Всего наставников
-              </div>
-            </div>
-            <div
-              v-else
-              class="stat-item"
-            >
-              <ProgressSpinner
-                class="spinner"
-                style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-              v-if="mentorsStatistics"
-              class="stat-item"
-            >
-              <div class="stat-number">
-                {{ mentorsStatistics.verified }}
-              </div>
-              <div class="stat-label">
-                Верифицированных
-              </div>
-            </div>
-            <div
-              v-else
-              class="stat-item"
-            >
-              <ProgressSpinner
-                class="spinner"
-                style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
-
-          <div class="card-actions">
-            <Button
-              label="Управление наставниками"
-              icon="pi pi-cog"
-              class="p-button-outlined"
-              @click="router().push('/admin/mentors')"
             />
           </div>
         </div>
@@ -328,130 +390,6 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-users" />
-            Данные об экспертах
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-              v-if="expertsStatistics"
-              class="stat-item"
-            >
-              <div class="stat-number">
-                {{ expertsStatistics.count }}
-              </div>
-              <div class="stat-label">
-                Всего экспертов
-              </div>
-            </div>
-            <div
-              v-else
-              class="stat-item"
-            >
-              <ProgressSpinner
-                class="spinner"
-                style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-              v-if="expertsStatistics"
-              class="stat-item"
-            >
-              <div class="stat-number">
-                {{ expertsStatistics.verified }}
-              </div>
-              <div class="stat-label">
-                Верифицированных
-              </div>
-            </div>
-            <div
-              v-else
-              class="stat-item"
-            >
-              <ProgressSpinner
-                class="spinner"
-                style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
-
-          <div class="card-actions">
-            <Button
-              label="Управление экспертами"
-              icon="pi pi-cog"
-              class="p-button-outlined"
-              @click="router().push('/admin/experts')"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-file" />
-            Данные о документах
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-              v-if="directionDocsCount != null"
-              class="stat-item"
-            >
-              <div class="stat-number">
-                {{ directionDocsCount }}
-              </div>
-              <div class="stat-label">
-                Всего документов
-              </div>
-            </div>
-            <div
-              v-else
-              class="stat-item"
-            >
-              <ProgressSpinner
-                class="spinner"
-                style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-              v-if="lastDocumentUpload != null"
-              class="stat-item"
-            >
-              <div class="stat-number">
-                {{ lastDocumentUpload.toString().substring(0, 10) }}
-              </div>
-              <div class="stat-label">
-                Последняя загрузка
-              </div>
-            </div>
-            <div
-              v-else
-              class="stat-item"
-            >
-              <ProgressSpinner
-                class="spinner"
-                style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
-
-          <div class="card-actions">
-            <Button
-              label="Управление документами"
-              icon="pi pi-cog"
-              class="p-button-outlined"
-              @click="router().push('/admin/documents')"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-users" />
             Данные об участниках
           </h3>
         </div>
@@ -465,7 +403,7 @@
                 {{ usersStatistics.count }}
               </div>
               <div class="stat-label">
-                Родителей
+                Всего родителей
               </div>
             </div>
             <div
@@ -485,7 +423,7 @@
                 {{ childrenCount }}
               </div>
               <div class="stat-label">
-                Детей
+                Всего детей
               </div>
             </div>
             <div
@@ -505,6 +443,68 @@
               icon="pi pi-cog"
               class="p-button-outlined"
               @click="router().push('/admin/users')"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="pi pi-users" />
+            Данные о наставниках
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="stats-grid">
+            <div
+              v-if="mentorsStatistics"
+              class="stat-item"
+            >
+              <div class="stat-number">
+                {{ mentorsStatistics.count }}
+              </div>
+              <div class="stat-label">
+                Всего наставников
+              </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+            <div
+              v-if="mentorsStatistics"
+              class="stat-item"
+            >
+              <div class="stat-number">
+                {{ mentorsStatistics.verified }}
+              </div>
+              <div class="stat-label">
+                Верифицированных
+              </div>
+            </div>
+            <div
+              v-else
+              class="stat-item"
+            >
+              <ProgressSpinner
+                class="spinner"
+                style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <Button
+              label="Управление наставниками"
+              icon="pi pi-cog"
+              class="p-button-outlined"
+              @click="router().push('/admin/mentors')"
             />
           </div>
         </div>
@@ -548,6 +548,8 @@ emits: ['openSettings'],
         directionsWithoutDocs: null as number | null,
         directionDocsCount: null as number | null,
         lastDocumentUpload: null as Date | null,
+
+        isLoading: false,
       };
     },
     computed: {
@@ -559,6 +561,7 @@ emits: ['openSettings'],
       },
     },
     async beforeMount() {
+      this.isLoading = true;
       const [
         tutorsInfo,
         expertsInfo,
@@ -597,6 +600,8 @@ emits: ['openSettings'],
       this.directionsWithoutDocs = directionsWithoutDocs;
       this.directionDocsCount = directionDocsCount;
       this.lastDocumentUpload = lastDocumentUpload;
+
+      this.isLoading = false;
     },
     methods: {
       router() {
@@ -665,6 +670,8 @@ emits: ['openSettings'],
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
   }
 
   .info-card:hover {
@@ -700,6 +707,10 @@ emits: ['openSettings'],
 
   .card-content {
     padding: 1.5rem;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .data-section {
@@ -905,6 +916,7 @@ emits: ['openSettings'],
 
     .stats-grid {
       gap: 0.5rem;
+      margin-bottom: 0;
     }
 
     .stat-item {
