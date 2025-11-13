@@ -17,13 +17,13 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-user" />
-            Информация об администраторе
+            Профиль
           </h3>
           <Button
             v-tooltip="'Редактировать'"
             icon="pi pi-pencil"
             style="background: white;"
-            class="p-button-text p-button-sm"
+            class="p-button-text"
             @click="$emit('openSettings', true)"
           />
         </div>
@@ -61,8 +61,26 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
+            <i class="pi pi-book" />
+            Отчеты
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="card-actions">
+            <Button
+              label="Полная выгрузка данных обо всех детях"
+              icon="pi pi-download"
+              @click="router().push('/admin/users')"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-header">
+          <h3 class="card-title">
             <i class="pi pi-users" />
-            Информация о кураторах
+            Данные о кураторах
           </h3>
         </div>
         <div class="card-content">
@@ -124,7 +142,7 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-users" />
-            Информация о наставниках
+            Данные о наставниках
           </h3>
         </div>
         <div class="card-content">
@@ -186,7 +204,7 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-building" />
-            Информация о площадках
+            Данные о площадках
           </h3>
         </div>
         <div class="card-content">
@@ -248,7 +266,7 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-briefcase" />
-            Информация о компетенциях
+            Данные о компетенциях
           </h3>
         </div>
         <div class="card-content">
@@ -310,7 +328,7 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-users" />
-            Информация об экспертах
+            Данные об экспертах
           </h3>
         </div>
         <div class="card-content">
@@ -372,7 +390,7 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-file" />
-            Информация о документах
+            Данные о документах
           </h3>
         </div>
         <div class="card-content">
@@ -434,7 +452,7 @@
         <div class="card-header">
           <h3 class="card-title">
             <i class="pi pi-users" />
-            Информация об участниках
+            Данные об участниках
           </h3>
         </div>
         <div class="card-content">
@@ -661,6 +679,10 @@ emits: ['openSettings'],
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    button {
+      margin: -1rem 0;
+    }
   }
 
   .card-title {
@@ -674,33 +696,6 @@ emits: ['openSettings'],
   .card-title i {
     margin-right: 0.75rem;
     font-size: 1.1rem;
-  }
-
-  .status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .status-pending {
-    background: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
-    border: 1px solid #ffc107;
-  }
-
-  .status-approved {
-    background: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-    border: 1px solid #28a745;
-  }
-
-  .status-rejected {
-    background: rgba(220, 53, 69, 0.2);
-    color: #dc3545;
-    border: 1px solid #dc3545;
   }
 
   .card-content {
@@ -785,73 +780,11 @@ emits: ['openSettings'],
   }
 
   /* Быстрые действия */
-  .quick-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .form-field {
-    display: flex;
-    flex-direction: column;
-    margin: 1rem 0;
-  }
-
-  .form-field.full-width {
-    grid-column: 1 / -1;
-  }
-
   .form-field label {
     color: #2c3e50;
     font-weight: 500;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
-  }
-
-  /* Обновления */
-  .updates-list {
-    max-height: 300px;
-    overflow-y: auto;
-  }
-
-  .update-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f1f3f4;
-  }
-
-  .update-item:last-child {
-    border-bottom: none;
-  }
-
-  .update-icon {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-  }
-
-  .update-content {
-    flex: 1;
-  }
-
-  .update-text {
-    color: #2c3e50;
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .update-time {
-    color: #6c757d;
-    font-size: 0.8rem;
   }
 
   /* Мобильные стили */
@@ -882,9 +815,6 @@ emits: ['openSettings'],
     }
 
     .card-header {
-      padding: 1rem;
-      flex-direction: column;
-      align-items: flex-start;
       gap: 0.5rem;
     }
 
@@ -909,20 +839,6 @@ emits: ['openSettings'],
 
     .stat-number {
       font-size: 1.5rem;
-    }
-
-    .quick-actions {
-      gap: 0.5rem;
-    }
-
-    .update-item {
-      padding: 0.5rem 0;
-    }
-
-    .update-icon {
-      width: 28px;
-      height: 28px;
-      font-size: 0.8rem;
     }
   }
 
@@ -958,7 +874,13 @@ emits: ['openSettings'],
     }
 
     .card-header {
-      padding: 0.75rem;
+      padding: 1rem;
+
+      button {
+        height: 2rem;
+        width: auto;
+        aspect-ratio: 1;
+      }
     }
 
     .card-title {
@@ -995,28 +917,6 @@ emits: ['openSettings'],
 
     .stat-label {
       font-size: 0.8rem;
-    }
-
-    .quick-actions {
-      gap: 0.4rem;
-    }
-
-    .update-item {
-      padding: 0.4rem 0;
-    }
-
-    .update-icon {
-      width: 24px;
-      height: 24px;
-      font-size: 0.7rem;
-    }
-
-    .update-text {
-      font-size: 0.8rem;
-    }
-
-    .update-time {
-      font-size: 0.7rem;
     }
   }
 </style>
