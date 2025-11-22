@@ -149,11 +149,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-                v-if="expertsStatistics"
+                v-if="statisticsStore.expertsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ expertsStatistics.count }}
+                {{ statisticsStore.expertsInfo.count }}
               </div>
               <div class="stat-label">
                 Всего экспертов
@@ -169,11 +169,11 @@
               />
             </div>
             <div
-                v-if="expertsStatistics"
+                v-if="statisticsStore.expertsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ expertsStatistics.verified }}
+                {{ statisticsStore.expertsInfo.verified }}
               </div>
               <div class="stat-label">
                 Верифицированных
@@ -211,11 +211,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-                v-if="tutorsStatistics"
+                v-if="statisticsStore.tutorsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ tutorsStatistics.count }}
+                {{ statisticsStore.tutorsInfo.count }}
               </div>
               <div class="stat-label">
                 Всего кураторов
@@ -231,11 +231,11 @@
               />
             </div>
             <div
-                v-if="tutorsStatistics"
+                v-if="statisticsStore.tutorsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ tutorsStatistics.verified }}
+                {{ statisticsStore.tutorsInfo.verified }}
               </div>
               <div class="stat-label">
                 Верифицированных
@@ -397,11 +397,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-                v-if="usersStatistics"
+                v-if="statisticsStore.usersInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ usersStatistics.count }}
+                {{ statisticsStore.usersInfo.count }}
               </div>
               <div class="stat-label">
                 Всего родителей
@@ -417,11 +417,11 @@
               />
             </div>
             <div
-                v-if="childrenCount"
+                v-if="statisticsStore.childrenCount"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ childrenCount }}
+                {{ statisticsStore.childrenCount }}
               </div>
               <div class="stat-label">
                 Всего детей
@@ -459,11 +459,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-                v-if="mentorsStatistics"
+                v-if="statisticsStore.mentorsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ mentorsStatistics.count }}
+                {{ statisticsStore.mentorsInfo.count }}
               </div>
               <div class="stat-label">
                 Всего наставников
@@ -479,11 +479,11 @@
               />
             </div>
             <div
-                v-if="mentorsStatistics"
+                v-if="statisticsStore.mentorsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ mentorsStatistics.verified }}
+                {{ statisticsStore.mentorsInfo.verified }}
               </div>
               <div class="stat-label">
                 Верифицированных
@@ -520,8 +520,6 @@ import router from '@/router';
 import {useUserStore} from '@/stores/userStore.ts';
 import {FormatManager} from '@/utils/FormatManager.ts';
 import ProgressSpinner from 'primevue/progressspinner';
-import {UsersStatisticsResolver} from "@/api/resolvers/statistic/users-statistics.resolver.ts";
-import type {UsersStatisticsOutputDto} from "@/api/resolvers/statistic/dto/output/users-statistics-output.dto.ts";
 import {getExtensionFromMimeType} from '@/shared/UseMimeTypes.ts';
 import {ReportResolver} from '@/api/resolvers/reports/report.resolver.ts';
 import {statisticsStore} from "@/stores/statisticsStore.ts";
@@ -537,14 +535,8 @@ export default {
     return {
       userStore: useUserStore(),
       statisticsStore: statisticsStore(),
-      usersStatisticsResolver: new UsersStatisticsResolver(),
-      reportResolver: new ReportResolver(),
 
-      tutorsStatistics: null as null | UsersStatisticsOutputDto,
-      expertsStatistics: null as null | UsersStatisticsOutputDto,
-      mentorsStatistics: null as null | UsersStatisticsOutputDto,
-      usersStatistics: null as null | UsersStatisticsOutputDto,
-      childrenCount: null as null | number,
+      reportResolver: new ReportResolver(),
 
       isLoading: false,
     };
@@ -556,30 +548,6 @@ export default {
     user() {
       return this.userStore.user
     },
-  },
-  async beforeMount() {
-    this.isLoading = true;
-    const [
-      tutorsInfo,
-      expertsInfo,
-      mentorsInfo,
-      usersInfo,
-      childrenCount,
-    ] = await Promise.all([
-      this.usersStatisticsResolver.getTutorsInfo(),
-      this.usersStatisticsResolver.getExpertsInfo(),
-      this.usersStatisticsResolver.getMentorsInfo(),
-      this.usersStatisticsResolver.getUsersInfo(),
-      this.usersStatisticsResolver.getChildrenCount(),
-    ]);
-
-    this.tutorsStatistics = tutorsInfo.message;
-    this.expertsStatistics = expertsInfo.message;
-    this.mentorsStatistics = mentorsInfo.message;
-    this.usersStatistics = usersInfo.message;
-    this.childrenCount = childrenCount.message;
-
-    this.isLoading = false;
   },
   methods: {
     router() {

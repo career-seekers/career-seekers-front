@@ -25,6 +25,7 @@ import type {EventServiceStatistics} from "@/api/dto/statistics/EventServiceStat
 import apiConf from "@/api/api.conf.ts";
 import easterEggMixin from "@/mixins/easterEgg.js";
 import GooseConfetti from "@/components/GooseConfetti.vue";
+import type {UsersServiceStatistics} from "@/api/dto/statistics/UsersServiceStatistics.ts";
 
 export default {
   name: "App",
@@ -38,6 +39,7 @@ export default {
       statisticsStore: statisticsStore(),
 
       eventsServiceSocketConnected: false,
+      usersServiceSocketConnected: false,
     }
   },
 
@@ -68,6 +70,31 @@ export default {
           this.eventsServiceSocketConnected = false;
         }
     );
+
+    socketService.connect(
+        'users-service',
+        `${apiConf.socketEndpoint}/users-service/websocket`,
+        {Authorization: `Bearer ${localStorage.getItem('access_token')}`},
+        () => {
+          this.usersServiceSocketConnected = true;
+
+          socketService.subscribe(
+              "users-service",
+              '/users-service/topic/statistics',
+              (msg: any) => {
+                this.usersServiceSocketConnected = true;
+                const data: UsersServiceStatistics = JSON.parse(msg.body)
+
+                this.statisticsStore.updateUsersServiceStatistics(data)
+              }
+          );
+
+          this.requestUsersServiceStatistics()
+        },
+        () => {
+          this.usersServiceSocketConnected = false;
+        }
+    );
   },
 
   mounted() {
@@ -79,6 +106,8 @@ export default {
 
   beforeUnmount() {
     socketService.disconnect("events-service");
+    socketService.disconnect("users-service");
+
     window.removeEventListener(
         "trigger-goose-confetti",
         this.triggerGooseConfetti,
@@ -109,6 +138,17 @@ export default {
             '/events-service/app/getStatistics',
             {}
         );
+      }
+    },
+
+    requestUsersServiceStatistics() {
+      console.log("requestUsersServiceStatistics");
+      if (this.usersServiceSocketConnected) {
+        socketService.send(
+            'users-service',
+            '/users-service/app/getStatistics',
+            {}
+        )
       }
     }
   },
