@@ -142,7 +142,6 @@ export default {
     },
 
     requestUsersServiceStatistics() {
-      console.log("requestUsersServiceStatistics");
       if (this.usersServiceSocketConnected) {
         socketService.send(
             'users-service',
