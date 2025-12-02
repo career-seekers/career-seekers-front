@@ -38,16 +38,19 @@
       ProgressSpinner,
       ConfirmDialog
     },
+
     props: {
       competenceId: {
         type: String,
         required: true,
       }
     },
+
     setup() {
       const confirm = useConfirm();
       return { confirm };
     },
+
     data: function() {
       return {
         competenceResolver: new CompetenceResolver(),
@@ -75,13 +78,16 @@
         },
       };
     },
+
     computed: {
       Roles() {
         return Roles
       },
+
       FormatManager() {
         return FormatManager
       },
+
       tabsConfig() {
         const tabs = [
           {
@@ -105,12 +111,15 @@
           return 0;
         });
       },
+
       participatedChildren() {
         return this.filteredChildren.filter(child => child.queueStatus === QueueStatuses.PARTICIPATES)
       },
+
       queuedChildren() {
         return this.filteredChildren.filter(child => child.queueStatus === QueueStatuses.IN_QUEUE)
       },
+
       competenceIdChecked() {
         const num = parseInt(this.competenceId)
         if (isNaN(num)) {
@@ -119,17 +128,32 @@
         }
         return num
       },
+
       availableAges() {
         const ageOrder = new Map(this.ageGroups.map((group, index) => [group.value, index]));
         return [...new Set(this.competence?.ageCategories.map(category => category.ageCategory))].toSorted((a, b) => {
           return ageOrder.get(a)!! - ageOrder.get(b)!!;
         });
       },
+
       filteredChildren() {
         if (this.selectedAge === null) return this.children
-        return this.children.filter(child => child.childDocuments?.ageCategory === this.selectedAge)
+
+        const selectedDirectionAgeCategory = this.competence?.ageCategories
+            .find(category => category.ageCategory === this.selectedAge);
+
+        if (!selectedDirectionAgeCategory) return this.children;
+
+        const childIdsInRecords = new Set(
+            this.childrenRecords
+                .filter(record => record.directionAgeCategory.id == selectedDirectionAgeCategory.id)
+                .map(r => r.childId),
+        );
+
+        return this.children.filter(child => childIdsInRecords.has(child.id),)
       },
     },
+
     async mounted() {
       window.scrollTo(0, 0);
       this.isLoading = true;
@@ -147,6 +171,7 @@
       }
       this.isLoading = false
     },
+
     methods: {
       async loadChildren() {
         const childCompetenceResponse = await this.childCompetenceResolver.getByCompetenceId(this.competenceIdChecked)
@@ -172,6 +197,7 @@
           }
         }
       },
+
       handleStatusUpdate(assignId: number, participantId: number, newStatus: ParticipantStatus) {
         const child = this.children.find(child => child.id === participantId)
         if (child) {
@@ -199,9 +225,11 @@
           });
         }
       },
+
       refreshParticipants(participant: Participant) {
         this.children = this.children.filter(child => child.id !== participant.id)
       },
+
       async downloadCompetenceReport() {
         const blobResponse = await this.reportResolver.getChildrenAssignmentsByCompetenceId(this.competenceIdChecked)
         const url = window.URL.createObjectURL(blobResponse);
