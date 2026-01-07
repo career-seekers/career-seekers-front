@@ -7,4 +7,5 @@ export interface EventFormErrors {
   endDateTime: string,
   competence: string,
   ageCategory: string,
+  eventVenue: string,
 }

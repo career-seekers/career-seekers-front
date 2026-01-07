@@ -7,8 +7,6 @@ export const ValidationManager = {
         const errors = {} as EventFormErrors
         let isValid = true
 
-        console.log(eventForm)
-
         if (eventForm.name === "") {
             isValid = false
             errors.name = "Имя не может быть пустым"
@@ -33,6 +31,15 @@ export const ValidationManager = {
             errors.endDateTime = ""
         }
 
+        if (eventForm.startDateTime !== null &&
+          eventForm.endDateTime !== null &&
+          eventForm.endDateTime.getTime() < eventForm.startDateTime.getTime()) {
+          isValid = false
+          errors.endDateTime = "Дата и время окончания не могут быть раньше даты и времени начала"
+        } else {
+          errors.endDateTime = ""
+        }
+
         if (eventForm.eventType === null) {
             isValid = false
             errors.eventType = "Тип события не может быть пустым"
@@ -52,6 +59,11 @@ export const ValidationManager = {
             isValid = false
             errors.ageCategory = "Возрастная группа должна быть указана"
         } else errors.ageCategory = ""
+
+        if (eventForm.eventVenue === null) {
+          isValid = false
+          errors.eventVenue = "Место проведения должно быть указано"
+        } else errors.eventVenue = ""
 
         return {
             isValid,

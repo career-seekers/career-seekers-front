@@ -163,7 +163,7 @@
           <Textarea
             id="event-short-description-input"
             v-model="eventForm.shortDescription"
-            placeholder="Введите краткое описание нового события"
+            placeholder="Укажите ведущего и основные тезисы мастер-класса (финала)"
             auto-resize
             rows="2"
             :class="{ 'p-invalid': errors.shortDescription }"
@@ -212,7 +212,7 @@
           <small
             v-if="errors.endDateTime"
             class="p-error"
-          >{{ errors.startDateTime }}</small>
+          >{{ errors.endDateTime }}</small>
         </div>
 
         <div class="form-field">
@@ -227,6 +227,7 @@
             :class="{ 'p-invalid': errors.eventType }"
             dropdown
             option-label="label"
+            option-value="value"
             placeholder="Выберите тип"
             class="filter-dropdown"
           />
@@ -250,6 +251,7 @@
             :class="{ 'p-invalid': errors.eventFormat }"
             dropdown
             option-label="label"
+            option-value="value"
             placeholder="Выберите формат"
             class="filter-dropdown"
           />
@@ -318,24 +320,24 @@
         </div>
 
         <div class="form-field">
-          <label for="event-description-input">Полное описание</label>
-          <Textarea
-            id="event-description-input"
-            v-model="eventForm.description"
-            auto-resize
-            rows="5"
-            placeholder="Введите полное описание нового события"
-          />
-        </div>
-
-        <div class="form-field">
-          <label for="event-venue-input">Место проведения</label>
+          <label for="event-venue-input">Место проведения *</label>
           <Textarea
             id="event-venue-input"
             v-model="eventForm.eventVenue"
             auto-resize
             rows="2"
-            placeholder="Введите место проведения события"
+            placeholder="Если формат оффлайн - то укажите площадку и ее адрес, если онлайн - укажите ссылку"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="event-description-input">Примечание</label>
+          <Textarea
+            id="event-description-input"
+            v-model="eventForm.description"
+            auto-resize
+            rows="5"
+            placeholder="Любая дополнительная информация, если необходимо"
           />
         </div>
       </div>
@@ -532,18 +534,27 @@
       }
     },
     async mounted() {
-      this.isLoading = true;
-      await this.loadCompetencies()
-      await this.loadExperts()
-      await this.loadEvents(null)
-      this.isLoading = false
+      await this.renderPage(null)
     },
     methods: {
+      async renderPage(eventsParams:  EventsUrlParamsInputDto | null) {
+        this.isLoading = true;
+        await this.loadCompetencies()
+        await this.loadExperts()
+        await this.loadEvents(eventsParams)
+        this.isLoading = false
+      },
       competenceAgeCategories(competence: CompetenceOutputDto | null | string) {
         if (competence === null || typeof competence === "string") return this.ageGroups
-        return [...this.ageGroups]
-          .filter(group => competence.ageCategories
-            .some((category: AgeCategoryOutputDto) => category.ageCategory === group.value))
+        return [...competence.ageCategories]
+          .filter(category => this.ageGroups
+            .some(group => category.ageCategory === group.value)
+          )
+          .map(category => ({
+            ...category,
+            label: this.ageGroups
+              .find(group => category.ageCategory === group.value)?.label
+          }));
       },
       filterCompetencies(event: { query: string }) {
         const query = event.query ? event.query.toLowerCase() : '';
@@ -606,6 +617,7 @@
         }
       },
       async loadEvents(params: EventsUrlParamsInputDto | null) {
+        this.events = []
         const response = await this.eventResolver.getAll(params)
         if (response.status === 200 && typeof response.message !== "string") {
           this.events = response.message.content
@@ -774,7 +786,7 @@
       async saveEvent() {
         const validationResult = ValidationManager.validateEventForm(this.eventForm)
         const form = validationResult.form
-        this.errors  = validationResult.errors
+        this.errors = validationResult.errors
         if (!validationResult.isValid) return
         let response
         if (this.isEditing && this.selectedEvent !== null) {
@@ -801,10 +813,16 @@
             directionId: validationResult.form.competence.id,
             directionAgeCategoryId: validationResult.form.ageCategory.id,
           })
+          this.toastPopup = {
+            title: response.status.toString(),
+            message: response.status === 200
+              ? "Событие успешно отправлено на верификацию"
+              : response.message
+          }
         }
-        this.toastPopup = {
-          title: response.status.toString(),
-          message: response.message
+        if (response.status === 200) {
+          await this.loadEvents(null)
+          this.showAddEventDialog = false;
         }
       },
     },
