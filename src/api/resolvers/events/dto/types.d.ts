@@ -14,6 +14,20 @@ export enum SortFields {
   SHORT_DESCRIPTION = "shortDescription",
 }
 
+export const eventTypeOptions = Object.entries(EventTypes).map(
+  ([key, value]) => ({
+    label: value,
+    value: key
+  })
+)
+
+export const eventFormatOptions = Object.entries(EventFormats).map(
+  ([key, value]) => ({
+    label: value,
+    value: key
+  })
+)
+
 namespace EventTypes {
   export function getAlias(type: EventTypes): string {
     return type;

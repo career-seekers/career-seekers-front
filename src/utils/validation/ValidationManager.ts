@@ -1,10 +1,13 @@
 import type { EventForm, EventFormNullable } from '@/utils/validation/forms.types';
 import type { EventFormErrors } from '@/utils/validation/forms-errors.types';
+import { FormatManager } from '@/utils/FormatManager.ts';
 
 export const ValidationManager = {
     validateEventForm(eventForm: EventFormNullable) {
         const errors = {} as EventFormErrors
         let isValid = true
+
+        console.log(eventForm)
 
         if (eventForm.name === "") {
             isValid = false
@@ -19,12 +22,16 @@ export const ValidationManager = {
         if (eventForm.startDateTime === null) {
             isValid = false
             errors.startDateTime = "Дата начала не может быть пустой"
-        } else errors.startDateTime = ""
+        } else {
+            errors.startDateTime = ""
+        }
 
         if (eventForm.endDateTime === null) {
             isValid = false
             errors.endDateTime = "Дата окончания не может быть пустой"
-        } else errors.endDateTime = ""
+        } else {
+            errors.endDateTime = ""
+        }
 
         if (eventForm.eventType === null) {
             isValid = false
@@ -41,6 +48,23 @@ export const ValidationManager = {
             errors.competence = "Компетенция должна быть указана"
         } else errors.competence = ""
 
-        return { isValid, errors, form: (eventForm as EventForm)  }
+        if (eventForm.ageCategory === null) {
+            isValid = false
+            errors.ageCategory = "Возрастная группа должна быть указана"
+        } else errors.ageCategory = ""
+
+        return {
+            isValid,
+            errors,
+            form: {
+                ...eventForm,
+                startDateTime: eventForm.startDateTime !== null
+                  ? FormatManager.formatDateToDTO(eventForm.startDateTime)
+                  : eventForm.startDateTime,
+                endDateTime: eventForm.endDateTime !== null
+                  ? FormatManager.formatDateToDTO(eventForm.endDateTime)
+                  : eventForm.endDateTime,
+            } as EventForm
+        }
     }
 }

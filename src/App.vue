@@ -45,7 +45,6 @@ export default {
     getTopLevelPath(path: string) {
       const segments = path.split('/').filter(Boolean);
       const res = segments[0] || 'root';
-      console.log(path, res)
       return res
     },
     shouldAnimate(path: string) {

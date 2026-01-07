@@ -217,6 +217,52 @@
 
         <div class="form-field">
           <label
+            for="event-type-input"
+            class="field-label"
+          >Тип события *</label>
+          <Dropdown
+            id="event-type-input"
+            v-model="eventForm.eventType"
+            :options="eventTypeOptions"
+            :class="{ 'p-invalid': errors.eventType }"
+            dropdown
+            option-label="label"
+            placeholder="Выберите тип"
+            class="filter-dropdown"
+          />
+          <small
+            v-if="errors.ageCategory"
+            class="p-error"
+          >
+            {{ errors.ageCategory }}
+          </small>
+        </div>
+
+        <div class="form-field">
+          <label
+            for="event-format-input"
+            class="field-label"
+          >Формат события *</label>
+          <Dropdown
+            id="event-format-input"
+            v-model="eventForm.eventFormat"
+            :options="eventFormatOptions"
+            :class="{ 'p-invalid': errors.eventFormat }"
+            dropdown
+            option-label="label"
+            placeholder="Выберите формат"
+            class="filter-dropdown"
+          />
+          <small
+            v-if="errors.ageCategory"
+            class="p-error"
+          >
+            {{ errors.ageCategory }}
+          </small>
+        </div>
+
+        <div class="form-field">
+          <label
             for="event-competence-input"
             class="field-label"
           >Компетенция *</label>
@@ -256,11 +302,11 @@
             id="event-age-category-input"
             v-model="eventForm.ageCategory"
             :options="competenceAgeCategories(eventForm.competence)"
-            :disabled="eventForm.competence === null"
+            :disabled="eventForm.competence === null || typeof eventForm.competence === 'string'"
             :class="{ 'p-invalid': errors.ageCategory }"
             dropdown
             option-label="label"
-            placeholder="Все компетенции"
+            placeholder="Все возрастные группы"
             class="filter-dropdown"
           />
           <small
@@ -326,12 +372,16 @@
   import ConfirmDialog from 'primevue/confirmdialog';
   import { useConfirm } from 'primevue/useconfirm';
   import ProgressSpinner from 'primevue/progressspinner';
-  import { EventFormats, type EventTypes } from '@/api/resolvers/events/dto/types.d';
+  import {
+    eventFormatOptions,
+    EventFormats,
+    eventTypeOptions,
+    type EventTypes,
+  } from '@/api/resolvers/events/dto/types.d';
   import type { EventOutputDto } from '@/api/resolvers/events/dto/output/event-output.dto.ts';
   import EventsToVerifyList from '@/components/lists/EventsToVerifyList.vue';
   import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
   import { EventResolver } from '@/api/resolvers/events/event.resolver.ts';
-  import type { EventsUrlParamsInputDto } from '@/api/resolvers/events/dto/input/events-url-params-input.dto.ts';
   import Calendar from 'primevue/calendar';
   import Dialog from 'primevue/dialog';
   import Textarea from 'primevue/textarea';
@@ -341,6 +391,8 @@
   import { ValidationManager } from '@/utils/validation/ValidationManager.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
+  import { FormatManager } from '@/utils/FormatManager.ts';
+  import type { EventsUrlParamsInputDto } from '@/api/resolvers/events/dto/input/events-url-params-input.dto.ts';
 
   interface TabConfig {
     key: string;
@@ -365,6 +417,13 @@
       Dialog,
       Textarea,
       InputText
+    },
+    setup() {
+      const confirm = useConfirm();
+
+      return {
+        confirm
+      };
     },
     data() {
       return {
@@ -401,25 +460,27 @@
         isEditing: false,
         showAddEventDialog: false,
 
-        confirm: useConfirm(),
-        validationManager: ValidationManager
+        validationManager: ValidationManager,
+
+        eventTypeOptions: eventTypeOptions,
+        eventFormatOptions: eventFormatOptions,
       };
     },
     computed: {
       rejectedEvents() {
         return this.events
-          .filter(event => event.verified === false)
-          .sort((a, b) => b.id - a.id);
+          .filter((event: EventOutputDto) => event.verified === false)
+          .sort((a: EventOutputDto, b: EventOutputDto) => b.id - a.id);
       },
       acceptedEvents() {
         return this.events
-          .filter(event => event.verified === true)
-          .sort((a, b) => b.id - a.id);
+          .filter((event: EventOutputDto) => event.verified === true)
+          .sort((a: EventOutputDto, b: EventOutputDto) => b.id - a.id);
       },
       uncheckedEvents() {
         return this.events
-          .filter(event => event.verified === null)
-          .sort((a, b) => b.id - a.id);
+          .filter((event: EventOutputDto) => event.verified === null)
+          .sort((a: EventOutputDto, b: EventOutputDto) => b.id - a.id);
       },
       tabsConfig() {
         const tabs = [
@@ -451,19 +512,23 @@
       },
     },
     watch: {
-      // Автоматически переключаемся на первый доступный таб, если текущий стал недоступным
       tabsConfig: {
         handler(newTabsConfig: TabConfig[]) {
           const availableTabs = newTabsConfig.filter((tab: TabConfig) => tab.hasEvents);
           if (availableTabs.length > 0) {
-            // Если текущий активный таб недоступен, переключаемся на первый доступный
             const currentTab = newTabsConfig[this.activeTab];
             if (!currentTab || !currentTab.hasEvents) {
-              this.activeTab = 0; // Первый таб в отсортированном списке всегда доступен
+              this.activeTab = 0;
             }
           }
         },
         immediate: true
+      },
+      eventForm: {
+        handler() {
+          this.errors = {} as EventFormErrors;
+        },
+        deep: true
       }
     },
     async mounted() {
@@ -474,8 +539,8 @@
       this.isLoading = false
     },
     methods: {
-      competenceAgeCategories(competence: CompetenceOutputDto | null) {
-        if (competence === null) return this.ageGroups
+      competenceAgeCategories(competence: CompetenceOutputDto | null | string) {
+        if (competence === null || typeof competence === "string") return this.ageGroups
         return [...this.ageGroups]
           .filter(group => competence.ageCategories
             .some((category: AgeCategoryOutputDto) => category.ageCategory === group.value))
@@ -711,26 +776,35 @@
         const form = validationResult.form
         this.errors  = validationResult.errors
         if (!validationResult.isValid) return
+        let response
         if (this.isEditing && this.selectedEvent !== null) {
-          const response = await this.eventResolver.update({
+          response = await this.eventResolver.update({
             id: this.selectedEvent.id,
             name: form.name !== this.selectedEvent.name ? form.name : undefined,
             shortDescription: form.shortDescription !== this.selectedEvent.shortDescription ? form.shortDescription : undefined,
             eventType: form.eventType !== this.selectedEvent.eventType ? form.eventType : undefined,
             eventFormat: form.eventFormat !== this.selectedEvent.eventFormat ? form.eventFormat : undefined,
-            startDateTime: form.startDateTime !== this.selectedEvent.startDateTime ? form.startDateTime : undefined,
+            startDateTime: FormatManager.formatBirthDateToDTO(form.startDateTime) !== this.selectedEvent.startDateTime ? form.startDateTime : undefined,
             endDateTime: form.endDateTime !== this.selectedEvent.endDateTime ? form.endDateTime : undefined,
             eventVenue: form.eventVenue !== this.selectedEvent.eventVenue ? form.eventVenue : undefined,
             description: form.description !== this.selectedEvent.description ? form.description : undefined,
             directionId: form.competence.id !== this.selectedEvent.directionId ? form.competence.id : undefined,
             directionAgeCategoryId: form.ageCategory.id !== this.selectedEvent.directionAgeCategoryId ? form.ageCategory.id : undefined,
           })
+          this.toastPopup = {
+            title: response.status.toString(),
+            message: response.message
+          }
         } else {
-          const response = await this.eventResolver.create({
-            ...validation.form,
-            directionId: validation.form.competence.id,
-            directionAgeCategoryId: validation.form.competence.ageCategories.find(a => a.id === this.selectedAgeCategory.id),
+          response = await this.eventResolver.create({
+            ...form,
+            directionId: validationResult.form.competence.id,
+            directionAgeCategoryId: validationResult.form.ageCategory.id,
           })
+        }
+        this.toastPopup = {
+          title: response.status.toString(),
+          message: response.message
         }
       },
     },

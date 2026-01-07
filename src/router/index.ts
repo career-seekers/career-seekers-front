@@ -420,8 +420,6 @@ const router = createRouter({
   routes,
 });
 
-console.log(router.getRoutes().map(route => [route.path, route.name]))
-
 export const historyStack: string[] = []
 
 router.beforeEach(async (to, _, next) => {
