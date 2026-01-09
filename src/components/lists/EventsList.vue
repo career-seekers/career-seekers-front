@@ -5,19 +5,19 @@
   import Button from 'primevue/button';
   import Paginator from 'primevue/paginator';
   import type { EventOutputDto } from '@/api/resolvers/events/dto/output/event-output.dto.ts';
-  import { EventFormats, EventTypes } from '@/api/resolvers/events/dto/types.d';
+  import { eventFormatOptions, EventFormats, eventTypeOptions } from '@/api/resolvers/events/dto/types.d';
+  import { FormatManager } from '@/utils/FormatManager.ts';
 
-  export type VerifyStatus = "ACCEPTED" | "REJECTED" | "UNCHECKED";
   export default {
-    name: 'EventsToVerifyList',
+    name: 'EventsList',
     components: {
       Button,
       Paginator,
     },
     props: {
-      verifyStatus: {
-        type: String as PropType<VerifyStatus>,
-        required: true,
+      enableVerification: {
+        type: Boolean,
+        default: false,
       },
       events: {
         type: Array as PropType<EventOutputDto[]>,
@@ -31,8 +31,9 @@
     emits: ['update', 'delete', 'verify'],
     data() {
       return {
-        eventTypes: EventTypes,
-        eventFormats: EventFormats,
+        eventTypes: eventTypeOptions,
+        eventFormats: eventFormatOptions,
+
         userResolver: new UserResolver(),
         // Пагинация
         currentPage: 0,
@@ -40,6 +41,12 @@
       }
     },
     computed: {
+      EventFormats() {
+        return EventFormats
+      },
+      FormatManager() {
+        return FormatManager
+      },
       totalRecords() {
         return this.events.length;
       }
@@ -91,11 +98,11 @@
     >
       <div class="event-header">
         <div class="event-icon">
-          <i class="pi pi-file" />
+          <i class="pi pi-calendar-times" />
         </div>
         <div class="event-info">
           <h3 class="event-name">
-            Событие №{{ event.id }}
+            #{{ event.id }} {{ event.name }}
           </h3>
         </div>
         <div class="event-actions">
@@ -110,39 +117,61 @@
       </div>
 
       <div class="event-content">
+
+        <div
+          class="description-info"
+        >
+          <h4 class="description-title">
+            Краткое описание:
+          </h4>
+          <p class="mentor-name">
+            {{ event.shortDescription }}
+          </p>
+        </div>
+
         <div class="event-details">
           <div class="detail-item">
             <span class="detail-label">Тип:</span>
             <span class="detail-value">{{
-                eventTypes.getAlias(event.eventType)
+                eventTypes.find(eventType => eventType.value === event.eventType)?.label
               }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Формат:</span>
             <span class="detail-value">
               {{
-                eventFormats.getAlias(event.eventFormat)
+                eventFormats.find(eventFormat => eventFormat.value === event.eventFormat)?.label
               }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Начало:</span>
+            <span class="detail-label">Дата и время:</span>
             <span class="detail-value">{{
-                event.startDateTime
+                FormatManager.formatDateFromDTO(event.startDateTime)
               }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Окончание:</span>
-            <span class="detail-value">{{
-                event.endDateTime
-              }}</span>
-          </div>
-          <div
-            class="detail-item"
-          >
             <span class="detail-label">Компетенция:</span>
             <span class="detail-value">{{
-                event.directionId
+                event.directionName
               }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Возрастная группа:</span>
+            <span class="detail-value">{{
+                event.directionAgeCategoryId
+              }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Место проведения:</span>
+            <span class="detail-value">
+              <a
+                v-if="event.eventFormat.toString() === 'ONLINE'"
+                :href="event.eventVenue"
+              >
+                {{ event.eventVenue }}
+              </a>
+              <i v-else>{{ event.eventVenue }}</i>
+            </span>
           </div>
         </div>
 
@@ -172,7 +201,7 @@
           </p>
         </div>
         <div
-          v-if="event.verified === null"
+          v-if="event.verified === null && enableVerification"
           class="verify"
         >
           <Button
@@ -276,6 +305,20 @@
 
   .event-content {
     padding: 1.5rem;
+  }
+
+  .description-info {
+    margin-bottom: 1rem;
+  }
+
+  .mentor-name {
+    font-style: italic;
+    margin: 0.5rem 0;
+  }
+
+  .description-title,
+  .mentor-title {
+    margin: 0;
   }
 
   .event-details {

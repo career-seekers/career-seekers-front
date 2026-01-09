@@ -27,15 +27,3 @@ export const eventFormatOptions = Object.entries(EventFormats).map(
     value: key
   })
 )
-
-namespace EventTypes {
-  export function getAlias(type: EventTypes): string {
-    return type;
-  }
-}
-
-namespace EventFormats {
-  export function getAlias(type: EventFormats): string {
-    return type;
-  }
-}

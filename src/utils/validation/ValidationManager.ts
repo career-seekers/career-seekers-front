@@ -24,22 +24,6 @@ export const ValidationManager = {
             errors.startDateTime = ""
         }
 
-        if (eventForm.endDateTime === null) {
-            isValid = false
-            errors.endDateTime = "Дата окончания не может быть пустой"
-        } else {
-            errors.endDateTime = ""
-        }
-
-        if (eventForm.startDateTime !== null &&
-          eventForm.endDateTime !== null &&
-          eventForm.endDateTime.getTime() < eventForm.startDateTime.getTime()) {
-          isValid = false
-          errors.endDateTime = "Дата и время окончания не могут быть раньше даты и времени начала"
-        } else {
-          errors.endDateTime = ""
-        }
-
         if (eventForm.eventType === null) {
             isValid = false
             errors.eventType = "Тип события не может быть пустым"

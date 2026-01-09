@@ -11,6 +11,7 @@ export interface EventOutputDto {
   eventVenue: string;
   verified: boolean | null;
   description: string | null;
+  directionName: string;
   directionExpertId: number;
   directionTutorId: number;
   directionId: number;

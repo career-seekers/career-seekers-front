@@ -65,7 +65,7 @@ const sharedRoutes = [
     props: true
   },
   {
-    path: "events/:competenceId",
+    path: "events/:competenceId?/:ageCategoryId?",
     name: "competence-events",
     component: CompetenciesEvents,
     props: true
@@ -481,6 +481,24 @@ router.beforeEach(async (to, _, next) => {
 
     return
   }
+
+  if (to.name === `${(userStore.user?.role ?? "").toLowerCase()}-competence-events`) {
+    const { competenceId, ageCategoryId } = to.params;
+
+    // Если ID невалидные — редиректим на чистый URL
+    if (competenceId && isNaN(Number(competenceId))) {
+      next({ name: `${(userStore.user?.role ?? "").toLowerCase()}-competence-events` });
+      return;
+    }
+    if (ageCategoryId && isNaN(Number(ageCategoryId))) {
+      next({
+        name: `${(userStore.user?.role ?? "").toLowerCase()}-competence-events`,
+        params: { competenceId }
+      });
+      return;
+    }
+  }
+
   next()
 });
 // Обновляем title при переходах между страницами

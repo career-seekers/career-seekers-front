@@ -49,6 +49,19 @@ export const FormatManager = {
 
     return `${yyyy.toString()}-${mm}-${dd}T${hh}:${min}:${ss}${sign}${offsetHours}:${offsetMins}`;
   },
+  formatDateFromDTO(dtoDate: string) {
+    const date = new Date(dtoDate);
+
+    const dd = date.getDate().toString().padStart(2, '0');
+    const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+    const yyyy = date.getFullYear();
+
+    const hh = date.getHours().toString().padStart(2, '0');
+    const min = date.getMinutes().toString().padStart(2, '0');
+    const ss = date.getSeconds().toString().padStart(2, '0');
+
+    return `${dd}.${mm}.${yyyy.toString()} ${hh}:${min}:${ss}`;
+  },
   calculateAge(birthDate: string) {
     const birth = new Date(birthDate.substring(0, 10));
     const onDate = new Date(2026, 1, 14)

@@ -43,7 +43,10 @@
           class="filter-dropdown"
         />
       </div>
-      <div class="filter-group">
+      <div
+        v-if="!competenceId"
+        class="filter-group"
+      >
         <label for="event-competence-filter">Компетенция:</label>
         <AutoComplete
           id="event-competence-filter"
@@ -65,7 +68,10 @@
           </template>
         </AutoComplete>
       </div>
-      <div class="filter-group">
+      <div
+        v-if="!ageCategoryId"
+        class="filter-group"
+      >
         <label
           for="event-age-category-filter"
           class="field-label"
@@ -73,8 +79,8 @@
         <Dropdown
           id="event-age-category-filter"
           v-model="selectedAgeCategory"
-          :options="competenceAgeCategories(null)"
-          :disabled="isLoading"
+          :options="competenceAgeCategories(selectedCompetence)"
+          :disabled="isLoading || !selectedCompetence"
           dropdown
           option-label="label"
           placeholder="Все группы"
@@ -93,6 +99,7 @@
 
     <!-- Кастомный sticky контейнер для табов -->
     <div
+      v-if="isAdmin"
       class="custom-sticky-container"
       :class="{ 'sticky': isSticky }"
     >
@@ -107,11 +114,11 @@
           :header="tab.header"
           :disabled="!tab.hasEvents"
         >
-          <EventsToVerifyList
+          <EventsList
             v-if="tab.events.length > 0"
             :events="filterEvents(tab.events)"
             :experts="experts"
-            :verify-status="tab.key === 'unchecked' ? 'UNCHECKED' : tab.key === 'accepted' ? 'ACCEPTED' : 'REJECTED'"
+            :enable-verification="true"
             @update="loadCompetencies"
             @delete="deleteEvent"
             @verify="verifyEvent"
@@ -125,6 +132,23 @@
           />
         </TabPanel>
       </TabView>
+    </div>
+    <div v-else>
+      <EventsList
+        v-if="events.length > 0"
+        :events="filterEvents(events)"
+        :experts="experts"
+        @update="loadCompetencies"
+        @delete="deleteEvent"
+        @verify="verifyEvent"
+      />
+      <div v-else-if="!isLoading">
+        <p>Нет событий</p>
+      </div>
+      <ProgressSpinner
+        v-else
+        style="width: 100%; margin-top: 10rem"
+      />
     </div>
 
     <ToastPopup :content="toastPopup" />
@@ -163,7 +187,7 @@
           <Textarea
             id="event-short-description-input"
             v-model="eventForm.shortDescription"
-            placeholder="Укажите ведущего и основные тезисы мастер-класса (финала)"
+            placeholder="Укажите ведущего и основные тезисы мастер-класса"
             auto-resize
             rows="2"
             :class="{ 'p-invalid': errors.shortDescription }"
@@ -193,26 +217,6 @@
             v-if="errors.startDateTime"
             class="p-error"
           >{{ errors.startDateTime }}</small>
-        </div>
-        <div class="form-field">
-          <label
-            for="event-end-datetime-input"
-            class="field-label"
-          >Дата окончания *</label>
-          <Calendar
-            id="event-end-datetime-input"
-            v-model="eventForm.endDateTime"
-            placeholder="Выберите дату окончания"
-            show-icon
-            show-time
-            show-seconds
-            :manual-input="false"
-            :class="{ 'p-invalid': errors.endDateTime }"
-          />
-          <small
-            v-if="errors.endDateTime"
-            class="p-error"
-          >{{ errors.endDateTime }}</small>
         </div>
 
         <div class="form-field">
@@ -326,7 +330,7 @@
             v-model="eventForm.eventVenue"
             auto-resize
             rows="2"
-            placeholder="Если формат оффлайн - то укажите площадку и ее адрес, если онлайн - укажите ссылку"
+            placeholder="Если формат оффлайн - то укажите площадку и ее адрес, если онлайн - укажите ТОЛЬКО ссылку"
           />
         </div>
 
@@ -365,9 +369,9 @@
   import Dropdown from 'primevue/dropdown';
   import TabView from 'primevue/tabview';
   import TabPanel from 'primevue/tabpanel';
-  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
+  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import ToastPopup from '@/components/ToastPopup.vue';
-  import { UserResolver } from '@/api/resolvers/user/user.resolver';
+  import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
   import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
   import { Roles } from '@/state/UserState.types.ts';
   import AutoComplete from 'primevue/autocomplete';
@@ -381,7 +385,7 @@
     type EventTypes,
   } from '@/api/resolvers/events/dto/types.d';
   import type { EventOutputDto } from '@/api/resolvers/events/dto/output/event-output.dto.ts';
-  import EventsToVerifyList from '@/components/lists/EventsToVerifyList.vue';
+  import EventsList from '@/components/lists/EventsList.vue';
   import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
   import { EventResolver } from '@/api/resolvers/events/event.resolver.ts';
   import Calendar from 'primevue/calendar';
@@ -395,6 +399,7 @@
   import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import type { EventsUrlParamsInputDto } from '@/api/resolvers/events/dto/input/events-url-params-input.dto.ts';
+  import { useUserStore } from '@/stores/userStore.ts';
 
   interface TabConfig {
     key: string;
@@ -404,9 +409,9 @@
   }
 
   export default {
-    name: "AdminEvents",
+    name: "CompetenciesEvents",
     components: {
-      EventsToVerifyList,
+      EventsList,
       ToastPopup,
       Button,
       Dropdown,
@@ -420,6 +425,16 @@
       Textarea,
       InputText
     },
+    props: {
+      competenceId: {
+        type: String,
+        default: "",
+      },
+      ageCategoryId: {
+        type: String,
+        default: "",
+      }
+    },
     setup() {
       const confirm = useConfirm();
 
@@ -429,12 +444,12 @@
     },
     data() {
       return {
+        userStore: useUserStore(),
+
         selectedEvent: null as null | EventOutputDto,
         selectedType: null as null | EventTypes,
         selectedFormat: null as null | EventFormats,
-        selectedCompetence: localStorage.getItem("selectedCompetence")
-          ? JSON.parse(localStorage.getItem("selectedCompetence") as string)
-          : (null as CompetenceOutputDto | null),
+        selectedCompetence: null as CompetenceOutputDto | null,
         selectedAgeCategory: null as AgeCategoryOutputDto | null,
 
         events: [] as EventOutputDto[],
@@ -469,6 +484,9 @@
       };
     },
     computed: {
+      isAdmin() {
+        return this.userStore.user?.role === Roles.ADMIN
+      },
       rejectedEvents() {
         return this.events
           .filter((event: EventOutputDto) => event.verified === false)
@@ -534,15 +552,38 @@
       }
     },
     async mounted() {
-      await this.renderPage(null)
+      console.log(this.selectedCompetence)
+      await this.renderPage(null);
     },
     methods: {
       async renderPage(eventsParams:  EventsUrlParamsInputDto | null) {
+
         this.isLoading = true;
-        await this.loadCompetencies()
-        await this.loadExperts()
-        await this.loadEvents(eventsParams)
-        this.isLoading = false
+        await Promise.all([
+          this.loadCompetencies(),
+          this.loadExperts(),
+          this.loadEvents(eventsParams)
+        ]);
+
+        // Устанавливаем selectedCompetence только если ID валидный
+        if (this.competenceId && !isNaN(Number(this.competenceId))) {
+          this.selectedCompetence = this.competencies.find(
+            comp => comp.id === Number(this.competenceId)
+          ) ?? null;
+        }
+
+        this.isLoading = false;
+      },
+      validateParams() {
+        const competenceId = this.competenceId;
+        const ageCategoryId = this.ageCategoryId;
+
+        // Если ID не число или невалидный → сбрасываем
+        if (competenceId && (isNaN(Number(competenceId)) || Number(competenceId) <= 0)) {
+          return false;
+        }
+
+        return !(ageCategoryId && (isNaN(Number(ageCategoryId)) || Number(ageCategoryId) <= 0));
       },
       competenceAgeCategories(competence: CompetenceOutputDto | null | string) {
         if (competence === null || typeof competence === "string") return this.ageGroups
@@ -590,14 +631,19 @@
             .filter(event => event.eventType === this.selectedType)
         }
 
-        if (this.selectedFormat) {
+        if (this.selectedFormat !== null) {
           filteredEvents = filteredEvents
             .filter(event => event.eventFormat === this.selectedFormat)
         }
 
-        if (this.selectedCompetence) {
+        if (this.competenceId) {
           filteredEvents = filteredEvents
-            .filter(event => event.directionId === this.selectedCompetence.id)
+            .filter(event => event.directionId.toString() === this.competenceId)
+        }
+
+        if (this.ageCategoryId) {
+          filteredEvents = filteredEvents
+            .filter(event => event.directionAgeCategoryId.toString() === this.ageCategoryId)
         }
 
         return filteredEvents;
@@ -636,7 +682,7 @@
       },
       deleteEvent(event: EventOutputDto) {
         this.confirm.require({
-          message: `Вы уверены, что хотите удалить документ №${event.id}?`,
+          message: `Вы уверены, что хотите удалить событие №${event.id}?`,
           header: 'Подтверждение удаления',
           icon: 'pi pi-exclamation-triangle',
           rejectLabel: 'Отмена',
@@ -667,14 +713,14 @@
                 // Показываем уведомление об успешном удалении
                 this.toastPopup = {
                   title: "Успешно",
-                  message: "Документ удален успешно",
+                  message: "Событие успешно удалено",
                 };
               }
             } catch (error) {
-              console.error('Ошибка при удалении документа:', error);
+              console.error('Ошибка при удалении события:', error);
               this.toastPopup = {
                 title: "Ошибка",
-                message: "Не удалось удалить документ",
+                message: "Не удалось удалить событие",
               };
             }
           }
@@ -691,7 +737,7 @@
         if (data.showConfirm) {
           // Показываем диалог подтверждения
           this.confirm.require({
-            message: `Вы уверены, что хотите ${data.action} документ №${data.event.id}?`,
+            message: `Вы уверены, что хотите ${data.action} событие №${data.event.id}?`,
             header: `Подтверждение ${data.action === 'принять' ? 'принятия' : 'отклонения'}`,
             icon: data.status ? 'pi pi-check-circle' : 'pi pi-times-circle',
             rejectLabel: 'Отмена',
@@ -709,50 +755,34 @@
                   if (eventIndex !== -1) {
                     this.events[eventIndex].verified = data.status;
 
-                    // Также обновляем статус в компетенциях
-                    this.competencies.forEach(competence => {
-                      const evIndex = competence.documents.findIndex(event => event.id === data.event.id);
-                      if (evIndex !== -1) {
-                        competence.documents[evIndex].verified = data.status;
-                      }
-                    });
-
                     // Показываем уведомление об успешной верификации
                     this.toastPopup = {
                       title: "Успешно",
-                      message: `Документ ${data.actionPast} успешно`,
+                      message: `Событие ${data.actionPast} успешно`,
                     };
                   }
                 } else {
                   // Показываем уведомление об ошибке
                   this.toastPopup = {
                     title: "Ошибка",
-                    message: "Не удалось обновить статус документа",
+                    message: "Не удалось обновить статус события",
                   };
                 }
               } catch (error) {
-                console.error('Ошибка при верификации документа:', error);
+                console.error('Ошибка при верификации события:', error);
                 this.toastPopup = {
                   title: "Ошибка",
-                  message: "Не удалось обновить статус документа",
+                  message: "Не удалось обновить статус события",
                 };
               }
             }
           })
         } else if (data.success) {
-          // Локально обновляем статус документа в основном массиве
+          // Локально обновляем статус события в основном массиве
           const eventIndex = this.events.findIndex(event => event.id === data.event.id);
           if (eventIndex !== -1) {
             this.events[eventIndex].verified = data.status;
           }
-
-          // Также обновляем статус в компетенциях
-          this.competencies.forEach(competence => {
-            const evIndex = competence.documents.findIndex(event => event.id === data.event.id);
-            if (evIndex !== -1) {
-              competence.documents[evIndex].verified = data.status;
-            }
-          });
 
           // Показываем уведомление об успешной верификации
           const action = data.status ? 'принят' : 'отклонен';
