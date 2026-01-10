@@ -328,7 +328,6 @@ export default {
         name: competence.name,
         description: competence.description,
       };
-      console.log(this.competenceForm);
       this.showAddCompetenceDialog = true;
     },
 

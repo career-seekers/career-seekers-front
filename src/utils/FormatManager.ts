@@ -35,6 +35,7 @@ export const FormatManager = {
     return number.replaceAll(/\s|-|\(|\)/g, "");
   },
   formatDateToDTO(date: Date, offsetMinutes: number = 180) {
+    console.log(date)
     const sign = offsetMinutes >= 0 ? '+' : '-';
     const absOffset = Math.abs(offsetMinutes);
     const offsetHours = Math.floor(absOffset / 60).toString().padStart(2, '0');

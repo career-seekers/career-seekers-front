@@ -61,6 +61,30 @@ export class EventResolver {
     )
   }
 
+  public async getByDirectionId(id: number) {
+    return this.apiResolver.request<
+      null,
+      CommonOutputDto<EventOutputDto[] | string>
+    >(
+      `getByDirectionId/${id.toString()}`,
+      "GET",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
+
+  public async getByAgeCategoryId(id: number) {
+    return this.apiResolver.request<
+      null,
+      CommonOutputDto<EventOutputDto[] | string>
+    >(
+      `getByAgeCategoryId/${id.toString()}`,
+      "GET",
+      null,
+      this.token ? this.token : undefined,
+    )
+  }
+
   public async verify(data: EventVerifyInputDto) {
     return this.apiResolver.request<
       EventVerifyInputDto,

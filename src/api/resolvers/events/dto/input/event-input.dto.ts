@@ -6,7 +6,6 @@ export interface EventInputDto {
   eventType: EventTypes;
   eventFormat: EventFormats;
   startDateTime: string;
-  endDateTime: string;
   eventVenue: string | null;
   description: string | null;
   directionId: number;

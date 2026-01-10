@@ -9,9 +9,10 @@ export interface EventFormNullable {
   eventType: EventTypes | null,
   eventFormat: EventFormats | null,
   startDateTime: Date | null,
-  endDateTime: Date | null,
   competence: CompetenceOutputDto | null | string,
-  ageCategory: AgeCategoryOutputDto | null,
+  ageCategory: Omit<AgeCategoryOutputDto, 'label'> & {
+    label: string
+  } | null,
   eventVenue: string | null,
   description: string | null,
 }
@@ -22,7 +23,6 @@ export interface EventForm {
   eventType: EventTypes,
   eventFormat: EventFormats,
   startDateTime: string,
-  endDateTime: string ,
   competence: CompetenceOutputDto,
   ageCategory: AgeCategoryOutputDto,
   eventVenue: string | null,

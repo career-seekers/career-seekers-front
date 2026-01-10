@@ -24,6 +24,7 @@
         <Dropdown
           id="event-type-filter"
           v-model="selectedType"
+          :options="eventTypeOptions"
           option-label="label"
           option-value="value"
           placeholder="Все типы"
@@ -36,6 +37,7 @@
         <Dropdown
           id="event-format-filter"
           v-model="selectedFormat"
+          :options="eventFormatOptions"
           option-label="label"
           option-value="value"
           placeholder="Все форматы"
@@ -99,7 +101,6 @@
 
     <!-- Кастомный sticky контейнер для табов -->
     <div
-      v-if="isAdmin"
       class="custom-sticky-container"
       :class="{ 'sticky': isSticky }"
     >
@@ -115,15 +116,15 @@
           :disabled="!tab.hasEvents"
         >
           <EventsList
-            v-if="tab.events.length > 0"
+            v-if="filterEvents(tab.events).length > 0"
             :events="filterEvents(tab.events)"
             :experts="experts"
-            :enable-verification="true"
-            @update="loadCompetencies"
+            :enable-verification="isAdmin"
+            @update="editEvent"
             @delete="deleteEvent"
             @verify="verifyEvent"
           />
-          <div v-else-if="!isLoading">
+          <div v-else-if="!isLoading || filterEvents(tab.events).length === 0">
             <p>Нет событий</p>
           </div>
           <ProgressSpinner
@@ -132,23 +133,6 @@
           />
         </TabPanel>
       </TabView>
-    </div>
-    <div v-else>
-      <EventsList
-        v-if="events.length > 0"
-        :events="filterEvents(events)"
-        :experts="experts"
-        @update="loadCompetencies"
-        @delete="deleteEvent"
-        @verify="verifyEvent"
-      />
-      <div v-else-if="!isLoading">
-        <p>Нет событий</p>
-      </div>
-      <ProgressSpinner
-        v-else
-        style="width: 100%; margin-top: 10rem"
-      />
     </div>
 
     <ToastPopup :content="toastPopup" />
@@ -397,7 +381,6 @@
   import { ValidationManager } from '@/utils/validation/ValidationManager.ts';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
   import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
-  import { FormatManager } from '@/utils/FormatManager.ts';
   import type { EventsUrlParamsInputDto } from '@/api/resolvers/events/dto/input/events-url-params-input.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
 
@@ -552,7 +535,6 @@
       }
     },
     async mounted() {
-      console.log(this.selectedCompetence)
       await this.renderPage(null);
     },
     methods: {
@@ -573,17 +555,6 @@
         }
 
         this.isLoading = false;
-      },
-      validateParams() {
-        const competenceId = this.competenceId;
-        const ageCategoryId = this.ageCategoryId;
-
-        // Если ID не число или невалидный → сбрасываем
-        if (competenceId && (isNaN(Number(competenceId)) || Number(competenceId) <= 0)) {
-          return false;
-        }
-
-        return !(ageCategoryId && (isNaN(Number(ageCategoryId)) || Number(ageCategoryId) <= 0));
       },
       competenceAgeCategories(competence: CompetenceOutputDto | null | string) {
         if (competence === null || typeof competence === "string") return this.ageGroups
@@ -679,6 +650,32 @@
         if (tutResponse.status === 200 && typeof tutResponse.message !== "string") {
           this.experts = this.experts.concat(tutResponse.message);
         }
+      },
+      editEvent(event: EventOutputDto) {
+        const editingCompetence = this.competencies.find(competence => competence.id === event.directionId)
+        if (!editingCompetence) return;
+
+        const editingAgeCategory = editingCompetence.ageCategories.find(category => category.id === event.directionAgeCategoryId)
+        if (!editingAgeCategory) return;
+
+        this.eventForm = {
+          name: event.name,
+          shortDescription: event.shortDescription,
+          eventType: event.eventType,
+          eventFormat: event.eventFormat,
+          startDateTime: new Date(event.startDateTime),
+          eventVenue: event.eventVenue,
+          description: event.description,
+          competence: editingCompetence,
+          ageCategory: {
+            ...editingAgeCategory,
+            label: event.directionAgeCategoryName
+          },
+        };
+
+        this.isEditing = true;
+        this.selectedEvent = event
+        this.showAddEventDialog = true;
       },
       deleteEvent(event: EventOutputDto) {
         this.confirm.require({
@@ -805,12 +802,12 @@
           eventType: null,
           eventFormat: null,
           startDateTime: null,
-          endDateTime: null,
           eventVenue: "",
           description: "",
           competence: null,
           ageCategory: null,
         };
+        this.selectedEvent = null
         this.showAddEventDialog = true;
       },
       async saveEvent() {
@@ -826,8 +823,7 @@
             shortDescription: form.shortDescription !== this.selectedEvent.shortDescription ? form.shortDescription : undefined,
             eventType: form.eventType !== this.selectedEvent.eventType ? form.eventType : undefined,
             eventFormat: form.eventFormat !== this.selectedEvent.eventFormat ? form.eventFormat : undefined,
-            startDateTime: FormatManager.formatBirthDateToDTO(form.startDateTime) !== this.selectedEvent.startDateTime ? form.startDateTime : undefined,
-            endDateTime: form.endDateTime !== this.selectedEvent.endDateTime ? form.endDateTime : undefined,
+            startDateTime: form.startDateTime,
             eventVenue: form.eventVenue !== this.selectedEvent.eventVenue ? form.eventVenue : undefined,
             description: form.description !== this.selectedEvent.description ? form.description : undefined,
             directionId: form.competence.id !== this.selectedEvent.directionId ? form.competence.id : undefined,

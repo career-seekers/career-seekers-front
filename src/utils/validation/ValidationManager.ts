@@ -57,9 +57,6 @@ export const ValidationManager = {
                 startDateTime: eventForm.startDateTime !== null
                   ? FormatManager.formatDateToDTO(eventForm.startDateTime)
                   : eventForm.startDateTime,
-                endDateTime: eventForm.endDateTime !== null
-                  ? FormatManager.formatDateToDTO(eventForm.endDateTime)
-                  : eventForm.endDateTime,
             } as EventForm
         }
     }

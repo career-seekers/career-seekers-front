@@ -7,6 +7,8 @@
   import type { EventOutputDto } from '@/api/resolvers/events/dto/output/event-output.dto.ts';
   import { eventFormatOptions, EventFormats, eventTypeOptions } from '@/api/resolvers/events/dto/types.d';
   import { FormatManager } from '@/utils/FormatManager.ts';
+  import { useUserStore } from '@/stores/userStore.ts';
+  import { Roles } from '@/state/UserState.types.ts';
 
   export default {
     name: 'EventsList',
@@ -31,6 +33,8 @@
     emits: ['update', 'delete', 'verify'],
     data() {
       return {
+        userStore: useUserStore(),
+
         eventTypes: eventTypeOptions,
         eventFormats: eventFormatOptions,
 
@@ -49,9 +53,15 @@
       },
       totalRecords() {
         return this.events.length;
-      }
+      },
     },
     methods: {
+      allowedToEdit(event: EventOutputDto) {
+        const user = this.userStore.user
+        return user?.role === Roles.ADMIN ||
+          (user?.role === Roles.TUTOR && event.directionTutorId === user?.id) ||
+          (user?.role === Roles.EXPERT && event.directionExpertId === user?.id)
+      },
       eventExpert(event: EventOutputDto) {
         return this.experts.find((expert) => expert.id === event.directionExpertId);
       },
@@ -66,9 +76,6 @@
           actionPast,
           showConfirm: true
         });
-      },
-      deleteEvent(event: EventOutputDto) {
-        this.$emit('delete', event);
       },
       onPageChange(event: any) {
         this.currentPage = event.page;
@@ -86,7 +93,6 @@
 </script>
 
 <template>
-
   <div
     v-if="events.length > 0"
     class="events-grid"
@@ -105,13 +111,23 @@
             #{{ event.id }} {{ event.name }}
           </h3>
         </div>
-        <div class="event-actions">
+        <div
+          v-if="allowedToEdit(event)"
+          class="event-actions"
+        >
+          <Button
+            v-tooltip="'Редактировать'"
+            icon="pi pi-pencil"
+            style="background: white"
+            class="p-button-text p-button-sm p-button-danger"
+            @click="$emit('update', event)"
+          />
           <Button
             v-tooltip="'Удалить'"
             icon="pi pi-trash"
             style="background: white"
             class="p-button-text p-button-sm p-button-danger"
-            @click="deleteEvent(event)"
+            @click="$emit('delete', event)"
           />
         </div>
       </div>
@@ -158,7 +174,7 @@
           <div class="detail-item">
             <span class="detail-label">Возрастная группа:</span>
             <span class="detail-value">{{
-                event.directionAgeCategoryId
+                event.directionAgeCategoryName
               }}</span>
           </div>
           <div class="detail-item">
@@ -173,6 +189,17 @@
               <i v-else>{{ event.eventVenue }}</i>
             </span>
           </div>
+        </div>
+
+        <div
+          v-if="event.description"
+        >
+          <h4 class="mentor-title">
+            Примечание:
+          </h4>
+          <p class="description-optional">
+            {{ event.description }}
+          </p>
         </div>
 
         <div
@@ -311,6 +338,11 @@
     margin-bottom: 1rem;
   }
 
+  .description-optional {
+    font-style: italic;
+    margin: 0.5rem 0 1.5rem 0;
+  }
+
   .mentor-name {
     font-style: italic;
     margin: 0.5rem 0;
@@ -322,7 +354,7 @@
   }
 
   .event-details {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .detail-item {

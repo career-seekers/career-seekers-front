@@ -16,4 +16,5 @@ export interface EventOutputDto {
   directionTutorId: number;
   directionId: number;
   directionAgeCategoryId: number;
+  directionAgeCategoryName: string;
 }
