@@ -42,7 +42,7 @@
             <router-link
               :to="routeLink"
               class="nav-link"
-              :class="{ active: $route.path === routeLink.path }"
+              :class="{ active: routeLink.path.toString().includes($route.path) }"
               @click="closeSidebarOnMobile"
             >
               <i :class="routeLink.icon" />

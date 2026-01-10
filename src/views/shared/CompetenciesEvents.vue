@@ -106,6 +106,7 @@
     >
       <!-- Табы для документов -->
       <TabView
+        v-if="isAdmin"
         v-model:active-index="activeTab"
         class="documents-tabs"
       >
@@ -133,6 +134,24 @@
           />
         </TabPanel>
       </TabView>
+      <div v-else>
+        <EventsList
+          v-if="filterEvents(events).length > 0"
+          :events="filterEvents(events)"
+          :experts="experts"
+          :enable-verification="isAdmin"
+          @update="editEvent"
+          @delete="deleteEvent"
+          @verify="verifyEvent"
+        />
+        <div v-else-if="!isLoading || filterEvents(events).length === 0">
+          <p>Нет событий</p>
+        </div>
+        <ProgressSpinner
+          v-else
+          style="width: 100%; margin-top: 10rem"
+        />
+      </div>
     </div>
 
     <ToastPopup :content="toastPopup" />
@@ -597,6 +616,12 @@
       },
       filterEvents(events: EventOutputDto[]) {
         let filteredEvents = [...events]
+
+        if (!this.isAdmin) {
+          filteredEvents = filteredEvents
+            .filter(event => event.verified)
+        }
+
         if (this.selectedType) {
           filteredEvents = filteredEvents
             .filter(event => event.eventType === this.selectedType)
@@ -605,6 +630,16 @@
         if (this.selectedFormat !== null) {
           filteredEvents = filteredEvents
             .filter(event => event.eventFormat === this.selectedFormat)
+        }
+
+        if (this.selectedCompetence !== null) {
+          filteredEvents = filteredEvents
+            .filter(event => event.directionId === this.selectedCompetence?.id)
+        }
+
+        if (this.selectedAgeCategory !== null) {
+          filteredEvents = filteredEvents
+            .filter(event => event.directionAgeCategoryId === this.selectedAgeCategory?.id)
         }
 
         if (this.competenceId) {

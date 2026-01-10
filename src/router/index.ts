@@ -68,7 +68,11 @@ const sharedRoutes = [
     path: "events/:competenceId?/:ageCategoryId?",
     name: "competence-events",
     component: CompetenciesEvents,
-    props: true
+    props: true,
+    meta: {
+      title: "События",
+      icon: "pi pi-calendar",
+    }
   }
 ]
 
@@ -204,14 +208,6 @@ const adminRoutes = setPrefix([
           icon: "pi pi-building",
         }
       },
-      {
-        path: "events",
-        component: CompetenciesEvents,
-        meta: {
-          title: "События",
-          icon: "pi pi-calendar",
-        }
-      },
       ...sharedRoutes
     ]
   },
@@ -269,14 +265,6 @@ const tutorRoutes = setPrefix([
           icon: "pi pi-building",
         }
       },
-      {
-        path: "events",
-        component: CompetenciesEvents,
-        meta: {
-          title: "События",
-          icon: "pi pi-calendar",
-        }
-      },
       ...sharedRoutes
     ],
   },
@@ -316,14 +304,6 @@ const expertRoutes = setPrefix([
         meta: {
           title: "Документы",
           icon: "pi pi-folder"
-        }
-      },
-      {
-        path: "events",
-        component: CompetenciesEvents,
-        meta: {
-          title: "События",
-          icon: "pi pi-calendar",
         }
       },
       ...sharedRoutes

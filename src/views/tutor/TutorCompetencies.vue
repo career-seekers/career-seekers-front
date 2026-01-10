@@ -1,186 +1,188 @@
 <template>
-  <ToastPopup :content="errors.toastPopup" />
-  <div class="competencies-page">
-    <div class="page-header">
-      <h1 class="page-title">
-        Мои компетенции
-      </h1>
-      <p class="page-subtitle">
-        Управление компетенциями и участниками
-      </p>
-    </div>
-
-    <!-- Фильтры -->
-    <div class="filters-section">
-      <div class="filter-group">
-        <label for="ageFilter">Возрастная группа:</label>
-        <MultiSelect
-          id="ageFilter"
-          v-model="selectedAge"
-          :options="ageGroups"
-          option-label="label"
-          option-value="value"
-          placeholder="Все возраста"
-          class="filter-dropdown"
-        />
+  <div>
+    <ToastPopup :content="errors.toastPopup" />
+    <div class="competencies-page">
+      <div class="page-header">
+        <h1 class="page-title">
+          Мои компетенции
+        </h1>
+        <p class="page-subtitle">
+          Управление компетенциями и участниками
+        </p>
       </div>
-      <div class="filter-group">
-        <Button
-          label="Сбросить фильтр"
-          icon="pi pi-refresh"
-          class="p-button-text p-button-sm"
-          @click="resetFilters"
-        />
-      </div>
-      <div
-        class="filter-group"
-        style="margin-left: auto"
-      >
-        <Button
-          label="Добавить компетенцию"
-          icon="pi pi-plus"
-          class="p-button-primary right"
-          @click="addCompetence"
-        />
-      </div>
-    </div>
 
-    <div
-      v-if="isLoading"
-    >
-      <ProgressSpinner style="width: 100%; height: 5rem; margin-top: 5rem" />
-    </div>
-    <!-- Список компетенций -->
-    <CompetenciesList
-      v-else-if="filteredCompetencies.length > 0"
-      :competencies="filteredCompetencies"
-      @open-competence="(competenceId) => viewDetails(competenceId)"
-      @edit-competence="(competence) => editCompetence(competence)"
-      @delete-competence="(competence) => deleteCompetence(competence)"
-      @toggle-competence="(competenceId, ageCategory) => refreshCompetence(competenceId, ageCategory)"
-    />
-    <div v-else>
-      <p>Компетенции не найдены</p>
-    </div>
-
-    <!-- Диалог добавления/редактирования эксперта -->
-    <Dialog
-      v-model:visible="showAddCompetenceDialog"
-      :header="isEditing ? 'Редактировать компетенцию' : 'Добавить компетенцию'"
-      :modal="true"
-      :style="{ width: '600px' }"
-    >
-      <div class="competence-form">
-        <div class="form-field">
-          <label for="name">Название *</label>
-          <InputText
-            id="name"
-            v-model="competenceForm.name"
-            placeholder="Введите название компетенции"
-            :class="{ 'p-invalid': !competenceForm.name }"
-          />
-          <small
-            v-if="errors.name"
-            class="p-error"
-          >{{ errors.name }}</small>
-        </div>
-
-        <div class="form-field">
-          <label for="name">Описание *</label>
-          <Textarea
-            id="name"
-            v-model="competenceForm.description"
-            placeholder="Введите описание компетенции"
-            :class="{ 'p-invalid': !competenceForm.description }"
-          />
-          <small
-            v-if="errors.description"
-            class="p-error"
-          >{{
-            errors.description
-          }}</small>
-        </div>
-
-        <div class="form-field">
-          <label
-            for="competenceAgeFilter"
-            class="field-label"
-          >Возрастная категория *</label>
+      <!-- Фильтры -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <label for="ageFilter">Возрастная группа:</label>
           <MultiSelect
-            id="competenceAgeFilter"
-            v-model="competenceForm.ageCategory"
+            id="ageFilter"
+            v-model="selectedAge"
             :options="ageGroups"
             option-label="label"
             option-value="value"
             placeholder="Все возраста"
             class="filter-dropdown"
-            :class="{ 'p-invalid': !competenceForm.ageCategory || competenceForm.ageCategory.length === 0 }"
           />
-          <small
-            v-if="errors.ageCategory"
-            class="p-error"
-          >{{
-            errors.ageCategory
-          }}</small>
         </div>
-
-        <div class="form-field">
-          <label
-            for="competenceExpertList"
-            class="field-label"
-          >Главный эксперт *</label>
-          <Dropdown
-            id="competenceExpertList"
-            v-model="competenceForm.expert"
-            :options="experts"
-            placeholder="Не выбран"
-            class="filter-dropdown"
-            :class="{ 'p-invalid': !competenceForm.expert }"
-          >
-            <template #option="slotProps">
-              {{ slotProps.option.lastName }} {{ slotProps.option.firstName }}
-              {{ slotProps.option.patronymic }}
-            </template>
-            <template #value="{ value }">
-              {{
-                value
-                  ? `${value.lastName} ${value.firstName} ${value.patronymic}`
-                  : "Не выбран"
-              }}
-            </template>
-          </Dropdown>
-          <small
-            v-if="errors.ageCategory"
-            class="p-error"
-          >{{
-            errors.ageCategory
-          }}</small>
+        <div class="filter-group">
+          <Button
+            label="Сбросить фильтр"
+            icon="pi pi-refresh"
+            class="p-button-text p-button-sm"
+            @click="resetFilters"
+          />
+        </div>
+        <div
+          class="filter-group"
+          style="margin-left: auto"
+        >
+          <Button
+            label="Добавить компетенцию"
+            icon="pi pi-plus"
+            class="p-button-primary right"
+            @click="addCompetence"
+          />
         </div>
       </div>
 
-      <template #footer>
-        <Button
-          label="Отмена"
-          icon="pi pi-times"
-          class="p-button-text"
-          @click="cancelEdit"
-        />
-        <Button
-          :label="isEditing ? 'Сохранить' : 'Добавить'"
-          icon="pi pi-check"
-          class="p-button-primary"
-          @click="saveCompetence"
-        />
-      </template>
-    </Dialog>
+      <div
+        v-if="isLoading"
+      >
+        <ProgressSpinner style="width: 100%; height: 5rem; margin-top: 5rem" />
+      </div>
+      <!-- Список компетенций -->
+      <CompetenciesList
+        v-else-if="filteredCompetencies.length > 0"
+        :competencies="filteredCompetencies"
+        @open-competence="(competenceId) => viewDetails(competenceId)"
+        @edit-competence="(competence) => editCompetence(competence)"
+        @delete-competence="(competence) => deleteCompetence(competence)"
+        @toggle-competence="(competenceId, ageCategory) => refreshCompetence(competenceId, ageCategory)"
+      />
+      <div v-else>
+        <p>Компетенции не найдены</p>
+      </div>
 
-    <!-- Диалог подробной информации -->
-    <CompetenceDetailsDialog
-      v-if="selectedCompetence"
-      :selected-competence-prop="selectedCompetence"
-      :show-details-dialog-prop="showDetailsDialog"
-      @update:show-details-dialog="(val) => showDetailsDialog = val"
-    />
+      <!-- Диалог добавления/редактирования эксперта -->
+      <Dialog
+        v-model:visible="showAddCompetenceDialog"
+        :header="isEditing ? 'Редактировать компетенцию' : 'Добавить компетенцию'"
+        :modal="true"
+        :style="{ width: '600px' }"
+      >
+        <div class="competence-form">
+          <div class="form-field">
+            <label for="name">Название *</label>
+            <InputText
+              id="name"
+              v-model="competenceForm.name"
+              placeholder="Введите название компетенции"
+              :class="{ 'p-invalid': !competenceForm.name }"
+            />
+            <small
+              v-if="errors.name"
+              class="p-error"
+            >{{ errors.name }}</small>
+          </div>
+
+          <div class="form-field">
+            <label for="name">Описание *</label>
+            <Textarea
+              id="name"
+              v-model="competenceForm.description"
+              placeholder="Введите описание компетенции"
+              :class="{ 'p-invalid': !competenceForm.description }"
+            />
+            <small
+              v-if="errors.description"
+              class="p-error"
+            >{{
+                errors.description
+              }}</small>
+          </div>
+
+          <div class="form-field">
+            <label
+              for="competenceAgeFilter"
+              class="field-label"
+            >Возрастная категория *</label>
+            <MultiSelect
+              id="competenceAgeFilter"
+              v-model="competenceForm.ageCategory"
+              :options="ageGroups"
+              option-label="label"
+              option-value="value"
+              placeholder="Все возраста"
+              class="filter-dropdown"
+              :class="{ 'p-invalid': !competenceForm.ageCategory || competenceForm.ageCategory.length === 0 }"
+            />
+            <small
+              v-if="errors.ageCategory"
+              class="p-error"
+            >{{
+                errors.ageCategory
+              }}</small>
+          </div>
+
+          <div class="form-field">
+            <label
+              for="competenceExpertList"
+              class="field-label"
+            >Главный эксперт *</label>
+            <Dropdown
+              id="competenceExpertList"
+              v-model="competenceForm.expert"
+              :options="experts"
+              placeholder="Не выбран"
+              class="filter-dropdown"
+              :class="{ 'p-invalid': !competenceForm.expert }"
+            >
+              <template #option="slotProps">
+                {{ slotProps.option.lastName }} {{ slotProps.option.firstName }}
+                {{ slotProps.option.patronymic }}
+              </template>
+              <template #value="{ value }">
+                {{
+                  value
+                    ? `${value.lastName} ${value.firstName} ${value.patronymic}`
+                    : "Не выбран"
+                }}
+              </template>
+            </Dropdown>
+            <small
+              v-if="errors.ageCategory"
+              class="p-error"
+            >{{
+                errors.ageCategory
+              }}</small>
+          </div>
+        </div>
+
+        <template #footer>
+          <Button
+            label="Отмена"
+            icon="pi pi-times"
+            class="p-button-text"
+            @click="cancelEdit"
+          />
+          <Button
+            :label="isEditing ? 'Сохранить' : 'Добавить'"
+            icon="pi pi-check"
+            class="p-button-primary"
+            @click="saveCompetence"
+          />
+        </template>
+      </Dialog>
+
+      <!-- Диалог подробной информации -->
+      <CompetenceDetailsDialog
+        v-if="selectedCompetence"
+        :selected-competence-prop="selectedCompetence"
+        :show-details-dialog-prop="showDetailsDialog"
+        @update:show-details-dialog="(val) => showDetailsDialog = val"
+      />
+    </div>
   </div>
 </template>
 
@@ -208,7 +210,7 @@ import {AgeCategoriesResolver} from "@/api/resolvers/ageCategory/age-categories.
 import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
 export default {
-  name: "ExpertCompetencies",
+  name: "TutorCompetencies",
   components: {
     CompetenciesList,
     CompetenceDetailsDialog,
