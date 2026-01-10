@@ -767,7 +767,6 @@
         showConfirm?: boolean
       }) {
         if (data.showConfirm) {
-          // Показываем диалог подтверждения
           this.confirm.require({
             message: `Вы уверены, что хотите ${data.action} событие №${data.event.id}?`,
             header: `Подтверждение ${data.action === 'принять' ? 'принятия' : 'отклонения'}`,
@@ -780,7 +779,7 @@
               try {
                 const response = await this.eventResolver.verify({
                   id: data.event.id,
-                  verification: data.status
+                  verified: data.status
                 });
                 if (response.status === 200) {
                   const eventIndex = this.events.findIndex(event => event.id === data.event.id);
@@ -809,25 +808,6 @@
               }
             }
           })
-        } else if (data.success) {
-          // Локально обновляем статус события в основном массиве
-          const eventIndex = this.events.findIndex(event => event.id === data.event.id);
-          if (eventIndex !== -1) {
-            this.events[eventIndex].verified = data.status;
-          }
-
-          // Показываем уведомление об успешной верификации
-          const action = data.status ? 'принят' : 'отклонен';
-          this.toastPopup = {
-            title: "Успешно",
-            message: `Документ ${action} успешно`,
-          };
-        } else {
-          // Показываем уведомление об ошибке
-          this.toastPopup = {
-            title: "Ошибка",
-            message: "Не удалось обновить статус документа",
-          };
         }
       },
       addEvent() {

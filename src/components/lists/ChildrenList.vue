@@ -477,8 +477,7 @@ export default {
             <div class="competence-name competence-events">
               События:
               <div class="status-message competence-expert doc-item">
-                Связанных событий
-                {{ !competence.eventsCount ? 'пока нет' : `: ${competence.eventsCount ?? 0}` }}
+                {{ !competence.eventsCount ? 'Связанных событий пока нет' : 'Есть связанные события!' }}
                 <Button
                   :disabled="!competence.eventsCount"
                   label="Подробнее"
