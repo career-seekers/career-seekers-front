@@ -18,12 +18,15 @@ import InputText from 'primevue/inputtext';
 import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
 import type { ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
 import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
+import router from '@/router';
 
 type CompetenceExtended = ChildDetailsDialogData['competencies'][number] & {
   assignId: number;
   teacherName: string | null;
   institution: string | null;
   post: string | null;
+  eventsCount: number;
+  ageCategoryId: number;
   queueStatus: QueueStatuses;
 }
 export type ChildDetailsData = Omit<ChildDetailsDialogData, 'competencies'> & {
@@ -93,6 +96,9 @@ export default {
     },
   },
   methods: {
+    router() {
+      return router
+    },
     async deleteChild(child: ChildOutputDto) {
       if (confirm(
           `Вы уверены что хотите удалить ребенка '${child.firstName}'?`
@@ -467,6 +473,20 @@ export default {
               {{
                 `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
               }}
+            </div>
+            <div class="competence-name competence-events">
+              События:
+              <div class="status-message competence-expert doc-item">
+                Связанных событий
+                {{ !competence.eventsCount ? 'пока нет' : `: ${competence.eventsCount ?? 0}` }}
+                <Button
+                  :disabled="!competence.eventsCount"
+                  label="Подробнее"
+                  icon="pi pi-calendar"
+                  class="p-button-secondary p-button-sm"
+                  @click="router().push(`/${userStore.user?.role.toLowerCase()}/events/${competence.id}/${competence.ageCategoryId}`);"
+                />
+              </div>
             </div>
             <div
               class="competence-name competence-status"
@@ -1071,7 +1091,7 @@ export default {
   margin-bottom: 0.5rem;
 }
 
-.competence-docs, .competence-status {
+.competence-docs, .competence-status, .competence-events {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -1083,7 +1103,7 @@ export default {
 }
 
 
-.competence-status {
+.competence-status, .competence-events {
   display: flex;
   justify-content: space-between;
 
@@ -1091,6 +1111,16 @@ export default {
     display: flex;
     align-items: center;
     gap: 1rem;
+  }
+}
+
+.competence-events {
+  border-color: #ad3df5;
+  background: #f4e7fb;
+  gap: 0;
+
+  .competence-expert.status-message {
+    color: #ad3df5;
   }
 }
 

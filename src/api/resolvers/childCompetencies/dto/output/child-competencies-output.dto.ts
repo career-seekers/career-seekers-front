@@ -15,6 +15,7 @@ export interface ChildCompetenciesOutputDto {
     iconId: null | number;
     userId: number;
     expertId: number;
+    eventsCount: number;
     participantsCount: number;
   };
   directionAgeCategory: {
