@@ -6,10 +6,13 @@
           События
         </h1>
         <p class="page-subtitle">
-          Управление событиями
+          {{ isAdmin ? 'Управление событиями' : 'Список событий' }}
+          {{ competenceId ? ' по компетенции' : '' }}
+          {{ ageCategoryId ? ' и возрастной категории' : '' }}
         </p>
       </div>
       <Button
+        v-if="isAbleToCreate"
         label="Создать событие"
         icon="pi pi-plus"
         class="p-button-sm"
@@ -501,6 +504,10 @@
     computed: {
       isAdmin() {
         return this.userStore.user?.role === Roles.ADMIN
+      },
+      isAbleToCreate() {
+        return this.userStore.user?.role !== Roles.USER &&
+          this.userStore.user?.role !== Roles.MENTOR
       },
       tabsConfig() {
         return [
