@@ -227,7 +227,7 @@
           </p>
         </div>
         <div
-          v-if="event.verified === null && enableVerification"
+          v-if="event.verified === EventVerifications.UNCHECKED && enableVerification"
           class="verify"
         >
           <Button
@@ -258,7 +258,7 @@
       :first="currentPage * pageSize"
       :rows="pageSize"
       :total-records="totalRecords"
-      :rows-per-page-options="[2, 5, 10]"
+      :rows-per-page-options="[2, 4, 8, 16]"
       template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
       @page="(event) => $emit('page-change', event)"
     />

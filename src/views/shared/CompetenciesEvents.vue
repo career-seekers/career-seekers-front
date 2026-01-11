@@ -483,7 +483,7 @@
         eventResolver: new EventResolver(),
 
         currentPage: 0,
-        pageSize: 2,
+        pageSize: 8,
         totalElements: 0,
         totalPages: 0,
 
@@ -504,6 +504,12 @@
     computed: {
       isAdmin() {
         return this.userStore.user?.role === Roles.ADMIN
+      },
+      isCompetenceIdValid() {
+        return this.competenceId && !isNaN(Number(this.competenceId))
+      },
+      isAgeCategoryIdValid() {
+        return this.ageCategoryId && !isNaN(Number(this.ageCategoryId))
       },
       isAbleToCreate() {
         return this.userStore.user?.role !== Roles.USER &&
@@ -549,13 +555,13 @@
       ]);
 
       // Устанавливаем selectedCompetence только если ID валидный
-      if (this.competenceId && !isNaN(Number(this.competenceId))) {
+      if (this.isCompetenceIdValid) {
         this.selectedCompetence = this.competencies.find(
           comp => comp.id === Number(this.competenceId)
         ) ?? null;
       }
 
-      if (this.ageCategoryId && !isNaN(Number(this.ageCategoryId))) {
+      if (this.isAgeCategoryIdValid) {
         this.selectedAgeCategory = this.selectedCompetence?.ageCategories.find(
           category => category.id === Number(this.ageCategoryId)
         ) ?? null;
@@ -676,9 +682,9 @@
       resetFilters() {
         this.selectedType = null;
         this.selectedFormat = null;
-        this.selectedCompetence = null;
-        this.selectedAgeCategory = null;
-        this.currentPage = 0; // Сбросить пагинацию
+        if (!this.isCompetenceIdValid) this.selectedCompetence = null;
+        if (!this.isAgeCategoryIdValid) this.selectedAgeCategory = null;
+        this.currentPage = 0;
         this.loadEventsWithFilters();
       },
 
@@ -834,6 +840,8 @@
                   title: "Ошибка",
                   message: "Не удалось обновить статус события",
                 };
+              } finally {
+                await this.loadEventsWithFilters()
               }
             }
           })
