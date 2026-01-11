@@ -113,7 +113,7 @@
     >
       <!-- Табы для документов -->
       <TabView
-        v-if="isAdmin"
+        v-if="isAdmin || isAbleToCreate"
         v-model:active-index="activeTab"
         class="documents-tabs"
       >
@@ -606,17 +606,24 @@
           name: null,
           eventType: this.selectedType,
           eventFormat: this.selectedFormat,
-          verified: this.isAdmin ? null : EventVerifications.ACCEPTED,
+          verified: this.isAdmin || this.isAbleToCreate
+            ? null
+            : EventVerifications.ACCEPTED,
           startDateTime: null,
           endDateTime: null,
           directionName: null,
           ageCategory: null,
+          relatedUserId: null,
         };
 
-        if (this.isAdmin) {
+        if (this.isAdmin || this.isAbleToCreate) {
           const currentTab = this.tabsConfig[this.activeTab];
           params.verified = currentTab.key
         } else params.verified = EventVerifications.ACCEPTED
+
+        if (this.isAbleToCreate) {
+          params.relatedUserId = this.userStore.user?.id ?? null;
+        }
 
         // Добавляем фильтр по компетенции если выбрана
         if (this.selectedCompetence && typeof this.selectedCompetence === 'object') {

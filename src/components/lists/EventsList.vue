@@ -68,6 +68,7 @@
     methods: {
       allowedToEdit(event: EventOutputDto) {
         const user = this.userStore.user
+        if (event.verified !== EventVerifications.UNCHECKED) return false;
         return user?.role === Roles.ADMIN ||
           (user?.role === Roles.TUTOR && event.directionTutorId === user?.id) ||
           (user?.role === Roles.EXPERT && event.directionExpertId === user?.id)
@@ -310,6 +311,23 @@
     justify-content: center;
     font-size: 1.5rem;
     flex-shrink: 0;
+  }
+
+  .status-title {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .status-title .unchecked {
+    color: yellow;
+  }
+
+  .status-title .accepted {
+    color: lime;
+  }
+
+  .status-title .rejected {
+    color: red
   }
 
   .event-info {

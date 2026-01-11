@@ -20,4 +20,5 @@ export interface EventsUrlParamsInputDto {
   endDateTime: string | null;
   directionName: string | null;
   ageCategory: AgeCategories | null;
+  relatedUserId: number | null;
 }
