@@ -2,8 +2,8 @@
   <div id="app">
     <router-view v-slot="{ Component, route }">
       <transition
-        :name="shouldAnimate(route.path) ? 'page' : ''"
-        mode="out-in"
+          :name="shouldAnimate(route.path) ? 'page' : ''"
+          mode="out-in"
       >
         <component
           :is="Component"
@@ -13,34 +13,107 @@
     </router-view>
 
     <!-- Пасхалка с конфетти из гусей -->
-    <GooseConfetti ref="gooseConfetti" />
+    <GooseConfetti ref="gooseConfetti"/>
   </div>
 </template>
 
 <script lang="ts">
-import GooseConfetti from "@/components/GooseConfetti.vue";
+import {socketService} from "@/utils/SocketService.ts";
+import {statisticsStore} from "@/stores/statisticsStore.ts";
+import type {EventServiceStatistics} from "@/api/dto/statistics/EventServiceStatistics.ts";
+
+import apiConf from "@/api/api.conf.ts";
 import easterEggMixin from "@/mixins/easterEgg.js";
+import GooseConfetti from "@/components/GooseConfetti.vue";
+import type {UsersServiceStatistics} from "@/api/dto/statistics/UsersServiceStatistics.ts";
 
 export default {
   name: "App",
+
   components: {
     GooseConfetti,
   },
+
+  data() {
+    return {
+      statisticsStore: statisticsStore(),
+
+      eventsServiceSocketConnected: false,
+      usersServiceSocketConnected: false,
+    }
+  },
+
   mixins: [easterEggMixin],
+
+  beforeMount() {
+    socketService.connect(
+        'events-service',
+        `${apiConf.socketEndpoint}/events-service/websocket`,
+        {Authorization: `Bearer ${localStorage.getItem('access_token')}`},
+        () => {
+          this.eventsServiceSocketConnected = true;
+
+          socketService.subscribe(
+              "events-service",
+              '/events-service/topic/statistics',
+              (msg: any) => {
+                this.eventsServiceSocketConnected = true;
+                const data: EventServiceStatistics = JSON.parse(msg.body)
+
+                this.statisticsStore.updateEventsServiceStatistics(data)
+              }
+          );
+
+          this.requestEventsServiceStatistics()
+        },
+        () => {
+          this.eventsServiceSocketConnected = false;
+        }
+    );
+
+    socketService.connect(
+        'users-service',
+        `${apiConf.socketEndpoint}/users-service/websocket`,
+        {Authorization: `Bearer ${localStorage.getItem('access_token')}`},
+        () => {
+          this.usersServiceSocketConnected = true;
+
+          socketService.subscribe(
+              "users-service",
+              '/users-service/topic/statistics',
+              (msg: any) => {
+                this.usersServiceSocketConnected = true;
+                const data: UsersServiceStatistics = JSON.parse(msg.body)
+
+                this.statisticsStore.updateUsersServiceStatistics(data)
+              }
+          );
+
+          this.requestUsersServiceStatistics()
+        },
+        () => {
+          this.usersServiceSocketConnected = false;
+        }
+    );
+  },
+
   mounted() {
-    // Слушаем событие для запуска конфетти через глобальный event bus
     window.addEventListener(
-      "trigger-goose-confetti",
-      this.triggerGooseConfetti,
+        "trigger-goose-confetti",
+        this.triggerGooseConfetti,
     );
-    // console.log('Easter egg listener mounted')
   },
+
   beforeUnmount() {
+    socketService.disconnect("events-service");
+    socketService.disconnect("users-service");
+
     window.removeEventListener(
-      "trigger-goose-confetti",
-      this.triggerGooseConfetti,
+        "trigger-goose-confetti",
+        this.triggerGooseConfetti,
     );
   },
+
   methods: {
     getTopLevelPath(path: string) {
       const segments = path.split('/').filter(Boolean);
@@ -48,34 +121,52 @@ export default {
       return res
     },
     shouldAnimate(path: string) {
-      // Анимируем только страницы входа/регистрации, не дашборд
       return (
-        !path.startsWith("/admin") &&
-        !path.startsWith("/expert") &&
-        !path.startsWith("/user") &&
-        !path.startsWith("/mentor") &&
-        !path.startsWith("/tutor")
+          !path.startsWith("/admin") &&
+          !path.startsWith("/expert") &&
+          !path.startsWith("/user") &&
+          !path.startsWith("/mentor") &&
+          !path.startsWith("/tutor")
       );
     },
+
     triggerGooseConfetti() {
-      // console.log('App received trigger event')
       if (this.$refs.gooseConfetti) {
         this.$refs.gooseConfetti.triggerConfetti();
       }
     },
+
+    requestEventsServiceStatistics() {
+      if (this.eventsServiceSocketConnected) {
+        socketService.send(
+            'events-service',
+            '/events-service/app/getStatistics',
+            {}
+        );
+      }
+    },
+
+    requestUsersServiceStatistics() {
+      if (this.usersServiceSocketConnected) {
+        socketService.send(
+            'users-service',
+            '/users-service/app/getStatistics',
+            {}
+        )
+      }
+    }
   },
 };
 </script>
 
 <style>
 #app {
-  font-family:
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: "Inter",
+  -apple-system,
+  BlinkMacSystemFont,
+  "Segoe UI",
+  Roboto,
+  sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;

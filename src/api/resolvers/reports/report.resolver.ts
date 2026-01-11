@@ -16,4 +16,17 @@ export class ReportResolver {
       "blob"
     )
   }
+
+  public async getAllChildrenReports() {
+    return await this.apiResolver.request<
+      null,
+      Blob
+    >(
+      "getChildrenReport",
+      "GET",
+      null,
+      this.token ? this.token : undefined,
+      "blob"
+    )
+  }
 }
