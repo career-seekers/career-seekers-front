@@ -5,7 +5,7 @@
   import Button from 'primevue/button';
   import Paginator from 'primevue/paginator';
   import type { EventOutputDto } from '@/api/resolvers/events/dto/output/event-output.dto.ts';
-  import { eventFormatOptions, EventFormats, eventTypeOptions } from '@/api/resolvers/events/dto/types.d';
+  import { eventFormatOptions, eventTypeOptions, EventVerifications } from '@/api/resolvers/events/dto/types.d';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import { useUserStore } from '@/stores/userStore.ts';
   import { Roles } from '@/state/UserState.types.ts';
@@ -58,8 +58,8 @@
       }
     },
     computed: {
-      EventFormats() {
-        return EventFormats
+      EventVerifications() {
+        return EventVerifications
       },
       FormatManager() {
         return FormatManager
@@ -75,9 +75,9 @@
       eventExpert(event: EventOutputDto) {
         return this.experts.find((expert) => expert.id === event.directionExpertId);
       },
-      verifyEvent(event: EventOutputDto, status: boolean) {
-        const action = status ? 'принять' : 'отклонить';
-        const actionPast = status ? 'принят' : 'отклонен';
+      verifyEvent(event: EventOutputDto, status: EventVerifications) {
+        const action = status === EventVerifications.ACCEPTED ? 'принять' : 'отклонить';
+        const actionPast = status === EventVerifications.ACCEPTED ? 'принят' : 'отклонен';
 
         this.$emit('verify', {
           event,
@@ -235,14 +235,14 @@
             style="background: white"
             label="Принять"
             class="p-button-text p-button-sm p-button-success"
-            @click="verifyEvent(event, true)"
+            @click="verifyEvent(event, EventVerifications.ACCEPTED)"
           />
           <Button
             icon="pi pi-times"
             style="background: white"
             label="Отклонить"
             class="p-button-text p-button-sm p-button-danger"
-            @click="verifyEvent(event, false)"
+            @click="verifyEvent(event, EventVerifications.REJECTED)"
           />
         </div>
       </div>
