@@ -1,4 +1,4 @@
-import { EventFormats, type EventTypes } from '@/api/resolvers/events/dto/types';
+import { EventFormats, type EventTypes, EventVerifications } from '@/api/resolvers/events/dto/types';
 
 export interface EventOutputDto {
   id: number;
@@ -9,7 +9,7 @@ export interface EventOutputDto {
   startDateTime: string;
   endDateTime: string;
   eventVenue: string;
-  verified: boolean | null;
+  verified: EventVerifications | null;
   description: string | null;
   directionName: string;
   directionExpertId: number;

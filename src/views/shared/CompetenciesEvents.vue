@@ -16,7 +16,7 @@
         @click="addEvent"
       />
     </div>
-    
+
     <!-- Фильтры -->
     <div class="filters-section sticky-filters">
       <div class="filter-group">
@@ -30,6 +30,7 @@
           placeholder="Все типы"
           :disabled="isLoading"
           class="filter-dropdown"
+          @change="onFilterChange"
         />
       </div>
       <div class="filter-group">
@@ -43,6 +44,7 @@
           placeholder="Все форматы"
           :disabled="isLoading"
           class="filter-dropdown"
+          @change="onFilterChange"
         />
       </div>
       <div
@@ -61,6 +63,7 @@
           :disabled="isLoading"
           force-selection
           @complete="filterCompetencies"
+          @change="onFilterChange"
         >
           <template #item="slotProps">
             {{ slotProps ? formatCompetenceName(slotProps.item) : "Не выбран" }}
@@ -87,6 +90,7 @@
           option-label="label"
           placeholder="Все группы"
           class="filter-dropdown"
+          @change="onFilterChange"
         />
       </div>
       <div class="filter-group">
@@ -99,7 +103,7 @@
       </div>
     </div>
 
-    <!-- Кастомный sticky контейнер для табов -->
+    <!-- Кастомный sticky контейнер для табов и пагинатора -->
     <div
       class="custom-sticky-container"
       :class="{ 'sticky': isSticky }"
@@ -114,18 +118,22 @@
           v-for="tab in tabsConfig"
           :key="tab.key"
           :header="tab.header"
-          :disabled="!tab.hasEvents"
         >
           <EventsList
-            v-if="filterEvents(tab.events).length > 0"
-            :events="filterEvents(tab.events)"
+            v-if="events.length > 0"
+            :events="events"
             :experts="experts"
             :enable-verification="isAdmin"
+            :total-pages="totalPages"
+            :current-page="currentPage"
+            :page-size="pageSize"
+            :total-records="totalElements"
             @update="editEvent"
             @delete="deleteEvent"
             @verify="verifyEvent"
+            @page-change="onPageChange"
           />
-          <div v-else-if="!isLoading || filterEvents(tab.events).length === 0">
+          <div v-else-if="!isLoading && events.length === 0">
             <p>Нет событий</p>
           </div>
           <ProgressSpinner
@@ -136,15 +144,20 @@
       </TabView>
       <div v-else>
         <EventsList
-          v-if="filterEvents(events).length > 0"
-          :events="filterEvents(events)"
+          v-if="events.length > 0"
+          :events="events"
           :experts="experts"
           :enable-verification="isAdmin"
+          :total-pages="totalPages"
+          :current-page="currentPage"
+          :page-size="pageSize"
+          :total-records="totalElements"
           @update="editEvent"
           @delete="deleteEvent"
           @verify="verifyEvent"
+          @page-change="onPageChange"
         />
-        <div v-else-if="!isLoading || filterEvents(events).length === 0">
+        <div v-else-if="!isLoading || events.length === 0">
           <p>Нет событий</p>
         </div>
         <ProgressSpinner
@@ -372,6 +385,7 @@
   import Dropdown from 'primevue/dropdown';
   import TabView from 'primevue/tabview';
   import TabPanel from 'primevue/tabpanel';
+  import { type PageState } from 'primevue/paginator';
   import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import ToastPopup from '@/components/ToastPopup.vue';
   import { UserResolver } from '@/api/resolvers/user/user.resolver.ts';
@@ -386,6 +400,7 @@
     EventFormats,
     eventTypeOptions,
     type EventTypes,
+    EventVerifications,
   } from '@/api/resolvers/events/dto/types.d';
   import type { EventOutputDto } from '@/api/resolvers/events/dto/output/event-output.dto.ts';
   import EventsList from '@/components/lists/EventsList.vue';
@@ -402,13 +417,6 @@
   import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
   import type { EventsUrlParamsInputDto } from '@/api/resolvers/events/dto/input/events-url-params-input.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
-
-  interface TabConfig {
-    key: string;
-    header: string;
-    events: EventOutputDto[];
-    hasEvents: boolean;
-  }
 
   export default {
     name: "CompetenciesEvents",
@@ -471,6 +479,11 @@
         userResolver: new UserResolver(),
         eventResolver: new EventResolver(),
 
+        currentPage: 0,
+        pageSize: 2,
+        totalElements: 0,
+        totalPages: 0,
+
         activeTab: 0,
         ageGroups: useAgeGroups,
 
@@ -489,62 +502,29 @@
       isAdmin() {
         return this.userStore.user?.role === Roles.ADMIN
       },
-      rejectedEvents() {
-        return this.events
-          .filter((event: EventOutputDto) => event.verified === false)
-          .sort((a: EventOutputDto, b: EventOutputDto) => b.id - a.id);
-      },
-      acceptedEvents() {
-        return this.events
-          .filter((event: EventOutputDto) => event.verified === true)
-          .sort((a: EventOutputDto, b: EventOutputDto) => b.id - a.id);
-      },
-      uncheckedEvents() {
-        return this.events
-          .filter((event: EventOutputDto) => event.verified === null)
-          .sort((a: EventOutputDto, b: EventOutputDto) => b.id - a.id);
-      },
       tabsConfig() {
-        const tabs = [
+        return [
           {
-            key: 'unchecked',
-            header: 'Необработанные',
-            events: this.uncheckedEvents,
-            hasEvents: this.uncheckedEvents.length > 0
+            key: EventVerifications.UNCHECKED,
+            header: "Необработанные"
           },
           {
-            key: 'accepted',
-            header: 'Принятые',
-            events: this.acceptedEvents,
-            hasEvents: this.acceptedEvents.length > 0
+            key: EventVerifications.ACCEPTED,
+            header: "Принятые"
           },
           {
-            key: 'rejected',
-            header: 'Отклоненные',
-            events: this.rejectedEvents,
-            hasEvents: this.rejectedEvents.length > 0
+            key: EventVerifications.REJECTED,
+            header: "Отклонённые"
           }
         ];
-
-        return tabs.sort((a, b) => {
-          if (a.hasEvents && !b.hasEvents) return -1;
-          if (!a.hasEvents && b.hasEvents) return 1;
-          return 0;
-        });
       },
     },
     watch: {
-      tabsConfig: {
-        handler(newTabsConfig: TabConfig[]) {
-          const availableTabs = newTabsConfig.filter((tab: TabConfig) => tab.hasEvents);
-          if (availableTabs.length > 0) {
-            const currentTab = newTabsConfig[this.activeTab];
-            if (!currentTab || !currentTab.hasEvents) {
-              this.activeTab = 0;
-            }
-          }
-        },
-        immediate: true
+      activeTab: {
+        handler() {
+          this.currentPage = 0;
+          this.loadEventsWithFilters();
+        }
       },
       eventForm: {
         handler() {
@@ -554,27 +534,96 @@
       }
     },
     async mounted() {
-      await this.renderPage(null);
+      this.isLoading = true;
+      await Promise.all([
+        this.loadCompetencies(),
+        this.loadExperts(),
+        this.loadEventsWithFilters()
+      ]);
+
+      // Устанавливаем selectedCompetence только если ID валидный
+      if (this.competenceId && !isNaN(Number(this.competenceId))) {
+        this.selectedCompetence = this.competencies.find(
+          comp => comp.id === Number(this.competenceId)
+        ) ?? null;
+      }
+
+      if (this.ageCategoryId && !isNaN(Number(this.ageCategoryId))) {
+        this.selectedAgeCategory = this.selectedCompetence?.ageCategories.find(
+          category => category.id === Number(this.ageCategoryId)
+        ) ?? null;
+      }
+
+      this.isLoading = false;
     },
     methods: {
-      async renderPage(eventsParams:  EventsUrlParamsInputDto | null) {
+      /**
+       * Обработчик изменения страницы в пагинаторе
+       */
+      async onPageChange(event: PageState) {
+        this.currentPage = event.page;
+        this.pageSize = event.rows;
 
-        this.isLoading = true;
-        await Promise.all([
-          this.loadCompetencies(),
-          this.loadExperts(),
-          this.loadEvents(eventsParams)
-        ]);
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
 
-        // Устанавливаем selectedCompetence только если ID валидный
-        if (this.competenceId && !isNaN(Number(this.competenceId))) {
-          this.selectedCompetence = this.competencies.find(
-            comp => comp.id === Number(this.competenceId)
-          ) ?? null;
+        await this.loadEventsWithFilters();
+      },
+
+      /**
+       * Обработчик изменения фильтров
+       */
+      onFilterChange() {
+        this.currentPage = 0;
+        this.loadEventsWithFilters();
+      },
+
+      /**
+       * Загружает события с текущими фильтрами и пагинацией
+       */
+      async loadEventsWithFilters() {
+
+        const params: EventsUrlParamsInputDto = {
+          page: this.currentPage,
+          size: this.pageSize,
+          sort: null,
+          desc: null,
+          name: null,
+          eventType: this.selectedType,
+          eventFormat: this.selectedFormat,
+          verified: this.isAdmin ? null : EventVerifications.ACCEPTED,
+          startDateTime: null,
+          endDateTime: null,
+          directionName: null,
+          ageCategory: null,
+        };
+
+        if (this.isAdmin) {
+          const currentTab = this.tabsConfig[this.activeTab];
+          params.verified = currentTab.key
+        } else params.verified = EventVerifications.ACCEPTED
+
+        // Добавляем фильтр по компетенции если выбрана
+        if (this.selectedCompetence && typeof this.selectedCompetence === 'object') {
+          params.directionName = this.selectedCompetence.name;
         }
 
-        this.isLoading = false;
+        // Добавляем фильтр по возрастной группе если выбрана
+        if (this.selectedAgeCategory && typeof this.selectedAgeCategory === 'object') {
+          params.ageCategory = this.selectedAgeCategory.ageCategory;
+        }
+
+        // Учитываем параметры из props
+        if (this.competenceId) {
+          params.directionName = this.competencies
+            .find(competence => competence.id === Number(this.competenceId))?.name ?? null
+        }
+
+        await this.loadEvents(params);
       },
+
       competenceAgeCategories(competence: CompetenceOutputDto | null | string) {
         if (competence === null || typeof competence === "string") return this.ageGroups
         return [...competence.ageCategories]
@@ -587,6 +636,7 @@
               .find(group => category.ageCategory === group.value)?.label
           }));
       },
+
       filterCompetencies(event: { query: string }) {
         const query = event.query ? event.query.toLowerCase() : '';
         let filtered = [];
@@ -607,6 +657,7 @@
         this.filteredCompetencies = [...uniqueByName.values()]
           .sort((a, b) => a.name.localeCompare(b.name));
       },
+
       formatCompetenceName(competence: CompetenceOutputDto) {
         if (!competence) return '';
         const expert = this.experts.find(expert => expert.id === competence.expertId)
@@ -614,68 +665,47 @@
           ? `${competence.name} (${expert?.lastName} ${expert?.firstName.substring(0, 1)}.${expert?.patronymic.substring(0, 1)}.)`
           : competence.name
       },
-      filterEvents(events: EventOutputDto[]) {
-        let filteredEvents = [...events]
 
-        if (!this.isAdmin) {
-          filteredEvents = filteredEvents
-            .filter(event => event.verified)
-        }
-
-        if (this.selectedType) {
-          filteredEvents = filteredEvents
-            .filter(event => event.eventType === this.selectedType)
-        }
-
-        if (this.selectedFormat !== null) {
-          filteredEvents = filteredEvents
-            .filter(event => event.eventFormat === this.selectedFormat)
-        }
-
-        if (this.selectedCompetence !== null) {
-          filteredEvents = filteredEvents
-            .filter(event => event.directionId === this.selectedCompetence?.id)
-        }
-
-        if (this.selectedAgeCategory !== null) {
-          filteredEvents = filteredEvents
-            .filter(event => event.directionAgeCategoryId === this.selectedAgeCategory?.id)
-        }
-
-        if (this.competenceId) {
-          filteredEvents = filteredEvents
-            .filter(event => event.directionId.toString() === this.competenceId)
-        }
-
-        if (this.ageCategoryId) {
-          filteredEvents = filteredEvents
-            .filter(event => event.directionAgeCategoryId.toString() === this.ageCategoryId)
-        }
-
-        return filteredEvents;
-      },
       resetFilters() {
         this.selectedType = null;
         this.selectedFormat = null;
         this.selectedCompetence = null;
         this.selectedAgeCategory = null;
+        this.currentPage = 0; // Сбросить пагинацию
+        this.loadEventsWithFilters();
       },
+
       async loadCompetencies() {
+        this.isLoading = true
+
         const response = await this.competenceResolver.getAll();
         if (response.status === 200 && typeof response.message !== "string") {
           this.competencies = response.message
         } else {
           console.error('Failed to load competencies in AdminEvents:', response);
         }
+
+        this.isLoading = false
       },
-      async loadEvents(params: EventsUrlParamsInputDto | null) {
+
+      async loadEvents(params: EventsUrlParamsInputDto) {
+        this.isLoading = true
+
         this.events = []
         const response = await this.eventResolver.getAll(params)
         if (response.status === 200 && typeof response.message !== "string") {
-          this.events = response.message.content
+          const data = response.message;
+          this.events = data.content;
+          this.totalElements = data.totalElements;
+          this.totalPages = data.totalPages;
         }
+
+        this.isLoading = false
       },
+
       async loadExperts() {
+        this.isLoading = true
+
         const expResponse = await this.userResolver.getAllByRole(Roles.EXPERT);
         if (expResponse.status === 200 && typeof expResponse.message !== "string") {
           this.experts = expResponse.message;
@@ -685,7 +715,11 @@
         if (tutResponse.status === 200 && typeof tutResponse.message !== "string") {
           this.experts = this.experts.concat(tutResponse.message);
         }
+
+
+        this.isLoading = false
       },
+
       editEvent(event: EventOutputDto) {
         const editingCompetence = this.competencies.find(competence => competence.id === event.directionId)
         if (!editingCompetence) return;
@@ -712,6 +746,7 @@
         this.selectedEvent = event
         this.showAddEventDialog = true;
       },
+
       deleteEvent(event: EventOutputDto) {
         this.confirm.require({
           message: `Вы уверены, что хотите удалить событие №${event.id}?`,
@@ -725,22 +760,8 @@
             try {
               const response = await this.eventResolver.delete(event.id);
               if (response.status === 200) {
-                // Локально удаляем документ из списка без полной перезагрузки
-                const eventIndex = this.events.findIndex(ev => ev.id === event.id);
-                if (eventIndex !== -1) {
-                  this.events.splice(eventIndex, 1);
-                }
-
-                // Также удаляем документ из компетенций
-                this.competencies.forEach(competence => {
-                  const evIndex = competence.documents.findIndex(ev => ev.id === event.id);
-                  if (evIndex !== -1) {
-                    competence.documents.splice(evIndex, 1);
-                  }
-                });
-
-                // Удаляем компетенции без документов
-                this.competencies = this.competencies.filter(competence => competence.documents.length > 0);
+                // Перезагружаем события с текущими параметрами пагинации
+                await this.loadEventsWithFilters();
 
                 // Показываем уведомление об успешном удалении
                 this.toastPopup = {
@@ -758,9 +779,10 @@
           }
         });
       },
+
       verifyEvent(data: {
         event: EventOutputDto,
-        status: boolean,
+        status: EventVerifications,
         success?: boolean,
         action?: string,
         actionPast?: string,
@@ -810,6 +832,7 @@
           })
         }
       },
+
       addEvent() {
         this.eventForm = {
           name: "",
@@ -825,6 +848,7 @@
         this.selectedEvent = null
         this.showAddEventDialog = true;
       },
+
       async saveEvent() {
         const validationResult = ValidationManager.validateEventForm(this.eventForm)
         const form = validationResult.form
@@ -862,7 +886,9 @@
           }
         }
         if (response.status === 200) {
-          await this.loadEvents(null)
+          // Сбрасываем пагинацию и перезагружаем события
+          this.currentPage = 0;
+          await this.loadEventsWithFilters();
           this.showAddEventDialog = false;
         }
       },
@@ -942,9 +968,6 @@
   }
 
   .filter-dropdown {
-    width: 100%;
-  }
-  .p-autocomplete-panel {
     width: 100%;
   }
 
@@ -1036,6 +1059,7 @@
     position: relative;
     background: white;
     transition: all 0.3s ease;
+    margin-bottom: 2rem;
   }
 
   /* Очень маленькие экраны */

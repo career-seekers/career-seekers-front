@@ -273,8 +273,9 @@
   import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
   import CompetenciesList from '@/components/lists/CompetenciesList.vue';
   import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
-  import {AgeCategoriesResolver} from "@/api/resolvers/ageCategory/age-categories.resolver.ts";
+  import { AgeCategoriesResolver } from '@/api/resolvers/ageCategory/age-categories.resolver.ts';
   import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
+  import { Roles } from '@/state/UserState.types.ts';
 
   export default {
     name: "AdminCompetencies",
@@ -499,7 +500,7 @@
           };
         }
 
-        const expertResponse = await this.userResolver.getAll();
+        const expertResponse = await this.userResolver.getAllByRole(Roles.EXPERT);
         if (expertResponse.status == 200 && typeof expertResponse.message !== "string") {
           this.experts = expertResponse.message;
         } else {

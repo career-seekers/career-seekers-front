@@ -28,9 +28,25 @@
       experts: {
         type: Array as PropType<UserOutputDto[]>,
         required: true,
+      },
+      totalPages: {
+        type: Number,
+        required: true,
+      },
+      currentPage: {
+        type: Number,
+        required: true,
+      },
+      pageSize: {
+        type: Number,
+        required: true,
+      },
+      totalRecords: {
+        type: Number,
+        required: true,
       }
     },
-    emits: ['update', 'delete', 'verify'],
+    emits: ['update', 'delete', 'verify', 'page-change'],
     data() {
       return {
         userStore: useUserStore(),
@@ -39,9 +55,6 @@
         eventFormats: eventFormatOptions,
 
         userResolver: new UserResolver(),
-        // Пагинация
-        currentPage: 0,
-        itemsPerPage: 8,
       }
     },
     computed: {
@@ -50,9 +63,6 @@
       },
       FormatManager() {
         return FormatManager
-      },
-      totalRecords() {
-        return this.events.length;
       },
     },
     methods: {
@@ -75,17 +85,6 @@
           action,
           actionPast,
           showConfirm: true
-        });
-      },
-      onPageChange(event: any) {
-        this.currentPage = event.page;
-        this.itemsPerPage = event.rows;
-        // Плавная прокрутка к началу списка
-        this.$nextTick(() => {
-          const grid = this.$el.querySelector('.events-grid');
-          if (grid) {
-            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
         });
       },
     }
@@ -256,12 +255,12 @@
     class="pagination-container"
   >
     <Paginator
-      :first="currentPage * itemsPerPage"
-      :rows="itemsPerPage"
+      :first="currentPage * pageSize"
+      :rows="pageSize"
       :total-records="totalRecords"
-      :rows-per-page-options="[8, 16, 24, 32]"
+      :rows-per-page-options="[2, 5, 10]"
       template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-      @page="onPageChange"
+      @page="(event) => $emit('page-change', event)"
     />
   </div>
 </template>

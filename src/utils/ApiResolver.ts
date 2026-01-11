@@ -71,7 +71,10 @@ class ApiResolverUtil {
   DTOToURLSearchParams(dto: never) {
     const params = new URLSearchParams();
     Object.keys(dto).forEach((key) => {
-      params.append(key, dto[key]);
+      const value = dto[key] as unknown
+      if(value !== null && value !== undefined) {
+        params.append(key, dto[key]);
+      }
     });
     return params;
   }
