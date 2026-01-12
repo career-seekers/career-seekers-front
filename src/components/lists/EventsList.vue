@@ -182,6 +182,7 @@
             <span class="detail-value">
               <a
                 v-if="event.eventFormat.toString() === 'ONLINE'"
+                target="_blank"
                 :href="event.eventVenue"
               >
                 {{ event.eventVenue }}

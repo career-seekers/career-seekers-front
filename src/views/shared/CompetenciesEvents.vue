@@ -6,7 +6,7 @@
           События
         </h1>
         <p class="page-subtitle">
-          {{ isAdmin ? 'Управление событиями' : 'Список событий' }}
+          {{ isAdmin ? 'Управление событиями' : `Список ${isAbleToCreate ? 'связанных' : ''} событий` }}
           {{ competenceId ? ' по компетенции' : '' }}
           {{ ageCategoryId ? ' и возрастной категории' : '' }}
         </p>
@@ -66,7 +66,7 @@
           :disabled="isLoading"
           force-selection
           @complete="filterCompetencies"
-          @change="onFilterChange"
+          @item-select="onFilterChange"
         >
           <template #item="slotProps">
             {{ slotProps ? formatCompetenceName(slotProps.item) : "Не выбран" }}
@@ -697,10 +697,11 @@
 
       async loadCompetencies() {
         this.isLoading = true
-
+        const user = this.userStore.user
         const response = await this.competenceResolver.getAll();
         if (response.status === 200 && typeof response.message !== "string") {
           this.competencies = response.message
+            .filter(competence => user?.id === competence.userId || user?.id === competence.expertId)
         } else {
           console.error('Failed to load competencies in AdminEvents:', response);
         }
@@ -730,12 +731,6 @@
         if (expResponse.status === 200 && typeof expResponse.message !== "string") {
           this.experts = expResponse.message;
         }
-
-        const tutResponse = await this.userResolver.getAllByRole(Roles.TUTOR);
-        if (tutResponse.status === 200 && typeof tutResponse.message !== "string") {
-          this.experts = this.experts.concat(tutResponse.message);
-        }
-
 
         this.isLoading = false
       },
@@ -884,7 +879,7 @@
             shortDescription: form.shortDescription !== this.selectedEvent.shortDescription ? form.shortDescription : undefined,
             eventType: form.eventType !== this.selectedEvent.eventType ? form.eventType : undefined,
             eventFormat: form.eventFormat !== this.selectedEvent.eventFormat ? form.eventFormat : undefined,
-            startDateTime: form.startDateTime,
+            startDateTime: form.startDateTime !== this.selectedEvent.startDateTime ? form.startDateTime : undefined,
             eventVenue: form.eventVenue !== this.selectedEvent.eventVenue ? form.eventVenue : undefined,
             description: form.description !== this.selectedEvent.description ? form.description : undefined,
             directionId: form.competence.id !== this.selectedEvent.directionId ? form.competence.id : undefined,
