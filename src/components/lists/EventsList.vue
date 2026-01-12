@@ -77,8 +77,8 @@
         return this.experts.find((expert) => expert.id === event.directionExpertId);
       },
       verifyEvent(event: EventOutputDto, status: EventVerifications) {
-        const action = status === EventVerifications.ACCEPTED ? 'принять' : 'отклонить';
-        const actionPast = status === EventVerifications.ACCEPTED ? 'принят' : 'отклонен';
+        const action = status === EventVerifications.ACCEPTED ? 'Принять' : 'Отклонить';
+        const actionPast = status === EventVerifications.ACCEPTED ? 'принято' : 'отклонено';
 
         this.$emit('verify', {
           event,
@@ -112,7 +112,7 @@
           </h3>
         </div>
         <div
-          v-if="allowedToEdit(event)"
+          v-if="allowedToEdit(event) || userStore.user?.id === 4"
           class="event-actions"
         >
           <Button

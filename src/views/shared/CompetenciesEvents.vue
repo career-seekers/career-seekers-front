@@ -12,7 +12,7 @@
         </p>
       </div>
       <Button
-        v-if="isAbleToCreate"
+        v-if="isAbleToCreate || isAdmin"
         label="Создать событие"
         icon="pi pi-plus"
         class="p-button-sm"
@@ -512,8 +512,8 @@
         return this.ageCategoryId && !isNaN(Number(this.ageCategoryId))
       },
       isAbleToCreate() {
-        return this.userStore.user?.role !== Roles.USER &&
-          this.userStore.user?.role !== Roles.MENTOR
+        return this.userStore.user?.role === Roles.TUTOR ||
+          this.userStore.user?.role === Roles.EXPERT
       },
       tabsConfig() {
         return [
@@ -700,8 +700,12 @@
         const user = this.userStore.user
         const response = await this.competenceResolver.getAll();
         if (response.status === 200 && typeof response.message !== "string") {
-          this.competencies = response.message
-            .filter(competence => user?.id === competence.userId || user?.id === competence.expertId)
+          let competencies = response.message
+          if (this.isAbleToCreate) {
+            competencies = competencies
+              .filter(competence => user?.id === competence.userId || user?.id === competence.expertId)
+          }
+          this.competencies = competencies
         } else {
           console.error('Failed to load competencies in AdminEvents:', response);
         }
@@ -716,7 +720,7 @@
         const response = await this.eventResolver.getAll(params)
         if (response.status === 200 && typeof response.message !== "string") {
           const data = response.message;
-          this.events = data.content;
+          this.events = data.content.sort((a, b) => b.id - a.id);
           this.totalElements = data.totalElements;
           this.totalPages = data.totalPages;
         }
@@ -810,7 +814,7 @@
             icon: data.status ? 'pi pi-check-circle' : 'pi pi-times-circle',
             rejectLabel: 'Отмена',
             acceptLabel: data.action,
-            acceptClass: data.status ? 'p-button-success' : 'p-button-danger',
+            acceptClass: data.status === EventVerifications.ACCEPTED ? 'p-button-success' : 'p-button-danger',
             rejectClass: 'p-button-text',
             accept: async () => {
               try {

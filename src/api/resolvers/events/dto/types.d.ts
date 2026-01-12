@@ -1,7 +1,6 @@
 export enum EventTypes {
   QUALIFIERS = "Отборочный этап",
   FINAL = "Финальный этап",
-  MASTER_CLASS = "Мастер класс",
 }
 
 export enum EventFormats {
