@@ -767,9 +767,29 @@ export default {
 /* Мобильные стили */
 @media (max-width: 768px) {
   .dashboard-home {
-    padding: 0 1rem;
-    max-width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+
     width: 100%;
+    box-sizing: border-box;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-title {
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: 600;
+    font-family: "BIPS", sans-serif;
+  }
+
+  .page-subtitle {
+    color: #6c757d;
+    margin: 0;
+    font-size: 1.1rem;
   }
 
   .dashboard-grid {
@@ -779,20 +799,6 @@ export default {
     max-width: 100%;
     padding: 0;
     margin: 0;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
-  }
-
-  .info-card {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0;
-  }
-
-  .card-header {
-    gap: 0.5rem;
   }
 
   .card-content {
@@ -827,74 +833,141 @@ export default {
     width: 100%;
   }
 
-  .dashboard-grid {
-    gap: 0.75rem;
-    width: 100%;
-    max-width: 100%;
-    padding: 0;
-    margin: 0;
-  }
-
-  .page-title {
-    font-size: 1.3rem;
-  }
-
-  .page-subtitle {
+  .form-field label {
+    color: #2c3e50;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
     font-size: 0.9rem;
   }
 
-  .info-card {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box;
-    margin: 0;
-  }
+  /* Мобильные стили */
+  @media (max-width: 768px) {
+    .dashboard-home {
+      padding: 0 1rem;
+      max-width: 100%;
+      width: 100%;
+    }
 
-  .card-header {
-    padding: 1rem;
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+      margin: 0;
+    }
 
-    button {
-      height: 2rem;
-      width: auto;
-      aspect-ratio: 1;
+    .page-title {
+      font-size: 1.5rem;
+    }
+
+    .info-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0;
+    }
+
+    .card-header {
+      padding: 1rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .card-content {
+      padding: 1rem;
+    }
+
+    .data-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+
+    .data-value {
+      text-align: left;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .stat-number {
+      font-size: 1.5rem;
     }
   }
 
-  .card-title {
-    font-size: 1rem;
-  }
+  /* Очень маленькие экраны */
+  @media (max-width: 480px) {
+    .dashboard-home {
+      padding: 0 0.5rem;
+      max-width: 100%;
+      width: 100%;
+    }
 
-  .card-content {
-    padding: 0.75rem;
-  }
+    .dashboard-grid {
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+      margin: 0;
+    }
 
-  .data-item {
-    padding: 0.5rem 0;
-  }
+    .page-title {
+      font-size: 1.3rem;
+    }
 
-  .data-label {
-    font-size: 0.85rem;
-  }
+    .page-subtitle {
+      font-size: 0.9rem;
+    }
 
-  .data-value {
-    font-size: 0.9rem;
-  }
+    .info-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box;
+      margin: 0;
+    }
 
-  .stats-grid {
-    gap: 0.5rem;
-    margin-bottom: 0;
-  }
+    .card-header {
+      padding: 0.75rem;
+    }
 
-  .stat-item {
-    padding: 0.75rem;
-  }
+    .card-title {
+      font-size: 1rem;
+    }
 
-  .stat-number {
-    font-size: 1.25rem;
-  }
+    .card-content {
+      padding: 0.75rem;
+    }
 
-  .stat-label {
-    font-size: 0.8rem;
+    .data-item {
+      padding: 0.5rem 0;
+    }
+
+    .data-label {
+      font-size: 0.85rem;
+    }
+
+    .data-value {
+      font-size: 0.9rem;
+    }
+
+    .stats-grid {
+      gap: 0.5rem;
+    }
+
+    .stat-item {
+      padding: 0.75rem;
+    }
+
+    .stat-number {
+      font-size: 1.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+    }
   }
 }
 </style>

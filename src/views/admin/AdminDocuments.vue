@@ -77,70 +77,75 @@
         />
       </div>
     </div>
-  </div>
 
-  <!-- Кастомный sticky контейнер для табов -->
-  <div
-    class="custom-sticky-container"
-    :class="{ 'sticky': isSticky }"
-  >
-    <!-- Табы для документов -->
-    <TabView
-      v-model:active-index="activeTab"
-      class="documents-tabs"
+    <!-- Кастомный sticky контейнер для табов -->
+    <div
+      class="custom-sticky-container"
+      :class="{ 'sticky': isSticky }"
     >
-      <TabPanel 
-        v-for="tab in tabsConfig" 
-        :key="tab.key"
-        :header="tab.header"
-        :disabled="!tab.hasDocuments"
-        :class="{ 'disabled-tab': !tab.hasDocuments }"
+      <!-- Табы для документов -->
+      <TabView
+        v-model:active-index="activeTab"
+        class="documents-tabs"
       >
-        <DocsToVerifyList
-          :documents="filterDocs(tab.documents)"
-          :experts="experts"
-          :verify-status="tab.key === 'unchecked' ? 'UNCHECKED' : tab.key === 'accepted' ? 'ACCEPTED' : 'REJECTED'"
-          @update="loadCompetencies"
-          @delete="handleDeleteDocument"
-          @verify="handleVerifyDocument"
-        />
-      </TabPanel>
-    </TabView>
+        <TabPanel
+          v-for="tab in tabsConfig"
+          :key="tab.key"
+          :header="tab.header"
+          :disabled="!tab.hasDocuments"
+        >
+          <DocsToVerifyList
+            v-if="tab.documents.length > 0"
+            :documents="filterDocs(tab.documents)"
+            :experts="experts"
+            :verify-status="tab.key === 'unchecked' ? 'UNCHECKED' : tab.key === 'accepted' ? 'ACCEPTED' : 'REJECTED'"
+            @update="loadCompetencies"
+            @delete="handleDeleteDocument"
+            @verify="handleVerifyDocument"
+          />
+          <ProgressSpinner
+            v-else
+            style="width: 100%; margin-top: 10rem"
+          />
+        </TabPanel>
+      </TabView>
 
-    <ToastPopup :content="errors.toastPopup" />
-    
-    <!-- Диалог подтверждения удаления -->
-    <ConfirmDialog />
+      <ToastPopup :content="errors.toastPopup" />
+
+      <!-- Диалог подтверждения удаления -->
+      <ConfirmDialog />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import Button from "primevue/button";
-import Dropdown from "primevue/dropdown";
-import TabView from "primevue/tabview";
-import TabPanel from "primevue/tabpanel";
-import {FileResolver, FileType} from "@/api/resolvers/files/file.resolver";
-import {CompetenceResolver} from '@/api/resolvers/competence/competence.resolver';
-import ToastPopup from "@/components/ToastPopup.vue";
-import {UserResolver} from "@/api/resolvers/user/user.resolver";
-import type {
-  CompetenceDocumentsOutputDto
-} from "@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts";
-import type {CompetenceOutputDto} from "@/api/resolvers/competence/dto/output/competence-output.dto.ts";
-import {CompetenceDocumentsResolver} from "@/api/resolvers/competenceDocuments/competence-documents.resolver";
-import type {DocumentsOutputDto} from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
-import {useDocumentTypes} from '@/shared/UseDocumentTypes.ts';
-import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
-import {useAgeGroups} from '@/shared/UseAgeGroups.ts';
-import DocsToVerifyList from '@/components/lists/DocsToVerifyList.vue';
-import type {UserOutputDto} from "@/api/resolvers/user/dto/output/user-output.dto.ts";
-import {Roles} from "@/state/UserState.types.ts";
-import AutoComplete from "primevue/autocomplete";
-import ConfirmDialog from "primevue/confirmdialog";
-import { useConfirm } from "primevue/useconfirm";
-import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+  import Button from 'primevue/button';
+  import Dropdown from 'primevue/dropdown';
+  import TabView from 'primevue/tabview';
+  import TabPanel from 'primevue/tabpanel';
+  import { FileResolver, FileType } from '@/api/resolvers/files/file.resolver';
+  import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver';
+  import ToastPopup from '@/components/ToastPopup.vue';
+  import { UserResolver } from '@/api/resolvers/user/user.resolver';
+  import type {
+    CompetenceDocumentsOutputDto,
+  } from '@/api/resolvers/competenceDocuments/dto/output/competence-documents-output.dto.ts';
+  import type { CompetenceOutputDto } from '@/api/resolvers/competence/dto/output/competence-output.dto.ts';
+  import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver';
+  import type { DocumentsOutputDto } from '@/api/resolvers/competence/dto/output/documents-output.dto.ts';
+  import { useDocumentTypes } from '@/shared/UseDocumentTypes.ts';
+  import DocumentsTemplates from '@/components/DocumentsTemplates.vue';
+  import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+  import DocsToVerifyList from '@/components/lists/DocsToVerifyList.vue';
+  import type { UserOutputDto } from '@/api/resolvers/user/dto/output/user-output.dto.ts';
+  import { Roles } from '@/state/UserState.types.ts';
+  import AutoComplete from 'primevue/autocomplete';
+  import ConfirmDialog from 'primevue/confirmdialog';
+  import { useConfirm } from 'primevue/useconfirm';
+  import ProgressSpinner from 'primevue/progressspinner';
+  import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
-interface TabConfig {
+  interface TabConfig {
   key: string;
   header: string;
   documents: CompetenceDocumentsOutputDto[];
@@ -159,6 +164,7 @@ export default {
     TabPanel,
     AutoComplete,
     ConfirmDialog,
+    ProgressSpinner
   },
   data() {
     return {
@@ -183,10 +189,8 @@ export default {
       competenceResolver: new CompetenceResolver(),
       userResolver: new UserResolver(),
       competenceDocumentsResolver: new CompetenceDocumentsResolver(),
-      // Активный таб
       activeTab: 0,
       isSticky: false,
-      // Confirm dialog
       confirm: useConfirm(),
     };
   },
@@ -202,12 +206,9 @@ export default {
           .sort((a, b) => b.id - a.id);
     },
     uncheckedDocuments() {
-      const result = this.documents
-          .filter(doc => doc.verified === null)
-          .sort((a, b) => b.id - a.id);
-      console.log('Unchecked documents:', result);
-      console.log('Total documents:', this.documents.length);
-      return result;
+      return this.documents
+        .filter(doc => doc.verified === null)
+        .sort((a, b) => b.id - a.id);
     },
     availableAges() {
       const ageOrder = new Map(this.ageGroups.map((group, index) => [group.value, index]));
@@ -263,18 +264,13 @@ export default {
     }
   },
   async mounted() {
-    console.log('AdminDocuments mounted');
-    console.log('CompetenceResolver:', this.competenceResolver);
-    console.log('UserResolver:', this.userResolver);
     try {
       await this.loadCompetencies();
-      console.log('loadCompetencies completed successfully in AdminDocuments');
     } catch (error) {
       console.error('Error in loadCompetencies in AdminDocuments:', error);
     }
     try {
       await this.loadExperts();
-      console.log('loadExperts completed successfully in AdminDocuments');
     } catch (error) {
       console.error('Error in loadExperts in AdminDocuments:', error);
     }
@@ -343,12 +339,7 @@ export default {
     },
     async loadCompetencies() {
         try {
-          console.log('Loading competencies in AdminDocuments...');
-          console.log('Access token in AdminDocuments:', localStorage.getItem("access_token"));
           const response = await this.competenceResolver.getAll();
-          console.log('Competence response in AdminDocuments:', response);
-          console.log('Competence response status in AdminDocuments:', response.status);
-          console.log('Competence response message in AdminDocuments:', response.message);
           if (response.status === 200 && typeof response.message !== "string") {
           const docs = [] as CompetenceDocumentsOutputDto[];
           const competencies = [] as CompetenceOutputDto[]
@@ -378,8 +369,6 @@ export default {
           }
           this.documents = docs
           this.competencies = competencies
-          console.log('Documents loaded:', this.documents);
-          console.log('Competencies loaded:', this.competencies);
         } else {
           console.error('Failed to load competencies in AdminDocuments:', response);
         }
@@ -549,20 +538,8 @@ export default {
 .documents-page {
   max-width: 1200px;
   margin: 0 auto;
-  animation: slideInRight 0.4s ease-out;
   width: 100%;
   box-sizing: border-box;
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 .page-header {
@@ -642,11 +619,6 @@ export default {
     width: 100%;
   }
 
-  .documents-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
   .page-title {
     font-size: 1.5rem;
   }
@@ -658,32 +630,6 @@ export default {
 
   .filter-group {
     min-width: auto;
-  }
-
-  .document-header {
-    padding: 1rem;
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .document-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 1.2rem;
-  }
-
-  .document-content {
-    padding: 1rem;
-  }
-
-  .detail-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
-
-  .detail-value {
-    text-align: left;
   }
 }
 
@@ -764,32 +710,6 @@ export default {
   .page-subtitle {
     font-size: 0.9rem;
   }
-
-  .document-header {
-    padding: 0.75rem;
-  }
-
-  .document-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
-
-  .document-name {
-    font-size: 1rem;
-  }
-
-  .document-type {
-    font-size: 0.8rem;
-  }
-
-  .document-content {
-    padding: 0.75rem;
-  }
-
-  .expert-info {
-    padding: 0.75rem;
-  }
 }
 
 /* Стили для диалога подтверждения */
@@ -861,6 +781,4 @@ export default {
   border-color: #adb5bd;
   color: #495057;
 }
-
-
 </style>

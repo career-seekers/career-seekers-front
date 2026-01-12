@@ -62,40 +62,38 @@
         />
       </div>
     </div>
-  </div>
 
-  <!-- Кастомный sticky контейнер для табов -->
-  <div
-    class="custom-sticky-container"
-    :class="{ 'sticky': isSticky }"
-  >
-    <!-- Табы для документов -->
-    <TabView
-      v-model:active-index="activeTab"
-      class="documents-tabs"
+    <!-- Кастомный sticky контейнер для табов -->
+    <div
+      class="custom-sticky-container"
+      :class="{ 'sticky': isSticky }"
     >
-      <TabPanel
-        v-for="tab in tabsConfig"
-        :key="tab.key"
-        :header="tab.header"
-        :disabled="!tab.hasDocuments"
-        :class="{ 'disabled-tab': !tab.hasDocuments }"
+      <!-- Табы для документов -->
+      <TabView
+        v-model:active-index="activeTab"
+        class="documents-tabs"
       >
-        <ChildrenDocsToVerifyList
-          v-if="tab.documents.length > 0"
-          :documents="filterDocs(tab.documents)"
-          :verify-status="tab.key === 'unchecked' ? 'UNCHECKED' : tab.key === 'accepted' ? 'ACCEPTED' : 'REJECTED'"
-          @update="loadChildrenDocuments"
-          @delete="handleDeleteDocument"
-          @verify="handleVerifyDocument"
-        />
-        <ProgressSpinner
-          v-else
-          style="width: 100%; margin-top: 10rem"
-        />
-      </TabPanel>
-    </TabView>
-
+        <TabPanel
+          v-for="tab in tabsConfig"
+          :key="tab.key"
+          :header="tab.header"
+          :disabled="!tab.hasDocuments"
+        >
+          <ChildrenDocsToVerifyList
+            v-if="tab.documents.length > 0"
+            :documents="filterDocs(tab.documents)"
+            :verify-status="tab.key === 'unchecked' ? 'UNCHECKED' : tab.key === 'accepted' ? 'ACCEPTED' : 'REJECTED'"
+            @update="loadChildrenDocuments"
+            @delete="handleDeleteDocument"
+            @verify="handleVerifyDocument"
+          />
+          <ProgressSpinner
+            v-else
+            style="width: 100%; margin-top: 10rem"
+          />
+        </TabPanel>
+      </TabView>
+    </div>
     <ToastPopup :content="errors.toastPopup" />
 
     <!-- Диалог подтверждения удаления -->
@@ -172,12 +170,12 @@ export default {
     },
     rejectedDocuments() {
       return this.documents
-        .filter(doc => doc.document.verified === false)
+        .filter(doc => !doc.document.verified)
         .sort((a, b) => b.document.id - a.document.id);
     },
     acceptedDocuments() {
       return this.documents
-        .filter(doc => doc.document.verified === true)
+        .filter(doc => doc.document.verified)
         .sort((a, b) => b.document.id - a.document.id);
     },
     uncheckedDocuments() {
@@ -424,22 +422,10 @@ export default {
         };
       }
     },
-
-
-    onPageChange(event: any) {
-      this.currentPage = event.page;
-    },
   },
 };
 </script>
 <style scoped>
-  .documents-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    animation: slideInRight 0.4s ease-out;
-    width: 100%;
-    box-sizing: border-box;
-  }
 
   @keyframes slideInRight {
     from {
@@ -470,13 +456,6 @@ export default {
     font-size: 1.1rem;
   }
 
-  .page-actions {
-    margin-bottom: 2rem;
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-  }
-
   .filters-section {
     display: flex;
     gap: 1rem;
@@ -505,13 +484,6 @@ export default {
     min-width: 150px;
   }
 
-  .age-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
   .filter-group label {
     color: #2c3e50;
     font-weight: 500;
@@ -522,19 +494,6 @@ export default {
     width: 100%;
   }
 
-  /* Формы */
-  .upload-form,
-  .link-form {
-    padding: 1rem 0;
-  }
-
-  .form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-
   .form-field label {
     color: #2c3e50;
     font-weight: 500;
@@ -543,24 +502,9 @@ export default {
 
   /* Мобильные стили */
   @media (max-width: 768px) {
-    .documents-page {
-      padding: 0 1rem;
-      max-width: 100%;
-      width: 100%;
-    }
-
-    .documents-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
 
     .page-title {
       font-size: 1.5rem;
-    }
-
-    .page-actions {
-      flex-direction: column;
-      align-items: stretch;
     }
 
     .filters-section {
@@ -570,32 +514,6 @@ export default {
 
     .filter-group {
       min-width: auto;
-    }
-
-    .document-header {
-      padding: 1rem;
-      flex-direction: column;
-      text-align: center;
-    }
-
-    .document-icon {
-      width: 50px;
-      height: 50px;
-      font-size: 1.2rem;
-    }
-
-    .document-content {
-      padding: 1rem;
-    }
-
-    .detail-item {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.25rem;
-    }
-
-    .detail-value {
-      text-align: left;
     }
   }
 
@@ -663,11 +581,6 @@ export default {
 
   /* Очень маленькие экраны */
   @media (max-width: 480px) {
-    .documents-page {
-      padding: 0 0.5rem;
-      max-width: 100%;
-      width: 100%;
-    }
 
     .page-title {
       font-size: 1.3rem;
@@ -675,32 +588,6 @@ export default {
 
     .page-subtitle {
       font-size: 0.9rem;
-    }
-
-    .document-header {
-      padding: 0.75rem;
-    }
-
-    .document-icon {
-      width: 40px;
-      height: 40px;
-      font-size: 1rem;
-    }
-
-    .document-name {
-      font-size: 1rem;
-    }
-
-    .document-type {
-      font-size: 0.8rem;
-    }
-
-    .document-content {
-      padding: 0.75rem;
-    }
-
-    .expert-info {
-      padding: 0.75rem;
     }
   }
 
@@ -773,6 +660,5 @@ export default {
     border-color: #adb5bd;
     color: #495057;
   }
-
 
 </style>

@@ -13,55 +13,51 @@
   export default {
     name: 'CompetenciesList',
     components: {
-      Button
+      Button,
     },
     props: {
       competencies: {
         type: Array as PropType<CompetenceOutputDto[]>,
-        required: true
-      }
+        required: true,
+      },
     },
     emits: [
-      "open-competence",
-      "edit-competence",
-      "delete-competence",
-      "manage-places",
-      "toggle-competence",
+      'open-competence',
+      'edit-competence',
+      'delete-competence',
+      'manage-places',
+      'toggle-competence',
     ],
     data() {
       return {
         userStore: useUserStore(),
         ageGroups: useAgeGroups,
-        ageCategoryResolver: new AgeCategoryResolver()
-      }
+        ageCategoryResolver: new AgeCategoryResolver(),
+      };
     },
     computed: {
       Roles() {
-        return Roles
+        return Roles;
       },
       showEditButtons() {
-        if (this.userStore.user === null) return false
-        return [Roles.TUTOR, Roles.ADMIN].includes(this.userStore.user.role)
+        if (this.userStore.user === null) return false;
+        return [Roles.TUTOR, Roles.ADMIN].includes(this.userStore.user.role);
       },
     },
     methods: {
       router() {
-        return router
-      },
-      useUserStore,
-      goToDocuments(competenceId: number) {
-        this.$router.push(`/${this.userStore.user?.role.toLowerCase()}/documents/${competenceId}`);
+        return router;
       },
       async toggleAgeCategory(competenceId: number, ageCategory: AgeCategoryOutputDto) {
-        const toggledCategory = {...ageCategory}
-        toggledCategory.isDisabled = !toggledCategory.isDisabled
+        const toggledCategory = { ...ageCategory };
+        toggledCategory.isDisabled = !toggledCategory.isDisabled;
         const response = await this.ageCategoryResolver.toggle({
           id: toggledCategory.id,
-          status: toggledCategory.isDisabled
-        })
-        if (response.status === 200) this.$emit('toggle-competence', competenceId, toggledCategory)
-      }
-    }
+          status: toggledCategory.isDisabled,
+        });
+        if (response.status === 200) this.$emit('toggle-competence', competenceId, toggledCategory);
+      },
+    },
   };
 </script>
 
@@ -91,7 +87,7 @@
           <div class="competence-description">
             {{
               competence.description.length > 30
-                ? competence.description.substring(0, 30) + "..."
+                ? competence.description.substring(0, 30) + '...'
                 : competence.description
             }}
           </div>
@@ -109,7 +105,7 @@
         </div>
         <div class="stat-item">
           <div class="stat-number">
-            -
+            {{ competence.eventsCount ?? '-' }}
           </div>
           <div class="stat-label">
             Событий
@@ -168,14 +164,14 @@
           label="Документы"
           icon="pi pi-file-text"
           class="p-button-outlined"
-          @click="goToDocuments(competence.id)"
+          @click="router().push(`/${userStore.user?.role.toLowerCase()}/documents/${competence.id}`);"
         />
-        <!--          <Button -->
-        <!--            label="События" -->
-        <!--            icon="pi pi-calendar"-->
-        <!--            class="p-button-outlined"-->
-        <!--            @click="goToEvents(competence.id)"-->
-        <!--          />-->
+        <Button
+          label="События"
+          icon="pi pi-calendar"
+          class="p-button-outlined"
+          @click="router().push(`/${userStore.user?.role.toLowerCase()}/events/${competence.id}`);"
+        />
         <Button
           label="Подробнее"
           icon="pi pi-eye"
@@ -217,10 +213,9 @@
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
     border: 2px solid transparent;
     overflow: hidden;
-    transition:
-      box-shadow 0.3s ease,
-      border-color 0.3s ease,
-      transform 0.3s ease;
+    transition: box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease;
   }
 
   .competence-card:hover {
@@ -399,7 +394,6 @@
       padding: 0.75rem 1rem;
     }
   }
-
 
 
 </style>

@@ -4,7 +4,6 @@
   import { CompetenceResolver } from '@/api/resolvers/competence/competence.resolver.ts';
   import router from '@/router';
   import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
-  import type { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
   import Button from 'primevue/button';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
@@ -26,6 +25,7 @@
   import { useConfirm } from 'primevue/useconfirm';
   import ConfirmDialog from 'primevue/confirmdialog';
   import ToastPopup from '@/components/ToastPopup.vue';
+  import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
   export default {
     name: 'CompetenceParticipants',

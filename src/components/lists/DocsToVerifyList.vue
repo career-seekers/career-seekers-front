@@ -56,10 +56,6 @@
         return this.documents.length;
       }
     },
-    mounted() {
-      console.log('DocsToVerifyList mounted with documents:', this.documents);
-      console.log('DocsToVerifyList props:', this.$props);
-    },
     methods: {
       viewDocument(doc: CompetenceDocumentsOutputDto) {
         window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`, "_blank");
@@ -85,7 +81,6 @@
       deleteDocument(document: CompetenceDocumentsOutputDto) {
         this.$emit('delete', document);
       },
-
       onPageChange(event: any) {
         this.currentPage = event.page;
         this.itemsPerPage = event.rows;
@@ -97,13 +92,11 @@
           }
         });
       },
-
     }
   };
 </script>
 
 <template>
-  <!-- Заголовок убран, так как теперь используется в табах -->
 
   <div
     v-if="documents.length > 0"
@@ -303,6 +296,8 @@
   .document-actions {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .document-content {
@@ -431,5 +426,11 @@
     background: #f8f9fa;
     border-color: #adb5bd;
     color: #495057;
+  }
+
+  @media screen and (max-width: 768px) {
+    .documents-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

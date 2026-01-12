@@ -1,5 +1,5 @@
 <template>
-  <div class="mentors-page">
+  <div class="experts-page">
     <div class="page-header">
       <h1 class="page-title">
         Главные эксперты
@@ -28,7 +28,10 @@
     </div>
 
     <!-- Список экспертов -->
-    <div class="experts-grid">
+    <div
+      v-if="paginatedExperts.length > 0"
+      class="experts-grid"
+    >
       <div
         v-for="expert in paginatedExperts"
         :key="expert.id"
@@ -127,8 +130,16 @@
       </div>
     </div>
 
+    <ProgressSpinner
+      v-else
+      style="width: 100%; margin-top: 10rem"
+    />
+
     <!-- Обычная пагинация -->
-    <div class="pagination-container">
+    <div
+      v-if="paginatedExperts.length > 0"
+      class="pagination-container"
+    >
       <Paginator
         :first="currentPage * itemsPerPage"
         :rows="itemsPerPage"
@@ -319,6 +330,7 @@
   import { ExpertDocumentsResolver } from '@/api/resolvers/expertDocuments/expert-documents.resolver.ts';
   import type { UserInputDto } from '@/api/resolvers/user/dto/input/user-input.dto.ts';
   import Dropdown from 'primevue/dropdown';
+  import ProgressSpinner from 'primevue/progressspinner';
 
   export default {
     name: "AdminExperts",
@@ -329,7 +341,8 @@
       InputText,
       InputMask,
       Dropdown,
-      Paginator
+      Paginator,
+      ProgressSpinner
     },
     data() {
       return {
@@ -537,17 +550,12 @@
           );
           if (expert) {
             const editedExpert: UpdateUserInputDto = {
-              avatarId: expert.avatarId,
-              dateOfBirth: this.dateOfBirthFormatted,
               email: this.expertForm.email,
               firstName: this.expertForm.fullName.split(" ")[1],
               lastName: this.expertForm.fullName.split(" ")[0],
               mobileNumber: this.mobileNumberFormatted,
-              password: expert.password,
               patronymic: this.expertForm.fullName.split(" ")[2],
-              role: Roles.EXPERT,
               id: this.editingExpertId!,
-              tutorId: this.expertForm.tutor?.id,
             };
 
             if (expert.expertDocuments != null) {
@@ -888,57 +896,15 @@
     border: 1px solid #e9ecef;
   }
 
-  .expert-status {
-    text-align: center;
-  }
-
-  .status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .status-active {
-    background: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-    border: 1px solid #28a745;
-  }
-
-  .status-pending {
-    background: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
-    border: 1px solid #ffc107;
-  }
-
-  .status-inactive {
-    background: rgba(108, 117, 125, 0.2);
-    color: #6c757d;
-    border: 1px solid #6c757d;
-  }
-
   /* Форма */
   .expert-form {
     padding: 1rem 0;
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
   }
 
   .form-field {
     display: flex;
     flex-direction: column;
     margin: 1rem 0;
-  }
-
-  .form-field.full-width {
-    grid-column: 1 / -1;
   }
 
   .form-field label {
@@ -974,11 +940,6 @@
 
     .expert-content {
       padding: 1rem;
-    }
-
-    .form-row {
-      grid-template-columns: 1fr;
-      gap: 0.75rem;
     }
 
     .detail-item {
@@ -1022,10 +983,6 @@
       font-size: 1rem;
     }
 
-    .expert-position {
-      font-size: 0.8rem;
-    }
-
     .expert-content {
       padding: 0.75rem;
     }
@@ -1045,8 +1002,6 @@
   padding: 1rem;
   transition: opacity 0.3s ease;
 }
-
-
 
 /* Простые анимации для карточек */
 .expert-card {

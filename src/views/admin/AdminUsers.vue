@@ -29,7 +29,7 @@
       class="experts-grid"
     >
       <div
-        v-for="user in filteredUsers"
+        v-for="user in paginatedUsers"
         :key="user.id"
         class="expert-card"
       >
@@ -110,6 +110,21 @@
     </div>
     <div v-else>
       <p>{{ mode === "USERS" ? 'Родители' : 'Наставники' }} не найдены</p>
+    </div>
+
+    <!-- Обычная пагинация (скрывается при скролле) -->
+    <div
+      v-if="users.length > 0"
+      class="pagination-container"
+    >
+      <Paginator
+        :first="currentPage * itemsPerPage"
+        :rows="itemsPerPage"
+        :total-records="filteredUsers.length"
+        :rows-per-page-options="[8, 16, 24, 32]"
+        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+        @page="onPageChange"
+      />
     </div>
 
     <Dialog
@@ -298,7 +313,7 @@
   import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import ProgressSpinner from 'primevue/progressspinner';
-  import ChildDetailsDialog from '@/components/dialogs/ChildDetailsDialog.vue';
+  import ChildDetailsDialog, { type ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
   import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
   import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
   import { FileResolver } from '@/api/resolvers/files/file.resolver.ts';
@@ -306,7 +321,7 @@
   import { ChildDocumentsResolver } from '@/api/resolvers/childDocuments/child-documents.resolver.ts';
   import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
   import type { PropType } from 'vue';
-  import type { ChildDetailsDialogData } from '@/components/lists/ChildrenList.vue';
+  import Paginator from 'primevue/paginator';
 
   export enum Mode {
     USERS = "USERS",
@@ -324,7 +339,8 @@
       InputMask,
       Checkbox,
       Dialog,
-      ProgressSpinner
+      ProgressSpinner,
+      Paginator
     },
     props: {
       mode: {
@@ -403,11 +419,13 @@
           email: "",
         },
 
-
         selectedChild: null as ChildOutputDto | null,
         selectedChildDetails: null as ChildDetailsDialogData | null,
         showEditUserDialog: false,
         showChildDetailsDialog: false,
+
+        currentPage: 0,
+        itemsPerPage: 8,
       }
     },
     computed: {
@@ -427,6 +445,11 @@
           })
         }
         return filtered.sort((a, b) => a.lastName.localeCompare(b.lastName));
+      },
+      paginatedUsers() {
+        const start = this.currentPage * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return this.filteredUsers.slice(start, end);
       },
     },
     async beforeMount() {
@@ -748,23 +771,23 @@
             };
           }
         }
-      }
+      },
+      onPageChange(event: any) {
+        this.currentPage = event.page;
+        this.itemsPerPage = event.rows;
+        // Плавная прокрутка к началу списка
+        this.$nextTick(() => {
+          const grid = this.$el.querySelector('.documents-grid');
+          if (grid) {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      },
     }
   };
 </script>
 
 <style scoped>
-
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
 
   .page-header {
     margin-bottom: 2rem;

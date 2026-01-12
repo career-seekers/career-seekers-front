@@ -16,9 +16,6 @@
             <i class="pi pi-building" />
             Основная информация
           </h3>
-          <!--          <div class="status-badge">-->
-          <!--            {{ venueData }}-->
-          <!--          </div>-->
         </div>
 
         <div class="form-content">
@@ -348,21 +345,12 @@ export default {
 .venue-info-page {
   max-width: 1000px;
   margin: 0 auto;
-  animation: slideInRight 0.4s ease-out;
+
   width: 100%;
   box-sizing: border-box;
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+
 
 .page-header {
   margin-bottom: 2rem;

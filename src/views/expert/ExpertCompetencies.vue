@@ -69,8 +69,8 @@ import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import ProgressSpinner from 'primevue/progressspinner';
 import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
 import CompetenciesList from '@/components/lists/CompetenciesList.vue';
-import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
 import {AgeCategoriesResolver} from "@/api/resolvers/ageCategory/age-categories.resolver.ts";
+import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
 export default {
   name: "ExpertCompetencies",
@@ -141,21 +141,12 @@ export default {
 .competencies-page {
   max-width: 1200px;
   margin: 0 auto;
-  animation: slideInRight 0.4s ease-out;
+
   width: 100%;
   box-sizing: border-box;
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+
 
 .page-header {
   margin-bottom: 2rem;

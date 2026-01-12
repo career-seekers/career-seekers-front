@@ -8,7 +8,7 @@ export class AgeCategoriesResolver {
 
   public async getByDirectionId(id: number) {
     return this.apiResolver.request<null, CommonOutputDto<AgeCategoryOutputDto[]>>(
-      `getByDirectionId/${id}`,
+      `getByDirectionId/${id.toString()}`,
       "GET",
       null,
       this.token ? this.token : undefined,

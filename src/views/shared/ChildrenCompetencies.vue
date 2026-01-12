@@ -580,7 +580,7 @@
   .competencies-selection {
     max-width: 1200px;
     margin: 0 auto;
-    animation: slideInRight 0.4s ease-out;
+
   }
 
   @keyframes slideInRight {

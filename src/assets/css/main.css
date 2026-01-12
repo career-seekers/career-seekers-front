@@ -1,0 +1,15 @@
+.p-autocomplete-panel {
+    max-width: 300px;
+}
+
+.p-autocomplete-item {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+.p-autocomplete-item > div {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}

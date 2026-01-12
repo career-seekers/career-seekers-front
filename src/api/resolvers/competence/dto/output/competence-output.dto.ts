@@ -10,5 +10,6 @@ export interface CompetenceOutputDto {
   userId: number;
   expertId: number;
   participantsCount: number;
+  eventsCount: number;
   documents: DocumentsOutputDto[];
 }

@@ -1,7 +1,6 @@
 <script lang="ts">
 
   import type { PropType } from 'vue';
-  import type { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
   import { FormatManager } from '@/utils/FormatManager.ts';
   import { ParticipantStatus, QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
   import Paginator from 'primevue/paginator';
@@ -14,6 +13,7 @@
   import { useParticipantStatuses } from '@/shared/UseParticipantStatuses';
   import { useUserStore } from '@/stores/userStore.ts';
   import { Roles } from '@/state/UserState.types.ts';
+  import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
   export interface Participant {
     id: number,

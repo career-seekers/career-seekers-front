@@ -414,7 +414,8 @@ import { useUserStore } from '@/stores/userStore.ts';
 import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
 import ToastPopup from '@/components/ToastPopup.vue';
 import { FormatManager } from '@/utils/FormatManager.ts';
-import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
+
+import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
 
 export default {
   name: "ExpertDashboardHome",
@@ -585,7 +586,6 @@ emits: ['openSettings'],
 .dashboard-home {
   max-width: 1200px;
   margin: 0 auto;
-  animation: slideInRight 0.4s ease-out;
   width: 100%;
   box-sizing: border-box;
 }
@@ -601,17 +601,6 @@ emits: ['openSettings'],
   font-weight: 500;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 .page-header {

@@ -272,9 +272,10 @@
   import ProgressSpinner from 'primevue/progressspinner';
   import CompetenceDetailsDialog from '@/components/dialogs/CompetenceDetailsDialog.vue';
   import CompetenciesList from '@/components/lists/CompetenciesList.vue';
-  import { AgeCategories } from '@/api/resolvers/ageCategory/ageCategories.ts';
   import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
-  import {AgeCategoriesResolver} from "@/api/resolvers/ageCategory/age-categories.resolver.ts";
+  import { AgeCategoriesResolver } from '@/api/resolvers/ageCategory/age-categories.resolver.ts';
+  import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
+  import { Roles } from '@/state/UserState.types.ts';
 
   export default {
     name: "AdminCompetencies",
@@ -499,7 +500,7 @@
           };
         }
 
-        const expertResponse = await this.userResolver.getAll();
+        const expertResponse = await this.userResolver.getAllByRole(Roles.EXPERT);
         if (expertResponse.status == 200 && typeof expertResponse.message !== "string") {
           this.experts = expertResponse.message;
         } else {
@@ -587,7 +588,6 @@
   .competencies-page {
     max-width: 1200px;
     margin: 0 auto;
-    animation: slideInRight 0.4s ease-out;
     width: 100%;
     box-sizing: border-box;
   }
@@ -603,17 +603,6 @@
     font-weight: 500;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
-  }
-
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
   }
 
   .page-header {

@@ -42,7 +42,7 @@
             <router-link
               :to="routeLink"
               class="nav-link"
-              :class="{ active: $route.path === routeLink.path }"
+              :class="{ active: routeLink.path.toString().includes($route.path) }"
               @click="closeSidebarOnMobile"
             >
               <i :class="routeLink.icon" />
@@ -72,8 +72,11 @@
         >
           <component
             :is="Component"
-            :key="route.name"
-            @open-settings="showSettingsDialog = true"
+            :key="route.path"
+            v-bind="route.path.includes('dashboard')
+              ? { 'onOpen-settings': () => showSettingsDialog = true }
+              : {}
+            "
           />
         </transition>
       </router-view>
@@ -125,11 +128,13 @@
       this.routeLinks = Array.from(
         new Map(router
           .getRoutes()
-          .filter(route => route.meta.title && route.path.startsWith(
-            this.userStore.user
-              ? `/${this.userStore.user.role.toLowerCase()}/`
-              : "/logged-out"
-          ))
+          .filter(route => {
+            return route.meta.title && route.path.startsWith(
+              this.userStore.user
+                ? `/${this.userStore.user.role.toLowerCase()}/`
+                : "/logged-out"
+            )
+          })
           .sort((a, b) => (a.meta.title as string).localeCompare(b.meta.title as string))
           .map(route => {
             return [
@@ -267,8 +272,7 @@
   .main-content {
     flex: 1;
     margin-left: 280px;
-    padding: 2rem;
-    padding-bottom: 80px;
+    padding: 2rem 2rem 80px;
     min-height: 100vh;
     background-color: white;
     background-image: url("@/assets/bg2.png");
@@ -382,9 +386,7 @@
 
     .main-content {
       margin-left: 0;
-      padding: 1rem;
-      padding-top: 4rem;
-      padding-bottom: 70px;
+      padding: 4rem 1rem 70px;
       background-attachment: scroll;
       width: 100%;
       max-width: 100vw;
@@ -440,9 +442,7 @@
     }
 
     .main-content {
-      padding: 0.75rem;
-      padding-top: 3.5rem;
-      padding-bottom: 60px;
+      padding: 3.5rem 0.75rem 60px;
       max-width: 100vw;
       overflow-x: hidden;
     }
@@ -478,9 +478,10 @@
     }
   }
 
+
   /* Анимации переходов между страницами дашборда */
   .dashboard-page-enter-active {
-    transition: all 0.4s ease-out;
+    transition: all 0.3s ease-out;
   }
 
   .dashboard-page-leave-active {

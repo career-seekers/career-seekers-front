@@ -14,35 +14,24 @@ import {FileType} from '@/api/resolvers/files/file.resolver.ts';
 import apiConf from '@/api/api.conf.ts';
 import {QueueStatuses} from '@/api/resolvers/childCompetencies/types.ts';
 import {useQueueStatuses} from '@/shared/UseQueueStatuses.ts';
-import type {AgeCategories} from '@/api/resolvers/ageCategory/ageCategories.ts';
 import InputText from 'primevue/inputtext';
 import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+import type { ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
+import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
+import router from '@/router';
 
-export type ChildDetailsDialogData = {
-  child: ChildOutputDto;
-  childDocs: {
-    birthFile: DocsOutputFileUploadDto,
-    snilsFile: DocsOutputFileUploadDto,
-    schoolFile: DocsOutputFileUploadDto,
-    platformFile: DocsOutputFileUploadDto,
-    consentFile: DocsOutputFileUploadDto,
-  } | null,
-  competencies: {
-    id: number;
-    name: string;
-    description: string;
-    queueStatus: QueueStatuses,
-    expert: {
-      lastName: string;
-      firstName: string;
-      patronymic: string;
-    },
-    assignId: number;
-    teacherName: string | null;
-    institution: string | null;
-    post: string | null;
-  }[]
+type CompetenceExtended = ChildDetailsDialogData['competencies'][number] & {
+  assignId: number;
+  teacherName: string | null;
+  institution: string | null;
+  post: string | null;
+  eventsCount: number;
+  ageCategoryId: number;
+  queueStatus: QueueStatuses;
 }
+export type ChildDetailsData = Omit<ChildDetailsDialogData, 'competencies'> & {
+  competencies: CompetenceExtended[];
+};
 
 type TeacherInfo = {
   assignId: number;
@@ -59,7 +48,7 @@ export default {
   },
   props: {
     childrenDetails: {
-      type: Array as PropType<ChildDetailsDialogData[]>,
+      type: Array as PropType<ChildDetailsData[]>,
       required: true
     }
   },
@@ -78,7 +67,7 @@ export default {
       ageGroups: useAgeGroups,
       queueStatuses: useQueueStatuses,
       blockedCompetencesId: [30, 38, 39, 44, 48, 52, 53, 63, 66, 69, 78, 79, 90, 99, 105, 106, 107, 108, 119, 121, 126],
-      originalChildrenDetails: JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsDialogData[],
+      originalChildrenDetails: JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsData[],
       teacherFormsErrors: [] as {
         assignId: number;
         teacherName: string,
@@ -103,10 +92,13 @@ export default {
   },
   watch: {
     childrenDetails() {
-      this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsDialogData[]
+      this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsData[]
     },
   },
   methods: {
+    router() {
+      return router
+    },
     async deleteChild(child: ChildOutputDto) {
       if (confirm(
           `Вы уверены что хотите удалить ребенка '${child.firstName}'?`
@@ -482,6 +474,19 @@ export default {
                 `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
               }}
             </div>
+            <div class="competence-name competence-events">
+              События:
+              <div class="status-message competence-expert doc-item">
+                {{ !competence.eventsCount ? 'Связанных событий пока нет' : 'Есть связанные события!' }}
+                <Button
+                  :disabled="!competence.eventsCount"
+                  label="Подробнее"
+                  icon="pi pi-calendar"
+                  class="p-button-secondary p-button-sm"
+                  @click="router().push(`/${userStore.user?.role.toLowerCase()}/events/${competence.id}/${competence.ageCategoryId}`);"
+                />
+              </div>
+            </div>
             <div
               class="competence-name competence-status"
               :class="competence.queueStatus === QueueStatuses.PARTICIPATES
@@ -757,17 +762,6 @@ export default {
 
 .expert-details {
   margin-bottom: 1.5rem;
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 .card-title i {
@@ -1096,7 +1090,7 @@ export default {
   margin-bottom: 0.5rem;
 }
 
-.competence-docs, .competence-status {
+.competence-docs, .competence-status, .competence-events {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -1108,7 +1102,7 @@ export default {
 }
 
 
-.competence-status {
+.competence-status, .competence-events {
   display: flex;
   justify-content: space-between;
 
@@ -1116,6 +1110,16 @@ export default {
     display: flex;
     align-items: center;
     gap: 1rem;
+  }
+}
+
+.competence-events {
+  border-color: #ad3df5;
+  background: #f4e7fb;
+  gap: 0;
+
+  .competence-expert.status-message {
+    color: #ad3df5;
   }
 }
 
