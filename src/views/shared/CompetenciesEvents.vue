@@ -160,7 +160,7 @@
           @verify="verifyEvent"
           @page-change="onPageChange"
         />
-        <div v-else-if="!isLoading || events.length === 0">
+        <div v-else-if="!isLoading && events.length === 0">
           <p>Нет событий</p>
         </div>
         <ProgressSpinner
@@ -548,12 +548,10 @@
     },
     async mounted() {
       this.isLoading = true;
-      await Promise.all([
-        this.loadCompetencies(),
-        this.loadExperts(),
-        this.loadEventsWithFilters()
-      ]);
 
+      await this.loadCompetencies()
+      await this.loadExperts()
+      await this.loadEventsWithFilters()
       // Устанавливаем selectedCompetence только если ID валидный
       if (this.isCompetenceIdValid) {
         this.selectedCompetence = this.competencies.find(
@@ -574,6 +572,7 @@
        * Обработчик изменения страницы в пагинаторе
        */
       async onPageChange(event: PageState) {
+        this.isLoading = true;
         this.currentPage = event.page;
         this.pageSize = event.rows;
 
@@ -583,6 +582,8 @@
         });
 
         await this.loadEventsWithFilters();
+
+        this.isLoading = false;
       },
 
       /**
@@ -637,8 +638,15 @@
 
         // Учитываем параметры из props
         if (this.competenceId) {
-          params.directionName = this.competencies
-            .find(competence => competence.id === Number(this.competenceId))?.name ?? null
+          const competence = this.competencies
+            .find(competence => competence.id === Number(this.competenceId)) ?? null
+          params.directionName = competence?.name ?? null;
+
+
+          if (this.ageCategoryId && competence !== null) {
+            params.ageCategory = competence.ageCategories
+              .find(category => category.id === Number(this.ageCategoryId))?.ageCategory ?? null;
+          }
         }
 
         await this.loadEvents(params);
@@ -696,7 +704,6 @@
       },
 
       async loadCompetencies() {
-        this.isLoading = true
         const user = this.userStore.user
         const response = await this.competenceResolver.getAll();
         if (response.status === 200 && typeof response.message !== "string") {
@@ -709,13 +716,9 @@
         } else {
           console.error('Failed to load competencies in AdminEvents:', response);
         }
-
-        this.isLoading = false
       },
 
       async loadEvents(params: EventsUrlParamsInputDto) {
-        this.isLoading = true
-
         this.events = []
         const response = await this.eventResolver.getAll(params)
         if (response.status === 200 && typeof response.message !== "string") {
@@ -724,19 +727,13 @@
           this.totalElements = data.totalElements;
           this.totalPages = data.totalPages;
         }
-
-        this.isLoading = false
       },
 
       async loadExperts() {
-        this.isLoading = true
-
         const expResponse = await this.userResolver.getAllByRole(Roles.EXPERT);
         if (expResponse.status === 200 && typeof expResponse.message !== "string") {
           this.experts = expResponse.message;
         }
-
-        this.isLoading = false
       },
 
       editEvent(event: EventOutputDto) {
