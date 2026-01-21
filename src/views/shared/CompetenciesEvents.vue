@@ -422,10 +422,10 @@
   import { useUserStore } from '@/stores/userStore.ts';
 
   interface CachedFilters {
-    eventType: EventTypes | null,
-    eventFormat: EventFormats | null,
-    competenceId: number | null,
-    ageCategoryId: number | null
+    eventType: EventTypes | null;
+    eventFormat: EventFormats | null;
+    competenceId: number | null;
+    ageCategoryId: number | null;
   }
 
   export default {
