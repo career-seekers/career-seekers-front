@@ -439,7 +439,7 @@ export default {
               teacherName: competence.teacherName,
               institution: competence.institution,
               post: competence.post,
-              eventsCount: competence.direction.eventsCount,
+              eventsCount: competence.directionAgeCategory.eventsCount,
               ageCategoryId: competence.directionAgeCategory.id
             };
           }));
