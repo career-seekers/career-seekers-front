@@ -2,7 +2,6 @@
   <div class="documents-page">
     <div class="page-header">
       <div class="header-text">
-        {{ selectedAgeCategory }}
         <h1 class="page-title">
           События
         </h1>
