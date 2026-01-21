@@ -421,6 +421,13 @@
   import type { EventsUrlParamsInputDto } from '@/api/resolvers/events/dto/input/events-url-params-input.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
 
+  interface CachedFilters {
+    eventType: EventTypes | null;
+    eventFormat: EventFormats | null;
+    competenceId: number | null;
+    ageCategoryId: number | null;
+  }
+
   export default {
     name: "CompetenciesEvents",
     components: {
@@ -451,8 +458,12 @@
     setup() {
       const confirm = useConfirm();
 
+      const filtersData = localStorage.getItem('event-filters')
+      const filters = filtersData ? JSON.parse(filtersData) as CachedFilters : null
+
       return {
-        confirm
+        confirm,
+        filters
       };
     },
     data() {
@@ -551,6 +562,9 @@
 
       await this.loadCompetencies()
       await this.loadExperts()
+
+      this.loadCachedFilters()
+
       await this.loadEventsWithFilters()
       // Устанавливаем selectedCompetence только если ID валидный
       if (this.isCompetenceIdValid) {
@@ -568,6 +582,33 @@
       this.isLoading = false;
     },
     methods: {
+      loadCachedFilters() {
+        const filters = this.filters
+        if (filters !== null) {
+          this.selectedType = filters.eventType
+          this.selectedFormat = filters.eventFormat
+          this.selectedCompetence = this.competencies
+            .find(competence => competence.id === filters.competenceId) ?? null
+          const ageCategory = this.selectedCompetence?.ageCategories
+            .find(category => category.id === filters.ageCategoryId)
+          this.selectedAgeCategory = ageCategory
+            ? {
+              ...ageCategory,
+              label: this.ageGroups
+                .find(group => ageCategory.ageCategory === group.value)?.label
+            } as AgeCategoryOutputDto
+            : null
+        }
+      },
+      updateCachedFilters() {
+        const filters: CachedFilters = {
+          eventType: this.selectedType,
+          eventFormat: this.selectedFormat,
+          competenceId: this.selectedCompetence?.id ?? null,
+          ageCategoryId: this.selectedAgeCategory?.id ?? null,
+        }
+        localStorage.setItem("event-filters", JSON.stringify(filters))
+      },
       /**
        * Обработчик изменения страницы в пагинаторе
        */
@@ -589,9 +630,11 @@
       /**
        * Обработчик изменения фильтров
        */
-      onFilterChange() {
+      async onFilterChange() {
         this.currentPage = 0;
-        this.loadEventsWithFilters();
+        this.updateCachedFilters();
+
+        await this.loadEventsWithFilters();
       },
 
       /**
@@ -694,13 +737,14 @@
           : competence.name
       },
 
-      resetFilters() {
+      async resetFilters() {
         this.selectedType = null;
         this.selectedFormat = null;
         if (!this.isCompetenceIdValid) this.selectedCompetence = null;
         if (!this.isAgeCategoryIdValid) this.selectedAgeCategory = null;
         this.currentPage = 0;
-        this.loadEventsWithFilters();
+        this.updateCachedFilters();
+        await this.loadEventsWithFilters();
       },
 
       async loadCompetencies() {
