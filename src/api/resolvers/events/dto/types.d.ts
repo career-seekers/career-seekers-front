@@ -25,11 +25,11 @@ export const eventTypeOptions = Object.entries(EventTypes).map(
     label: value,
     value: key
   })
-)
+).sort((a, b) => a.label.localeCompare(b.label))
 
 export const eventFormatOptions = Object.entries(EventFormats).map(
   ([key, value]) => ({
     label: value,
     value: key
   })
-)
+).sort((a, b) => a.label.localeCompare(b.label))

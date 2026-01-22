@@ -458,12 +458,8 @@
     setup() {
       const confirm = useConfirm();
 
-      const filtersData = localStorage.getItem('event-filters')
-      const filters = filtersData ? JSON.parse(filtersData) as CachedFilters : null
-
       return {
         confirm,
-        filters
       };
     },
     data() {
@@ -510,6 +506,8 @@
 
         eventTypeOptions: eventTypeOptions,
         eventFormatOptions: eventFormatOptions,
+
+        filterMode: ''
       };
     },
     computed: {
@@ -583,14 +581,33 @@
     },
     methods: {
       loadCachedFilters() {
-        const filters = this.filters
+        const competenceId = Number(this.competenceId);
+        const ageCategoryId = Number(this.ageCategoryId);
+
+        console.log(competenceId, ageCategoryId)
+
+        this.filterMode = competenceId
+          ? ageCategoryId
+            ? 'competence-ageCategory'
+            : 'competence'
+          : 'all'
+
+        const filtersData = localStorage.getItem(`${this.filterMode}-event-filters`)
+        const filters = filtersData ? JSON.parse(filtersData) as CachedFilters : null
+
         if (filters !== null) {
           this.selectedType = filters.eventType
           this.selectedFormat = filters.eventFormat
           this.selectedCompetence = this.competencies
-            .find(competence => competence.id === filters.competenceId) ?? null
+            .find(competence => competence.id === (competenceId
+              ? competenceId
+              : filters.competenceId
+            )) ?? null
           const ageCategory = this.selectedCompetence?.ageCategories
-            .find(category => category.id === filters.ageCategoryId)
+            .find(category => category.id === (ageCategoryId
+              ? ageCategoryId
+              : filters.ageCategoryId
+            ))
           this.selectedAgeCategory = ageCategory
             ? {
               ...ageCategory,
@@ -598,6 +615,8 @@
                 .find(group => ageCategory.ageCategory === group.value)?.label
             } as AgeCategoryOutputDto
             : null
+
+          this.updateCachedFilters()
         }
       },
       updateCachedFilters() {
@@ -607,7 +626,7 @@
           competenceId: this.selectedCompetence?.id ?? null,
           ageCategoryId: this.selectedAgeCategory?.id ?? null,
         }
-        localStorage.setItem("event-filters", JSON.stringify(filters))
+        localStorage.setItem(`${this.filterMode}-event-filters`, JSON.stringify(filters))
       },
       /**
        * Обработчик изменения страницы в пагинаторе
@@ -705,7 +724,8 @@
             ...category,
             label: this.ageGroups
               .find(group => category.ageCategory === group.value)?.label
-          }));
+          }))
+          .sort((a, b) => a.id - b.id);
       },
 
       filterCompetencies(event: { query: string }) {
