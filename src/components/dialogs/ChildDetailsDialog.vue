@@ -38,70 +38,70 @@
     components: {
       Button,
       Dialog,
-      ProgressSpinner
+      ProgressSpinner,
     },
     props: {
       childDetails: {
         type: Object as PropType<ChildDetailsDialogData | null>,
-        default: null
+        default: null,
       },
       showChildInfoProp: {
         type: Boolean,
         required: true,
-      }
+      },
     },
     emits: [
-      "show-mentors-list",
-      "show-child-info",
-      "edit-child",
-      "update-toast-popup"
+      'show-mentors-list',
+      'show-child-info',
+      'edit-child',
+      'update-toast-popup',
     ],
     data() {
       return {
         childResolver: new ChildResolver(),
         useAgeGroups: useAgeGroups,
         userStore: useUserStore(),
-        showChildInfo: this.showChildInfoProp
-      }
+        showChildInfo: this.showChildInfoProp,
+      };
     },
     computed: {
       Roles() {
-        return Roles
+        return Roles;
       },
       FormatManager() {
-        return FormatManager
-      }
+        return FormatManager;
+      },
     },
     watch: {
       showChildInfoProp() {
-        this.showChildInfo = this.showChildInfoProp
+        this.showChildInfo = this.showChildInfoProp;
       },
       showChildInfo(newVal, oldVal) {
         if (oldVal !== newVal)
-          this.$emit("show-child-info", this.showChildInfo)
-      }
+          this.$emit('show-child-info', this.showChildInfo);
+      },
     },
     methods: {
       async deleteChild(id: number) {
         if (confirm(
-          `Вы уверены что хотите удалить ребенка '${this.childDetails?.child.firstName}'?`
+          `Вы уверены что хотите удалить ребенка '${this.childDetails?.child.firstName}'?`,
         )) {
-          const response = await this.childResolver.deleteById(id)
+          const response = await this.childResolver.deleteById(id);
           if (response.status === 200) {
-            await this.userStore.fillChildren()
-            this.showChildInfo = false
+            await this.userStore.fillChildren();
+            this.showChildInfo = false;
           }
         }
       },
       checkDocument(doc: DocsOutputFileUploadDto) {
         if (!doc || !doc.id) {
-          this.$emit("update-toast-popup", {
+          this.$emit('update-toast-popup', {
             title: 'Ошибка',
-            message: 'Документ недоступен для просмотра'
+            message: 'Документ недоступен для просмотра',
           });
           return false;
         }
-        return true
+        return true;
       },
       viewDocument(doc: DocsOutputFileUploadDto) {
         if (this.checkDocument(doc))
@@ -111,8 +111,8 @@
       downloadDocument(doc: DocsOutputFileUploadDto) {
         if (this.checkDocument(doc))
           window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.id}`;
-      }
-    }
+      },
+    },
   };
 </script>
 
@@ -517,7 +517,6 @@
   }
 
 
-
   .mentor-available-notice i {
     color: #28a745;
   }
@@ -777,6 +776,7 @@
     align-items: center;
     gap: 0.5rem;
   }
+
   /* Мобильные стили для новых компонентов */
   @media (max-width: 768px) {
 
