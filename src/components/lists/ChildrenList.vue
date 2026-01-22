@@ -21,211 +21,211 @@
   import router from '@/router';
 
   type CompetenceExtended = ChildDetailsDialogData['competencies'][number] & {
-  assignId: number;
-  teacherName: string | null;
-  institution: string | null;
-  post: string | null;
-  eventsCount: number;
-  ageCategoryId: number;
-  queueStatus: QueueStatuses;
-  status: ParticipantStatus
-}
-export type ChildDetailsData = Omit<ChildDetailsDialogData, 'competencies'> & {
-  competencies: CompetenceExtended[];
-};
+    assignId: number;
+    teacherName: string | null;
+    institution: string | null;
+    post: string | null;
+    eventsCount: number;
+    ageCategoryId: number;
+    queueStatus: QueueStatuses;
+    status: ParticipantStatus
+  }
+  export type ChildDetailsData = Omit<ChildDetailsDialogData, 'competencies'> & {
+    competencies: CompetenceExtended[];
+  };
 
-type TeacherInfo = {
-  assignId: number;
-  teacherName: string | null;
-  institution: string | null;
-  post: string | null;
-}
+  type TeacherInfo = {
+    assignId: number;
+    teacherName: string | null;
+    institution: string | null;
+    post: string | null;
+  }
 
-export default {
-  name: 'ChildrenList',
-  components: {
-    Button,
-    InputText
-  },
-  props: {
-    childrenDetails: {
-      type: Array as PropType<ChildDetailsData[]>,
-      required: true
-    }
-  },
-  emits: [
-    "edit-child",
-    "edit-mentor",
-    "update-toast-popup",
-    "update-children",
-  ],
-  data() {
-    return {
-      childResolver: new ChildResolver(),
-      competenceDocumentsResolver: new CompetenceDocumentsResolver(),
-      childCompetenceResolver: new ChildCompetenciesResolver(),
-      userStore: useUserStore(),
-      ageGroups: useAgeGroups,
-      queueStatuses: useQueueStatuses,
-      blockedCompetencesId: [30, 38, 39, 44, 48, 52, 53, 63, 66, 69, 78, 79, 90, 99, 105, 106, 107, 108, 119, 121, 126],
-      originalChildrenDetails: JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsData[],
-      teacherFormsErrors: [] as {
-        assignId: number;
-        teacherName: string,
-        institution: string,
-        post: string,
-      }[]
-    }
-  },
-  computed: {
-    ParticipantStatus() {
-      return ParticipantStatus
+  export default {
+    name: 'ChildrenList',
+    components: {
+      Button,
+      InputText,
     },
-    QueueStatuses() {
-      return QueueStatuses
+    props: {
+      childrenDetails: {
+        type: Array as PropType<ChildDetailsData[]>,
+        required: true,
+      },
     },
-    FileType() {
-      return FileType
+    emits: [
+      'edit-child',
+      'edit-mentor',
+      'update-toast-popup',
+      'update-children',
+    ],
+    data() {
+      return {
+        childResolver: new ChildResolver(),
+        competenceDocumentsResolver: new CompetenceDocumentsResolver(),
+        childCompetenceResolver: new ChildCompetenciesResolver(),
+        userStore: useUserStore(),
+        ageGroups: useAgeGroups,
+        queueStatuses: useQueueStatuses,
+        blockedCompetencesId: [30, 38, 39, 44, 48, 52, 53, 63, 66, 69, 78, 79, 90, 99, 105, 106, 107, 108, 119, 121, 126],
+        originalChildrenDetails: JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsData[],
+        teacherFormsErrors: [] as {
+          assignId: number;
+          teacherName: string,
+          institution: string,
+          post: string,
+        }[],
+      };
     },
-    Roles() {
-      return Roles
+    computed: {
+      ParticipantStatus() {
+        return ParticipantStatus;
+      },
+      QueueStatuses() {
+        return QueueStatuses;
+      },
+      FileType() {
+        return FileType;
+      },
+      Roles() {
+        return Roles;
+      },
+      FormatManager() {
+        return FormatManager;
+      },
     },
-    FormatManager() {
-      return FormatManager
+    watch: {
+      childrenDetails() {
+        this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsData[];
+      },
     },
-  },
-  watch: {
-    childrenDetails() {
-      this.originalChildrenDetails = JSON.parse(JSON.stringify(this.childrenDetails)) as ChildDetailsData[]
-    },
-  },
-  methods: {
-    router() {
-      return router
-    },
-    async deleteChild(child: ChildOutputDto) {
-      if (confirm(
-          `Вы уверены что хотите удалить ребенка '${child.firstName}'?`
-      )) {
-        const response = await this.childResolver.deleteById(child.id)
-        if (response.status === 200) {
-          await this.userStore.fillChildren()
-          this.$emit("update-children")
-        }
-      }
-    },
-    async competenceDocuments(competenceId: number) {
-      const response = await this.competenceDocumentsResolver.getAllByCompetenceId(competenceId)
-      if (typeof response.message !== "string") return response.message
-      return []
-    },
-    async viewCompetenceDocument(competenceId: number, docType: FileType, ageCategory: AgeCategories | undefined) {
-      const docs = await this.competenceDocuments(competenceId)
-      const doc = docs.find(d => d.documentType === docType && d.ageCategory === ageCategory)
-      if (doc)
-        window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`, '_blank');
-    },
-    async downloadCompetenceDocument(competenceId: number, docType: FileType, ageCategory: AgeCategories | undefined) {
-      const docs = await this.competenceDocuments(competenceId)
-      const doc = docs.find(d => d.documentType === docType && d.ageCategory === ageCategory)
-      if (doc)
-        window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.documentId}`;
-    },
-    checkDocument(doc: DocsOutputFileUploadDto) {
-      if (!doc || !doc.id) {
-        this.$emit("update-toast-popup", {
-          title: 'Ошибка',
-          message: 'Документ недоступен для просмотра'
-        });
-        return false;
-      }
-      return true
-    },
-    viewDocument(doc: DocsOutputFileUploadDto) {
-      if (this.checkDocument(doc))
-        window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.id}`, '_blank');
-    },
-    downloadDocument(doc: DocsOutputFileUploadDto) {
-      if (this.checkDocument(doc))
-        window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.id}`;
-    },
-    compareDetails(childId: number, competenceId: number) {
-      const competenceInfo = this.childrenDetails
-        .find(childDetails => childDetails.child.id === childId)?.competencies
-        ?.find(competence => competence.id === competenceId);
-      const originalCompetenceInfo = this.originalChildrenDetails
-        .find(childDetails => childDetails.child.id === childId)?.competencies
-        ?.find(competence => competence.id === competenceId);
-      if (!competenceInfo || !originalCompetenceInfo) return false;
-      return (
-        competenceInfo.teacherName === originalCompetenceInfo.teacherName &&
-        competenceInfo.institution === originalCompetenceInfo.institution &&
-        competenceInfo.post === originalCompetenceInfo.post
-      );
-    },
-    getTeacherFormErrorsByAssignId(id: number) {
-      let formErrors = this.teacherFormsErrors.find(form => form.assignId === id)
-      if (!formErrors) {
-        formErrors = {
-          assignId: id,
-          teacherName: "",
-          institution: "",
-          post: ""
-        }
-        this.teacherFormsErrors.push(formErrors)
-      }
-      return formErrors
-    },
-    validateForm(teacherInfo: TeacherInfo) {
-      let isValid = true
-      const formErrors = this.getTeacherFormErrorsByAssignId(teacherInfo.assignId)
-
-      if (!(teacherInfo.teacherName === null &&
-        teacherInfo.institution === null &&
-        teacherInfo.post === null)
-      ) {
-        teacherInfo.teacherName = teacherInfo.teacherName ?? ""
-        teacherInfo.institution = teacherInfo.institution ?? ""
-        teacherInfo.post = teacherInfo.post ?? ""
-      }
-      if (teacherInfo.teacherName === "") {
-        formErrors.teacherName = "ФИО педагога не может быть пустым!"
-        isValid = false
-      } else formErrors.teacherName = ""
-
-      if (teacherInfo.institution === "") {
-        formErrors.institution = "Образовательное учреждение не может быть пустым!"
-        isValid = false
-      } else formErrors.institution = ""
-
-      if (teacherInfo.post === "") {
-        formErrors.post = "Должность педагога не может быть пустой!"
-        isValid = false
-      } else formErrors.post = ""
-
-      return isValid
-    },
-    async updateTeacherInfo(childId: number, teacherInfo: TeacherInfo) {
-      if (this.validateForm(teacherInfo)) {
-        const response = await this.childCompetenceResolver.setTeacherInfo({
-          ...teacherInfo,
-          id: teacherInfo.assignId,
-        })
-        if (response.status === 200) {
-          const originalCompetenceInfo = this.originalChildrenDetails
-            .find(origChildDetails => origChildDetails.child.id === childId)?.competencies
-            .find(competence => competence.assignId === teacherInfo.assignId)
-          if (originalCompetenceInfo) {
-            originalCompetenceInfo.teacherName = teacherInfo.teacherName
-            originalCompetenceInfo.institution = teacherInfo.institution
-            originalCompetenceInfo.post = teacherInfo.post
+    methods: {
+      router() {
+        return router;
+      },
+      async deleteChild(child: ChildOutputDto) {
+        if (confirm(
+          `Вы уверены что хотите удалить ребенка '${child.firstName}'?`,
+        )) {
+          const response = await this.childResolver.deleteById(child.id);
+          if (response.status === 200) {
+            await this.userStore.fillChildren();
+            this.$emit('update-children');
           }
         }
-        this.$emit('update-toast-popup', response.status, response.message)
-      }
+      },
+      async competenceDocuments(competenceId: number) {
+        const response = await this.competenceDocumentsResolver.getAllByCompetenceId(competenceId);
+        if (typeof response.message !== 'string') return response.message;
+        return [];
+      },
+      async viewCompetenceDocument(competenceId: number, docType: FileType, ageCategory: AgeCategories | undefined) {
+        const docs = await this.competenceDocuments(competenceId);
+        const doc = docs.find(d => d.documentType === docType && d.ageCategory === ageCategory);
+        if (doc)
+          window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.documentId}`, '_blank');
+      },
+      async downloadCompetenceDocument(competenceId: number, docType: FileType, ageCategory: AgeCategories | undefined) {
+        const docs = await this.competenceDocuments(competenceId);
+        const doc = docs.find(d => d.documentType === docType && d.ageCategory === ageCategory);
+        if (doc)
+          window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.documentId}`;
+      },
+      checkDocument(doc: DocsOutputFileUploadDto) {
+        if (!doc || !doc.id) {
+          this.$emit('update-toast-popup', {
+            title: 'Ошибка',
+            message: 'Документ недоступен для просмотра',
+          });
+          return false;
+        }
+        return true;
+      },
+      viewDocument(doc: DocsOutputFileUploadDto) {
+        if (this.checkDocument(doc))
+          window.open(`${apiConf.endpoint}/file-service/v1/files/view/${doc.id}`, '_blank');
+      },
+      downloadDocument(doc: DocsOutputFileUploadDto) {
+        if (this.checkDocument(doc))
+          window.location.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.id}`;
+      },
+      compareDetails(childId: number, competenceId: number) {
+        const competenceInfo = this.childrenDetails
+          .find(childDetails => childDetails.child.id === childId)?.competencies
+          ?.find(competence => competence.id === competenceId);
+        const originalCompetenceInfo = this.originalChildrenDetails
+          .find(childDetails => childDetails.child.id === childId)?.competencies
+          ?.find(competence => competence.id === competenceId);
+        if (!competenceInfo || !originalCompetenceInfo) return false;
+        return (
+          competenceInfo.teacherName === originalCompetenceInfo.teacherName &&
+          competenceInfo.institution === originalCompetenceInfo.institution &&
+          competenceInfo.post === originalCompetenceInfo.post
+        );
+      },
+      getTeacherFormErrorsByAssignId(id: number) {
+        let formErrors = this.teacherFormsErrors.find(form => form.assignId === id);
+        if (!formErrors) {
+          formErrors = {
+            assignId: id,
+            teacherName: '',
+            institution: '',
+            post: '',
+          };
+          this.teacherFormsErrors.push(formErrors);
+        }
+        return formErrors;
+      },
+      validateForm(teacherInfo: TeacherInfo) {
+        let isValid = true;
+        const formErrors = this.getTeacherFormErrorsByAssignId(teacherInfo.assignId);
+
+        if (!(teacherInfo.teacherName === null &&
+          teacherInfo.institution === null &&
+          teacherInfo.post === null)
+        ) {
+          teacherInfo.teacherName = teacherInfo.teacherName ?? '';
+          teacherInfo.institution = teacherInfo.institution ?? '';
+          teacherInfo.post = teacherInfo.post ?? '';
+        }
+        if (teacherInfo.teacherName === '') {
+          formErrors.teacherName = 'ФИО педагога не может быть пустым!';
+          isValid = false;
+        } else formErrors.teacherName = '';
+
+        if (teacherInfo.institution === '') {
+          formErrors.institution = 'Образовательное учреждение не может быть пустым!';
+          isValid = false;
+        } else formErrors.institution = '';
+
+        if (teacherInfo.post === '') {
+          formErrors.post = 'Должность педагога не может быть пустой!';
+          isValid = false;
+        } else formErrors.post = '';
+
+        return isValid;
+      },
+      async updateTeacherInfo(childId: number, teacherInfo: TeacherInfo) {
+        if (this.validateForm(teacherInfo)) {
+          const response = await this.childCompetenceResolver.setTeacherInfo({
+            ...teacherInfo,
+            id: teacherInfo.assignId,
+          });
+          if (response.status === 200) {
+            const originalCompetenceInfo = this.originalChildrenDetails
+              .find(origChildDetails => origChildDetails.child.id === childId)?.competencies
+              .find(competence => competence.assignId === teacherInfo.assignId);
+            if (originalCompetenceInfo) {
+              originalCompetenceInfo.teacherName = teacherInfo.teacherName;
+              originalCompetenceInfo.institution = teacherInfo.institution;
+              originalCompetenceInfo.post = teacherInfo.post;
+            }
+          }
+          this.$emit('update-toast-popup', response.status, response.message);
+        }
+      },
     },
-  }
-};
+  };
 </script>
 
 <template>
@@ -243,10 +243,10 @@ export default {
           <h3 class="expert-name">
             {{
               childDetails.child.lastName +
-                " " +
-                childDetails.child.firstName +
-                " " +
-                childDetails.child.patronymic
+              ' ' +
+              childDetails.child.firstName +
+              ' ' +
+              childDetails.child.patronymic
             }}
           </h3>
         </div>
@@ -714,545 +714,545 @@ export default {
 
 <style scoped>
 
-.experts-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.expert-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  border: 2px solid transparent;
-  overflow: hidden;
-  transition: box-shadow 0.3s ease,
-  border-color 0.3s ease;
-}
-
-.expert-card:hover {
-  box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2);
-  border: 2px solid #ff9800;
-}
-
-.expert-header {
-  background: linear-gradient(135deg, #ff9800, #f57c00);
-  color: white;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.expert-avatar {
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.expert-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-left: auto;
-}
-
-.expert-content {
-  padding: 1.5rem;
-}
-
-.expert-details {
-  margin-bottom: 1.5rem;
-}
-
-.card-title i {
-  margin-right: 0.75rem;
-  font-size: 1.1rem;
-}
-
-.docs-grid {
-  margin-bottom: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.docs-grid .info-item {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid #ff9800;
-  transition: all 0.3s ease;
-}
-
-.docs-grid .info-item:hover {
-  background: #e3f2fd;
-  border-left-color: #2196f3;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
-}
-
-.docs-grid .info-label {
-  color: #2c3e50;
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.docs-grid .info-value {
-  color: #6c757d;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.docs-grid .info-value::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ff9800;
-  flex-shrink: 0;
-}
-
-.docs-grid .info-item:hover .info-value::before {
-  background: #2196f3;
-}
-
-.docs-grid .doc-info {
-  flex: 1;
-  margin-bottom: 1rem;
-}
-
-.docs-grid .doc-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  flex: 1;
-  min-width: 120px;
-}
-
-.section-title {
-  color: #2c3e50;
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-bottom: 2px solid #ff9800;
-  padding-bottom: 0.5rem;
-}
-
-.doc-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  .info-label {
-    font-size: 0.9rem;
-  }
-
-  .doc-actions {
+  .experts-grid {
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
   }
-}
 
-
-.mentor-available-notice i {
-  color: #28a745;
-}
-
-/* Стили для диалога подтверждения удаления */
-
-.confirmation-content h4 {
-  color: #2c3e50;
-  margin: 0 0 1rem 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.confirmation-content p {
-  color: #6c757d;
-  margin: 0 0 0.5rem 0;
-  line-height: 1.5;
-}
-
-.competence-name {
-  color: #2c3e50;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  transition: color 0.3s ease;
-}
-
-.competence-item:hover .competence-name {
-  color: #2196f3;
-}
-
-.competence-description {
-  color: #6c757d;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  transition: color 0.3s ease;
-}
-
-.competence-item:hover .competence-description {
-  color: #1976d2;
-}
-
-.competence-expert {
-  color: #ff9800;
-  font-size: 0.85rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: color 0.3s ease;
-}
-
-.competence-item:hover .competence-expert {
-  color: #1976d2;
-}
-
-.preparation-details {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  justify-content: space-between;
-
-  .field {
-    margin-bottom: 0;
+  .expert-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 2px solid transparent;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease,
+    border-color 0.3s ease;
   }
-}
 
-/* Мобильные стили для touch устройств */
-@media (max-width: 768px) {
+  .expert-card:hover {
+    box-shadow: 0 4px 20px rgba(255, 152, 0, 0.2);
+    border: 2px solid #ff9800;
+  }
+
   .expert-header {
-    padding: 1rem
-  }
-
-  .expert-name {
-    font-size: 1.1rem;
-  }
-
-  .mentor-selection .mentor-info {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .mentor-selection .mentor-actions {
-    align-self: flex-end;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .docs-grid .info-item {
-    padding: 0.75rem;
-  }
-
-  .docs-grid .info-label {
-    font-size: 0.85rem;
-  }
-
-  .docs-grid .info-value {
-    font-size: 0.85rem;
-  }
-
-  .docs-grid .doc-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .docs-grid .doc-actions {
-    min-width: auto;
-    width: 100%;
-  }
-
-  .edit-button {
-    margin-left: 0;
-    align-self: flex-end;
-  }
-
-  .competence-item:active .competence-name {
-    color: #2196f3;
-  }
-
-  .competence-item:active .competence-description {
-    color: #1976d2;
-  }
-
-  .competence-item:active .competence-expert {
-    color: #1976d2;
-  }
-}
-
-.mentor-simple i {
-  color: #28a745;
-  font-size: 0.9rem;
-}
-
-/* Стили для модальных окон */
-
-.info-section {
-  margin-bottom: 2rem;
-}
-
-.info-section:last-child {
-  margin-bottom: 0;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.info-label {
-  color: #6c757d;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.info-value {
-  color: #2c3e50;
-  font-weight: 500;
-}
-
-.details-section {
-  margin-bottom: 2rem;
-}
-
-.details-section:last-child {
-  margin-bottom: 0;
-}
-
-.section-title {
-  color: #2c3e50;
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-bottom: 2px solid #ff9800;
-  padding-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.edit-button {
-  margin-left: 1rem;
-  flex-shrink: 0;
-}
-
-.detail-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f1f3f4;
-}
-
-.detail-item:last-child {
-  border-bottom: none;
-}
-
-.detail-label {
-  color: #6c757d;
-  font-weight: 500;
-  min-width: 100px;
-}
-
-.detail-value {
-  color: #2c3e50;
-  font-weight: 500;
-  text-align: right;
-}
-
-.competence-details {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 3px solid #ff9800;
-  margin-bottom: 0.5rem;
-}
-
-.competence-details .competence-name {
-  color: #2c3e50;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.competence-docs, .competence-status, .competence-events {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding: 1rem 1rem 1rem 0.8rem;
-  border-radius: 5px;
-  border-left: 3px solid #2196f3;
-  background: #daecfc;
-}
-
-
-.competence-status, .competence-events {
-  display: flex;
-  justify-content: space-between;
-
-  .competence-expert.status-message {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    padding: 1.5rem;
     display: flex;
     align-items: center;
     gap: 1rem;
   }
-}
 
-.competence-events {
-  border-color: #ad3df5;
-  background: #f4e7fb;
-  gap: 0;
-
-  .competence-expert.status-message {
-    color: #ad3df5;
+  .expert-avatar {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
   }
-}
 
-.competence-status.accepted {
-  border-color: #28a745;
-  background: #dcf8e3;
-
-  .status-message {
-    color: #28a745;
+  .expert-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
   }
-}
 
-.competence-status.denied {
-  border-color: #cb9700;
-  background: #fff2c9;
-
-  .status-message {
-    color: #cb9700;
+  .expert-content {
+    padding: 1.5rem;
   }
-}
 
-.competence-details .competence-description {
-  color: #6c757d;
-  font-size: 0.9rem;
-  margin-bottom: 0.75rem;
-}
+  .expert-details {
+    margin-bottom: 1.5rem;
+  }
 
-.competence-details .competence-expert {
-  color: #ff9800;
-  font-size: 0.9rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+  .card-title i {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+  }
 
-.info-section .mentor-info,
-.details-section .mentor-info {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 3px solid #28a745;
-}
-
-.info-section .mentor-details,
-.details-section .mentor-details {
-  margin-bottom: 1rem;
-}
-
-.info-section .mentor-actions,
-.details-section .mentor-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.no-mentor {
-  text-align: center;
-  padding: 2rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 3px solid #6c757d;
-}
-
-.no-mentor-text {
-  color: #6c757d;
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.parent-mentor-option .mentor-name i {
-  margin-right: 0.5rem;
-  color: #28a745;
-}
-
-.mentor-selection .mentor-info {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.mentor-name i {
-  color: #ff9800;
-  font-size: 1rem;
-}
-
-.mentor-selection .mentor-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.mentor-selection .mentor-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-@media screen and (max-width: 768px) {
-  .competence-status {
+  .docs-grid {
+    margin-bottom: 2rem;
+    display: flex;
     flex-direction: column;
+    gap: 1rem;
+  }
+
+  .docs-grid .info-item {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #ff9800;
+    transition: all 0.3s ease;
+  }
+
+  .docs-grid .info-item:hover {
+    background: #e3f2fd;
+    border-left-color: #2196f3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+  }
+
+  .docs-grid .info-label {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .docs-grid .info-value {
+    color: #6c757d;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .docs-grid .info-value::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff9800;
+    flex-shrink: 0;
+  }
+
+  .docs-grid .info-item:hover .info-value::before {
+    background: #2196f3;
+  }
+
+  .docs-grid .doc-info {
+    flex: 1;
+    margin-bottom: 1rem;
+  }
+
+  .docs-grid .doc-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .section-title {
+    color: #2c3e50;
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #ff9800;
+    padding-bottom: 0.5rem;
   }
 
   .doc-item {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .info-label {
+      font-size: 0.9rem;
+    }
 
     .doc-actions {
-      flex-wrap: wrap;
-      gap: 0.5rem;
+      display: flex;
+      gap: 1rem;
     }
   }
-}
 
-@media screen and (max-width: 480px) {
-  .expert-header {
-    padding: 0.75rem
+
+  .mentor-available-notice i {
+    color: #28a745;
   }
 
-  .expert-name {
+  /* Стили для диалога подтверждения удаления */
+
+  .confirmation-content h4 {
+    color: #2c3e50;
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .confirmation-content p {
+    color: #6c757d;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.5;
+  }
+
+  .competence-name {
+    color: #2c3e50;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    transition: color 0.3s ease;
+  }
+
+  .competence-item:hover .competence-name {
+    color: #2196f3;
+  }
+
+  .competence-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+  }
+
+  .competence-item:hover .competence-description {
+    color: #1976d2;
+  }
+
+  .competence-expert {
+    color: #ff9800;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s ease;
+  }
+
+  .competence-item:hover .competence-expert {
+    color: #1976d2;
+  }
+
+  .preparation-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: space-between;
+
+    .field {
+      margin-bottom: 0;
+    }
+  }
+
+  /* Мобильные стили для touch устройств */
+  @media (max-width: 768px) {
+    .expert-header {
+      padding: 1rem
+    }
+
+    .expert-name {
+      font-size: 1.1rem;
+    }
+
+    .mentor-selection .mentor-info {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .mentor-selection .mentor-actions {
+      align-self: flex-end;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .docs-grid .info-item {
+      padding: 0.75rem;
+    }
+
+    .docs-grid .info-label {
+      font-size: 0.85rem;
+    }
+
+    .docs-grid .info-value {
+      font-size: 0.85rem;
+    }
+
+    .docs-grid .doc-actions {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .docs-grid .doc-actions {
+      min-width: auto;
+      width: 100%;
+    }
+
+    .edit-button {
+      margin-left: 0;
+      align-self: flex-end;
+    }
+
+    .competence-item:active .competence-name {
+      color: #2196f3;
+    }
+
+    .competence-item:active .competence-description {
+      color: #1976d2;
+    }
+
+    .competence-item:active .competence-expert {
+      color: #1976d2;
+    }
+  }
+
+  .mentor-simple i {
+    color: #28a745;
+    font-size: 0.9rem;
+  }
+
+  /* Стили для модальных окон */
+
+  .info-section {
+    margin-bottom: 2rem;
+  }
+
+  .info-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .info-label {
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .info-value {
+    color: #2c3e50;
+    font-weight: 500;
+  }
+
+  .details-section {
+    margin-bottom: 2rem;
+  }
+
+  .details-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-title {
+    color: #2c3e50;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #ff9800;
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  .edit-button {
+    margin-left: 1rem;
+    flex-shrink: 0;
+  }
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f3f4;
+  }
+
+  .detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    color: #6c757d;
+    font-weight: 500;
+    min-width: 100px;
+  }
+
+  .detail-value {
+    color: #2c3e50;
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .competence-details {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #ff9800;
+    margin-bottom: 0.5rem;
+  }
+
+  .competence-details .competence-name {
+    color: #2c3e50;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .competence-docs, .competence-status, .competence-events {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 1rem 1rem 1rem 0.8rem;
+    border-radius: 5px;
+    border-left: 3px solid #2196f3;
+    background: #daecfc;
+  }
+
+
+  .competence-status, .competence-events {
+    display: flex;
+    justify-content: space-between;
+
+    .competence-expert.status-message {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+  }
+
+  .competence-events {
+    border-color: #ad3df5;
+    background: #f4e7fb;
+    gap: 0;
+
+    .competence-expert.status-message {
+      color: #ad3df5;
+    }
+  }
+
+  .competence-status.accepted {
+    border-color: #28a745;
+    background: #dcf8e3;
+
+    .status-message {
+      color: #28a745;
+    }
+  }
+
+  .competence-status.denied {
+    border-color: #cb9700;
+    background: #fff2c9;
+
+    .status-message {
+      color: #cb9700;
+    }
+  }
+
+  .competence-details .competence-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .competence-details .competence-expert {
+    color: #ff9800;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .info-section .mentor-info,
+  .details-section .mentor-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #28a745;
+  }
+
+  .info-section .mentor-details,
+  .details-section .mentor-details {
+    margin-bottom: 1rem;
+  }
+
+  .info-section .mentor-actions,
+  .details-section .mentor-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .no-mentor {
+    text-align: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #6c757d;
+  }
+
+  .no-mentor-text {
+    color: #6c757d;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .parent-mentor-option .mentor-name i {
+    margin-right: 0.5rem;
+    color: #28a745;
+  }
+
+  .mentor-selection .mentor-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .mentor-name i {
+    color: #ff9800;
     font-size: 1rem;
   }
-}
+
+  .mentor-selection .mentor-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .mentor-selection .mentor-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @media screen and (max-width: 768px) {
+    .competence-status {
+      flex-direction: column;
+    }
+
+    .doc-item {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+
+      .doc-actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .expert-header {
+      padding: 0.75rem
+    }
+
+    .expert-name {
+      font-size: 1rem;
+    }
+  }
 
 </style>

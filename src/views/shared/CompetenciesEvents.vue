@@ -69,10 +69,10 @@
           @item-select="onFilterChange"
         >
           <template #item="slotProps">
-            {{ slotProps ? formatCompetenceName(slotProps.item) : "Не выбран" }}
+            {{ slotProps ? formatCompetenceName(slotProps.item) : 'Не выбран' }}
           </template>
           <template #option="slotProps">
-            {{ slotProps ? formatCompetenceName(slotProps.option) : "Не выбран" }}
+            {{ slotProps ? formatCompetenceName(slotProps.option) : 'Не выбран' }}
           </template>
         </AutoComplete>
       </div>
@@ -304,10 +304,10 @@
             @complete="filterCompetencies"
           >
             <template #item="slotProps">
-              {{ slotProps ? formatCompetenceName(slotProps.item) : "Не выбран" }}
+              {{ slotProps ? formatCompetenceName(slotProps.item) : 'Не выбран' }}
             </template>
             <template #option="slotProps">
-              {{ slotProps ? formatCompetenceName(slotProps.option) : "Не выбран" }}
+              {{ slotProps ? formatCompetenceName(slotProps.option) : 'Не выбран' }}
             </template>
           </AutoComplete>
           <small
@@ -429,7 +429,7 @@
   }
 
   export default {
-    name: "CompetenciesEvents",
+    name: 'CompetenciesEvents',
     components: {
       EventsList,
       ToastPopup,
@@ -443,17 +443,17 @@
       Calendar,
       Dialog,
       Textarea,
-      InputText
+      InputText,
     },
     props: {
       competenceId: {
         type: String,
-        default: "",
+        default: '',
       },
       ageCategoryId: {
         type: String,
-        default: "",
-      }
+        default: '',
+      },
     },
     setup() {
       const confirm = useConfirm();
@@ -478,8 +478,8 @@
         filteredCompetencies: [] as CompetenceOutputDto[],
 
         toastPopup: {
-          title: "",
-          message: "",
+          title: '',
+          message: '',
         },
 
         errors: {} as EventFormErrors,
@@ -507,37 +507,37 @@
         eventTypeOptions: eventTypeOptions,
         eventFormatOptions: eventFormatOptions,
 
-        filterMode: ''
+        filterMode: '',
       };
     },
     computed: {
       isAdmin() {
-        return this.userStore.user?.role === Roles.ADMIN
+        return this.userStore.user?.role === Roles.ADMIN;
       },
       isCompetenceIdValid() {
-        return this.competenceId && !isNaN(Number(this.competenceId))
+        return this.competenceId && !isNaN(Number(this.competenceId));
       },
       isAgeCategoryIdValid() {
-        return this.ageCategoryId && !isNaN(Number(this.ageCategoryId))
+        return this.ageCategoryId && !isNaN(Number(this.ageCategoryId));
       },
       isAbleToCreate() {
         return this.userStore.user?.role === Roles.TUTOR ||
-          this.userStore.user?.role === Roles.EXPERT
+          this.userStore.user?.role === Roles.EXPERT;
       },
       tabsConfig() {
         return [
           {
             key: EventVerifications.UNCHECKED,
-            header: "Необработанные"
+            header: 'Необработанные',
           },
           {
             key: EventVerifications.ACCEPTED,
-            header: "Принятые"
+            header: 'Принятые',
           },
           {
             key: EventVerifications.REJECTED,
-            header: "Отклонённые"
-          }
+            header: 'Отклонённые',
+          },
         ];
       },
     },
@@ -546,34 +546,34 @@
         handler() {
           this.currentPage = 0;
           this.loadEventsWithFilters();
-        }
+        },
       },
       eventForm: {
         handler() {
           this.errors = {} as EventFormErrors;
         },
-        deep: true
-      }
+        deep: true,
+      },
     },
     async mounted() {
       this.isLoading = true;
 
-      await this.loadCompetencies()
-      await this.loadExperts()
+      await this.loadCompetencies();
+      await this.loadExperts();
 
-      this.loadCachedFilters()
+      this.loadCachedFilters();
 
-      await this.loadEventsWithFilters()
+      await this.loadEventsWithFilters();
       // Устанавливаем selectedCompetence только если ID валидный
       if (this.isCompetenceIdValid) {
         this.selectedCompetence = this.competencies.find(
-          comp => comp.id === Number(this.competenceId)
+          comp => comp.id === Number(this.competenceId),
         ) ?? null;
       }
 
       if (this.isAgeCategoryIdValid) {
         this.selectedAgeCategory = this.selectedCompetence?.ageCategories.find(
-          category => category.id === Number(this.ageCategoryId)
+          category => category.id === Number(this.ageCategoryId),
         ) ?? null;
       }
 
@@ -584,39 +584,37 @@
         const competenceId = Number(this.competenceId);
         const ageCategoryId = Number(this.ageCategoryId);
 
-        console.log(competenceId, ageCategoryId)
-
         this.filterMode = competenceId
           ? ageCategoryId
             ? 'competence-ageCategory'
             : 'competence'
-          : 'all'
+          : 'all';
 
-        const filtersData = localStorage.getItem(`${this.filterMode}-event-filters`)
-        const filters = filtersData ? JSON.parse(filtersData) as CachedFilters : null
+        const filtersData = localStorage.getItem(`${this.filterMode}-event-filters`);
+        const filters = filtersData ? JSON.parse(filtersData) as CachedFilters : null;
 
         if (filters !== null) {
-          this.selectedType = filters.eventType
-          this.selectedFormat = filters.eventFormat
+          this.selectedType = filters.eventType;
+          this.selectedFormat = filters.eventFormat;
           this.selectedCompetence = this.competencies
             .find(competence => competence.id === (competenceId
-              ? competenceId
-              : filters.competenceId
-            )) ?? null
+                ? competenceId
+                : filters.competenceId
+            )) ?? null;
           const ageCategory = this.selectedCompetence?.ageCategories
             .find(category => category.id === (ageCategoryId
-              ? ageCategoryId
-              : filters.ageCategoryId
-            ))
+                ? ageCategoryId
+                : filters.ageCategoryId
+            ));
           this.selectedAgeCategory = ageCategory
             ? {
               ...ageCategory,
               label: this.ageGroups
-                .find(group => ageCategory.ageCategory === group.value)?.label
+                .find(group => ageCategory.ageCategory === group.value)?.label,
             } as AgeCategoryOutputDto
-            : null
+            : null;
 
-          this.updateCachedFilters()
+          this.updateCachedFilters();
         }
       },
       updateCachedFilters() {
@@ -625,8 +623,8 @@
           eventFormat: this.selectedFormat,
           competenceId: this.selectedCompetence?.id ?? null,
           ageCategoryId: this.selectedAgeCategory?.id ?? null,
-        }
-        localStorage.setItem(`${this.filterMode}-event-filters`, JSON.stringify(filters))
+        };
+        localStorage.setItem(`${this.filterMode}-event-filters`, JSON.stringify(filters));
       },
       /**
        * Обработчик изменения страницы в пагинаторе
@@ -638,7 +636,7 @@
 
         window.scrollTo({
           top: 0,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
 
         await this.loadEventsWithFilters();
@@ -681,8 +679,8 @@
 
         if (this.isAdmin || this.isAbleToCreate) {
           const currentTab = this.tabsConfig[this.activeTab];
-          params.verified = currentTab.key
-        } else params.verified = EventVerifications.ACCEPTED
+          params.verified = currentTab.key;
+        } else params.verified = EventVerifications.ACCEPTED;
 
         if (this.isAbleToCreate) {
           params.relatedUserId = this.userStore.user?.id ?? null;
@@ -701,7 +699,7 @@
         // Учитываем параметры из props
         if (this.competenceId) {
           const competence = this.competencies
-            .find(competence => competence.id === Number(this.competenceId)) ?? null
+            .find(competence => competence.id === Number(this.competenceId)) ?? null;
           params.directionName = competence?.name ?? null;
 
 
@@ -715,15 +713,15 @@
       },
 
       competenceAgeCategories(competence: CompetenceOutputDto | null | string) {
-        if (competence === null || typeof competence === "string") return this.ageGroups
+        if (competence === null || typeof competence === 'string') return this.ageGroups;
         return [...competence.ageCategories]
           .filter(category => this.ageGroups
-            .some(group => category.ageCategory === group.value)
+            .some(group => category.ageCategory === group.value),
           )
           .map(category => ({
             ...category,
             label: this.ageGroups
-              .find(group => category.ageCategory === group.value)?.label
+              .find(group => category.ageCategory === group.value)?.label,
           }))
           .sort((a, b) => a.id - b.id);
       },
@@ -735,7 +733,7 @@
           filtered = [...this.competencies];
         } else {
           filtered = [...this.competencies].filter(competence =>
-            this.formatCompetenceName(competence).toLowerCase().includes(query))
+            this.formatCompetenceName(competence).toLowerCase().includes(query));
         }
 
         const uniqueByName = new Map();
@@ -751,10 +749,10 @@
 
       formatCompetenceName(competence: CompetenceOutputDto) {
         if (!competence) return '';
-        const expert = this.experts.find(expert => expert.id === competence.expertId)
+        const expert = this.experts.find(expert => expert.id === competence.expertId);
         return expert
           ? `${competence.name} (${expert?.lastName} ${expert?.firstName.substring(0, 1)}.${expert?.patronymic.substring(0, 1)}.)`
-          : competence.name
+          : competence.name;
       },
 
       async resetFilters() {
@@ -768,24 +766,24 @@
       },
 
       async loadCompetencies() {
-        const user = this.userStore.user
+        const user = this.userStore.user;
         const response = await this.competenceResolver.getAll();
-        if (response.status === 200 && typeof response.message !== "string") {
-          let competencies = response.message
+        if (response.status === 200 && typeof response.message !== 'string') {
+          let competencies = response.message;
           if (this.isAbleToCreate) {
             competencies = competencies
-              .filter(competence => user?.id === competence.userId || user?.id === competence.expertId)
+              .filter(competence => user?.id === competence.userId || user?.id === competence.expertId);
           }
-          this.competencies = competencies
+          this.competencies = competencies;
         } else {
           console.error('Failed to load competencies in AdminEvents:', response);
         }
       },
 
       async loadEvents(params: EventsUrlParamsInputDto) {
-        this.events = []
-        const response = await this.eventResolver.getAll(params)
-        if (response.status === 200 && typeof response.message !== "string") {
+        this.events = [];
+        const response = await this.eventResolver.getAll(params);
+        if (response.status === 200 && typeof response.message !== 'string') {
           const data = response.message;
           this.events = data.content.sort((a, b) => b.id - a.id);
           this.totalElements = data.totalElements;
@@ -795,16 +793,16 @@
 
       async loadExperts() {
         const expResponse = await this.userResolver.getAllByRole(Roles.EXPERT);
-        if (expResponse.status === 200 && typeof expResponse.message !== "string") {
+        if (expResponse.status === 200 && typeof expResponse.message !== 'string') {
           this.experts = expResponse.message;
         }
       },
 
       editEvent(event: EventOutputDto) {
-        const editingCompetence = this.competencies.find(competence => competence.id === event.directionId)
+        const editingCompetence = this.competencies.find(competence => competence.id === event.directionId);
         if (!editingCompetence) return;
 
-        const editingAgeCategory = editingCompetence.ageCategories.find(category => category.id === event.directionAgeCategoryId)
+        const editingAgeCategory = editingCompetence.ageCategories.find(category => category.id === event.directionAgeCategoryId);
         if (!editingAgeCategory) return;
 
         this.eventForm = {
@@ -818,12 +816,12 @@
           competence: editingCompetence,
           ageCategory: {
             ...editingAgeCategory,
-            label: event.directionAgeCategoryName
+            label: event.directionAgeCategoryName,
           },
         };
 
         this.isEditing = true;
-        this.selectedEvent = event
+        this.selectedEvent = event;
         this.showAddEventDialog = true;
       },
 
@@ -845,18 +843,18 @@
 
                 // Показываем уведомление об успешном удалении
                 this.toastPopup = {
-                  title: "Успешно",
-                  message: "Событие успешно удалено",
+                  title: 'Успешно',
+                  message: 'Событие успешно удалено',
                 };
               }
             } catch (error) {
               console.error('Ошибка при удалении события:', error);
               this.toastPopup = {
-                title: "Ошибка",
-                message: "Не удалось удалить событие",
+                title: 'Ошибка',
+                message: 'Не удалось удалить событие',
               };
             }
-          }
+          },
         });
       },
 
@@ -881,7 +879,7 @@
               try {
                 const response = await this.eventResolver.verify({
                   id: data.event.id,
-                  verified: data.status
+                  verified: data.status,
                 });
                 if (response.status === 200) {
                   const eventIndex = this.events.findIndex(event => event.id === data.event.id);
@@ -890,53 +888,53 @@
 
                     // Показываем уведомление об успешной верификации
                     this.toastPopup = {
-                      title: "Успешно",
+                      title: 'Успешно',
                       message: `Событие ${data.actionPast} успешно`,
                     };
                   }
                 } else {
                   // Показываем уведомление об ошибке
                   this.toastPopup = {
-                    title: "Ошибка",
-                    message: "Не удалось обновить статус события",
+                    title: 'Ошибка',
+                    message: 'Не удалось обновить статус события',
                   };
                 }
               } catch (error) {
                 console.error('Ошибка при верификации события:', error);
                 this.toastPopup = {
-                  title: "Ошибка",
-                  message: "Не удалось обновить статус события",
+                  title: 'Ошибка',
+                  message: 'Не удалось обновить статус события',
                 };
               } finally {
-                await this.loadEventsWithFilters()
+                await this.loadEventsWithFilters();
               }
-            }
-          })
+            },
+          });
         }
       },
 
       addEvent() {
         this.eventForm = {
-          name: "",
-          shortDescription: "",
+          name: '',
+          shortDescription: '',
           eventType: null,
           eventFormat: null,
           startDateTime: null,
-          eventVenue: "",
-          description: "",
+          eventVenue: '',
+          description: '',
           competence: null,
           ageCategory: null,
         };
-        this.selectedEvent = null
+        this.selectedEvent = null;
         this.showAddEventDialog = true;
       },
 
       async saveEvent() {
-        const validationResult = ValidationManager.validateEventForm(this.eventForm)
-        const form = validationResult.form
-        this.errors = validationResult.errors
-        if (!validationResult.isValid) return
-        let response
+        const validationResult = ValidationManager.validateEventForm(this.eventForm);
+        const form = validationResult.form;
+        this.errors = validationResult.errors;
+        if (!validationResult.isValid) return;
+        let response;
         if (this.isEditing && this.selectedEvent !== null) {
           response = await this.eventResolver.update({
             id: this.selectedEvent.id,
@@ -949,23 +947,23 @@
             description: form.description !== this.selectedEvent.description ? form.description : undefined,
             directionId: form.competence.id !== this.selectedEvent.directionId ? form.competence.id : undefined,
             directionAgeCategoryId: form.ageCategory.id !== this.selectedEvent.directionAgeCategoryId ? form.ageCategory.id : undefined,
-          })
+          });
           this.toastPopup = {
             title: response.status.toString(),
-            message: response.message
-          }
+            message: response.message,
+          };
         } else {
           response = await this.eventResolver.create({
             ...form,
             directionId: validationResult.form.competence.id,
             directionAgeCategoryId: validationResult.form.ageCategory.id,
-          })
+          });
           this.toastPopup = {
             title: response.status.toString(),
             message: response.status === 200
-              ? "Событие успешно отправлено на верификацию"
-              : response.message
-          }
+              ? 'Событие успешно отправлено на верификацию'
+              : response.message,
+          };
         }
         if (response.status === 200) {
           // Сбрасываем пагинацию и перезагружаем события

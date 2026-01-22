@@ -1,35 +1,35 @@
 export enum EventTypes {
-  QUALIFIERS = "Отборочный этап",
-  FINAL = "Финальный этап",
-  MASTER_CLASS = "Образовательный этап"
+  QUALIFIERS = 'Отборочный этап',
+  FINAL = 'Финальный этап',
+  MASTER_CLASS = 'Образовательный этап'
 }
 
 export enum EventFormats {
-  OFFLINE = "Оффлайн",
-  ONLINE = "Онлайн"
+  OFFLINE = 'Оффлайн',
+  ONLINE = 'Онлайн'
 }
 
 export enum SortFields {
-  NAME = "name",
-  SHORT_DESCRIPTION = "shortDescription",
+  NAME = 'name',
+  SHORT_DESCRIPTION = 'shortDescription',
 }
 
 export enum EventVerifications {
-  ACCEPTED = "ACCEPTED",
-  REJECTED = "REJECTED",
-  UNCHECKED = "UNCHECKED",
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+  UNCHECKED = 'UNCHECKED',
 }
 
 export const eventTypeOptions = Object.entries(EventTypes).map(
   ([key, value]) => ({
     label: value,
-    value: key
-  })
-).sort((a, b) => a.label.localeCompare(b.label))
+    value: key,
+  }),
+).sort((a, b) => a.label.localeCompare(b.label));
 
 export const eventFormatOptions = Object.entries(EventFormats).map(
   ([key, value]) => ({
     label: value,
-    value: key
-  })
-).sort((a, b) => a.label.localeCompare(b.label))
+    value: key,
+  }),
+).sort((a, b) => a.label.localeCompare(b.label));
