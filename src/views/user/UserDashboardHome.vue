@@ -435,6 +435,7 @@ export default {
                 }
                 : expertResponse.message,
               queueStatus: competence.queueStatus,
+              status: competence.status,
               assignId: competence.id,
               teacherName: competence.teacherName,
               institution: competence.institution,

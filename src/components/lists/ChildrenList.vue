@@ -1,26 +1,26 @@
 <script lang="ts">
 
-import type {ChildOutputDto} from '@/api/resolvers/child/dto/output/child-output.dto.ts';
-import type {PropType} from 'vue';
-import Button from 'primevue/button';
-import {FormatManager} from '@/utils/FormatManager.ts';
-import {ChildResolver} from '@/api/resolvers/child/child.resolver.ts';
-import {useUserStore} from '@/stores/userStore.ts';
-import {useAgeGroups} from '@/shared/UseAgeGroups.ts';
-import type {DocsOutputFileUploadDto} from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
-import {Roles} from '@/state/UserState.types.ts';
-import {CompetenceDocumentsResolver} from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
-import {FileType} from '@/api/resolvers/files/file.resolver.ts';
-import apiConf from '@/api/api.conf.ts';
-import {QueueStatuses} from '@/api/resolvers/childCompetencies/types.ts';
-import {useQueueStatuses} from '@/shared/UseQueueStatuses.ts';
-import InputText from 'primevue/inputtext';
-import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
-import type { ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
-import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
-import router from '@/router';
+  import type { ChildOutputDto } from '@/api/resolvers/child/dto/output/child-output.dto.ts';
+  import type { PropType } from 'vue';
+  import Button from 'primevue/button';
+  import { FormatManager } from '@/utils/FormatManager.ts';
+  import { ChildResolver } from '@/api/resolvers/child/child.resolver.ts';
+  import { useUserStore } from '@/stores/userStore.ts';
+  import { useAgeGroups } from '@/shared/UseAgeGroups.ts';
+  import type { DocsOutputFileUploadDto } from '@/api/resolvers/files/dto/output/docs-output-file-upload.dto.ts';
+  import { Roles } from '@/state/UserState.types.ts';
+  import { CompetenceDocumentsResolver } from '@/api/resolvers/competenceDocuments/competence-documents.resolver.ts';
+  import { FileType } from '@/api/resolvers/files/file.resolver.ts';
+  import apiConf from '@/api/api.conf.ts';
+  import { ParticipantStatus, QueueStatuses } from '@/api/resolvers/childCompetencies/types.ts';
+  import { useQueueStatuses } from '@/shared/UseQueueStatuses.ts';
+  import InputText from 'primevue/inputtext';
+  import { ChildCompetenciesResolver } from '@/api/resolvers/childCompetencies/child-competencies.resolver.ts';
+  import type { ChildDetailsDialogData } from '@/components/dialogs/ChildDetailsDialog.vue';
+  import { AgeCategories } from '@/api/resolvers/ageCategory/dto/types.d';
+  import router from '@/router';
 
-type CompetenceExtended = ChildDetailsDialogData['competencies'][number] & {
+  type CompetenceExtended = ChildDetailsDialogData['competencies'][number] & {
   assignId: number;
   teacherName: string | null;
   institution: string | null;
@@ -28,6 +28,7 @@ type CompetenceExtended = ChildDetailsDialogData['competencies'][number] & {
   eventsCount: number;
   ageCategoryId: number;
   queueStatus: QueueStatuses;
+  status: ParticipantStatus
 }
 export type ChildDetailsData = Omit<ChildDetailsDialogData, 'competencies'> & {
   competencies: CompetenceExtended[];
@@ -77,6 +78,9 @@ export default {
     }
   },
   computed: {
+    ParticipantStatus() {
+      return ParticipantStatus
+    },
     QueueStatuses() {
       return QueueStatuses
     },
@@ -474,7 +478,10 @@ export default {
                 `${competence.expert.lastName} ${competence.expert.firstName} ${competence.expert.patronymic}`
               }}
             </div>
-            <div class="competence-name competence-events">
+            <div
+              v-if="competence.status === ParticipantStatus.FINALIST"
+              class="competence-name competence-events"
+            >
               События:
               <div class="status-message competence-expert doc-item">
                 {{ !competence.eventsCount ? 'Связанных событий пока нет' : 'Есть связанные события!' }}
