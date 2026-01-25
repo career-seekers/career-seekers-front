@@ -61,68 +61,6 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="pi pi-file"/>
-            Данные о документах
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-                v-if="statisticsStore.getDirectionDocsCount != null"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getDirectionDocsCount }}
-              </div>
-              <div class="stat-label">
-                Всего документов
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-                v-if="statisticsStore.getLastDocumentUpload != null"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getLastDocumentUpload.toString().substring(0, 10) }}
-              </div>
-              <div class="stat-label">
-                Последняя загрузка
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
-
-          <div class="card-actions">
-            <Button
-                label="Управление документами"
-                icon="pi pi-cog"
-                class="p-button-outlined"
-                @click="router().push('/admin/documents')"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
             <i class="pi pi-book"/>
             Отчеты
           </h3>
@@ -139,439 +77,70 @@
         </div>
       </div>
 
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-users"/>
-            Данные об экспертах
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-                v-if="statisticsStore.getExpertsInfo"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getExpertsInfo.count }}
-              </div>
-              <div class="stat-label">
-                Всего экспертов
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-                v-if="statisticsStore.getExpertsInfo"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getExpertsInfo.verified }}
-              </div>
-              <div class="stat-label">
-                Верифицированных
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
+      <StatisticsInfoCard :first-data-value="statisticsStore.getDirectionDocsCount"
+                          :second-data-value="statisticsStore.getLastDocumentUpload?.toString().substring(0, 10)"
+                          card-header="Данные о документах"
+                          first-data-label="Всего документов"
+                          second-data-label="Последняя загрузка"
+                          action-button-label="Управление документами"
+                          redirect-to="/admin/documents"/>
 
-          <div class="card-actions">
-            <Button
-                label="Управление экспертами"
-                icon="pi pi-cog"
-                class="p-button-outlined"
-                @click="router().push('/admin/experts')"
-            />
-          </div>
-        </div>
-      </div>
+      <StatisticsInfoCard :first-data-value="statisticsStore.getExpertsInfo?.count"
+                          :second-data-value="statisticsStore.getExpertsInfo?.verified"
+                          card-header="Данные об экспертах"
+                          first-data-label="Всего экспертов"
+                          second-data-label="Верифицированных"
+                          action-button-label="Управление экспертами"
+                          redirect-to="/admin/experts"/>
 
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-users"/>
-            Данные о кураторах
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-                v-if="statisticsStore.getTutorsInfo"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getTutorsInfo.count }}
-              </div>
-              <div class="stat-label">
-                Всего кураторов
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-                v-if="statisticsStore.getTutorsInfo"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getTutorsInfo.verified }}
-              </div>
-              <div class="stat-label">
-                Верифицированных
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
+      <StatisticsInfoCard :first-data-value="statisticsStore.getTutorsInfo?.count"
+                          :second-data-value="statisticsStore.getTutorsInfo?.verified"
+                          card-header="Данные о кураторах"
+                          first-data-label="Всего кураторов"
+                          second-data-label="Верифицированных"
+                          action-button-label="Управление кураторами"
+                          redirect-to="/admin/tutors"/>
 
-          <div class="card-actions">
-            <Button
-                label="Управление кураторами"
-                icon="pi pi-cog"
-                class="p-button-outlined"
-                @click="router().push('/admin/tutors')"
-            />
-          </div>
-        </div>
-      </div>
+      <StatisticsInfoCard :first-data-value="statisticsStore.getPlatformsCount"
+                          :second-data-value="statisticsStore.getVerifiedPlatformsCount"
+                          card-header="Данные о площадках"
+                          first-data-label="Всего площадок"
+                          second-data-label="Верифицированных"
+                          action-button-label="Управление кураторами"
+                          redirect-to="/admin/venues"/>
 
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-building"/>
-            Данные о площадках
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-                v-if="statisticsStore.getPlatformsCount != null"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getPlatformsCount }}
-              </div>
-              <div class="stat-label">
-                Всего площадок
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-                v-if="statisticsStore.getVerifiedPlatformsCount != null"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getVerifiedPlatformsCount }}
-              </div>
-              <div class="stat-label">
-                Верифицированных
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
+      <StatisticsInfoCard :first-data-value="statisticsStore.getDirectionsCount"
+                          :second-data-value="statisticsStore.getDirectionsWithoutDocs"
+                          card-header="Данные о компетенциях"
+                          first-data-label="Всего компетенций"
+                          second-data-label="Без документов"
+                          action-button-label="Управление компетенциями"
+                          redirect-to="/admin/competencies"/>
 
-          <div class="card-actions">
-            <Button
-                label="Управление площадками"
-                icon="pi pi-cog"
-                class="p-button-outlined"
-                @click="router().push('/admin/venues')"
-            />
-          </div>
-        </div>
-      </div>
+      <StatisticsInfoCard :first-data-value="statisticsStore.getEventsCount"
+                          :second-data-value="statisticsStore.getVerifiedEventsCount"
+                          card-header="Данные о событиях"
+                          first-data-label="Всего событий"
+                          second-data-label="Верифицированных событий"
+                          action-button-label="Управление событиями"
+                          redirect-to="/admin/events"/>
 
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-briefcase"/>
-            Данные о компетенциях
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-                v-if=" statisticsStore.getDirectionsCount != null"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getDirectionsCount }}
-              </div>
-              <div class="stat-label">
-                Всего компетенций
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-                v-if="statisticsStore.getDirectionsWithoutDocs != null"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getDirectionsWithoutDocs }}
-              </div>
-              <div class="stat-label">
-                Без документов
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
+      <StatisticsInfoCard :first-data-value="statisticsStore.getUsersInfo?.count"
+                          :second-data-value="statisticsStore.getChildrenCount"
+                          card-header="Данные об участниках"
+                          first-data-label="Всего родителей"
+                          second-data-label="Всего детей"
+                          action-button-label="Управление участниками"
+                          redirect-to="/admin/users"/>
 
-          <div class="card-actions">
-            <Button
-                label="Управление компетенциями"
-                icon="pi pi-cog"
-                class="p-button-outlined"
-                @click="router().push('/admin/competencies')"
-            />
-          </div>
-        </div>
-      </div>
+      <StatisticsInfoCard :first-data-value="statisticsStore.getMentorsInfo?.count"
+                          :second-data-value="statisticsStore.getMentorsInfo?.verified"
+                          card-header="Данные о наставниках"
+                          first-data-label="Всего наставников"
+                          second-data-label="Верифицированных"
+                          action-button-label="Управление наставниками"
+                          redirect-to="/admin/mentors"/>
 
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-briefcase"/>
-            Данные о событиях
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-                v-if=" statisticsStore.getEventsCount != null"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getEventsCount }}
-              </div>
-              <div class="stat-label">
-                Всего событий
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-                v-if="statisticsStore.getVerifiedEventsCount != null"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getVerifiedEventsCount }}
-              </div>
-              <div class="stat-label">
-                Верифицированных событий
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
-
-          <div class="card-actions">
-            <Button
-                label="Управление событиями"
-                icon="pi pi-cog"
-                class="p-button-outlined"
-                @click="router().push('/admin/events')"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-users"/>
-            Данные об участниках
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-                v-if="statisticsStore.getUsersInfo"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getUsersInfo.count }}
-              </div>
-              <div class="stat-label">
-                Всего родителей
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-                v-if="statisticsStore.getChildrenCount"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getChildrenCount }}
-              </div>
-              <div class="stat-label">
-                Всего детей
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
-
-          <div class="card-actions">
-            <Button
-                label="Управление участниками"
-                icon="pi pi-cog"
-                class="p-button-outlined"
-                @click="router().push('/admin/users')"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="info-card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="pi pi-users"/>
-            Данные о наставниках
-          </h3>
-        </div>
-        <div class="card-content">
-          <div class="stats-grid">
-            <div
-                v-if="statisticsStore.getMentorsInfo"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getMentorsInfo.count }}
-              </div>
-              <div class="stat-label">
-                Всего наставников
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-            <div
-                v-if="statisticsStore.getMentorsInfo"
-                class="stat-item"
-            >
-              <div class="stat-number">
-                {{ statisticsStore.getMentorsInfo.verified }}
-              </div>
-              <div class="stat-label">
-                Верифицированных
-              </div>
-            </div>
-            <div
-                v-else
-                class="stat-item"
-            >
-              <ProgressSpinner
-                  class="spinner"
-                  style="display: flex; max-height: 3.5rem"
-              />
-            </div>
-          </div>
-
-          <div class="card-actions">
-            <Button
-                label="Управление наставниками"
-                icon="pi pi-cog"
-                class="p-button-outlined"
-                @click="router().push('/admin/mentors')"
-            />
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -585,10 +154,12 @@ import ProgressSpinner from 'primevue/progressspinner';
 import {getExtensionFromMimeType} from '@/shared/UseMimeTypes.ts';
 import {ReportResolver} from '@/api/resolvers/reports/report.resolver.ts';
 import {statisticsStore} from "@/stores/statisticsStore.ts";
+import StatisticsInfoCard from "@/views/shared/StatisticsInfoCard.vue";
 
 export default {
   name: 'AdminDashboardHome',
   components: {
+    StatisticsInfoCard,
     Button,
     ProgressSpinner
   },
@@ -785,39 +356,6 @@ export default {
   word-break: break-word;
 }
 
-/* Статистика */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #ff9800;
-  margin-bottom: 0.5rem;
-}
-
-.stat-label {
-  color: #6c757d;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.card-actions {
-  text-align: center;
-  margin-top: 1rem;
-}
-
 /* Быстрые действия */
 .form-field label {
   color: #2c3e50;
@@ -875,15 +413,6 @@ export default {
 
   .data-value {
     text-align: left;
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
-
-  .stat-number {
-    font-size: 1.5rem;
   }
 }
 
@@ -949,15 +478,6 @@ export default {
     .data-value {
       text-align: left;
     }
-
-    .stats-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-    }
-
-    .stat-number {
-      font-size: 1.5rem;
-    }
   }
 
   /* Очень маленькие экраны */
@@ -1013,22 +533,6 @@ export default {
 
     .data-value {
       font-size: 0.9rem;
-    }
-
-    .stats-grid {
-      gap: 0.5rem;
-    }
-
-    .stat-item {
-      padding: 0.75rem;
-    }
-
-    .stat-number {
-      font-size: 1.25rem;
-    }
-
-    .stat-label {
-      font-size: 0.8rem;
     }
   }
 }
