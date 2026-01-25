@@ -11,6 +11,8 @@ export const statisticsStore = defineStore("statistics", {
     directionsWithoutDocs: null,
     directionDocsCount: null,
     lastDocumentUpload: null,
+    eventsCount: null,
+    verifiedEventsCount: null,
 
     tutorsInfo: null,
     expertsInfo: null,
@@ -26,6 +28,8 @@ export const statisticsStore = defineStore("statistics", {
     getDirectionsWithoutDocs: (state: CommonStatisticsInterface) => state.directionsWithoutDocs,
     getDirectionDocsCount: (state: CommonStatisticsInterface) => state.directionDocsCount,
     getLastDocumentUpload: (state: CommonStatisticsInterface) => state.lastDocumentUpload,
+    getEventsCount: (state: CommonStatisticsInterface) => state.eventsCount,
+    getVerifiedEventsCount: (state: CommonStatisticsInterface) => state.verifiedEventsCount,
 
     getTutorsInfo: (state: CommonStatisticsInterface) => state.tutorsInfo,
     getExpertsInfo: (state: CommonStatisticsInterface) => state.expertsInfo,
@@ -42,6 +46,8 @@ export const statisticsStore = defineStore("statistics", {
       this.directionsWithoutDocs = value.directionsWithoutDocs
       this.directionDocsCount = value.directionDocsCount;
       this.lastDocumentUpload = value.lastDocumentUpload;
+      this.eventsCount = value.eventsCount;
+      this.verifiedEventsCount = value.verifiedEventsCount;
     },
 
     updateUsersServiceStatistics(value: UsersServiceStatistics) {

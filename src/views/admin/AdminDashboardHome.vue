@@ -149,11 +149,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-                v-if="statisticsStore.expertsInfo"
+                v-if="statisticsStore.getExpertsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ statisticsStore.expertsInfo.count }}
+                {{ statisticsStore.getExpertsInfo.count }}
               </div>
               <div class="stat-label">
                 Всего экспертов
@@ -169,11 +169,11 @@
               />
             </div>
             <div
-                v-if="statisticsStore.expertsInfo"
+                v-if="statisticsStore.getExpertsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ statisticsStore.expertsInfo.verified }}
+                {{ statisticsStore.getExpertsInfo.verified }}
               </div>
               <div class="stat-label">
                 Верифицированных
@@ -211,11 +211,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-                v-if="statisticsStore.tutorsInfo"
+                v-if="statisticsStore.getTutorsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ statisticsStore.tutorsInfo.count }}
+                {{ statisticsStore.getTutorsInfo.count }}
               </div>
               <div class="stat-label">
                 Всего кураторов
@@ -231,11 +231,11 @@
               />
             </div>
             <div
-                v-if="statisticsStore.tutorsInfo"
+                v-if="statisticsStore.getTutorsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ statisticsStore.tutorsInfo.verified }}
+                {{ statisticsStore.getTutorsInfo.verified }}
               </div>
               <div class="stat-label">
                 Верифицированных
@@ -355,11 +355,11 @@
               />
             </div>
             <div
-                v-if="statisticsStore.directionsWithoutDocs != null"
+                v-if="statisticsStore.getDirectionsWithoutDocs != null"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ statisticsStore.directionsWithoutDocs }}
+                {{ statisticsStore.getDirectionsWithoutDocs }}
               </div>
               <div class="stat-label">
                 Без документов
@@ -390,6 +390,68 @@
       <div class="info-card">
         <div class="card-header">
           <h3 class="card-title">
+            <i class="pi pi-briefcase"/>
+            Данные о событиях
+          </h3>
+        </div>
+        <div class="card-content">
+          <div class="stats-grid">
+            <div
+                v-if=" statisticsStore.getEventsCount != null"
+                class="stat-item"
+            >
+              <div class="stat-number">
+                {{ statisticsStore.getEventsCount }}
+              </div>
+              <div class="stat-label">
+                Всего событий
+              </div>
+            </div>
+            <div
+                v-else
+                class="stat-item"
+            >
+              <ProgressSpinner
+                  class="spinner"
+                  style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+            <div
+                v-if="statisticsStore.getVerifiedEventsCount != null"
+                class="stat-item"
+            >
+              <div class="stat-number">
+                {{ statisticsStore.getVerifiedEventsCount }}
+              </div>
+              <div class="stat-label">
+                Верифицированных событий
+              </div>
+            </div>
+            <div
+                v-else
+                class="stat-item"
+            >
+              <ProgressSpinner
+                  class="spinner"
+                  style="display: flex; max-height: 3.5rem"
+              />
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <Button
+                label="Управление событиями"
+                icon="pi pi-cog"
+                class="p-button-outlined"
+                @click="router().push('/admin/events')"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-header">
+          <h3 class="card-title">
             <i class="pi pi-users"/>
             Данные об участниках
           </h3>
@@ -397,11 +459,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-                v-if="statisticsStore.usersInfo"
+                v-if="statisticsStore.getUsersInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ statisticsStore.usersInfo.count }}
+                {{ statisticsStore.getUsersInfo.count }}
               </div>
               <div class="stat-label">
                 Всего родителей
@@ -417,11 +479,11 @@
               />
             </div>
             <div
-                v-if="statisticsStore.childrenCount"
+                v-if="statisticsStore.getChildrenCount"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ statisticsStore.childrenCount }}
+                {{ statisticsStore.getChildrenCount }}
               </div>
               <div class="stat-label">
                 Всего детей
@@ -459,11 +521,11 @@
         <div class="card-content">
           <div class="stats-grid">
             <div
-                v-if="statisticsStore.mentorsInfo"
+                v-if="statisticsStore.getMentorsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ statisticsStore.mentorsInfo.count }}
+                {{ statisticsStore.getMentorsInfo.count }}
               </div>
               <div class="stat-label">
                 Всего наставников
@@ -479,11 +541,11 @@
               />
             </div>
             <div
-                v-if="statisticsStore.mentorsInfo"
+                v-if="statisticsStore.getMentorsInfo"
                 class="stat-item"
             >
               <div class="stat-number">
-                {{ statisticsStore.mentorsInfo.verified }}
+                {{ statisticsStore.getMentorsInfo.verified }}
               </div>
               <div class="stat-label">
                 Верифицированных
