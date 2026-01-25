@@ -5,4 +5,6 @@ export interface EventServiceStatistics {
   directionsWithoutDocs: number | null,
   directionDocsCount: number | null,
   lastDocumentUpload: Date | null,
+  eventsCount: number | null,
+  verifiedEventsCount: number | null,
 }
