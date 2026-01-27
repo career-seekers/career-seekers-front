@@ -66,12 +66,18 @@
           </h3>
         </div>
         <div class="card-content">
-          <div>
+          <div class="buttons-container">
             <Button
                 label="Полная выгрузка данных об участниках чемпионата"
                 icon="pi pi-download"
-                :loading="isLoading"
+                :loading="isParticipantsReportLoading"
                 @click="downloadAllChildrenReport"
+            />
+            <Button
+                label="Выгрузка данных о событиях"
+                icon="pi pi-download"
+                :loading="isEventReportLoading"
+                @click="downloadEventsReport"
             />
           </div>
         </div>
@@ -171,7 +177,8 @@ export default {
 
       reportResolver: new ReportResolver(),
 
-      isLoading: false,
+      isParticipantsReportLoading: false,
+      isEventReportLoading: false,
     };
   },
   computed: {
@@ -188,7 +195,7 @@ export default {
     },
 
     async downloadAllChildrenReport() {
-      this.isLoading = true
+      this.isParticipantsReportLoading = true
       try {
         const blobResponse = await this.reportResolver.getAllChildrenReports()
         const url = window.URL.createObjectURL(blobResponse);
@@ -204,7 +211,28 @@ export default {
         console.error('Ошибка при загрузке отчета:', error);
         alert('Не удалось загрузить отчет. Пожалуйста, попробуйте еще раз позже.');
       } finally {
-        this.isLoading = false;
+        this.isParticipantsReportLoading = false;
+      }
+    },
+
+    async downloadEventsReport() {
+      this.isEventReportLoading = true
+      try {
+        const blobResponse = await this.reportResolver.getEventsReport()
+        const url = window.URL.createObjectURL(blobResponse);
+        const extension = getExtensionFromMimeType(blobResponse.type)
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Выгрузка данных о событиях.${extension}`
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Ошибка при загрузке отчета:', error);
+        alert('Не удалось загрузить отчет. Пожалуйста, попробуйте еще раз позже.');
+      } finally {
+        this.isEventReportLoading = false;
       }
     }
   },
@@ -310,6 +338,12 @@ export default {
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .data-section {
