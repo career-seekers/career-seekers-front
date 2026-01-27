@@ -29,4 +29,17 @@ export class ReportResolver {
       "blob"
     )
   }
+
+  public async getEventsReport() {
+    return await this.apiResolver.request<
+      null,
+      Blob
+    >(
+      "getEventsReport",
+      "GET",
+      null,
+      this.token ? this.token : undefined,
+      "blob"
+    )
+  }
 }
