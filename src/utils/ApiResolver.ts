@@ -19,16 +19,23 @@ class ApiResolverUtil {
     data?: U,
     jwt?: string,
     responseType?: AxiosResponse["request"]["responseType"],
+    customHeaders?: Record<string, string>,
   ): Promise<S> {
     const fullUrl = `${apiConf.endpoint}/${this.endpoint}/${url}`;
+
+    const headers: Record<string, string> = {
+      ...(jwt && { Authorization: `Bearer ${jwt}` }),
+    };
+
+    if (customHeaders) {
+      Object.assign(headers, customHeaders);
+    }
 
     const config: RequestConfig<U> = {
       url: fullUrl,
       method,
       data,
-      headers: {
-        Authorization: jwt ? `Bearer ${jwt}` : undefined,
-      },
+      headers,
       responseType: (responseType || "json") as never,
     };
 
