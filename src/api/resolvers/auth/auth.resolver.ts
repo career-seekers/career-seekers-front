@@ -3,12 +3,16 @@ import type {
   UserRegistrationDto,
   UserWithChildRegistrationDto,
 } from '@/api/resolvers/auth/dto/input/register-input.dto.ts';
-import type { CommonOutputDto } from '@/api/dto/common-output.dto.ts';
-import type { JWTMessageOutputDto } from '@/api/resolvers/auth/dto/output/jwt-message-output.dto.ts';
-import type { PreRegisterInputDto } from '@/api/resolvers/auth/dto/input/pre-register-input.dto.ts';
-import type { LoginInputDto } from '@/api/resolvers/auth/dto/input/login-input.dto.ts';
-import type { TokensInputDto } from '@/api/resolvers/auth/dto/input/tokens-input.dto.ts';
-import type { ForgotPasswordInputDto, VerifyCodeInputDto, ResetPasswordInputDto } from '@/api/resolvers/auth/dto/input/forgot-password-input.dto.ts';
+import type {CommonOutputDto} from '@/api/dto/common-output.dto.ts';
+import type {JWTMessageOutputDto} from '@/api/resolvers/auth/dto/output/jwt-message-output.dto.ts';
+import type {PreRegisterInputDto} from '@/api/resolvers/auth/dto/input/pre-register-input.dto.ts';
+import type {LoginInputDto} from '@/api/resolvers/auth/dto/input/login-input.dto.ts';
+import type {TokensInputDto} from '@/api/resolvers/auth/dto/input/tokens-input.dto.ts';
+import type {
+  ForgotPasswordInputDto,
+  VerifyCodeInputDto,
+  ResetPasswordInputDto
+} from '@/api/resolvers/auth/dto/input/forgot-password-input.dto.ts';
 
 
 export class AuthResolver {
@@ -34,7 +38,7 @@ export class AuthResolver {
     return await this.apiResolver.request<
       LoginInputDto,
       CommonOutputDto<JWTMessageOutputDto | string>
-    >("login", "POST", data, undefined);
+    >("login", "POST", data, undefined, null, {'User-Email': data.email});
   }
 
   public async updateTokens(data: TokensInputDto) {
