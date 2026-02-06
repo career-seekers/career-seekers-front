@@ -134,6 +134,14 @@
 
       <div class="event-content">
 
+        <div class="event-details" :style="{
+          color: 'red',
+          fontWeight: 'bold',
+           fontSize: '1.25rem'
+        }" v-if="event.isDraft">
+          Черновик
+        </div>
+
         <div
           class="description-info"
         >

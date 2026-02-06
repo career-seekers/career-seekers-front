@@ -111,6 +111,11 @@
       class="custom-sticky-container"
       :class="{ 'sticky': isSticky }"
     >
+      <div class="filter-group" :style="{ display: 'flex', flexDirection: 'row', alignItems: 'center' }">
+        <Checkbox v-model="showDrafts" binary @change="onFilterChange"/>
+        <label for="check" class="field-label">Показать черновики</label>
+      </div>
+
       <!-- Табы для документов -->
       <TabView
         v-if="isAdmin || isAbleToCreate"
@@ -363,6 +368,15 @@
             placeholder="Любая дополнительная информация, если необходимо"
           />
         </div>
+
+        <div class="checkbox-field">
+          <Checkbox
+            id="event-draft-input"
+            v-model="eventForm.isDraft"
+            binary
+          />
+          <label for="event-draft-input"> Пометить как черновик </label>
+        </div>
       </div>
 
       <template #footer>
@@ -420,12 +434,14 @@
   import type { AgeCategoryOutputDto } from '@/api/resolvers/ageCategory/age-category-output.dto.ts';
   import type { EventsUrlParamsInputDto } from '@/api/resolvers/events/dto/input/events-url-params-input.dto.ts';
   import { useUserStore } from '@/stores/userStore.ts';
+  import Checkbox from "primevue/checkbox";
 
   interface CachedFilters {
     eventType: EventTypes | null;
     eventFormat: EventFormats | null;
     competenceId: number | null;
     ageCategoryId: number | null;
+    showDrafts: boolean | null;
   }
 
   export default {
@@ -434,6 +450,7 @@
       EventsList,
       ToastPopup,
       Button,
+      Checkbox,
       Dropdown,
       TabView,
       TabPanel,
@@ -471,6 +488,7 @@
         selectedFormat: null as null | EventFormats,
         selectedCompetence: null as CompetenceOutputDto | null,
         selectedAgeCategory: null as AgeCategoryOutputDto | null,
+        showDrafts: true,
 
         events: [] as EventOutputDto[],
         competencies: [] as CompetenceOutputDto[],
@@ -623,6 +641,7 @@
           eventFormat: this.selectedFormat,
           competenceId: this.selectedCompetence?.id ?? null,
           ageCategoryId: this.selectedAgeCategory?.id ?? null,
+          showDrafts: this.showDrafts,
         };
         localStorage.setItem(`${this.filterMode}-event-filters`, JSON.stringify(filters));
       },
@@ -675,6 +694,7 @@
           directionName: null,
           ageCategory: null,
           relatedUserId: null,
+          isDraft: this.showDrafts ? null : false,
         };
 
         if (this.isAdmin || this.isAbleToCreate) {
@@ -818,6 +838,7 @@
             ...editingAgeCategory,
             label: event.directionAgeCategoryName,
           },
+          isDraft: event.isDraft,
         };
 
         this.isEditing = true;
@@ -924,6 +945,7 @@
           description: '',
           competence: null,
           ageCategory: null,
+          isDraft: null,
         };
         this.selectedEvent = null;
         this.showAddEventDialog = true;
@@ -947,6 +969,7 @@
             description: form.description !== this.selectedEvent.description ? form.description : undefined,
             directionId: form.competence.id !== this.selectedEvent.directionId ? form.competence.id : undefined,
             directionAgeCategoryId: form.ageCategory.id !== this.selectedEvent.directionAgeCategoryId ? form.ageCategory.id : undefined,
+            isDraft: form.isDraft !== this.selectedEvent.isDraft ? form.isDraft : undefined
           });
           this.toastPopup = {
             title: response.status.toString(),
@@ -1055,6 +1078,13 @@
     color: #2c3e50;
     font-weight: 500;
     font-size: 0.9rem;
+  }
+
+  .checkbox-field {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
   }
 
   /* Мобильные стили */

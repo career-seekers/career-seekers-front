@@ -17,4 +17,5 @@ export interface EventOutputDto {
   directionId: number;
   directionAgeCategoryId: number;
   directionAgeCategoryName: string;
+  isDraft: boolean;
 }

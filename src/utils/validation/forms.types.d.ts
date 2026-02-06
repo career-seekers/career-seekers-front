@@ -15,6 +15,7 @@ export interface EventFormNullable {
   } | null,
   eventVenue: string | null,
   description: string | null,
+  isDraft: boolean | null,
 }
 
 export interface EventForm {
@@ -27,4 +28,5 @@ export interface EventForm {
   ageCategory: AgeCategoryOutputDto,
   eventVenue: string | null,
   description: string | null,
+  isDraft: boolean | null,
 }
