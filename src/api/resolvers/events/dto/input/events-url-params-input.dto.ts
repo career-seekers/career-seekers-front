@@ -21,4 +21,5 @@ export interface EventsUrlParamsInputDto {
   directionName: string | null;
   ageCategory: AgeCategories | null;
   relatedUserId: number | null;
+  isDraft: boolean | null;
 }

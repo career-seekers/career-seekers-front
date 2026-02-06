@@ -10,4 +10,5 @@ export interface EventInputDto {
   description: string | null;
   directionId: number;
   directionAgeCategoryId: number;
+  isDraft: boolean | null;
 }

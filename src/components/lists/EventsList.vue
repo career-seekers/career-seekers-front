@@ -138,7 +138,7 @@
           color: 'red',
           fontWeight: 'bold',
            fontSize: '1.25rem'
-        }" v-if="!event.isDraft">
+        }" v-if="event.isDraft">
           Черновик
         </div>
 
