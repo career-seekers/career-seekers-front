@@ -200,6 +200,7 @@
     position: fixed;
     height: 100vh;
     z-index: 1000;
+    overflow-y: auto;
   }
 
   .sidebar-header {
