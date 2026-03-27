@@ -12,4 +12,5 @@ export const useDocumentTypes = [
   { label: "Итоговый список участников компетенции финала", value: FileType.TOTAL_PARTICIPANTS_FINAL },
   { label: "Лист регистрации отбора", value: FileType.REGISTRATION_LIST_QUALIFYING },
   { label: "Лист регистрации финала", value: FileType.REGISTRATION_LIST_FINAL },
+  { label: "Лист регистрации образовательного этапа", value: FileType.REGISTRATION_LIST_STUDYING },
 ]
