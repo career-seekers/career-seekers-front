@@ -11,7 +11,7 @@
     >
       <img
         src="@/assets/easter-egg/goose.png"
-        alt="Goose"
+        alt="GooseType"
         class="goose-image"
       >
     </div>
@@ -19,17 +19,19 @@
 </template>
 
 <script lang="ts">
+import type {GooseType} from "@/shared/GooseType.ts";
+
 export default {
   name: "GooseConfetti",
   data() {
     return {
       showConfetti: false,
-      geese: [],
+      geese: [] as GooseType[],
     };
   },
   methods: {
     triggerConfetti() {
-      // console.log('Goose confetti triggered!')
+      // console.log('GooseType confetti triggered!')
       this.showConfetti = true;
       this.createGeese();
 

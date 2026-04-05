@@ -300,16 +300,16 @@ export default {
     },
   },
   methods: {
-    setFilter(filter) {
+    setFilter(filter: string) {
       this.activeFilter = filter;
     },
-    downloadCertificate(participantId, certificateId) {
+    downloadCertificate(participantId: number, certificateId: number) {
       console.log("Скачивание сертификата:", participantId, certificateId);
     },
-    viewCertificate(participantId, certificateId) {
+    viewCertificate(participantId: number, certificateId: number) {
       console.log("Просмотр сертификата:", participantId, certificateId);
     },
-    issueCertificate(participantId) {
+    issueCertificate(participantId: number) {
       console.log("Выдача сертификата участнику:", participantId);
     },
   },

@@ -132,7 +132,8 @@ export default {
 
     triggerGooseConfetti() {
       if (this.$refs.gooseConfetti) {
-        this.$refs.gooseConfetti.triggerConfetti();
+        const gooseConfetti = this.$refs.gooseConfetti as { triggerConfetti(): void; }
+        gooseConfetti.triggerConfetti();
       }
     },
 

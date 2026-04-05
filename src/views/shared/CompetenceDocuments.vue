@@ -240,7 +240,7 @@
                 />
               </div>
             </div>
-            
+
             <div class="document-content">
               <div class="document-details">
                 <div class="detail-item">
@@ -264,7 +264,7 @@
           </div>
         </div>
       </TabPanel>
-      
+
       <TabPanel header="На проверке">
         <div
           v-if="uncheckedDocuments.length === 0"
@@ -323,7 +323,7 @@
                 />
               </div>
             </div>
-            
+
             <div class="document-content">
               <div class="document-details">
                 <div class="detail-item">
@@ -347,7 +347,7 @@
           </div>
         </div>
       </TabPanel>
-      
+
       <TabPanel header="Отклоненные">
         <div
           v-if="rejectedDocuments.length === 0"
@@ -406,7 +406,7 @@
                 />
               </div>
             </div>
-            
+
             <div class="document-content">
               <div class="document-details">
                 <div class="detail-item">
@@ -471,12 +471,14 @@
       TabView,
       TabPanel,
     },
+
     props: {
       competenceId: {
         type: String,
         required: true,
       }
     },
+
     data() {
       return {
         user: useUserStore().user,
@@ -499,6 +501,7 @@
         },
       };
     },
+
     computed: {
       filteredDocuments() {
         let filtered = this.documents;
@@ -534,6 +537,7 @@
           .sort((a, b) => b.id - a.id);
       }
     },
+
     async beforeMount() {
       const response = await this.competenceResolver.getById(parseInt(this.$props.competenceId));
       if (typeof response.message !== "string") {
@@ -541,6 +545,7 @@
         await this.loadDocuments()
       }
     },
+
     methods: {
       async loadDocuments() {
         this.documents = []
@@ -553,6 +558,7 @@
             : null
         }
       },
+
       async uploadDocument() {
         if (!this.uploadingDocument || !this.uploadingType || this.user === null) {
           this.toastContent = {
@@ -588,10 +594,12 @@
           };
         }
       },
+
       onDocumentSelect(event: FileUploadSelectEvent) {
         this.uploadingDocument = event.files[0];
         console.log("Выбраны файлы:", event.files);
       },
+
       downloadDocument(doc: DocumentsOutputDto) {
         const a = document.createElement("a");
         a.href = `${apiConf.endpoint}/file-service/v1/files/download/${doc.documentId}`
@@ -599,6 +607,7 @@
         a.click()
         document.body.removeChild(a);
       },
+
       previewDocument(doc: DocumentsOutputDto) {
         this.selectedDocument = doc;
         const a = document.createElement("a");
@@ -608,10 +617,19 @@
         a.click()
         document.body.removeChild(a);
       },
+
       deleteDocument(document: DocumentsOutputDto) {
         const documentTypeLabel = this.DocumentTypes.find(docType => docType.value === document.documentType)?.label || 'документ';
-        
-        this.$refs.confirmationModal.showDeleteConfirmation(
+        const modal = this.$refs.confirmationModal as {
+          showDeleteConfirmation: (
+              doc: DocumentsOutputDto,
+              label: string,
+              onConfirm: () => Promise<void> | void
+          ) => void;
+        };
+
+
+        modal.showDeleteConfirmation(
           document,
           documentTypeLabel,
           async () => {
