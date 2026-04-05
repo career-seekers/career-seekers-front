@@ -437,17 +437,12 @@ export default {
 
         if (expert) {
           const editedExpert: UpdateUserInputDto = {
-            avatarId: expert.avatarId,
-            dateOfBirth: this.dateOfBirthFormatted,
             email: this.expertForm.email,
             firstName: this.expertForm.fullName.split(" ")[1],
             lastName: this.expertForm.fullName.split(" ")[0],
             mobileNumber: this.mobileNumberFormatted,
-            password: expert.password,
             patronymic: this.expertForm.fullName.split(" ")[2],
-            role: Roles.EXPERT,
             id: this.editingExpertId!,
-            tutorId: this.user.id,
           };
 
           if (expert.expertDocuments != null) {
